@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Soraya</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #140f1f;
+      --card: #241832;
+      --card2: #160f22;
+      --line: #3b2b4f;
+      --gold: #f7d97a;
+      --text: #f8e7ff;
+      --muted: #c8b8d8;
+      --danger: #ff9ab0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #38234e 0%, var(--bg) 45%, #08060c 100%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero {
+      padding: 28px 0 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 42px;
+      letter-spacing: -1px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+    p { color: var(--muted); line-height: 1.55; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .card {
+      background: rgba(36, 24, 50, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.22);
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 10px 0 6px;
+    }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--card2);
+      color: white;
+      border-radius: 12px;
+      padding: 12px;
+      outline: none;
+      font-size: 14px;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--gold);
+      color: #1a1025;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid var(--gold);
+    }
+    button.danger {
+      background: #3b1d2a;
+      color: var(--danger);
+      border: 1px solid #6b2b42;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .ok {
+      color: #9cffc7;
+      font-weight: 700;
+    }
+    .bad {
+      color: var(--danger);
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #0d0915;
+      border: 1px solid var(--line);
+      color: #e7dff2;
+      border-radius: 12px;
+      padding: 12px;
+      max-height: 360px;
+      overflow: auto;
+      font-size: 13px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      margin: 4px 6px 4px 0;
+      font-size: 13px;
+    }
+    .gold { color: var(--gold); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>✦ Soraya</h1>
+      <p>Soraya Web-App: Login, Profil, Analyse, Horoskop, Chat und Synastrie.</p>
+      <span class="pill">Kein SORAYA_API_KEY im Browser</span>
+      <span class="pill">Supabase Login</span>
+      <span class="pill">Railway Backend</span>
+    </section>
+
+    <section class="card">
+      <h2>1. Verbindung einrichten</h2>
+      <p class="small">Trage hier nur den öffentlichen Supabase anon key ein. Niemals service_role, Anthropic-Key oder Soraya API-Key.</p>
+
+      <label>Supabase URL</label>
+      <input id="supabaseUrl" value="https://qpvniafpajeafcwsrtds.supabase.co" />
+
+      <label>Supabase anon/public key</label>
+      <textarea id="supabaseAnonKey" placeholder="Hier Supabase anon/public key einfügen"></textarea>
+
+      <label>Soraya Backend URL</label>
+      <input id="engineUrl" value="https://astro-engine-production-7b18.up.railway.app" />
+
+      <div class="row">
+        <button onclick="saveConfig()">Verbindung speichern</button>
+        <button class="secondary" onclick="loadConfig()">Gespeicherte Verbindung laden</button>
+      </div>
+
+      <p id="configStatus" class="small"></p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>2. Login</h2>
+        <label>E-Mail</label>
+        <input id="email" value="attilakovacs0604@gmail.com" />
+        <label>Passwort</label>
+        <input id="password" type="password" placeholder="Supabase Passwort" />
+        <div class="row">
+          <button onclick="signIn()">Einloggen</button>
+          <button class="secondary" onclick="signUp()">Registrieren</button>
+          <button class="danger" onclick="signOut()">Abmelden</button>
+        </div>
+        <button class="secondary" onclick="authMe()">/auth/me testen</button>
+        <pre id="authResult">Noch nicht getestet.</pre>
+      </section>
+
+      <section class="card">
+        <h2>3. Person</h2>
+        <p class="small">Du kannst die vorhandene Person-ID verwenden oder eine neue Testperson speichern.</p>
+
+        <label>Aktuelle person_id</label>
+        <input id="personId" value="e0497ba8-1934-4bf4-8fcc-f411dafdc639" />
+
+        <label>Name</label>
+        <input id="pName" value="Attila" />
+        <label>Jahr</label>
+        <input id="pYear" value="1986" />
+        <label>Monat</label>
+        <input id="pMonth" value="6" />
+        <label>Tag</label>
+        <input id="pDay" value="4" />
+        <label>Stunde</label>
+        <input id="pHour" value="14" />
+        <label>Minute</label>
+        <input id="pMinute" value="0" />
+        <label>Geburtsort</label>
+        <input id="pBirthplace" value="Debrecen, Hungary" />
+
+        <button onclick="createPerson()">Person speichern</button>
+        <pre id="personResult">Noch nicht getestet.</pre>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>4. Analyse</h2>
+        <p class="small">Standard nutzt Cache. Dadurch entstehen keine neuen Claude-Kosten, wenn schon eine Analyse existiert.</p>
+        <div class="row">
+          <button onclick="loadAnalysis(false)">Analyse laden</button>
+          <button class="secondary" onclick="loadAnalysis(true)">Neue Analyse erzwingen</button>
+        </div>
+        <pre id="analysisResult">Noch nicht getestet.</pre>
+      </section>
+
+      <section class="card">
+        <h2>5. Horoskop</h2>
+        <label>Zeitraum</label>
+        <select id="period">
+          <option value="daily">daily</option>
+          <option value="weekly">weekly</option>
+          <option value="monthly">monthly</option>
+        </select>
+        <button onclick="loadHoroscope()">Horoskop laden</button>
+        <pre id="horoscopeResult">Noch nicht getestet.</pre>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>6. Soraya Chat</h2>
+      <label>conversation_id</label>
+      <input id="conversationId" placeholder="leer lassen fuer neuen Chat" />
+      <label>Nachricht</label>
+      <textarea id="chatMessage">Hallo Soraya, was ist heute wichtig fuer mich?</textarea>
+      <button onclick="sendChat()">Senden</button>
+      <pre id="chatResult">Noch nicht getestet.</pre>
+    </section>
+
+    <section class="card">
+      <h2>7. Synastrie</h2>
+      <p class="small">Person A ist deine aktuelle person_id. Person B ist eine zweite Person aus Supabase.</p>
+      <label>person_b_id</label>
+      <input id="personBId" value="d039a697-625a-47bc-b14a-692a31971d10" />
+      <button onclick="saveSynastry()">Synastrie speichern</button>
+      <pre id="synastryResult">Noch nicht getestet.</pre>
+    </section>
+  </main>
+
+  <script>
+    let sb = null;
+
+    function show(id, data) {
+      const el = document.getElementById(id);
+      if (typeof data === 'string') {
+        el.textContent = data;
+      } else {
+        el.textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    function saveConfig() {
+      const config = {
+        supabaseUrl: document.getElementById('supabaseUrl').value.trim(),
+        supabaseAnonKey: document.getElementById('supabaseAnonKey').value.trim(),
+        engineUrl: document.getElementById('engineUrl').value.trim().replace(/\/$/, '')
+      };
+
+      if (!config.supabaseUrl || !config.supabaseAnonKey || !config.engineUrl) {
+        document.getElementById('configStatus').innerHTML = '<span class="bad">Bitte alle Felder ausfüllen.</span>';
+        return;
+      }
+
+      localStorage.setItem('soraya_config', JSON.stringify(config));
+      initSupabase(config);
+      document.getElementById('configStatus').innerHTML = '<span class="ok">Verbindung gespeichert.</span>';
+    }
+
+    function loadConfig() {
+      const raw = localStorage.getItem('soraya_config');
+      if (!raw) {
+        document.getElementById('configStatus').innerHTML = '<span class="bad">Noch keine Verbindung gespeichert.</span>';
+        return;
+      }
+      const config = JSON.parse(raw);
+      document.getElementById('supabaseUrl').value = config.supabaseUrl || '';
+      document.getElementById('supabaseAnonKey').value = config.supabaseAnonKey || '';
+      document.getElementById('engineUrl').value = config.engineUrl || '';
+      initSupabase(config);
+      document.getElementById('configStatus').innerHTML = '<span class="ok">Verbindung geladen.</span>';
+    }
+
+    function initSupabase(config) {
+      sb = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true
+        }
+      });
+    }
+
+    function getEngineUrl() {
+      const raw = localStorage.getItem('soraya_config');
+      if (!raw) throw new Error('Bitte zuerst Verbindung speichern.');
+      return JSON.parse(raw).engineUrl;
+    }
+
+    async function getToken() {
+      if (!sb) {
+        loadConfig();
+      }
+      if (!sb) throw new Error('Supabase Client nicht bereit. Bitte Verbindung speichern.');
+      const { data, error } = await sb.auth.getSession();
+      if (error) throw error;
+      const token = data.session && data.session.access_token;
+      if (!token) throw new Error('Nicht eingeloggt oder kein Access Token vorhanden.');
+      return token;
+    }
+
+    async function callSoraya(path, body, method = 'POST') {
+      const token = await getToken();
+      const res = await fetch(getEngineUrl() + path, {
+        method,
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: method === 'GET' ? undefined : JSON.stringify(body || {})
+      });
+
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } catch { throw new Error(text); }
+
+      if (!res.ok) {
+        throw new Error(json.detail || json.error || ('HTTP ' + res.status));
+      }
+      if (json.ok === false) {
+        throw new Error(json.error || 'Soraya ok=false');
+      }
+      return json;
+    }
+
+    async function signIn() {
+      try {
+        if (!sb) loadConfig();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        show('authResult', { ok: true, message: 'Login erfolgreich', user: data.user });
+      } catch (e) {
+        show('authResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function signUp() {
+      try {
+        if (!sb) loadConfig();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const { data, error } = await sb.auth.signUp({ email, password });
+        if (error) throw error;
+        show('authResult', { ok: true, message: 'Registrierung gestartet. E-Mail bestaetigen, falls noetig.', data });
+      } catch (e) {
+        show('authResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function signOut() {
+      try {
+        if (!sb) loadConfig();
+        await sb.auth.signOut();
+        show('authResult', { ok: true, message: 'Abgemeldet' });
+      } catch (e) {
+        show('authResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function authMe() {
+      try {
+        const data = await callSoraya('/auth/me', null, 'GET');
+        show('authResult', data);
+      } catch (e) {
+        show('authResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function createPerson() {
+      try {
+        const payload = {
+          is_self: true,
+          relation: null,
+          person: {
+            name: document.getElementById('pName').value.trim(),
+            year: Number(document.getElementById('pYear').value),
+            month: Number(document.getElementById('pMonth').value),
+            day: Number(document.getElementById('pDay').value),
+            hour: Number(document.getElementById('pHour').value),
+            minute: Number(document.getElementById('pMinute').value),
+            birthplace: document.getElementById('pBirthplace').value.trim()
+          }
+        };
+        const data = await callSoraya('/mobile/people/create', payload);
+        const id = data.data.person.id;
+        document.getElementById('personId').value = id;
+        show('personResult', data);
+      } catch (e) {
+        show('personResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function loadAnalysis(forceNew) {
+      try {
+        const person_id = document.getElementById('personId').value.trim();
+        const data = await callSoraya('/mobile/analysis/save', { person_id, force_new: forceNew });
+        show('analysisResult', data);
+      } catch (e) {
+        show('analysisResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function loadHoroscope() {
+      try {
+        const person_id = document.getElementById('personId').value.trim();
+        const period = document.getElementById('period').value;
+        const data = await callSoraya('/mobile/horoscope/save', { person_id, period, at: null });
+        show('horoscopeResult', data);
+      } catch (e) {
+        show('horoscopeResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function sendChat() {
+      try {
+        const person_id = document.getElementById('personId').value.trim();
+        const conversation_id_raw = document.getElementById('conversationId').value.trim();
+        const payload = {
+          person_id,
+          message: document.getElementById('chatMessage').value,
+          conversation_id: conversation_id_raw || null,
+          memory: null,
+          people_ids: []
+        };
+        const data = await callSoraya('/mobile/chat/save', payload);
+        document.getElementById('conversationId').value = data.data.conversation_id;
+        show('chatResult', data);
+      } catch (e) {
+        show('chatResult', { ok: false, error: e.message });
+      }
+    }
+
+    async function saveSynastry() {
+      try {
+        const payload = {
+          person_a_id: document.getElementById('personId').value.trim(),
+          person_b_id: document.getElementById('personBId').value.trim()
+        };
+        const data = await callSoraya('/mobile/synastry/save', payload);
+        show('synastryResult', data);
+      } catch (e) {
+        show('synastryResult', { ok: false, error: e.message });
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const raw = localStorage.getItem('soraya_config');
+      if (raw) {
+        loadConfig();
+      }
+    });
+  </script>
+</body>
+</html>
