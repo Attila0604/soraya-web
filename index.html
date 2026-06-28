@@ -7,507 +7,438 @@
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#0b0a14" />
+  <meta name="theme-color" content="#0a0718" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
 
-  <!-- Schriften -->
+  <!-- Schriften: Cinzel (Wortmarke), Cormorant Garamond (Headlines), Inter (Text) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --ink: #0b0a14;
-      --ink-2: #14111f;
-      --surface: rgba(22, 18, 34, .66);
-      --line: rgba(228, 185, 91, .20);
-      --line-2: rgba(255, 255, 255, .07);
-      --gold: #e4b95b;
-      --gold-soft: rgba(228, 185, 91, .12);
-      --moon: #9db4e0;
-      --bone: #f4ede0;
-      --muted: #a89fb5;
+      --bg: #0a0718;
+      --bg-2: #120c26;
+      --card: rgba(28, 19, 54, .55);
+      --card-2: rgba(38, 26, 70, .5);
+      --line: rgba(232, 200, 122, .22);
+      --line-soft: rgba(255, 255, 255, .06);
+      --gold: #e8c87a;
+      --gold-bright: #f5dd97;
+      --gold-deep: #c9a14e;
+      --gold-soft: rgba(232, 200, 122, .10);
+      --violet: #b98bff;
+      --violet-deep: #6b3fa0;
+      --bone: #f6efe2;
+      --muted: #b0a3c8;
+      --muted-2: #8a7ea8;
       --ok: #8fe3c0;
       --bad: #ff9ab0;
-      --radius: 22px;
-      --shadow: 0 30px 90px rgba(0, 0, 0, .55);
-      --display: "Fraunces", Georgia, serif;
-      --body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --r: 22px;
+      --wordmark: "Cinzel", serif;
+      --display: "Cormorant Garamond", Georgia, serif;
+      --body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      /* Bild-Slots: hier kannst du generierte Kunst einsetzen */
+      --hero-art: none;
     }
 
-    * { box-sizing: border-box; }
-
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { margin: 0; padding: 0; }
-
     body {
-      font-family: var(--body);
-      color: var(--bone);
-      background: var(--ink);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-      overflow-x: hidden;
+      font-family: var(--body); color: var(--bone); background: var(--bg);
+      line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh;
     }
 
-    /* ---- Sternenhimmel-Atmosphäre ---- */
-    .sky {
-      position: fixed; inset: 0; z-index: -1;
-      background:
-        radial-gradient(1200px 700px at 78% -8%, rgba(141, 77, 255, .22), transparent 60%),
-        radial-gradient(900px 600px at 12% 4%, rgba(99, 130, 220, .12), transparent 55%),
-        radial-gradient(1000px 800px at 50% 120%, rgba(228, 185, 91, .08), transparent 60%),
-        linear-gradient(180deg, #0e0b1a 0%, #0b0a14 55%, #08070f 100%);
+    /* Kosmischer Hintergrund */
+    .sky { position: fixed; inset: 0; z-index: -2; background:
+        radial-gradient(1100px 720px at 80% -6%, rgba(107, 63, 160, .5), transparent 58%),
+        radial-gradient(900px 600px at 8% 8%, rgba(70, 40, 120, .35), transparent 55%),
+        radial-gradient(800px 900px at 50% 118%, rgba(185, 139, 255, .14), transparent 60%),
+        linear-gradient(180deg, #120b26 0%, #0c0820 50%, #08060f 100%);
     }
-    .sky::after {
-      content: ""; position: absolute; inset: 0;
-      background-image:
-        radial-gradient(1.4px 1.4px at 20% 30%, rgba(255,255,255,.7), transparent),
-        radial-gradient(1.2px 1.2px at 70% 20%, rgba(255,255,255,.5), transparent),
-        radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.5), transparent),
-        radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,255,255,.6), transparent),
-        radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,.4), transparent),
-        radial-gradient(1.2px 1.2px at 12% 80%, rgba(255,255,255,.5), transparent),
-        radial-gradient(1px 1px at 90% 88%, rgba(255,255,255,.4), transparent);
-      opacity: .5;
+    .sky::after { content: ""; position: absolute; inset: 0; opacity: .55; background-image:
+        radial-gradient(1.5px 1.5px at 18% 22%, rgba(255,255,255,.8), transparent),
+        radial-gradient(1.2px 1.2px at 68% 14%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1px 1px at 42% 64%, rgba(255,255,255,.55), transparent),
+        radial-gradient(1.6px 1.6px at 84% 52%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 55% 38%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1.3px 1.3px at 12% 78%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1px 1px at 90% 82%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1.1px 1.1px at 33% 90%, rgba(255,255,255,.5), transparent);
     }
 
-    .app-shell { max-width: 1180px; margin: 0 auto; padding: 0 20px 120px; }
+    /* App-Spalte (Handy-Layout, zentriert) */
+    .app { max-width: 460px; margin: 0 auto; min-height: 100vh; position: relative;
+      padding: 0 18px calc(96px + env(safe-area-inset-bottom)); }
 
-    /* ---- Topbar ---- */
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 22px 4px 18px;
-    }
-    .brand { display: flex; align-items: center; gap: 13px; }
-    .sigil {
-      width: 46px; height: 46px; border-radius: 14px;
-      display: grid; place-items: center;
-      background: linear-gradient(150deg, rgba(228,185,91,.22), rgba(228,185,91,.04));
-      border: 1px solid var(--line);
-      color: var(--gold); font-size: 22px;
-      box-shadow: 0 0 30px rgba(228,185,91,.18);
-    }
-    .brand h1 { font-family: var(--display); font-weight: 600; font-size: 26px; margin: 0; letter-spacing: .2px; }
-    .brand small { color: var(--muted); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; }
-    .top-actions { display: flex; align-items: center; gap: 10px; }
+    /* Wortmarke / Topbar */
+    .appbar { display: flex; align-items: center; justify-content: space-between; padding: 22px 2px 8px; }
+    .round { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+      background: rgba(255,255,255,.03); border: 1px solid var(--line); color: var(--gold); font-size: 16px;
+      transition: .18s; }
+    .round:hover { background: var(--gold-soft); }
+    .wordmark { text-align: center; }
+    .wordmark h1 { font-family: var(--wordmark); font-weight: 600; font-size: 27px; letter-spacing: .28em;
+      margin: 0 0 0 .28em; color: var(--gold);
+      background: linear-gradient(180deg, var(--gold-bright), var(--gold-deep)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
+    .wordmark .sub { font-family: var(--body); font-size: 10px; letter-spacing: .42em; color: var(--muted-2);
+      text-transform: uppercase; margin-left: .42em; }
+    .orn { color: var(--gold-deep); }
 
-    /* ---- Buttons ---- */
-    .btn {
-      font-family: var(--body); font-size: 14.5px; font-weight: 500;
-      color: var(--bone); background: rgba(255,255,255,.04);
-      border: 1px solid var(--line-2); border-radius: 999px;
-      padding: 11px 20px; cursor: pointer; transition: .18s ease;
-      white-space: nowrap;
-    }
-    .btn:hover { border-color: var(--line); background: rgba(255,255,255,.07); transform: translateY(-1px); }
-    .btn.primary { background: linear-gradient(135deg, #f0cd7a, var(--gold)); color: #2a1e06; border: none; font-weight: 600; box-shadow: 0 10px 30px rgba(228,185,91,.28); }
-    .btn.primary:hover { box-shadow: 0 14px 38px rgba(228,185,91,.4); }
-    .btn.ghost { background: transparent; }
-    .btn.block { width: 100%; }
-    .icon-btn {
-      width: 42px; height: 42px; border-radius: 12px; cursor: pointer;
-      background: rgba(255,255,255,.04); border: 1px solid var(--line-2);
-      color: var(--bone); font-size: 17px; transition: .18s ease;
-    }
-    .icon-btn:hover { border-color: var(--line); }
+    /* Eyebrow + Divider */
+    .eyebrow { font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--gold);
+      display: flex; align-items: center; gap: 8px; }
+    .divider { display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--gold-deep);
+      margin: 14px 0; }
+    .divider::before, .divider::after { content: ""; height: 1px; width: 54px;
+      background: linear-gradient(90deg, transparent, var(--line)); }
 
-    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 8px; }
+    /* Greeting */
+    .greet { padding: 14px 2px 6px; }
+    .greet h2 { font-family: var(--display); font-weight: 500; font-size: 34px; line-height: 1.1; margin: 0;
+      letter-spacing: .2px; }
+    .greet h2 .name { color: var(--gold); font-style: italic; }
+    .greet p { color: var(--muted); margin: 8px 0 0; font-size: 15px; }
 
-    /* ---- Hero ---- */
-    .hero { position: relative; padding: 26px 4px 14px; }
-    .eyebrow { color: var(--gold); font-size: 12.5px; letter-spacing: .22em; text-transform: uppercase; margin-bottom: 14px; }
-    .hero h2 {
-      font-family: var(--display); font-weight: 500; font-optical-sizing: auto;
-      font-size: clamp(40px, 7vw, 72px); line-height: 1.02; margin: 0 0 18px;
-      letter-spacing: -.5px; text-wrap: balance;
-    }
-    .hero h2 .name { color: var(--gold); }
-    .hero p { color: var(--muted); font-size: 17px; max-width: 560px; margin: 0 0 26px; }
-    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    /* Cards */
+    .card { background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--r);
+      padding: 20px; margin-top: 16px; backdrop-filter: blur(16px); position: relative; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+    .card.glow { border-color: var(--line); box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 0 60px rgba(107,63,160,.12); }
+    .card-eyebrow { font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
 
-    /* ---- Layout ---- */
-    .layout { display: grid; grid-template-columns: 248px 1fr; gap: 24px; margin-top: 30px; }
+    /* Buttons */
+    .btn { font-family: var(--body); font-size: 14.5px; font-weight: 500; color: var(--bone);
+      background: rgba(255,255,255,.04); border: 1px solid var(--line-soft); border-radius: 999px;
+      padding: 13px 22px; cursor: pointer; transition: .18s; white-space: nowrap; }
+    .btn:hover { border-color: var(--line); }
+    .btn.gold { border: none; color: #2a1d05; font-weight: 600; letter-spacing: .02em;
+      background: linear-gradient(180deg, var(--gold-bright), var(--gold-deep));
+      box-shadow: 0 8px 26px rgba(232,200,122,.32), inset 0 1px 0 rgba(255,255,255,.5); }
+    .btn.gold:hover { box-shadow: 0 12px 34px rgba(232,200,122,.45), inset 0 1px 0 rgba(255,255,255,.5); }
+    .btn.block { width: 100%; display: block; }
+    .btn.lg { padding: 16px 22px; font-size: 15.5px; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 10px; }
 
-    .side { position: sticky; top: 20px; align-self: start; display: flex; flex-direction: column; gap: 6px; }
-    .side .quote {
-      margin-top: 18px; padding: 18px; border-radius: 18px;
-      background: var(--gold-soft); border: 1px solid var(--line);
-      font-family: var(--display); font-size: 16px; line-height: 1.5; color: var(--bone);
-    }
-    .side .quote span { display: block; color: var(--gold); margin-bottom: 8px; font-size: 20px; }
-    .nav-btn {
-      display: flex; align-items: center; gap: 13px; width: 100%;
-      padding: 12px 16px; border-radius: 14px; cursor: pointer;
-      background: transparent; border: 1px solid transparent; color: var(--muted);
-      font-family: var(--body); font-size: 15px; font-weight: 500; text-align: left;
-      transition: .16s ease;
-    }
-    .nav-btn .ic { font-size: 17px; width: 22px; text-align: center; }
-    .nav-btn:hover { color: var(--bone); background: rgba(255,255,255,.04); }
-    .nav-btn.active { color: var(--bone); background: var(--gold-soft); border-color: var(--line); box-shadow: inset 3px 0 0 var(--gold); }
+    /* Sternzeichen-Karte */
+    .zodiac { display: flex; align-items: center; gap: 18px; }
+    .zring { width: 92px; height: 92px; border-radius: 50%; flex: none; display: grid; place-items: center;
+      position: relative; border: 1px solid var(--line);
+      background: radial-gradient(circle at 50% 45%, rgba(107,63,160,.4), rgba(12,8,30,.6));
+      box-shadow: 0 0 30px rgba(185,139,255,.25), inset 0 0 24px rgba(232,200,122,.12); }
+    .zring::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; border: 1px solid var(--line-soft); }
+    .zring .glyph { font-size: 40px; color: var(--gold); line-height: 1; }
+    .zodiac h3 { font-family: var(--display); font-weight: 500; font-size: 28px; margin: 0; }
+    .zodiac .range { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
+    .ziprops { display: flex; gap: 18px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+    .ziprops > div { font-size: 13px; }
+    .ziprops b { display: block; color: var(--muted-2); font-weight: 500; font-size: 10.5px; letter-spacing: .12em;
+      text-transform: uppercase; margin-bottom: 3px; }
+    .ziprops span { color: var(--bone); }
 
-    /* ---- Sections / Cards ---- */
-    .section { display: none; animation: rise .4s ease; }
+    /* Mond-Karte */
+    .moon-row { display: flex; align-items: center; gap: 20px; }
+    .moon { position: relative; width: 104px; height: 104px; flex: none; }
+    .moon .ring { position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(var(--gold) calc(var(--illum, 50%) * .9), rgba(255,255,255,.08) 0);
+      -webkit-mask: radial-gradient(circle, transparent 44px, #000 45px); mask: radial-gradient(circle, transparent 44px, #000 45px); }
+    .moon .disc { position: absolute; inset: 12px; border-radius: 50%; overflow: hidden;
+      background: radial-gradient(circle at 38% 32%, #f3ead4, #cbbfa0 55%, #8a8070 100%);
+      box-shadow: 0 0 32px rgba(243,234,212,.28); }
+    .moon .shadow { position: absolute; inset: 0; border-radius: 50%;
+      background: linear-gradient(90deg, rgba(8,6,18,.92) 0%, rgba(8,6,18,.7) 38%, transparent 62%);
+      transform: scaleX(var(--shadow-scale, 1)); transform-origin: left; }
+    .moon-row .info .phase { font-family: var(--display); font-size: 24px; font-weight: 500; margin: 0; }
+    .moon-row .info .illum { color: var(--violet); font-size: 14px; margin: 2px 0 0; }
+    .moon-row .info .sub { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+
+    /* Shortcut-Kacheln */
+    .shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .tile { background: rgba(255,255,255,.03); border: 1px solid var(--line-soft); border-radius: 16px;
+      padding: 14px 6px; text-align: center; cursor: pointer; transition: .18s; }
+    .tile:hover { border-color: var(--line); background: var(--gold-soft); }
+    .tile .ic { width: 46px; height: 46px; margin: 0 auto 8px; border-radius: 50%; display: grid; place-items: center;
+      border: 1px solid var(--line); color: var(--gold); font-size: 20px;
+      background: radial-gradient(circle at 50% 40%, rgba(107,63,160,.3), transparent); }
+    .tile span { font-size: 12px; color: var(--muted); }
+
+    /* Section-Mechanik */
+    .section { display: none; animation: fade .45s ease; }
     .section.active { display: block; }
-    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-    .section-head { margin-bottom: 22px; }
-    .section-head h3 { font-family: var(--display); font-weight: 500; font-size: 32px; margin: 0 0 6px; letter-spacing: -.3px; }
-    .section-head p { color: var(--muted); margin: 0; max-width: 620px; }
-
-    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
-    .card {
-      background: var(--surface); border: 1px solid var(--line-2);
-      border-radius: var(--radius); padding: 24px; backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-    }
-    .span-4 { grid-column: span 4; }
-    .span-6 { grid-column: span 6; }
-    .span-7 { grid-column: span 7; }
-    .span-12 { grid-column: span 12; }
+    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .section-head { padding: 16px 2px 4px; }
+    .section-head h2 { font-family: var(--display); font-weight: 500; font-size: 30px; margin: 0; }
+    .section-head p { color: var(--muted); margin: 6px 0 0; font-size: 14.5px; }
 
     .card-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .card-title h4 { font-family: var(--display); font-weight: 500; font-size: 21px; margin: 0; }
-    .card p.lead { color: var(--muted); margin: 0 0 18px; line-height: 1.65; }
-    .badge {
-      font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold);
-      background: var(--gold-soft); border: 1px solid var(--line); padding: 5px 11px; border-radius: 999px;
-    }
+    .card-title h4 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; }
+    .badge { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold);
+      background: var(--gold-soft); border: 1px solid var(--line); padding: 5px 10px; border-radius: 999px; }
 
-    .action-card .ic { font-size: 26px; color: var(--gold); display: block; margin-bottom: 14px; }
+    /* Tierkreis-Rad (SVG-Signatur) */
+    .wheel-wrap { display: grid; place-items: center; padding: 6px 0 4px; }
+    #chartWheel { width: 100%; max-width: 340px; height: auto; filter: drop-shadow(0 0 24px rgba(232,200,122,.18)); }
 
-    /* ---- Profil-Karte ---- */
-    .profile-card { display: flex; gap: 18px; align-items: center; }
-    .orb {
-      width: 76px; height: 76px; border-radius: 50%; flex: none;
-      background: radial-gradient(circle at 35% 30%, #f0cd7a, var(--gold) 40%, #6b4f1d 100%);
-      box-shadow: 0 0 32px rgba(228,185,91,.34);
-    }
-    .profile-card .pname { font-family: var(--display); font-size: 27px; font-weight: 500; margin: 0; }
-    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--muted); font-size: 14px; margin-top: 4px; }
+    /* Forms */
+    label { display: block; font-size: 12.5px; color: var(--muted); margin: 14px 0 6px; letter-spacing: .02em; }
+    input, textarea, select { width: 100%; font-family: var(--body); font-size: 15px; color: var(--bone);
+      background: rgba(0,0,0,.3); border: 1px solid var(--line-soft); border-radius: 13px; padding: 13px 15px; transition: .16s; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+    textarea { resize: vertical; min-height: 84px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .status { margin-top: 14px; padding: 12px 14px; border-radius: 12px; font-size: 13.5px; white-space: pre-wrap;
+      background: rgba(255,255,255,.03); border: 1px solid var(--line-soft); color: var(--muted); }
+    .status.ok { color: var(--ok); border-color: rgba(143,227,192,.3); }
+    .status.bad { color: var(--bad); border-color: rgba(255,154,176,.3); }
 
-    /* ---- Forms ---- */
-    label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; letter-spacing: .02em; }
-    input, textarea, select {
-      width: 100%; font-family: var(--body); font-size: 15px; color: var(--bone);
-      background: rgba(0,0,0,.28); border: 1px solid var(--line-2); border-radius: 13px;
-      padding: 12px 14px; transition: .16s ease;
-    }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); background: rgba(0,0,0,.4); }
-    textarea { resize: vertical; min-height: 80px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    /* Segmented (Zeitraum) */
+    .segmented { display: flex; gap: 6px; background: rgba(0,0,0,.3); border: 1px solid var(--line-soft);
+      border-radius: 999px; padding: 5px; }
+    .segmented select { border: none; background: transparent; padding: 8px; }
 
-    .status { margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-size: 14px; white-space: pre-wrap;
-      background: rgba(255,255,255,.03); border: 1px solid var(--line-2); color: var(--muted); }
-    .status.ok { color: var(--ok); border-color: rgba(143,227,192,.3); background: rgba(143,227,192,.06); }
-    .status.bad { color: var(--bad); border-color: rgba(255,154,176,.3); background: rgba(255,154,176,.06); }
+    /* Reading */
+    .reading { font-family: var(--display); font-size: 18px; line-height: 1.75; color: #ece3d3; }
+    .reading h1, .reading h2, .reading h3 { font-weight: 600; color: var(--gold); margin: 20px 0 6px; }
+    .reading strong { color: var(--gold); }
 
-    /* ---- Reading ---- */
-    .reading { font-size: 16.5px; line-height: 1.8; color: #e9e1d4; }
-    .reading h1, .reading h2, .reading h3 { font-family: var(--display); font-weight: 500; color: var(--bone); margin: 22px 0 8px; line-height: 1.2; }
-    .reading h1 { font-size: 26px; } .reading h2 { font-size: 22px; } .reading h3 { font-size: 19px; }
-    .reading strong { color: var(--gold); font-weight: 600; }
+    /* Horoskop-Held */
+    .horo-hero { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .horo-moon { width: 96px; height: 96px; border-radius: 50%; flex: none;
+      background: radial-gradient(circle at 36% 32%, #eef2ff, #b98bff 50%, #3a2766 100%);
+      box-shadow: 0 0 44px rgba(185,139,255,.4); }
+    #horoMood { font-family: var(--display); font-weight: 500; font-size: 26px; margin: 0 0 8px; }
+    #horoBody { color: var(--muted); font-size: 14.5px; line-height: 1.7; margin: 0 0 12px; }
+    .pill { display: inline-block; padding: 9px 15px; border-radius: 999px; background: var(--gold-soft);
+      border: 1px solid var(--line); color: var(--gold); font-size: 13.5px; }
 
-    /* ---- Horoskop ---- */
-    .horo-hero { display: flex; gap: 26px; align-items: center; flex-wrap: wrap; position: relative; overflow: hidden; }
-    .moon-art {
-      width: 120px; height: 120px; border-radius: 50%; flex: none;
-      background: radial-gradient(circle at 32% 30%, #eef2ff, #9db4e0 45%, #2c3a63 100%);
-      box-shadow: 0 0 50px rgba(157,180,224,.35);
-    }
-    #horoMood { font-family: var(--display); font-weight: 500; font-size: clamp(28px, 4vw, 40px); margin: 0 0 10px; }
-    #horoBody { color: var(--muted); line-height: 1.75; max-width: 640px; margin: 0 0 14px; }
-    .pill { display: inline-block; padding: 9px 16px; border-radius: 999px; background: var(--gold-soft); border: 1px solid var(--line); color: var(--gold); font-size: 14px; }
+    /* Chat */
+    .chat-window { height: 50vh; min-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 11px; padding: 6px 0; }
+    .bubble { max-width: 84%; padding: 12px 16px; border-radius: 18px; font-size: 14.5px; line-height: 1.6; white-space: pre-wrap; }
+    .bubble.assistant { align-self: flex-start; background: rgba(255,255,255,.05); border: 1px solid var(--line-soft); border-bottom-left-radius: 5px; }
+    .bubble.user { align-self: flex-end; background: var(--gold-soft); border: 1px solid var(--line); border-bottom-right-radius: 5px; }
+    .bubble .tools { margin-top: 7px; font-size: 11px; color: var(--gold); opacity: .8; }
 
-    /* ---- Chat ---- */
-    .chat-window { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 6px 2px; margin: 6px 0 4px; }
-    .bubble { max-width: 80%; padding: 13px 17px; border-radius: 18px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
-    .bubble.assistant { align-self: flex-start; background: rgba(255,255,255,.05); border: 1px solid var(--line-2); border-bottom-left-radius: 6px; }
-    .bubble.user { align-self: flex-end; background: var(--gold-soft); border: 1px solid var(--line); color: var(--bone); border-bottom-right-radius: 6px; }
-    .bubble .tools { margin-top: 8px; font-size: 11.5px; color: var(--gold); opacity: .8; letter-spacing: .04em; }
-
-    /* ---- Synastrie ---- */
-    .syn-score { display: flex; align-items: center; justify-content: center; gap: 22px; flex-wrap: wrap; margin: 10px 0; }
-    .person-orb { text-align: center; }
-    .person-orb .glyph { font-size: 40px; color: var(--gold); }
-    .person-orb h4 { font-family: var(--display); font-weight: 500; font-size: 22px; margin: 6px 0 0; }
-    .person-orb p { color: var(--muted); margin: 2px 0 0; font-size: 13px; }
-    .compat {
-      width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; flex: none;
-      background: conic-gradient(var(--gold) calc(var(--score, 0%)), rgba(255,255,255,.08) 0);
-      position: relative;
-    }
-    .compat::before { content: ""; position: absolute; inset: 12px; border-radius: 50%; background: var(--ink-2); }
+    /* Synastrie */
+    .syn { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 4px 0 8px; flex-wrap: wrap; }
+    .syn .orb { text-align: center; }
+    .syn .orb .g { font-size: 34px; color: var(--gold); }
+    .syn .orb h4 { font-family: var(--display); font-weight: 500; font-size: 18px; margin: 4px 0 0; }
+    .syn .orb p { color: var(--muted); font-size: 12px; margin: 0; }
+    .compat { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; flex: none; position: relative;
+      background: conic-gradient(var(--gold) calc(var(--score, 0%)), rgba(255,255,255,.07) 0); }
+    .compat::before { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: var(--bg-2); }
     .compat > div { position: relative; text-align: center; }
-    .compat strong { font-family: var(--display); font-size: 40px; font-weight: 500; color: var(--gold); display: block; }
-    .compat span { color: var(--muted); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+    .compat strong { font-family: var(--display); font-size: 34px; font-weight: 600; color: var(--gold); display: block; }
+    .compat span { color: var(--muted); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
 
-    /* ---- Bottom-Nav (mobil) ---- */
-    .bottom-nav { display: none; }
+    /* Bottom Tab Bar */
+    .tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 460px; z-index: 40;
+      display: flex; background: rgba(12, 8, 26, .9); backdrop-filter: blur(20px); border-top: 1px solid var(--line-soft);
+      padding: 9px 8px calc(9px + env(safe-area-inset-bottom)); }
+    .tabbar button { flex: 1; background: none; border: none; cursor: pointer; color: var(--muted-2);
+      font-family: var(--body); font-size: 10.5px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: .16s; }
+    .tabbar button b { font-size: 19px; font-weight: 400; }
+    .tabbar button.active { color: var(--gold); }
 
-    /* ---- Modals ---- */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 50; display: none;
-      background: rgba(5, 4, 12, .7); backdrop-filter: blur(8px);
-      align-items: center; justify-content: center; padding: 20px;
-    }
+    /* Modals */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 60; display: none; background: rgba(5,4,12,.78);
+      backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 18px; }
     .modal-backdrop.open { display: flex; }
-    .modal {
-      width: 100%; max-width: 460px; background: var(--ink-2);
-      border: 1px solid var(--line); border-radius: 24px; padding: 26px; box-shadow: var(--shadow);
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal .card-title h4 { font-size: 23px; }
-    .hint { color: var(--muted); font-size: 13.5px; line-height: 1.6; margin: 6px 0 0; }
+    .modal { width: 100%; max-width: 420px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 24px;
+      padding: 24px; box-shadow: 0 30px 90px rgba(0,0,0,.6); max-height: 90vh; overflow-y: auto; }
+    .modal .card-title h4 { font-size: 22px; }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.55; margin: 4px 0 0; }
 
-    /* ---- Toast ---- */
-    .toast {
-      position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
-      background: var(--ink-2); border: 1px solid var(--line); color: var(--bone);
-      padding: 13px 22px; border-radius: 14px; font-size: 14.5px; box-shadow: var(--shadow);
-      opacity: 0; pointer-events: none; transition: .3s ease; z-index: 100;
-    }
+    /* Toast */
+    .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
+      background: var(--bg-2); border: 1px solid var(--line); color: var(--bone); padding: 12px 22px; border-radius: 14px;
+      font-size: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: .3s; z-index: 100; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ---- Responsive ---- */
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; }
-      .side { display: none; }
-      .span-4, .span-6, .span-7 { grid-column: span 12; }
-      .app-shell { padding-bottom: 96px; }
-      .bottom-nav {
-        display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-        background: rgba(14, 11, 26, .92); backdrop-filter: blur(16px);
-        border-top: 1px solid var(--line-2); padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
-      }
-      .bottom-nav button {
-        flex: 1; background: none; border: none; color: var(--muted); cursor: pointer;
-        font-family: var(--body); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0;
-      }
-      .bottom-nav button b { font-size: 19px; font-weight: 400; }
-      .bottom-nav button.active { color: var(--gold); }
-      .top-actions .label-btn { display: none; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
-    }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
   <div class="sky"></div>
 
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="sigil"><span>✦</span></div>
-        <div>
-          <h1>Soraya</h1>
-          <small>Dein kosmischer Weg</small>
-        </div>
+  <div class="app">
+    <header class="appbar">
+      <button class="round" onclick="openLogin()" title="Login">☾</button>
+      <div class="wordmark">
+        <h1>SORAYA</h1>
+        <div class="sub"><span class="orn">✦</span> Luxury <span class="orn">✦</span></div>
       </div>
-      <span id="loginStatus" style="display:none"></span>
-      <div class="top-actions">
-        <button class="btn ghost label-btn" onclick="openLogin()">Login</button>
-        <button class="icon-btn" onclick="openSettings()" title="Verbindung">⚙</button>
-        <button class="icon-btn" onclick="signOut()" title="Abmelden">⎋</button>
-      </div>
+      <button class="round" onclick="openSettings()" title="Verbindung">✦</button>
     </header>
+    <span id="loginStatus" style="display:none"></span>
 
-    <section class="hero">
-      <div class="eyebrow">Heute am Himmel</div>
-      <h2>Schön, dass du da bist,<br><span class="name" id="heroName">du</span>.</h2>
-      <p>Die Sterne bewegen sich für dich. Öffne deine persönliche Analyse, dein Tageshoroskop — oder sprich direkt mit Soraya.</p>
-      <div class="hero-actions">
-        <button class="btn primary" onclick="showSection('chat')">Mit Soraya sprechen</button>
-        <button class="btn" onclick="showSection('analysis')">Tiefen-Analyse öffnen</button>
-      </div>
-    </section>
-
-    <div class="layout">
-      <aside class="side">
-        <button class="nav-btn active" data-nav="home" onclick="showSection('home')"><span class="ic">⌂</span>Start</button>
-        <button class="nav-btn" data-nav="profile" onclick="showSection('profile')"><span class="ic">☉</span>Profil</button>
-        <button class="nav-btn" data-nav="analysis" onclick="showSection('analysis')"><span class="ic">✷</span>Analyse</button>
-        <button class="nav-btn" data-nav="horoscope" onclick="showSection('horoscope')"><span class="ic">☾</span>Horoskop</button>
-        <button class="nav-btn" data-nav="chat" onclick="showSection('chat')"><span class="ic">✦</span>Soraya</button>
-        <button class="nav-btn" data-nav="synastry" onclick="showSection('synastry')"><span class="ic">♡</span>Synastrie</button>
-        <div class="quote">
-          <span>☾</span>
-          Die Sterne zeigen den Weg — doch du gehst ihn mit deinem Herzen.
+    <main>
+      <!-- ============ START ============ -->
+      <section id="home" class="section active">
+        <div class="greet">
+          <h2 id="greetLine">Schön, dass du da bist,<br><span class="name" id="heroName">du</span>.</h2>
+          <p>Das Universum hat einen Plan für dich.</p>
         </div>
-      </aside>
 
-      <main class="content">
-        <!-- START -->
-        <section id="home" class="section active">
-          <div class="section-head">
-            <h3>Dein kosmischer Überblick</h3>
-            <p>Alles, was Soraya für dich bereithält — an einem Ort.</p>
+        <!-- Sternzeichen -->
+        <div class="card glow">
+          <div class="card-title"><span class="card-eyebrow">Dein Sternzeichen</span>
+            <button class="btn" style="padding:8px 14px;font-size:12.5px;" onclick="showSection('profile')">Profil ›</button></div>
+          <div class="zodiac">
+            <div class="zring"><span class="glyph" id="sunGlyph">✦</span></div>
+            <div>
+              <h3 id="sunSign">Noch kein Profil</h3>
+              <p class="range" id="sunRange">Hinterlege deine Geburtsdaten</p>
+            </div>
           </div>
-          <div class="grid">
-            <div class="card span-4 action-card">
-              <span class="ic">✷</span>
-              <div class="card-title"><h4>Tiefen-Analyse</h4></div>
-              <p class="lead">Dein ausführliches Geburtshoroskop — einmal berechnet, für dich gespeichert.</p>
-              <button class="btn primary block" onclick="showSection('analysis'); loadAnalysis(false);">Analyse öffnen</button>
-            </div>
-            <div class="card span-4 action-card">
-              <span class="ic">☾</span>
-              <div class="card-title"><h4>Tageshoroskop</h4></div>
-              <p class="lead">Was heute am Himmel für dich steht — Stimmung, Deutung und ein Tipp.</p>
-              <button class="btn primary block" onclick="showSection('horoscope'); loadHoroscope();">Horoskop laden</button>
-            </div>
-            <div class="card span-4 action-card">
-              <span class="ic">✦</span>
-              <div class="card-title"><h4>Soraya fragen</h4></div>
-              <p class="lead">Stell deine Frage. Soraya rechnet mit deinen echten Transiten — keine Floskeln.</p>
-              <button class="btn primary block" onclick="showSection('chat')">Chat öffnen</button>
-            </div>
+          <div class="ziprops" id="sunProps" style="display:none">
+            <div><b>Element</b><span id="sunElement">–</span></div>
+            <div><b>Qualität</b><span id="sunQuality">–</span></div>
+            <div><b>Herrscher</b><span id="sunRuler">–</span></div>
+          </div>
+        </div>
 
-            <div class="card span-12">
-              <div class="card-title"><h4>Dein Profil</h4><span class="badge">Geburtsdaten</span></div>
-              <div class="profile-card">
-                <div class="orb"></div>
-                <div>
-                  <p class="pname" id="profileName">Noch kein Profil</p>
-                  <div class="meta-row"><span>Hinterlege deine Geburtsdaten, damit Soraya dich lesen kann.</span></div>
-                </div>
-              </div>
-              <button class="btn block" onclick="showSection('profile')" style="margin-top:18px;">Geburtsdaten verwalten</button>
+        <!-- Mondenergie -->
+        <div class="card">
+          <div class="card-title"><span class="card-eyebrow">Mondenergie</span><span class="badge">heute</span></div>
+          <div class="moon-row">
+            <div class="moon" id="moonVisual" style="--illum:50%">
+              <div class="ring"></div>
+              <div class="disc"><div class="shadow"></div></div>
+            </div>
+            <div class="info">
+              <p class="phase" id="moonPhase">Mondphase</p>
+              <p class="illum" id="moonIllum">– beleuchtet</p>
+              <p class="sub" id="moonSub">Die Energie des Himmels für heute.</p>
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- PROFIL -->
-        <section id="profile" class="section">
-          <div class="section-head">
-            <h3>Profil &amp; Geburtsdaten</h3>
-            <p>Deine Geburtsdaten sind die Grundlage für alles, was Soraya über dich weiß.</p>
+        <!-- Shortcuts -->
+        <div class="card">
+          <div class="card-title"><span class="card-eyebrow">Deine kosmischen Wege</span></div>
+          <div class="shortcuts">
+            <div class="tile" onclick="showSection('horoscope')"><div class="ic">☾</div><span>Horoskop</span></div>
+            <div class="tile" onclick="showSection('analysis')"><div class="ic">✷</div><span>Analyse</span></div>
+            <div class="tile" onclick="showSection('chat')"><div class="ic">✦</div><span>Chat</span></div>
+            <div class="tile" onclick="showSection('synastry')"><div class="ic">♡</div><span>Synastrie</span></div>
           </div>
-          <div class="grid">
-            <div class="card span-12">
-              <div class="card-title"><h4>Geburtsdaten</h4></div>
-              <input id="personId" type="hidden" />
-              <label>Name</label>
-              <input id="pName" placeholder="Dein Name" />
-              <div class="form-row-3">
-                <div><label>Tag</label><input id="pDay" inputmode="numeric" placeholder="z. B. 4" /></div>
-                <div><label>Monat</label><input id="pMonth" inputmode="numeric" placeholder="z. B. 6" /></div>
-                <div><label>Jahr</label><input id="pYear" inputmode="numeric" placeholder="z. B. 1986" /></div>
-              </div>
-              <div class="form-row">
-                <div><label>Stunde (optional)</label><input id="pHour" inputmode="numeric" placeholder="z. B. 14" /></div>
-                <div><label>Minute (optional)</label><input id="pMinute" inputmode="numeric" placeholder="z. B. 30" /></div>
-              </div>
-              <label>Geburtsort</label>
-              <input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
-              <button class="btn primary block" onclick="createPerson()" style="margin-top:18px;">Profil speichern</button>
-              <div id="personResult" class="status">Noch nicht gespeichert.</div>
-            </div>
-          </div>
-        </section>
+        </div>
 
-        <!-- ANALYSE -->
-        <section id="analysis" class="section">
-          <div class="section-head">
-            <h3>Persönliche Analyse</h3>
-            <p>Dein warmes, ausführliches Tiefen-Reading — nur für dich.</p>
-          </div>
-          <div class="grid">
-            <div class="card span-12">
-              <div class="card-title"><h4>Dein kosmisches Tiefen-Reading</h4><span id="analysisSource" class="badge">bereit</span></div>
-              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
-                <button class="btn primary" onclick="loadAnalysis(false)">Analyse öffnen</button>
-                <button class="btn" onclick="loadAnalysis(true)">Neu erzeugen</button>
-              </div>
-              <div id="analysisReading" class="reading">Noch nichts geladen. Tippe auf „Analyse öffnen“, und Soraya liest dein Geburtshoroskop.</div>
-            </div>
-          </div>
-        </section>
+        <!-- Tagesimpuls -->
+        <div class="card glow">
+          <div class="card-eyebrow">Energie heute</div>
+          <h4 style="font-family:var(--display);font-weight:500;font-size:24px;margin:4px 0 8px;">Sprich mit Soraya</h4>
+          <p style="color:var(--muted);font-size:14.5px;margin:0 0 16px;">Stell deine Frage — Soraya rechnet mit deinen echten Transiten, keine Floskeln.</p>
+          <button class="btn gold block lg" onclick="showSection('chat')">Mit Soraya sprechen</button>
+        </div>
+      </section>
 
-        <!-- HOROSKOP -->
-        <section id="horoscope" class="section">
-          <div class="section-head">
-            <h3>Dein Horoskop</h3>
-            <p>Für heute, die Woche oder den Monat — berechnet aus deinen echten Transiten.</p>
+      <!-- ============ PROFIL ============ -->
+      <section id="profile" class="section">
+        <div class="section-head"><h2>Profil &amp; Geburtsdaten</h2><p>Die Grundlage für alles, was Soraya über dich weiß.</p></div>
+        <div class="card">
+          <input id="personId" type="hidden" />
+          <label>Name</label>
+          <input id="pName" placeholder="Dein Name" oninput="window._sorayaPreview && window._sorayaPreview()" />
+          <div class="form-row-3">
+            <div><label>Tag</label><input id="pDay" inputmode="numeric" placeholder="4" oninput="window._sorayaPreview && window._sorayaPreview()" /></div>
+            <div><label>Monat</label><input id="pMonth" inputmode="numeric" placeholder="6" oninput="window._sorayaPreview && window._sorayaPreview()" /></div>
+            <div><label>Jahr</label><input id="pYear" inputmode="numeric" placeholder="1986" /></div>
           </div>
-          <div class="grid">
-            <div class="card span-12">
-              <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
-                <select id="period" style="width:auto; min-width:150px;">
-                  <option value="daily">Tag</option>
-                  <option value="weekly">Woche</option>
-                  <option value="monthly">Monat</option>
-                </select>
-                <button class="btn primary" onclick="loadHoroscope()">Horoskop laden</button>
-              </div>
-              <div class="horo-hero">
-                <div class="moon-art"></div>
-                <div>
-                  <div class="eyebrow">Deine Botschaft</div>
-                  <h4 id="horoMood">Dein Horoskop</h4>
-                  <p id="horoBody">Wähle einen Zeitraum und tippe auf „Horoskop laden“.</p>
-                  <span id="horoTip" class="pill">✦ Dein Tipp erscheint hier</span>
-                </div>
-              </div>
-            </div>
+          <div class="form-row">
+            <div><label>Stunde (optional)</label><input id="pHour" inputmode="numeric" placeholder="14" /></div>
+            <div><label>Minute (optional)</label><input id="pMinute" inputmode="numeric" placeholder="30" /></div>
           </div>
-        </section>
+          <label>Geburtsort</label>
+          <input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
+          <button class="btn gold block lg" onclick="createPerson()" style="margin-top:18px;">Profil speichern</button>
+          <div id="personResult" class="status">Noch nicht gespeichert.</div>
+        </div>
+      </section>
 
-        <!-- CHAT -->
-        <section id="chat" class="section">
-          <div class="section-head">
-            <h3>Soraya</h3>
-            <p>Frag mich, was dich bewegt — deinen Tag, deine Transite, deinen Weg.</p>
+      <!-- ============ ANALYSE ============ -->
+      <section id="analysis" class="section">
+        <div class="section-head"><h2>Birth Chart</h2><p>Dein Geburtshoroskop und dein warmes Tiefen-Reading.</p></div>
+        <div class="card glow">
+          <div class="wheel-wrap"><svg id="chartWheel" viewBox="0 0 400 400" aria-label="Geburtshoroskop-Rad"></svg></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h4>Tiefen-Reading</h4><span id="analysisSource" class="badge">bereit</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+            <button class="btn gold" onclick="loadAnalysis(false)">Analyse öffnen</button>
+            <button class="btn" onclick="loadAnalysis(true)">Neu erzeugen</button>
           </div>
-          <div class="grid">
-            <div class="card span-12">
-              <input id="conversationId" type="hidden" />
-              <div class="chat-window" id="chatWindow">
-                <div class="bubble assistant">Ich bin Soraya. Stell mir eine Frage — über deinen Tag, deine Transite oder deinen inneren Weg.</div>
-              </div>
-              <label>Deine Nachricht</label>
-              <textarea id="chatMessage" placeholder="Was möchtest du Soraya fragen?"></textarea>
-              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-                <button class="btn primary" onclick="sendChat()">Senden</button>
-                <button class="btn" onclick="clearChatView()">Anzeige leeren</button>
-              </div>
-            </div>
-          </div>
-        </section>
+          <div id="analysisReading" class="reading">Noch nichts geladen. Tippe auf „Analyse öffnen“, und Soraya liest dein Geburtshoroskop.</div>
+        </div>
+      </section>
 
-        <!-- SYNASTRIE -->
-        <section id="synastry" class="section">
-          <div class="section-head">
-            <h3>Synastrie</h3>
-            <p>Wie schwingt ihr zusammen? Die Verbindung zweier Geburtshoroskope.</p>
+      <!-- ============ HOROSKOP ============ -->
+      <section id="horoscope" class="section">
+        <div class="section-head"><h2>Dein Horoskop</h2><p>Für heute, die Woche oder den Monat.</p></div>
+        <div class="card">
+          <div class="segmented" style="margin-bottom:18px;max-width:240px;">
+            <select id="period">
+              <option value="daily">Tag</option>
+              <option value="weekly">Woche</option>
+              <option value="monthly">Monat</option>
+            </select>
+            <button class="btn gold" onclick="loadHoroscope()" style="padding:8px 18px;">Laden</button>
           </div>
-          <div class="grid">
-            <div class="card span-12">
-              <div class="syn-score">
-                <div class="person-orb"><div class="glyph">☉</div><h4>Du</h4><p>Person A</p></div>
-                <div class="compat" id="compatRing" style="--score:0%"><div><strong id="compatScore">–</strong><span>Verbindung</span></div></div>
-                <div class="person-orb"><div class="glyph">☾</div><h4>Gegenüber</h4><p>Person B</p></div>
-              </div>
-              <label>ID der zweiten Person</label>
-              <input id="personBId" placeholder="Person-ID der zweiten Person" />
-              <p class="hint">Lege die zweite Person zuerst über „Profil speichern“ an und füge hier ihre ID ein.</p>
-              <button class="btn primary block" onclick="saveSynastry()" style="margin-top:16px;">Verbindung berechnen</button>
-              <div id="synastryText" class="status">Noch nicht berechnet.</div>
+          <div class="horo-hero">
+            <div class="horo-moon"></div>
+            <div>
+              <div class="card-eyebrow">Deine Botschaft</div>
+              <h4 id="horoMood">Dein Horoskop</h4>
+              <p id="horoBody">Wähle einen Zeitraum und tippe auf „Laden“.</p>
+              <span id="horoTip" class="pill">✦ Dein Tipp erscheint hier</span>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
+      </section>
+
+      <!-- ============ CHAT ============ -->
+      <section id="chat" class="section">
+        <div class="section-head"><h2>Soraya</h2><p>Frag mich, was dich bewegt.</p></div>
+        <div class="card">
+          <input id="conversationId" type="hidden" />
+          <div class="chat-window" id="chatWindow">
+            <div class="bubble assistant">Ich bin Soraya. Stell mir eine Frage — über deinen Tag, deine Transite oder deinen inneren Weg.</div>
+          </div>
+          <label>Deine Nachricht</label>
+          <textarea id="chatMessage" placeholder="Was möchtest du fragen?"></textarea>
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button class="btn gold" onclick="sendChat()" style="flex:1;">Senden</button>
+            <button class="btn" onclick="clearChatView()">Leeren</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SYNASTRIE ============ -->
+      <section id="synastry" class="section">
+        <div class="section-head"><h2>Synastrie</h2><p>Wie schwingt ihr zusammen?</p></div>
+        <div class="card glow">
+          <div class="syn">
+            <div class="orb"><div class="g">☉</div><h4>Du</h4><p>Person A</p></div>
+            <div class="compat" id="compatRing" style="--score:0%"><div><strong id="compatScore">–</strong><span>Verbindung</span></div></div>
+            <div class="orb"><div class="g">☾</div><h4>Gegenüber</h4><p>Person B</p></div>
+          </div>
+          <label>ID der zweiten Person</label>
+          <input id="personBId" placeholder="Person-ID der zweiten Person" />
+          <p class="hint">Lege die zweite Person zuerst unter „Profil speichern“ an und füge hier ihre ID ein.</p>
+          <button class="btn gold block lg" onclick="saveSynastry()" style="margin-top:16px;">Verbindung berechnen</button>
+          <div id="synastryText" class="status">Noch nicht berechnet.</div>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <!-- Bottom-Nav (mobil) -->
-  <nav class="bottom-nav">
+  <!-- Tab Bar -->
+  <nav class="tabbar">
     <button class="active" data-nav="home" onclick="showSection('home')"><b>⌂</b>Start</button>
     <button data-nav="analysis" onclick="showSection('analysis')"><b>✷</b>Analyse</button>
     <button data-nav="horoscope" onclick="showSection('horoscope')"><b>☾</b>Horoskop</button>
@@ -518,32 +449,27 @@
   <!-- Login -->
   <div class="modal-backdrop" id="loginModal">
     <div class="modal">
-      <div class="card-title"><h4>Einloggen</h4><button class="icon-btn" onclick="closeLogin()">×</button></div>
-      <label>E-Mail</label>
-      <input id="email" type="email" placeholder="deine@email.de" />
-      <label>Passwort</label>
-      <input id="password" type="password" placeholder="Dein Passwort" />
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-        <button class="btn primary" onclick="signIn()">Einloggen</button>
+      <div class="card-title"><h4>Einloggen</h4><button class="round" onclick="closeLogin()">×</button></div>
+      <label>E-Mail</label><input id="email" type="email" placeholder="deine@email.de" />
+      <label>Passwort</label><input id="password" type="password" placeholder="Dein Passwort" />
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn gold" onclick="signIn()" style="flex:1;">Einloggen</button>
         <button class="btn" onclick="signUp()">Registrieren</button>
       </div>
     </div>
   </div>
 
-  <!-- Verbindung / Settings -->
+  <!-- Verbindung -->
   <div class="modal-backdrop" id="settingsModal">
     <div class="modal">
-      <div class="card-title"><h4>Verbindung</h4><button class="icon-btn" onclick="closeSettings()">×</button></div>
+      <div class="card-title"><h4>Verbindung</h4><button class="round" onclick="closeSettings()">×</button></div>
       <p class="hint">Hier kommt nur der öffentliche Supabase anon/public key hinein. Keine geheimen Keys.</p>
-      <label>Supabase URL</label>
-      <input id="supabaseUrl" placeholder="https://...supabase.co" />
-      <label>Supabase anon/public key</label>
-      <textarea id="supabaseAnonKey" placeholder="anon/public key"></textarea>
-      <label>Soraya Backend URL</label>
-      <input id="engineUrl" placeholder="https://...railway.app" />
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-        <button class="btn primary" onclick="saveConfig()">Verbindung speichern</button>
-        <button class="btn" onclick="loadConfig()">Gespeicherte laden</button>
+      <label>Supabase URL</label><input id="supabaseUrl" placeholder="https://...supabase.co" />
+      <label>Supabase anon/public key</label><textarea id="supabaseAnonKey" placeholder="anon/public key"></textarea>
+      <label>Soraya Backend URL</label><input id="engineUrl" placeholder="https://...railway.app" />
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn gold" onclick="saveConfig()" style="flex:1;">Speichern</button>
+        <button class="btn" onclick="loadConfig()">Laden</button>
       </div>
       <div id="configStatus" class="status">Noch nicht gespeichert.</div>
     </div>
@@ -874,61 +800,156 @@
   </script>
 
   <script>
-    /* ---- Additive UX-Verbesserungen ---- *
-     * Aendert die Kernlogik (Login/Engine) NICHT. Merkt sich nur IDs lokal,
-     * damit du keine UUIDs mehr eintippen musst, und fuehrt freundlich, wenn
-     * noch kein Profil existiert. */
+    /* ===== Additive Schicht: aendert die Kernlogik (Login/Engine) NICHT.
+       Ergaenzt echte, berechnete Anzeigen + merkt sich IDs lokal. ===== */
     (function () {
-      const PKEY = 'soraya_person_id';
-      const CKEY = 'soraya_conversation_id';
-      const NKEY = 'soraya_person_name';
+      const PKEY = 'soraya_person_id', CKEY = 'soraya_conversation_id';
+      const NKEY = 'soraya_person_name', BKEY = 'soraya_birth';
+      const $ = (id) => document.getElementById(id);
 
-      function $(id) { return document.getElementById(id); }
-
-      function refreshProfileName() {
-        const name = localStorage.getItem(NKEY) || ($('pName') && $('pName').value.trim());
-        if (name && $('profileName')) {
-          $('profileName').textContent = name;
-          const meta = document.querySelector('#home .meta-row span');
-          if (meta) meta.textContent = 'Dein Profil ist hinterlegt — Soraya kann dich lesen.';
+      /* ---------- Sternzeichen (echt, aus dem Geburtsdatum) ---------- */
+      const ZOD = [
+        { s:'Steinbock', g:'♑', el:'Erde', q:'Kardinal', r:'Saturn', from:[12,22], to:[1,19] },
+        { s:'Wassermann', g:'♒', el:'Luft', q:'Fix', r:'Uranus & Saturn', from:[1,20], to:[2,18] },
+        { s:'Fische', g:'♓', el:'Wasser', q:'Veränderlich', r:'Neptun & Jupiter', from:[2,19], to:[3,20] },
+        { s:'Widder', g:'♈', el:'Feuer', q:'Kardinal', r:'Mars', from:[3,21], to:[4,19] },
+        { s:'Stier', g:'♉', el:'Erde', q:'Fix', r:'Venus', from:[4,20], to:[5,20] },
+        { s:'Zwillinge', g:'♊', el:'Luft', q:'Veränderlich', r:'Merkur', from:[5,21], to:[6,20] },
+        { s:'Krebs', g:'♋', el:'Wasser', q:'Kardinal', r:'Mond', from:[6,21], to:[7,22] },
+        { s:'Löwe', g:'♌', el:'Feuer', q:'Fix', r:'Sonne', from:[7,23], to:[8,22] },
+        { s:'Jungfrau', g:'♍', el:'Erde', q:'Veränderlich', r:'Merkur', from:[8,23], to:[9,22] },
+        { s:'Waage', g:'♎', el:'Luft', q:'Kardinal', r:'Venus', from:[9,23], to:[10,22] },
+        { s:'Skorpion', g:'♏', el:'Wasser', q:'Fix', r:'Pluto & Mars', from:[10,23], to:[11,21] },
+        { s:'Schütze', g:'♐', el:'Feuer', q:'Veränderlich', r:'Jupiter', from:[11,22], to:[12,21] },
+      ];
+      const MON = ['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sep.','Okt.','Nov.','Dez.'];
+      function signFor(day, month) {
+        for (const z of ZOD) {
+          const [fm,fd]=z.from, [tm,td]=z.to;
+          if ((month===fm && day>=fd) || (month===tm && day<=td)) return z;
         }
+        return null;
+      }
+      function renderSun(day, month) {
+        const z = (day && month) ? signFor(day, month) : null;
+        if (!z) { return; }
+        $('sunGlyph').textContent = z.g;
+        $('sunSign').textContent = z.s;
+        const f = `${z.from[1]}. ${MON[z.from[0]-1]}`, t = `${z.to[1]}. ${MON[z.to[0]-1]}`;
+        $('sunRange').textContent = `${f} – ${t}`;
+        $('sunElement').textContent = z.el; $('sunQuality').textContent = z.q; $('sunRuler').textContent = z.r;
+        $('sunProps').style.display = 'flex';
       }
 
+      /* ---------- Mondphase (echt, astronomisch genähert) ---------- */
+      function renderMoon() {
+        const synodic = 29.530588853;
+        const ref = Date.UTC(2000, 0, 6, 18, 14) / 86400000; // bekannter Neumond
+        const now = Date.now() / 86400000;
+        let age = ((now - ref) % synodic + synodic) % synodic;
+        const illum = Math.round((1 - Math.cos(2 * Math.PI * age / synodic)) / 2 * 100);
+        let label, sub;
+        if (age < 1.85) { label='Neumond'; sub='Zeit für Neuanfänge und Absichten.'; }
+        else if (age < 5.5) { label='Zunehmende Sichel'; sub='Etwas Neues nimmt Form an.'; }
+        else if (age < 9.2) { label='Erstes Viertel'; sub='Zeit zu handeln und dranzubleiben.'; }
+        else if (age < 12.9) { label='Zunehmender Mond'; sub='Wachstum, Klärung, Ausrichtung.'; }
+        else if (age < 16.6) { label='Vollmond'; sub='Höhepunkt — sehen, was gereift ist.'; }
+        else if (age < 20.3) { label='Abnehmender Mond'; sub='Loslassen und dankbar sein.'; }
+        else if (age < 23.99) { label='Letztes Viertel'; sub='Aufräumen und Klarheit schaffen.'; }
+        else { label='Abnehmende Sichel'; sub='Ruhe, Rückzug, Vorbereitung.'; }
+        $('moonPhase').textContent = label;
+        $('moonIllum').textContent = illum + '% beleuchtet';
+        $('moonSub').textContent = sub;
+        const mv = $('moonVisual'); if (mv) mv.style.setProperty('--illum', illum + '%');
+      }
+
+      /* ---------- Begrüßung nach Tageszeit ---------- */
+      function renderGreeting() {
+        const h = new Date().getHours();
+        const g = h < 11 ? 'Guten Morgen' : h < 18 ? 'Schön, dass du da bist' : 'Guten Abend';
+        const name = localStorage.getItem(NKEY) || ($('heroName') ? $('heroName').textContent : 'du');
+        if ($('greetLine')) $('greetLine').innerHTML = g + ',<br><span class="name" id="heroName">' + name + '</span>.';
+      }
+
+      /* ---------- Tierkreis-Rad (SVG-Signatur) ---------- */
+      function renderWheel() {
+        const svg = $('chartWheel'); if (!svg) return;
+        const C = 200, gold = '#e8c87a', faint = 'rgba(232,200,122,.28)', faint2 = 'rgba(232,200,122,.14)';
+        const glyphs = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+        let p = '';
+        const ring = (r, col, w) => `<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="${col}" stroke-width="${w}"/>`;
+        p += ring(190, faint, 1) + ring(150, gold, 1.2) + ring(112, faint2, 1) + ring(70, faint2, 1);
+        // 12 Sektoren + Tierkreiszeichen
+        for (let i = 0; i < 12; i++) {
+          const a = (i * 30 - 90) * Math.PI / 180;
+          const x1 = C + 150 * Math.cos(a), y1 = C + 150 * Math.sin(a);
+          const x2 = C + 190 * Math.cos(a), y2 = C + 190 * Math.sin(a);
+          p += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${faint}" stroke-width="1"/>`;
+          const ga = ((i * 30) + 15 - 90) * Math.PI / 180;
+          const gx = C + 170 * Math.cos(ga), gy = C + 170 * Math.sin(ga);
+          p += `<text x="${gx}" y="${gy}" fill="${gold}" font-size="17" text-anchor="middle" dominant-baseline="central">${glyphs[i]}</text>`;
+        }
+        // Häuserlinien + Nummern (dekorativ, gleichmäßig)
+        for (let i = 0; i < 12; i++) {
+          const a = (i * 30 - 90) * Math.PI / 180;
+          const x = C + 112 * Math.cos(a), y = C + 112 * Math.sin(a);
+          p += `<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="${faint2}" stroke-width="1"/>`;
+          const na = ((i * 30) + 15 - 90) * Math.PI / 180;
+          const nx = C + 92 * Math.cos(na), ny = C + 92 * Math.sin(na);
+          p += `<text x="${nx}" y="${ny}" fill="rgba(176,163,200,.7)" font-size="9" text-anchor="middle" dominant-baseline="central">${i + 1}</text>`;
+        }
+        // dekoratives Aspekt-Netz
+        const pts = [];
+        for (let i = 0; i < 7; i++) { const a = (i * 51.4 - 90) * Math.PI / 180; pts.push([C + 70 * Math.cos(a), C + 70 * Math.sin(a)]); }
+        for (let i = 0; i < pts.length; i++) for (let j = i + 2; j < pts.length; j++)
+          p += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[j][0]}" y2="${pts[j][1]}" stroke="rgba(185,139,255,.4)" stroke-width="1"/>`;
+        p += `<circle cx="${C}" cy="${C}" r="3" fill="${gold}"/>`;
+        svg.innerHTML = p;
+      }
+
+      /* ---------- Vorschau live im Profil ---------- */
+      window._sorayaPreview = function () {
+        const d = parseInt($('pDay') && $('pDay').value, 10), m = parseInt($('pMonth') && $('pMonth').value, 10);
+        if (d >= 1 && d <= 31 && m >= 1 && m <= 12) renderSun(d, m);
+        const n = $('pName') ? $('pName').value.trim() : '';
+        if (n) { localStorage.setItem(NKEY, n); renderGreeting(); }
+      };
+
+      function restoreBirth() {
+        try {
+          const b = JSON.parse(localStorage.getItem(BKEY) || 'null');
+          if (b) {
+            if ($('pDay') && !$('pDay').value) $('pDay').value = b.day || '';
+            if ($('pMonth') && !$('pMonth').value) $('pMonth').value = b.month || '';
+            if ($('pYear') && !$('pYear').value) $('pYear').value = b.year || '';
+            renderSun(b.day, b.month);
+          }
+        } catch (e) {}
+      }
+
+      /* ---------- Bedien-Schutz: erst Profil ---------- */
       function needPerson() {
         const v = $('personId') && $('personId').value.trim();
         if (!v) { toast('Bitte zuerst dein Profil speichern.'); showSection('profile'); return false; }
         return true;
       }
 
-      // gespeicherte Werte beim Laden wiederherstellen
-      window.addEventListener('load', () => {
-        const pid = localStorage.getItem(PKEY);
-        if (pid && $('personId') && !$('personId').value.trim()) $('personId').value = pid;
-        const cid = localStorage.getItem(CKEY);
-        if (cid && $('conversationId')) $('conversationId').value = cid;
-        const name = localStorage.getItem(NKEY);
-        if (name && $('pName') && !$('pName').value.trim()) $('pName').value = name;
-        refreshProfileName();
-      });
-
-      // personId + Name nach dem Speichern merken
+      /* ---------- Kern-Funktionen additiv erweitern ---------- */
       const _createPerson = window.createPerson;
       window.createPerson = async function () {
         await _createPerson.apply(this, arguments);
-        const v = $('personId') ? $('personId').value.trim() : '';
-        if (v) localStorage.setItem(PKEY, v);
+        const id = $('personId') ? $('personId').value.trim() : '';
+        if (id) localStorage.setItem(PKEY, id);
         const n = $('pName') ? $('pName').value.trim() : '';
         if (n) localStorage.setItem(NKEY, n);
-        refreshProfileName();
+        const b = { day: parseInt($('pDay').value,10), month: parseInt($('pMonth').value,10), year: parseInt($('pYear').value,10) };
+        localStorage.setItem(BKEY, JSON.stringify(b));
+        renderSun(b.day, b.month); renderGreeting();
       };
-
-      // vor teuren Aufrufen pruefen, ob ein Profil existiert
       const _loadAnalysis = window.loadAnalysis;
       window.loadAnalysis = function () { if (!needPerson()) return; return _loadAnalysis.apply(this, arguments); };
-
       const _loadHoroscope = window.loadHoroscope;
       window.loadHoroscope = function () { if (!needPerson()) return; return _loadHoroscope.apply(this, arguments); };
-
       const _sendChat = window.sendChat;
       window.sendChat = async function () {
         if (!needPerson()) return;
@@ -936,6 +957,13 @@
         const v = $('conversationId') ? $('conversationId').value.trim() : '';
         if (v) localStorage.setItem(CKEY, v);
       };
+
+      window.addEventListener('load', () => {
+        const pid = localStorage.getItem(PKEY); if (pid && $('personId') && !$('personId').value.trim()) $('personId').value = pid;
+        const cid = localStorage.getItem(CKEY); if (cid && $('conversationId')) $('conversationId').value = cid;
+        const n = localStorage.getItem(NKEY); if (n && $('pName') && !$('pName').value.trim()) $('pName').value = n;
+        restoreBirth(); renderMoon(); renderGreeting(); renderWheel();
+      });
     })();
   </script>
 </body>
