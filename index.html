@@ -1179,6 +1179,164 @@ body.soraya-needs-login #loginSessionCard p {
   }
 }
 
+
+/* ===== Phase B.4.4: inline luxury person picker, no clipping ===== */
+
+/* The synastry cards need to allow natural height. */
+#synastry .card,
+#synastry .syn-wrap,
+#phaseB3PartnerCard {
+  overflow: visible !important;
+}
+
+/* Picker becomes inline, not floating overlay. This prevents cut-off. */
+.soraya-person-picker {
+  position: relative !important;
+  z-index: auto !important;
+}
+
+.soraya-person-menu {
+  position: static !important;
+  display: none;
+  margin-top: 9px;
+  max-height: none !important;
+  overflow: visible !important;
+  border-radius: 18px;
+  padding: 8px;
+  background:
+    radial-gradient(220px 110px at 100% 0%, rgba(126,57,219,.18), transparent 65%),
+    linear-gradient(180deg, rgba(17,14,42,.92), rgba(9,9,26,.92));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.soraya-person-picker.open .soraya-person-menu {
+  display: grid !important;
+  gap: 7px;
+}
+
+.soraya-person-option {
+  min-height: 54px;
+  border: 1px solid rgba(228,181,90,.12);
+  background: rgba(255,255,255,.025);
+}
+
+.soraya-person-option:hover,
+.soraya-person-option.active {
+  border-color: rgba(228,181,90,.38);
+  background:
+    radial-gradient(130px 70px at 15% 0%, rgba(228,181,90,.12), transparent 70%),
+    rgba(228,181,90,.075);
+}
+
+/* Better select layout */
+.partner-select-row {
+  display: grid !important;
+  grid-template-columns: 1fr 54px;
+  gap: 10px;
+  align-items: start !important;
+}
+
+.partner-select-row > div {
+  min-width: 0;
+}
+
+/* Make the trigger premium and not too huge. */
+.soraya-person-trigger {
+  min-height: 54px;
+  border-radius: 18px;
+}
+
+.soraya-person-trigger span {
+  font-size: 11.5px;
+}
+
+/* Hide technical green sync line when everything is already loaded;
+   keep it tiny if there is useful state. */
+#peopleSyncStatus {
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+/* "Neue Person anlegen" should stay below the picker and not be covered. */
+#phaseB3PartnerCard details.soraya-add-person {
+  clear: both;
+  margin-top: 14px !important;
+}
+
+/* Cleaner spacing inside synastry card. */
+#phaseB3PartnerCard {
+  padding-bottom: 20px !important;
+}
+
+#synastry .compat {
+  margin-bottom: 18px;
+}
+
+/* Result should not be hidden by bottom navigation. */
+#synastryText,
+.synastry-description-card {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 430px) {
+  .partner-select-row {
+    grid-template-columns: 1fr 50px !important;
+  }
+
+  .partner-select-row > .btn {
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 54px !important;
+  }
+
+  .soraya-person-menu {
+    padding: 7px;
+  }
+
+  .soraya-person-option {
+    min-height: 50px;
+  }
+}
+
+
+/* ===== Phase B.4.5: Login recovery after logout ===== */
+body.soraya-logged-out #loginSessionCard,
+body.soraya-needs-login #loginSessionCard {
+  display: block !important;
+  margin-top: 12px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  background:
+    radial-gradient(240px 100px at 15% 0%, rgba(228,181,90,.10), transparent 70%),
+    linear-gradient(180deg, rgba(22,17,48,.82), rgba(8,9,25,.82));
+  border: 1px solid rgba(228,181,90,.30);
+}
+
+body.soraya-logged-out #loginSessionCard h4,
+body.soraya-needs-login #loginSessionCard h4 {
+  color: var(--gold2);
+}
+
+body.soraya-logged-out #loginSessionCard p,
+body.soraya-needs-login #loginSessionCard p {
+  color: var(--muted);
+}
+
+body.soraya-logged-out #profileLoginQuickButton {
+  display: inline-flex !important;
+}
+
+#profileLoginQuickButton {
+  display: none;
+  margin-top: 12px;
+}
+
+.soraya-auth-mini {
+  color: var(--muted2);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -2734,6 +2892,224 @@ body.soraya-needs-login #loginSessionCard p {
       };
       wrappedLoad.__phaseB43Wrapped = true;
       window.loadPeopleFromSupabase = wrappedLoad;
+    }
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.4.4: inline picker refinement ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  function closePickerAfterChoice() {
+    const menu = el("sorayaPersonMenu");
+    const picker = el("sorayaPersonPicker");
+    if (!menu || !picker || picker.dataset.b44Bound === "true") return;
+
+    picker.dataset.b44Bound = "true";
+    menu.addEventListener("click", (event) => {
+      const option = event.target.closest(".soraya-person-option[data-value]");
+      if (!option) return;
+      setTimeout(() => {
+        picker.classList.remove("open");
+      }, 80);
+    });
+  }
+
+  function improveTriggerCopy() {
+    const trigger = el("sorayaPersonTrigger");
+    if (!trigger) return;
+
+    const text = trigger.textContent || "";
+    if (text.includes("Person auswählen") && text.includes("gespeicherte Person")) {
+      const count = (text.match(/\d+/) || [""])[0];
+      trigger.innerHTML = `Person auswählen<span>${count ? count + " gespeicherte Partnerperson(en)" : "Gespeicherte Partnerperson"}</span>`;
+    }
+  }
+
+  function reduceSelfDuplicateOptions() {
+    const select = el("synPersonSelect");
+    if (!select) return;
+
+    const currentName = (localStorage.getItem("soraya_person_name") || "").trim().toLowerCase();
+    let selfSeen = false;
+
+    Array.from(select.options).forEach(option => {
+      if (!option.value) return;
+      const label = (option.textContent || "").trim().toLowerCase();
+
+      // Keep at most one own profile option if it appears by mistake.
+      if (currentName && label.startsWith(currentName)) {
+        if (selfSeen) option.remove();
+        selfSeen = true;
+      }
+    });
+  }
+
+  function polishB44() {
+    reduceSelfDuplicateOptions();
+    improveTriggerCopy();
+    closePickerAfterChoice();
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(polishB44, 900);
+    setTimeout(polishB44, 1700);
+
+    const oldShow = window.showSection;
+    if (typeof oldShow === "function" && !oldShow.__phaseB44Wrapped) {
+      const wrapped = function (id) {
+        oldShow(id);
+        setTimeout(polishB44, 300);
+        setTimeout(polishB44, 900);
+      };
+      wrapped.__phaseB44Wrapped = true;
+      window.showSection = wrapped;
+    }
+
+    const oldLoad = window.loadPeopleFromSupabase;
+    if (typeof oldLoad === "function" && !oldLoad.__phaseB44Wrapped) {
+      const wrappedLoad = async function () {
+        const result = await oldLoad.apply(this, arguments);
+        setTimeout(polishB44, 200);
+        return result;
+      };
+      wrappedLoad.__phaseB44Wrapped = true;
+      window.loadPeopleFromSupabase = wrappedLoad;
+    }
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.4.5: login recovery logic ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  async function sessionState() {
+    try {
+      if (!window.sb && typeof window.loadConfig === "function") window.loadConfig();
+      const client = window.sb || (typeof sb !== "undefined" ? sb : null);
+      if (!client || !client.auth) return { ok: false, error: "Supabase-Verbindung fehlt." };
+      const { data, error } = await client.auth.getSession();
+      if (error) return { ok: false, error: error.message };
+      if (!data || !data.session || !data.session.access_token) return { ok: false, error: "Nicht eingeloggt." };
+      return { ok: true, session: data.session };
+    } catch (err) {
+      return { ok: false, error: err.message || String(err) };
+    }
+  }
+
+  function ensureQuickLoginButton() {
+    const profileCard = document.querySelector("#profile .profile-hero");
+    if (!profileCard || el("profileLoginQuickButton")) return;
+
+    const wrap = document.createElement("div");
+    wrap.id = "profileLoginQuickButton";
+    wrap.innerHTML = `
+      <button class="btn gold" onclick="openLogin()">Einloggen</button>
+      <div class="soraya-auth-mini">Du bist abgemeldet. Logge dich ein, um Profil, Synastrie und Chat zu speichern.</div>
+    `;
+
+    const card = profileCard.closest(".card");
+    if (card) card.appendChild(wrap);
+  }
+
+  function findLogoutButton() {
+    const buttons = Array.from(document.querySelectorAll("#profile button, #profile .btn"));
+    return buttons.find(btn => (btn.textContent || "").includes("Abmelden") || (btn.textContent || "").includes("Einloggen"));
+  }
+
+  async function renderAuthUi() {
+    ensureQuickLoginButton();
+
+    const state = await sessionState();
+    const body = document.body;
+    const loginText = el("loginSessionText");
+    const loginCard = el("loginSessionCard");
+    const logoutBtn = findLogoutButton();
+
+    if (state.ok) {
+      body.classList.remove("soraya-logged-out", "soraya-needs-login");
+
+      if (loginText) loginText.textContent = "✅ Eingeloggt als " + (state.session.user && state.session.user.email ? state.session.user.email : "Supabase User") + ". Mobile Endpoints sind bereit.";
+      if (loginCard) loginCard.classList.add("ok");
+
+      if (logoutBtn) {
+        logoutBtn.textContent = "⇥ Abmelden";
+        logoutBtn.onclick = window.signOut;
+      }
+      return true;
+    }
+
+    body.classList.add("soraya-logged-out", "soraya-needs-login");
+
+    if (loginText) loginText.textContent = "Du bist abgemeldet. Bitte einloggen, um Daten zu speichern.";
+    if (loginCard) loginCard.classList.remove("ok");
+
+    if (logoutBtn) {
+      logoutBtn.textContent = "Einloggen";
+      logoutBtn.onclick = function () {
+        if (typeof window.openLogin === "function") window.openLogin();
+      };
+    }
+
+    return false;
+  }
+
+  function wrapAuthFunctions() {
+    const oldSignOut = window.signOut;
+    if (typeof oldSignOut === "function" && !oldSignOut.__phaseB45Wrapped) {
+      const wrappedOut = async function () {
+        const result = await oldSignOut.apply(this, arguments);
+        setTimeout(renderAuthUi, 150);
+        setTimeout(() => {
+          if (window.toast) toast("Du bist abgemeldet. Einloggen ist im Profil wieder sichtbar.");
+        }, 250);
+        return result;
+      };
+      wrappedOut.__phaseB45Wrapped = true;
+      window.signOut = wrappedOut;
+    }
+
+    const oldSignIn = window.signIn;
+    if (typeof oldSignIn === "function" && !oldSignIn.__phaseB45Wrapped) {
+      const wrappedIn = async function () {
+        const result = await oldSignIn.apply(this, arguments);
+        setTimeout(renderAuthUi, 250);
+        return result;
+      };
+      wrappedIn.__phaseB45Wrapped = true;
+      window.signIn = wrappedIn;
+    }
+  }
+
+  window.sorayaRenderAuthUi = renderAuthUi;
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      ensureQuickLoginButton();
+      wrapAuthFunctions();
+      renderAuthUi();
+    }, 900);
+
+    const oldShow = window.showSection;
+    if (typeof oldShow === "function" && !oldShow.__phaseB45Wrapped) {
+      const wrappedShow = function (id) {
+        oldShow(id);
+        if (id === "profile") {
+          setTimeout(() => {
+            ensureQuickLoginButton();
+            wrapAuthFunctions();
+            renderAuthUi();
+          }, 250);
+        }
+      };
+      wrappedShow.__phaseB45Wrapped = true;
+      window.showSection = wrappedShow;
     }
   });
 })();
