@@ -765,6 +765,33 @@ select:-webkit-autofill {
   }
 }
 
+
+/* ===== Phase B.4.1: clearer login/session state ===== */
+.login-session-card {
+  margin-top: 12px;
+  border: 1px solid rgba(255,143,175,.32);
+  background: rgba(255,143,175,.055);
+  color: var(--muted);
+}
+
+.login-session-card.ok {
+  border-color: rgba(85,230,175,.32);
+  background: rgba(85,230,175,.055);
+}
+
+.login-session-card h4 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  color: var(--gold2);
+  font-size: 22px;
+}
+
+.login-session-card p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 </style>
 </head>
 <body>
@@ -1908,6 +1935,133 @@ select:-webkit-autofill {
       wrappedShow.__phaseB4Wrapped = true;
       window.showSection = wrappedShow;
     }
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.4.1: login guard and visible session check ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  async function getSessionSafe() {
+    try {
+      if (!window.sb && typeof window.loadConfig === "function") {
+        window.loadConfig();
+      }
+      if (!window.sb && typeof sb !== "undefined") {
+        window.sb = sb;
+      }
+      const client = window.sb || (typeof sb !== "undefined" ? sb : null);
+      if (!client || !client.auth) return { ok: false, error: "Supabase-Verbindung fehlt." };
+
+      const { data, error } = await client.auth.getSession();
+      if (error) return { ok: false, error: error.message };
+      if (!data || !data.session || !data.session.access_token) {
+        return { ok: false, error: "Nicht eingeloggt oder Session abgelaufen." };
+      }
+      return { ok: true, session: data.session };
+    } catch (err) {
+      return { ok: false, error: err.message || String(err) };
+    }
+  }
+
+  async function ensureLoggedIn(actionName) {
+    const result = await getSessionSafe();
+    if (result.ok) return true;
+
+    const message = "Bitte zuerst einloggen. " + (actionName ? "Dann erneut: " + actionName + "." : "");
+    if (window.toast) toast(message);
+    if (window.status) {
+      ["personResult", "partnerCreateStatus", "synastryText", "peopleSyncStatus"].forEach(id => {
+        const node = el(id);
+        if (node) {
+          if (id === "peopleSyncStatus") node.textContent = message;
+          else status(id, message, "bad");
+        }
+      });
+    }
+
+    if (typeof window.openLogin === "function") {
+      window.openLogin();
+      const authStatus = el("authStatus");
+      if (authStatus) {
+        authStatus.textContent = "Deine Session fehlt oder ist abgelaufen. Bitte mit E-Mail und Passwort einloggen.";
+        authStatus.classList.remove("ok");
+        authStatus.classList.add("bad");
+      }
+    }
+
+    return false;
+  }
+
+  function addSessionCard() {
+    if (el("loginSessionCard")) return;
+
+    const profile = el("profile");
+    if (!profile) return;
+
+    const card = document.createElement("div");
+    card.id = "loginSessionCard";
+    card.className = "card login-session-card";
+    card.innerHTML = `
+      <h4>Login-Status</h4>
+      <p id="loginSessionText">Session wird geprüft ...</p>
+      <button class="btn gold" onclick="window.checkLoginSession()">Login prüfen</button>
+      <button class="btn" onclick="openLogin()" style="margin-left:8px">Einloggen</button>
+    `;
+
+    const title = profile.querySelector(".page-title");
+    if (title) title.insertAdjacentElement("afterend", card);
+  }
+
+  window.checkLoginSession = async function () {
+    addSessionCard();
+    const card = el("loginSessionCard");
+    const text = el("loginSessionText");
+    const result = await getSessionSafe();
+
+    if (result.ok) {
+      if (card) card.classList.add("ok");
+      if (text) text.textContent = "✅ Eingeloggt als " + (result.session.user && result.session.user.email ? result.session.user.email : "Supabase User") + ". Mobile Endpoints sind bereit.";
+      if (window.toast) toast("Login aktiv.");
+      return true;
+    }
+
+    if (card) card.classList.remove("ok");
+    if (text) text.textContent = "⚠️ Nicht eingeloggt: " + result.error;
+    if (window.toast) toast("Bitte einloggen.");
+    return false;
+  };
+
+  function wrapAction(name, label) {
+    const oldFn = window[name];
+    if (typeof oldFn !== "function" || oldFn.__phaseB41Wrapped) return;
+
+    const wrapped = async function () {
+      const ok = await ensureLoggedIn(label);
+      if (!ok) return;
+      return oldFn.apply(this, arguments);
+    };
+
+    wrapped.__phaseB41Wrapped = true;
+    window[name] = wrapped;
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      addSessionCard();
+      window.checkLoginSession && window.checkLoginSession();
+
+      wrapAction("createPerson", "Profil speichern");
+      wrapAction("createSynastryPerson", "Zweite Person speichern");
+      wrapAction("saveSynastry", "Verbindung berechnen");
+      wrapAction("loadPeopleFromSupabase", "Aus Supabase laden");
+      wrapAction("loadAnalysis", "Analyse öffnen");
+      wrapAction("loadHoroscope", "Horoskop laden");
+      wrapAction("sendChat", "Chat senden");
+    }, 800);
   });
 })();
 </script>
