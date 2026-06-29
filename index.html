@@ -362,6 +362,168 @@ select:-webkit-autofill {
   }
 }
 
+
+/* ===== Phase B.2 polish: chart readability + compact data panels ===== */
+#analysis .card:has(#chartWheel) {
+  padding: 12px;
+}
+
+#chartWheel {
+  max-width: 390px;
+}
+
+#realChartPanel {
+  gap: 12px;
+}
+
+#realChartPanel .phaseb-panel {
+  margin-top: 12px;
+}
+
+.chart-meta {
+  max-height: 72px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.phaseb-actions {
+  gap: 8px;
+}
+
+.phaseb-actions .btn {
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.big-three-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.astro-mini-card {
+  min-height: 104px;
+  padding: 12px;
+}
+
+.astro-mini-card h4 {
+  font-size: 19px;
+}
+
+.astro-mini-card p {
+  font-size: 12px;
+}
+
+.planet-list,
+.aspect-list {
+  max-height: 430px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.planet-list::-webkit-scrollbar,
+.aspect-list::-webkit-scrollbar,
+.chart-meta::-webkit-scrollbar {
+  width: 5px;
+}
+
+.planet-list::-webkit-scrollbar-thumb,
+.aspect-list::-webkit-scrollbar-thumb,
+.chart-meta::-webkit-scrollbar-thumb {
+  background: rgba(228,181,90,.38);
+  border-radius: 999px;
+}
+
+.element-list {
+  padding-top: 4px;
+}
+
+.planet-row,
+.aspect-row,
+.element-row {
+  padding: 10px 0;
+}
+
+.planet-row b,
+.aspect-row b,
+.element-row b {
+  font-size: 17px;
+}
+
+.degree-pill {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.chart-tabs button {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--soft);
+  background: rgba(255,255,255,.035);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-tabs button.active {
+  color: #241705;
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--gold2), #d7a13d);
+}
+
+.chart-detail-card {
+  display: none;
+}
+
+.chart-detail-card.active {
+  display: block;
+}
+
+#analysisReading {
+  min-height: 130px;
+}
+
+@media (max-width: 430px) {
+  #chartWheel {
+    max-width: 340px;
+  }
+
+  .big-three-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .astro-mini-card {
+    padding: 10px;
+    min-height: 96px;
+  }
+
+  .astro-mini-card .glyph {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .astro-mini-card h4 {
+    font-size: 17px;
+  }
+
+  .astro-mini-card p {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .planet-list,
+  .aspect-list {
+    max-height: 360px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -739,6 +901,99 @@ select:-webkit-autofill {
       window.createPerson = wrappedCreate;
     }
   });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.2: compact chart tabs + cleaner wheel label placement ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  function waitForPhaseB() {
+    if (!window.loadRealChartData) {
+      setTimeout(waitForPhaseB, 120);
+      return;
+    }
+
+    const oldLoad = window.loadRealChartData;
+    if (oldLoad.__phaseB2Wrapped) return;
+
+    window.loadRealChartData = async function () {
+      const result = await oldLoad.apply(this, arguments);
+      setTimeout(applyChartPanelTabs, 120);
+      setTimeout(polishWheelLabels, 140);
+      return result;
+    };
+    window.loadRealChartData.__phaseB2Wrapped = true;
+
+    window.addEventListener("load", () => {
+      setTimeout(applyChartPanelTabs, 250);
+      setTimeout(polishWheelLabels, 270);
+    });
+  }
+
+  function applyChartPanelTabs() {
+    const panel = el("realChartPanel");
+    if (!panel || panel.dataset.phaseB2Tabs === "true") return;
+
+    const cards = Array.from(panel.querySelectorAll(":scope > .card"));
+    const planetCard = cards.find(c => c.querySelector("#planetList"));
+    const elementCard = cards.find(c => c.querySelector("#elementList"));
+    const aspectCard = cards.find(c => c.querySelector("#aspectList"));
+    if (!planetCard || !elementCard || !aspectCard) return;
+
+    panel.dataset.phaseB2Tabs = "true";
+
+    planetCard.classList.add("chart-detail-card", "active");
+    elementCard.classList.add("chart-detail-card");
+    aspectCard.classList.add("chart-detail-card");
+
+    const tabs = document.createElement("div");
+    tabs.className = "chart-tabs";
+    tabs.innerHTML = `
+      <button class="active" data-chart-tab="planet">Planeten</button>
+      <button data-chart-tab="element">Elemente</button>
+      <button data-chart-tab="aspect">Aspekte</button>
+    `;
+
+    const big = el("bigThreeGrid");
+    if (big) big.insertAdjacentElement("afterend", tabs);
+
+    const tabMap = { planet: planetCard, element: elementCard, aspect: aspectCard };
+    tabs.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-chart-tab]");
+      if (!btn) return;
+      tabs.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(tabMap).forEach(card => card.classList.remove("active"));
+      tabMap[btn.dataset.chartTab].classList.add("active");
+    });
+  }
+
+  function polishWheelLabels() {
+    const svg = el("chartWheel");
+    if (!svg || !svg.classList.contains("real-chart-loaded")) return;
+
+    const texts = Array.from(svg.querySelectorAll("text"));
+    texts.forEach(t => {
+      const content = (t.textContent || "").trim();
+
+      // Make planet labels smaller than sign labels, reducing overlap.
+      if (["☉","☾","☿","♀","♂","♃","♄","♅","♆","♇","⚷","AC","MC","DC","IC"].includes(content)) {
+        t.setAttribute("font-size", content.length > 1 ? "9" : "16");
+        t.setAttribute("font-weight", "700");
+      }
+
+      // House numbers stay subtle.
+      if (/^\d+$/.test(content)) {
+        t.setAttribute("font-size", "9");
+        t.setAttribute("opacity", ".75");
+      }
+    });
+  }
+
+  waitForPhaseB();
 })();
 </script>
 
