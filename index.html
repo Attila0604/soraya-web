@@ -792,6 +792,208 @@ select:-webkit-autofill {
   line-height: 1.55;
 }
 
+
+/* ===== Phase B.4.2: Luxury cleanup after Supabase sync ===== */
+
+/* Remove technical helper text from Home */
+#homeSynastryHint {
+  display: none !important;
+}
+
+/* Login status should not dominate the profile page */
+#loginSessionCard {
+  display: none !important;
+}
+
+body.soraya-needs-login #loginSessionCard {
+  display: block !important;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(126,57,219,.14), rgba(8,9,25,.76));
+  border: 1px solid rgba(228,181,90,.28);
+}
+
+body.soraya-needs-login #loginSessionCard h4 {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+body.soraya-needs-login #loginSessionCard p {
+  font-size: 12.5px;
+  margin-bottom: 10px;
+}
+
+/* Synastry should look premium, not like a database admin panel */
+#phaseB3PartnerCard {
+  padding: 18px !important;
+  border-color: rgba(228,181,90,.26);
+  background:
+    radial-gradient(340px 140px at 82% 0%, rgba(190,108,255,.16), transparent 58%),
+    linear-gradient(180deg, rgba(27,20,58,.82), rgba(10,10,30,.82));
+}
+
+#phaseB3PartnerCard .card-title {
+  margin-bottom: 8px;
+}
+
+#phaseB3PartnerCard .card-title h4 {
+  font-size: 26px;
+}
+
+/* Hide ugly duplicate chip list */
+#partnerChipList {
+  display: none !important;
+}
+
+/* Make sync small and elegant */
+.people-sync-row {
+  margin: 8px 0 10px !important;
+  padding: 10px 12px;
+  border: 1px solid rgba(228,181,90,.18);
+  border-radius: 16px;
+  background: rgba(255,255,255,.028);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.people-sync-row .btn {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 8px 12px !important;
+  font-size: 0 !important;
+  width: 42px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+}
+
+.people-sync-row .btn::before {
+  content: "↻";
+  font-size: 18px;
+  color: var(--gold2);
+}
+
+#peopleSyncStatus {
+  font-size: 12px !important;
+  color: var(--muted2) !important;
+}
+
+#peopleSyncStatus.soraya-ok {
+  color: var(--green) !important;
+}
+
+/* Friendlier select block */
+.partner-select-row {
+  align-items: end;
+}
+
+#synPersonSelect {
+  min-height: 50px;
+  border-color: rgba(228,181,90,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(0,0,0,.30)) !important;
+}
+
+/* Hide raw technical helper copy */
+#phaseB3PartnerCard .synastry-hint {
+  display: none !important;
+}
+
+/* Split create-person into a calmer advanced block */
+#phaseB3PartnerCard details.soraya-add-person {
+  margin-top: 12px;
+}
+
+#phaseB3PartnerCard details.soraya-add-person > summary {
+  list-style: none;
+  cursor: pointer;
+  border: 1px solid rgba(228,181,90,.22);
+  border-radius: 999px;
+  padding: 12px 15px;
+  color: var(--gold2);
+  background: rgba(228,181,90,.06);
+  font-weight: 700;
+  text-align: center;
+}
+
+#phaseB3PartnerCard details.soraya-add-person > summary::-webkit-details-marker {
+  display: none;
+}
+
+#phaseB3PartnerCard details.soraya-add-person[open] > summary {
+  margin-bottom: 14px;
+}
+
+/* The big compatibility circle should feel intentional */
+#synastry .compat {
+  width: 128px;
+  height: 128px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+#synastry .compat > div {
+  width: 98px;
+  height: 98px;
+}
+
+#synastry .compat strong {
+  font-size: 34px;
+}
+
+/* Result description: a bit more elegant */
+.synastry-description-card {
+  border-color: rgba(228,181,90,.28);
+  background:
+    radial-gradient(420px 160px at 20% 0%, rgba(228,181,90,.10), transparent 64%),
+    linear-gradient(180deg, rgba(28,20,58,.85), rgba(8,9,25,.88));
+}
+
+.synastry-result-grid {
+  margin-bottom: 8px;
+}
+
+/* Bottom nav spacing on Synastry */
+#synastry {
+  padding-bottom: 120px;
+}
+
+@media (max-width: 430px) {
+  .people-sync-row {
+    display: flex !important;
+  }
+
+  .people-sync-row .btn {
+    width: 40px;
+    min-width: 40px;
+    margin: 0 !important;
+  }
+
+  .partner-select-row {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+
+  .partner-select-row > div {
+    min-width: 0;
+  }
+
+  .partner-select-row > .btn {
+    height: 50px;
+    padding: 0 14px !important;
+    font-size: 0 !important;
+    border-radius: 18px;
+  }
+
+  .partner-select-row > .btn::before {
+    content: "↻";
+    font-size: 18px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2062,6 +2264,125 @@ select:-webkit-autofill {
       wrapAction("loadHoroscope", "Horoskop laden");
       wrapAction("sendChat", "Chat senden");
     }, 800);
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.4.2: premium UX cleanup ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  function cleanSyncText() {
+    const node = el("peopleSyncStatus");
+    if (!node) return;
+
+    const txt = node.textContent || "";
+    if (txt.includes("Person(en) geladen")) {
+      const match = txt.match(/(\d+)\s+Person\(en\).*?(\d+)\s+mögliche/);
+      if (match) {
+        node.textContent = "Gespeicherte Personen bereit · " + match[2] + " auswählbar";
+      } else {
+        node.textContent = "Gespeicherte Personen bereit";
+      }
+      node.classList.add("soraya-ok");
+    } else if (txt.includes("Personenliste wird lokal")) {
+      node.textContent = "Gespeicherte Personen werden automatisch geladen.";
+      node.classList.remove("soraya-ok");
+    } else if (txt.includes("Supabase-Liste noch nicht")) {
+      node.textContent = "Noch keine gespeicherte Personenliste verfügbar.";
+      node.classList.remove("soraya-ok");
+    }
+  }
+
+  function cleanLoginCard() {
+    const text = el("loginSessionText");
+    const body = document.body;
+    if (!text || !body) return;
+
+    const txt = text.textContent || "";
+    if (txt.includes("✅") || txt.includes("Eingeloggt")) {
+      body.classList.remove("soraya-needs-login");
+    } else {
+      body.classList.add("soraya-needs-login");
+    }
+  }
+
+  function wrapAddPersonForm() {
+    const card = el("phaseB3PartnerCard");
+    if (!card || card.dataset.b42Wrapped === "true") return;
+
+    const title = Array.from(card.querySelectorAll("h4")).find(h => (h.textContent || "").includes("Neue Person anlegen"));
+    if (!title) return;
+
+    const container = title.closest("div[style*='margin-top']") || title.parentElement;
+    if (!container || container.closest("details.soraya-add-person")) return;
+
+    const details = document.createElement("details");
+    details.className = "soraya-add-person";
+    details.open = false;
+
+    const summary = document.createElement("summary");
+    summary.textContent = "＋ Neue Person anlegen";
+    details.appendChild(summary);
+
+    container.parentNode.insertBefore(details, container);
+    details.appendChild(container);
+
+    // Make duplicate heading smaller by changing text
+    title.textContent = "Geburtsdaten";
+    card.dataset.b42Wrapped = "true";
+  }
+
+  function cleanSelectOptions() {
+    const select = el("synPersonSelect");
+    if (!select) return;
+
+    const seen = new Set();
+    Array.from(select.options).forEach(option => {
+      const normalized = (option.textContent || "").trim().toLowerCase();
+      if (!option.value) return;
+      if (seen.has(normalized)) {
+        option.remove();
+      } else {
+        seen.add(normalized);
+      }
+    });
+  }
+
+  function polish() {
+    cleanSyncText();
+    cleanLoginCard();
+    wrapAddPersonForm();
+    cleanSelectOptions();
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(polish, 700);
+    setTimeout(polish, 1400);
+
+    const oldShowSection = window.showSection;
+    if (typeof oldShowSection === "function" && !oldShowSection.__phaseB42Wrapped) {
+      const wrappedShow = function (id) {
+        oldShowSection(id);
+        setTimeout(polish, 300);
+        setTimeout(polish, 900);
+      };
+      wrappedShow.__phaseB42Wrapped = true;
+      window.showSection = wrappedShow;
+    }
+
+    const oldLoadPeople = window.loadPeopleFromSupabase;
+    if (typeof oldLoadPeople === "function" && !oldLoadPeople.__phaseB42Wrapped) {
+      const wrappedLoad = async function () {
+        const result = await oldLoadPeople.apply(this, arguments);
+        setTimeout(polish, 150);
+        return result;
+      };
+      wrappedLoad.__phaseB42Wrapped = true;
+      window.loadPeopleFromSupabase = wrappedLoad;
+    }
   });
 })();
 </script>
