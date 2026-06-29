@@ -1,0 +1,17 @@
+# Soraya Phase A.1 Polish
+
+Diese Version baut auf Phase A auf und korrigiert die sichtbaren UI-Probleme:
+
+- dunkle Eingabefelder, auch bei Browser-Autofill
+- mehr Abstand über der Bottom-Navigation
+- längere Analyse-/Horoskoptexte werden nicht verdeckt
+- Chat-Karte flexibler und sauberer
+- dezente Scrollbar im Chat
+- Statistik-Zahlen lesbarer
+- kleine Mobile/Desktop-Optimierungen
+- Ctrl/Cmd + Enter sendet Chatnachricht
+
+Einbau:
+1. `index.html` ersetzen.
+2. `manifest.webmanifest` und `icon.svg` unverändert im Repo lassen.
+3. Commit: `Phase A.1 UI polish`
