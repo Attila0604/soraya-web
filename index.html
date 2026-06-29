@@ -41,6 +41,167 @@
     .tabbar{position:fixed;z-index:45;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,480px);padding:10px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:2px;background:rgba(6,7,20,.88);backdrop-filter:blur(18px);border-top:1px solid var(--soft);box-shadow:0 -16px 42px rgba(0,0,0,.34)}.tabbar button{flex:1;border:0;background:transparent;color:var(--muted2);display:grid;place-items:center;gap:3px;font-size:10.5px;padding:4px 0}.tabbar button b{font-size:22px;font-weight:400}.tabbar button.active{color:var(--gold2)}
     .modal-backdrop{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,4,12,.74);backdrop-filter:blur(14px)}.modal-backdrop.open{display:flex}.modal{width:min(100%,430px);max-height:90dvh;overflow-y:auto;padding:22px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,13,38,.98),rgba(7,8,24,.98));box-shadow:0 30px 90px rgba(0,0,0,.62)}.toast{position:fixed;z-index:100;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(18px);opacity:0;pointer-events:none;padding:12px 18px;color:var(--bone);background:rgba(12,10,30,.96);border:1px solid var(--line);border-radius:16px;box-shadow:0 26px 80px rgba(0,0,0,.48);transition:.25s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.dev-note{color:var(--muted2);font-size:12px;margin-top:10px}
     @media(max-width:390px){.app{padding-left:14px;padding-right:14px}.hero-card{grid-template-columns:104px 1fr}.zodiac-art{width:104px;height:104px}.zodiac-art span{font-size:52px}.shortcut-grid{gap:8px}.tile{min-height:92px}.two-grid,.ritual-grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  
+/* ===== Phase A.1 polish: input autofill, bottom spacing, chat, readable stats ===== */
+html, body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+.app {
+  padding-bottom: calc(150px + env(safe-area-inset-bottom)) !important;
+}
+
+.section {
+  padding-bottom: 62px;
+}
+
+.card:last-child {
+  margin-bottom: 34px;
+}
+
+/* Dark inputs, including Chrome/Edge autofill */
+input,
+textarea,
+select {
+  color: var(--bone) !important;
+  background: rgba(0, 0, 0, .42) !important;
+  caret-color: var(--gold-2);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(180, 166, 201, .68);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--bone) !important;
+  -webkit-box-shadow: 0 0 0 1000px #0a0920 inset !important;
+  box-shadow: 0 0 0 1000px #0a0920 inset !important;
+  border: 1px solid var(--line) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Cleaner chat layout */
+.chat-card {
+  min-height: min(74dvh, 720px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-window {
+  flex: 1;
+  height: auto !important;
+  min-height: 360px;
+  max-height: none;
+  padding-right: 8px;
+}
+
+.chat-window::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+  background: rgba(228, 181, 90, .42);
+  border-radius: 999px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bubble {
+  max-width: 92%;
+}
+
+.bubble.assistant {
+  background: rgba(255,255,255,.06);
+}
+
+/* Keep composer and buttons clear of mobile nav */
+.composer {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(11, 10, 31, 0), rgba(11, 10, 31, .96) 28%);
+  padding-top: 14px;
+}
+
+/* Statistics: avoid serif “1” looking like I */
+.stat b,
+#daysStat,
+#analysisStat,
+#savedStat {
+  font-family: var(--body) !important;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+/* Long text should not hide behind tabbar */
+.reading,
+#horoBody,
+#analysisReading {
+  padding-bottom: 28px;
+}
+
+/* Desktop presentation */
+@media (min-width: 720px) {
+  body {
+    display: block;
+  }
+
+  .app {
+    width: min(100%, 520px);
+  }
+
+  .tabbar {
+    width: min(100%, 520px);
+  }
+}
+
+@media (max-width: 430px) {
+  .two-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-card {
+    grid-template-columns: 108px 1fr;
+  }
+
+  .zodiac-art {
+    width: 108px;
+    height: 108px;
+  }
+
+  .zodiac-art span {
+    font-size: 54px;
+  }
+
+  .shortcut-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .tile {
+    min-height: 92px;
+    padding: 12px 5px;
+  }
+
+  .tile b {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  .card {
+    border-radius: 22px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -83,5 +244,21 @@
     function renderGreeting(){const h=new Date().getHours(),g=h<11?'Guten Morgen':h<18?'Schön, dass du da bist':'Guten Abend',name=localStorage.getItem(KEYS.name)||'du';$('greetLine').innerHTML=g+',<br><span class="gold" id="heroName">'+escapeHtml(name)+'</span>.'}function renderIdentity(){const name=localStorage.getItem(KEYS.name)||'Dein Profil';$('profileTitle').textContent=name;$('profileInitial').textContent=(name[0]||'S').toUpperCase();renderGreeting();let b=null;try{b=JSON.parse(localStorage.getItem(KEYS.birth)||'null')}catch(e){}if(b){renderSun(Number(b.day),Number(b.month));$('pName').value=$('pName').value||b.name||'';$('pDay').value=$('pDay').value||b.day||'';$('pMonth').value=$('pMonth').value||b.month||'';$('pYear').value=$('pYear').value||b.year||'';$('pHour').value=$('pHour').value||(b.hour??'');$('pMinute').value=$('pMinute').value||(b.minute??'');$('pBirthplace').value=$('pBirthplace').value||b.birthplace||''}const pid=localStorage.getItem(KEYS.person);if(pid)$('personId').value=pid;const cid=localStorage.getItem(KEYS.conv);if(cid)$('conversationId').value=cid;const created=localStorage.getItem(KEYS.created);if(created){$('daysStat').textContent=Math.max(1,Math.round((Date.now()-new Date(created).getTime())/86400000))}$('analysisStat').textContent=localStorage.getItem(KEYS.analyses)||'0'}window._sorayaPreview=function(){const d=Number($('pDay').value),m=Number($('pMonth').value);if(d>=1&&d<=31&&m>=1&&m<=12)renderSun(d,m);const n=$('pName').value.trim();if(n){localStorage.setItem(KEYS.name,n);renderIdentity()}}
     function renderWheel(){const svg=$('chartWheel'),C=210,gold='#e4b55a',pale='rgba(228,181,90,.32)',violet='rgba(190,108,255,.48)';if(!svg)return;const glyphs=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];let p='';const ring=(r,c,w)=>`<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="${c}" stroke-width="${w}"/>`;p+=ring(190,pale,1)+ring(150,gold,1.2)+ring(110,'rgba(228,181,90,.18)',1)+ring(70,'rgba(228,181,90,.14)',1);for(let i=0;i<12;i++){const a=(i*30-90)*Math.PI/180;p+=`<line x1="${C+110*Math.cos(a)}" y1="${C+110*Math.sin(a)}" x2="${C+190*Math.cos(a)}" y2="${C+190*Math.sin(a)}" stroke="${pale}" stroke-width="1"/>`;const ga=((i*30)+15-90)*Math.PI/180;p+=`<text x="${C+170*Math.cos(ga)}" y="${C+170*Math.sin(ga)}" fill="${gold}" font-size="21" text-anchor="middle" dominant-baseline="central">${glyphs[i]}</text>`}const pts=[];for(let i=0;i<9;i++){const a=(i*40+7-90)*Math.PI/180;pts.push([C+82*Math.cos(a),C+82*Math.sin(a)]);p+=`<circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="3" fill="${i%2?gold:'#be6cff'}"/>`}for(let i=0;i<pts.length;i++)for(let j=i+2;j<pts.length;j+=3)p+=`<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[j][0]}" y2="${pts[j][1]}" stroke="${j%2?violet:'rgba(228,181,90,.4)'}" stroke-width="1"/>`;p+=`<circle cx="${C}" cy="${C}" r="5" fill="${gold}"/>`;svg.innerHTML=p}window.addEventListener('load',async()=>{loadConfig();renderMoon();renderIdentity();renderWheel();if(sb){try{const{data}=await sb.auth.getSession();if(data.session&&data.session.user&&!localStorage.getItem(KEYS.name)){localStorage.setItem(KEYS.name,(data.session.user.email||'du').split('@')[0]);renderIdentity()}}catch(e){}}})
   </script>
+
+<script>
+  window.addEventListener('load', () => {
+    const msg = document.getElementById('chatMessage');
+    if (msg && !msg.dataset.phaseA1) {
+      msg.dataset.phaseA1 = 'true';
+      msg.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+          event.preventDefault();
+          if (window.sendChat) window.sendChat();
+        }
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
