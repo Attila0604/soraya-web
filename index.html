@@ -994,6 +994,191 @@ body.soraya-needs-login #loginSessionCard p {
   }
 }
 
+
+/* ===== Phase B.4.3: custom luxury person picker ===== */
+
+/* Native select is hidden because open native dropdown cannot be styled reliably */
+#synPersonSelect {
+  display: none !important;
+}
+
+.soraya-person-picker {
+  position: relative;
+  width: 100%;
+  z-index: 30;
+}
+
+.soraya-person-trigger {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid rgba(228,181,90,.32);
+  background:
+    radial-gradient(180px 80px at 18% 0%, rgba(228,181,90,.08), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(0,0,0,.38));
+  color: var(--bone);
+  border-radius: 18px;
+  padding: 0 44px 0 16px;
+  text-align: left;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  position: relative;
+}
+
+.soraya-person-trigger::after {
+  content: "⌄";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-54%);
+  color: var(--gold2);
+  font-size: 18px;
+}
+
+.soraya-person-trigger span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.soraya-person-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  display: none;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(228,181,90,.34);
+  background:
+    radial-gradient(240px 120px at 100% 0%, rgba(126,57,219,.26), transparent 65%),
+    linear-gradient(180deg, rgba(25,18,55,.98), rgba(8,9,25,.98));
+  box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter: blur(18px);
+  padding: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.soraya-person-picker.open .soraya-person-menu {
+  display: grid;
+  gap: 6px;
+}
+
+.soraya-person-option {
+  border: 0;
+  width: 100%;
+  min-height: 48px;
+  border-radius: 15px;
+  padding: 10px 12px;
+  color: var(--bone);
+  background: transparent;
+  text-align: left;
+  font-weight: 700;
+}
+
+.soraya-person-option small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.soraya-person-option:hover,
+.soraya-person-option.active {
+  background: rgba(228,181,90,.11);
+  color: var(--gold2);
+}
+
+.soraya-person-option.empty {
+  color: var(--muted2);
+  font-weight: 600;
+}
+
+/* Hide the old text-heavy refresh button and replace it visually */
+.partner-select-row > .btn {
+  width: 54px !important;
+  min-width: 54px !important;
+  height: 54px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+  border-radius: 18px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-color: rgba(228,181,90,.24);
+}
+
+.partner-select-row > .btn::before {
+  content: "↻";
+  font-size: 20px;
+  color: var(--gold2);
+}
+
+/* Make sync text almost invisible unless relevant */
+.people-sync-row {
+  padding: 0 !important;
+  margin: 8px 0 12px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.people-sync-row .btn {
+  display: none !important;
+}
+
+#peopleSyncStatus {
+  display: block;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(85,230,175,.055);
+  border: 1px solid rgba(85,230,175,.20);
+  color: var(--green) !important;
+  font-size: 11.5px !important;
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Synastry card spacing refinement */
+#phaseB3PartnerCard {
+  margin-top: 18px !important;
+}
+
+#phaseB3PartnerCard label {
+  margin-top: 10px;
+}
+
+/* Keep add-person summary visible but premium */
+#phaseB3PartnerCard details.soraya-add-person > summary {
+  background:
+    radial-gradient(160px 70px at 20% 0%, rgba(228,181,90,.11), transparent 68%),
+    rgba(255,255,255,.028);
+}
+
+/* Profile bottom cleanup */
+#profile {
+  padding-bottom: 150px;
+}
+
+#profile .card:last-of-type {
+  margin-bottom: 18px;
+}
+
+#profile > .btn.block:last-child {
+  margin-bottom: 60px;
+}
+
+@media (max-width: 430px) {
+  .partner-select-row {
+    grid-template-columns: 1fr 54px !important;
+  }
+
+  .soraya-person-menu {
+    max-height: 230px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2381,6 +2566,173 @@ body.soraya-needs-login #loginSessionCard p {
         return result;
       };
       wrappedLoad.__phaseB42Wrapped = true;
+      window.loadPeopleFromSupabase = wrappedLoad;
+    }
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.4.3: custom luxury person picker logic ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  function parseOptionLabel(option) {
+    const raw = (option.textContent || "").trim();
+    const parts = raw.split("·").map(x => x.trim()).filter(Boolean);
+    return {
+      title: parts[0] || raw || "Person",
+      subtitle: parts.slice(1).join(" · ")
+    };
+  }
+
+  function ensurePicker() {
+    const select = el("synPersonSelect");
+    if (!select) return;
+
+    let picker = el("sorayaPersonPicker");
+    if (!picker) {
+      picker = document.createElement("div");
+      picker.id = "sorayaPersonPicker";
+      picker.className = "soraya-person-picker";
+      picker.innerHTML = `
+        <button type="button" class="soraya-person-trigger" id="sorayaPersonTrigger">Person auswählen<span>Gespeicherte Partnerperson</span></button>
+        <div class="soraya-person-menu" id="sorayaPersonMenu"></div>
+      `;
+      select.insertAdjacentElement("afterend", picker);
+
+      const trigger = el("sorayaPersonTrigger");
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        picker.classList.toggle("open");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!picker.contains(event.target)) picker.classList.remove("open");
+      });
+    }
+
+    renderPickerOptions();
+  }
+
+  function renderPickerOptions() {
+    const select = el("synPersonSelect");
+    const picker = el("sorayaPersonPicker");
+    const menu = el("sorayaPersonMenu");
+    const trigger = el("sorayaPersonTrigger");
+    if (!select || !picker || !menu || !trigger) return;
+
+    const options = Array.from(select.options);
+    const realOptions = options.filter(o => o.value);
+
+    if (!realOptions.length) {
+      menu.innerHTML = `<button type="button" class="soraya-person-option empty">Noch keine Person gespeichert<small>Lege unten eine zweite Person an.</small></button>`;
+      trigger.innerHTML = `Person auswählen<span>Noch keine gespeicherte Partnerperson</span>`;
+      return;
+    }
+
+    const seen = new Set();
+    const unique = [];
+    realOptions.forEach(o => {
+      const parsed = parseOptionLabel(o);
+      const key = (parsed.title + "|" + parsed.subtitle).toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(o);
+      }
+    });
+
+    menu.innerHTML = unique.map(o => {
+      const p = parseOptionLabel(o);
+      const active = o.value === select.value ? " active" : "";
+      return `<button type="button" class="soraya-person-option${active}" data-value="${o.value.replace(/"/g, "&quot;")}">${p.title}<small>${p.subtitle || "gespeichert"}</small></button>`;
+    }).join("");
+
+    menu.querySelectorAll("[data-value]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        select.value = btn.dataset.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        const p = { title: btn.childNodes[0].textContent.trim(), subtitle: btn.querySelector("small") ? btn.querySelector("small").textContent : "" };
+        trigger.innerHTML = `${p.title}<span>${p.subtitle || "gespeicherte Person"}</span>`;
+        picker.classList.remove("open");
+        renderPickerOptions();
+      });
+    });
+
+    const selected = unique.find(o => o.value === select.value);
+    if (selected) {
+      const p = parseOptionLabel(selected);
+      trigger.innerHTML = `${p.title}<span>${p.subtitle || "gespeicherte Person"}</span>`;
+    } else {
+      trigger.innerHTML = `Person auswählen<span>${unique.length} gespeicherte Person(en)</span>`;
+    }
+  }
+
+  function cleanTechnicalCopy() {
+    const sync = el("peopleSyncStatus");
+    if (sync) {
+      const text = sync.textContent || "";
+      if (text.includes("auswählbar") || text.includes("geladen")) {
+        const m = text.match(/(\d+)\s+auswählbar|(\d+)\s+mögliche/);
+        const count = m ? (m[1] || m[2]) : "";
+        sync.textContent = count ? `✦ ${count} gespeicherte Partnerperson(en)` : "✦ Gespeicherte Personen bereit";
+      }
+    }
+
+    // Remove duplicated self names from native select before picker reads it.
+    const select = el("synPersonSelect");
+    if (select) {
+      const seen = new Set();
+      Array.from(select.options).forEach(option => {
+        if (!option.value) return;
+        const key = (option.textContent || "").trim().toLowerCase();
+        if (seen.has(key)) option.remove();
+        else seen.add(key);
+      });
+    }
+  }
+
+  function bootPicker() {
+    cleanTechnicalCopy();
+    ensurePicker();
+    renderPickerOptions();
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(bootPicker, 900);
+    setTimeout(bootPicker, 1600);
+
+    const oldShow = window.showSection;
+    if (typeof oldShow === "function" && !oldShow.__phaseB43Wrapped) {
+      const wrapped = function (id) {
+        oldShow(id);
+        setTimeout(bootPicker, 350);
+        setTimeout(bootPicker, 1000);
+      };
+      wrapped.__phaseB43Wrapped = true;
+      window.showSection = wrapped;
+    }
+
+    const oldRefresh = window.refreshSynastryPeople;
+    if (typeof oldRefresh === "function" && !oldRefresh.__phaseB43Wrapped) {
+      const wrappedRefresh = function () {
+        const result = oldRefresh.apply(this, arguments);
+        setTimeout(bootPicker, 120);
+        return result;
+      };
+      wrappedRefresh.__phaseB43Wrapped = true;
+      window.refreshSynastryPeople = wrappedRefresh;
+    }
+
+    const oldLoad = window.loadPeopleFromSupabase;
+    if (typeof oldLoad === "function" && !oldLoad.__phaseB43Wrapped) {
+      const wrappedLoad = async function () {
+        const result = await oldLoad.apply(this, arguments);
+        setTimeout(bootPicker, 180);
+        return result;
+      };
+      wrappedLoad.__phaseB43Wrapped = true;
       window.loadPeopleFromSupabase = wrappedLoad;
     }
   });
