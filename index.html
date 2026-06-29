@@ -626,6 +626,45 @@ select:-webkit-autofill {
   }
 }
 
+
+/* ===== Phase B.3.1: make Synastry selector clearly visible ===== */
+#synastry .syn-wrap {
+  text-align: left;
+}
+
+.syn-wrap .compat {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.synastry-open-helper {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.home-synastry-hint {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--muted2);
+  font-size: 12px;
+}
+
+/* Keep the second-person UI high enough on screen */
+#phaseB3PartnerCard {
+  margin-top: 12px !important;
+}
+
+#phaseB3PartnerCard .card-title h4 {
+  color: var(--gold2);
+}
+
+/* Make Synastry result easier to read */
+#synastryText.ok {
+  color: var(--bone);
+}
+
 </style>
 </head>
 <body>
@@ -1407,6 +1446,69 @@ select:-webkit-autofill {
       wrappedShow.__phaseB3Wrapped = true;
       window.showSection = wrappedShow;
     }
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.3.1: visibility helper and chart-note correction ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  function updateChartNote() {
+    const cards = document.querySelectorAll("#analysis .card");
+    cards.forEach(card => {
+      const text = card.textContent || "";
+      if (text.includes("Phase A: Das Rad ist dekorativ")) {
+        const nodes = Array.from(card.querySelectorAll("p, .dev-note, .phaseb-note"));
+        nodes.forEach(n => {
+          if ((n.textContent || "").includes("Phase A: Das Rad ist dekorativ")) {
+            n.textContent = "Phase B: Dieses Rad nutzt echte Chart-Daten aus deinem Backend. Planeten, Häuser und Aspekte werden berechnet visualisiert.";
+          }
+        });
+      }
+    });
+  }
+
+  function addSynastryHints() {
+    const synSection = el("synastry");
+    if (synSection && !el("synastryOpenHelper")) {
+      const title = synSection.querySelector(".page-title");
+      if (title) {
+        const p = document.createElement("p");
+        p.id = "synastryOpenHelper";
+        p.className = "synastry-open-helper";
+        p.textContent = "Lege eine zweite Person an oder wähle eine gespeicherte Person. Danach berechnet Soraya eure Verbindung.";
+        title.appendChild(p);
+      }
+    }
+
+    const tile = Array.from(document.querySelectorAll(".tile")).find(t => (t.textContent || "").includes("Synastrie"));
+    if (tile && !document.getElementById("homeSynastryHint")) {
+      const hint = document.createElement("div");
+      hint.id = "homeSynastryHint";
+      hint.className = "home-synastry-hint";
+      hint.textContent = "Synastrie ist über diesen Shortcut erreichbar.";
+      const grid = tile.closest(".shortcut-grid");
+      if (grid) grid.insertAdjacentElement("afterend", hint);
+    }
+  }
+
+  function verifyB3Ui() {
+    // If B3 partner UI was not created yet, try to open helper by re-triggering the wrapped section flow.
+    if (!el("phaseB3PartnerCard") && typeof window.showSection === "function") {
+      const active = document.querySelector(".section.active");
+      if (active && active.id === "synastry") {
+        setTimeout(() => window.showSection("synastry"), 100);
+      }
+    }
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(updateChartNote, 250);
+    setTimeout(addSynastryHints, 300);
+    setTimeout(verifyB3Ui, 500);
   });
 })();
 </script>
