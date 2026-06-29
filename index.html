@@ -202,7 +202,167 @@ select:-webkit-autofill {
   }
 }
 
-  </style>
+  
+/* ===== Phase B.1: real chart data panels ===== */
+.phaseb-panel {
+  margin-top: 16px;
+}
+
+.phaseb-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.chart-meta {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+
+.real-chart-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.big-three-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+}
+
+.astro-mini-card {
+  border: 1px solid var(--soft);
+  border-radius: 18px;
+  background: rgba(255,255,255,.035);
+  padding: 14px;
+  min-height: 112px;
+}
+
+.astro-mini-card .glyph {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--gold2);
+  margin-bottom: 8px;
+  background: rgba(228,181,90,.08);
+}
+
+.astro-mini-card h4 {
+  font-family: var(--display);
+  font-size: 22px;
+  margin: 0;
+  color: var(--bone);
+}
+
+.astro-mini-card p {
+  color: var(--muted);
+  margin: 4px 0 0;
+  font-size: 12.5px;
+}
+
+.planet-list,
+.aspect-list,
+.element-list {
+  display: grid;
+  gap: 8px;
+}
+
+.planet-row,
+.aspect-row,
+.element-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--soft);
+}
+
+.planet-row:last-child,
+.aspect-row:last-child,
+.element-row:last-child {
+  border-bottom: 0;
+}
+
+.planet-row .left,
+.aspect-row .left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.planet-row b,
+.aspect-row b,
+.element-row b {
+  font-family: var(--display);
+  font-size: 19px;
+  color: var(--bone);
+}
+
+.planet-row small,
+.aspect-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.degree-pill {
+  color: var(--gold2);
+  border: 1px solid var(--line);
+  background: rgba(228,181,90,.08);
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.element-bar {
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.07);
+  overflow: hidden;
+  margin: 0 10px;
+}
+
+.element-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--violet2), var(--gold2));
+}
+
+.phaseb-note {
+  color: var(--muted2);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+#chartWheel.real-chart-loaded text {
+  font-family: var(--body);
+}
+
+@media (max-width: 430px) {
+  .big-three-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .planet-row,
+  .aspect-row,
+  .element-row {
+    align-items: flex-start;
+  }
+}
+
+</style>
 </head>
 <body>
   <div class="cosmos"></div>
@@ -258,6 +418,328 @@ select:-webkit-autofill {
       });
     }
   });
+</script>
+
+
+<script>
+/* ===== Phase B.1: real chart from backend /chart endpoint ===== */
+(function () {
+  const PLANET_GLYPHS = {
+    Sun: "☉",
+    Moon: "☾",
+    Mercury: "☿",
+    Venus: "♀",
+    Mars: "♂",
+    Jupiter: "♃",
+    Saturn: "♄",
+    Uranus: "♅",
+    Neptune: "♆",
+    Pluto: "♇",
+    Chiron: "⚷",
+    True_North_Lunar_Node: "☊",
+    Mean_Lilith: "⚸",
+    Ascendant: "AC",
+    Medium_Coeli: "MC",
+    Descendant: "DC",
+    Imum_Coeli: "IC"
+  };
+
+  const SIGN_GLYPHS = {
+    Ari: "♈", Tau: "♉", Gem: "♊", Can: "♋", Leo: "♌", Vir: "♍",
+    Lib: "♎", Sco: "♏", Sag: "♐", Cap: "♑", Aqu: "♒", Pis: "♓",
+    Widder: "♈", Stier: "♉", Zwillinge: "♊", Krebs: "♋", Loewe: "♌", Löwe: "♌",
+    Jungfrau: "♍", Waage: "♎", Skorpion: "♏", Schuetze: "♐", Schütze: "♐",
+    Steinbock: "♑", Wassermann: "♒", Fische: "♓"
+  };
+
+  const SIGN_ORDER = ["Ari","Tau","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aqu","Pis"];
+  const CORE_POINTS = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron","Ascendant","Medium_Coeli"];
+  const CORE_DISPLAY = new Set(CORE_POINTS);
+
+  let lastChartData = null;
+  let loadingChart = false;
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function getConfigEngineUrl() {
+    const raw = localStorage.getItem("soraya_config");
+    if (!raw) throw new Error("Bitte zuerst unter Verbindung die Backend URL speichern.");
+    const config = JSON.parse(raw);
+    if (!config.engineUrl) throw new Error("Backend URL fehlt in Verbindung.");
+    return config.engineUrl.replace(/\/$/, "");
+  }
+
+  async function callEnginePublic(path, body) {
+    const res = await fetch(getConfigEngineUrl() + path, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body || {})
+    });
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      throw new Error(text || "Ungültige Backend-Antwort.");
+    }
+    if (!res.ok || json.ok === false) throw new Error(json.detail || json.error || ("HTTP " + res.status));
+    return json;
+  }
+
+  function numberOrNull(value) {
+    if (value === undefined || value === null || value === "") return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function getBirthPayload() {
+    let b = null;
+    try { b = JSON.parse(localStorage.getItem("soraya_birth") || "null"); } catch (e) {}
+    const payload = {
+      name: (b && b.name) || (el("pName") && el("pName").value.trim()) || "Unbenannt",
+      year: numberOrNull((b && b.year) || (el("pYear") && el("pYear").value)),
+      month: numberOrNull((b && b.month) || (el("pMonth") && el("pMonth").value)),
+      day: numberOrNull((b && b.day) || (el("pDay") && el("pDay").value)),
+      hour: numberOrNull((b && b.hour) ?? (el("pHour") && el("pHour").value)),
+      minute: numberOrNull((b && b.minute) ?? (el("pMinute") && el("pMinute").value)),
+      birthplace: (b && b.birthplace) || (el("pBirthplace") && el("pBirthplace").value.trim()) || ""
+    };
+
+    if (!payload.year || !payload.month || !payload.day || !payload.birthplace) {
+      throw new Error("Bitte Profil mit Geburtsdatum und Geburtsort speichern.");
+    }
+
+    return payload;
+  }
+
+  function fmtDeg(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "–";
+    const deg = Math.floor(n);
+    const min = Math.round((n - deg) * 60);
+    return deg + "°" + String(min).padStart(2, "0") + "′";
+  }
+
+  function angleXY(center, radius, absPos) {
+    const a = (Number(absPos) - 90) * Math.PI / 180;
+    return [center + radius * Math.cos(a), center + radius * Math.sin(a)];
+  }
+
+  function aspectColor(type) {
+    if (type === "trine" || type === "sextile") return "rgba(190,108,255,.58)";
+    if (type === "square" || type === "opposition") return "rgba(228,181,90,.48)";
+    return "rgba(255,255,255,.22)";
+  }
+
+  function renderRealWheel(chart) {
+    const svg = el("chartWheel");
+    if (!svg || !chart) return;
+
+    const C = 210, outer = 190, signR = 169, houseR = 149, pointR = 126, aspectR = 94;
+    const gold = "#e4b55a";
+    const pale = "rgba(228,181,90,.32)";
+    const soft = "rgba(228,181,90,.14)";
+    const points = (chart.points || []).filter(p => CORE_DISPLAY.has(p.name));
+    const pointMap = new Map(points.map(p => [p.name, p]));
+
+    let out = "";
+    const ring = (r, c, w) => `<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="${c}" stroke-width="${w}"/>`;
+    out += ring(outer, pale, 1);
+    out += ring(houseR, gold, 1.2);
+    out += ring(110, soft, 1);
+    out += ring(70, soft, 1);
+
+    for (let i = 0; i < 12; i++) {
+      const cusp = i * 30;
+      const [x1, y1] = angleXY(C, houseR, cusp);
+      const [x2, y2] = angleXY(C, outer, cusp);
+      const [gx, gy] = angleXY(C, signR, cusp + 15);
+      out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${pale}" stroke-width="1"/>`;
+      out += `<text x="${gx}" y="${gy}" fill="${gold}" font-size="21" text-anchor="middle" dominant-baseline="central">${SIGN_GLYPHS[SIGN_ORDER[i]]}</text>`;
+    }
+
+    (chart.houses || []).forEach(h => {
+      const [x1, y1] = angleXY(C, 72, h.cusp_abs_pos);
+      const [x2, y2] = angleXY(C, houseR, h.cusp_abs_pos);
+      const [tx, ty] = angleXY(C, 136, h.cusp_abs_pos + 5);
+      out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(228,181,90,.22)" stroke-width="1"/>`;
+      out += `<text x="${tx}" y="${ty}" fill="rgba(180,166,201,.78)" font-size="10" text-anchor="middle" dominant-baseline="central">${h.number}</text>`;
+    });
+
+    (chart.aspects || []).slice(0, 24).forEach(a => {
+      const p1 = pointMap.get(a.p1);
+      const p2 = pointMap.get(a.p2);
+      if (!p1 || !p2) return;
+      const [x1, y1] = angleXY(C, aspectR, p1.abs_pos);
+      const [x2, y2] = angleXY(C, aspectR, p2.abs_pos);
+      out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${aspectColor(a.type)}" stroke-width="1"/>`;
+    });
+
+    points.forEach((p, idx) => {
+      const r = pointR + (idx % 3) * 10;
+      const [x, y] = angleXY(C, r, p.abs_pos);
+      const [dx, dy] = angleXY(C, 106, p.abs_pos);
+      const glyph = PLANET_GLYPHS[p.name] || "•";
+      out += `<circle cx="${dx}" cy="${dy}" r="3.2" fill="${idx % 2 ? "#be6cff" : gold}"/>`;
+      out += `<text x="${x}" y="${y}" fill="${p.name === "Ascendant" ? "#f7dc91" : "#be6cff"}" font-size="${glyph.length > 1 ? 11 : 20}" font-weight="700" text-anchor="middle" dominant-baseline="central">${glyph}</text>`;
+    });
+
+    out += `<circle cx="${C}" cy="${C}" r="5" fill="${gold}"/>`;
+    svg.innerHTML = out;
+    svg.classList.add("real-chart-loaded");
+  }
+
+  function miniCard(title, point) {
+    if (!point) return "";
+    return `
+      <div class="astro-mini-card">
+        <div class="glyph">${PLANET_GLYPHS[point.name] || SIGN_GLYPHS[point.sign] || "✦"}</div>
+        <h4>${title}</h4>
+        <p>${point.sign_de || point.sign} · ${fmtDeg(point.degree)}${point.house ? " · Haus " + point.house : ""}</p>
+      </div>
+    `;
+  }
+
+  function ensurePanel() {
+    let panel = el("realChartPanel");
+    if (panel) return panel;
+
+    const wheel = el("chartWheel");
+    const card = wheel && wheel.closest(".card");
+    panel = document.createElement("div");
+    panel.id = "realChartPanel";
+    panel.className = "real-chart-grid";
+    panel.innerHTML = `
+      <div class="card phaseb-panel">
+        <div class="card-title"><h4>Echte Chart-Daten</h4><span class="badge" id="chartDataStatus">bereit</span></div>
+        <p class="phaseb-note">Phase B.1 nutzt den Backend-Endpunkt <code>/chart</code> und visualisiert echte Planeten, Häuser und Aspekte aus deinem Geburtshoroskop.</p>
+        <div class="phaseb-actions">
+          <button class="btn gold" onclick="window.loadRealChartData(true)">Chart-Daten laden</button>
+          <button class="btn" onclick="showSection('profile')">Geburtsdaten prüfen</button>
+        </div>
+        <div id="chartMeta" class="chart-meta"></div>
+      </div>
+      <div class="big-three-grid" id="bigThreeGrid"></div>
+      <div class="card"><div class="card-title"><h4>Planeten</h4><span class="badge">radix</span></div><div id="planetList" class="planet-list"></div></div>
+      <div class="card"><div class="card-title"><h4>Elemente Balance</h4><span class="badge">core 10</span></div><div id="elementList" class="element-list"></div></div>
+      <div class="card"><div class="card-title"><h4>Stärkste Aspekte</h4><span class="badge">orb</span></div><div id="aspectList" class="aspect-list"></div></div>
+    `;
+    if (card) card.insertAdjacentElement("afterend", panel);
+    return panel;
+  }
+
+  function renderChartPanel(chart) {
+    ensurePanel();
+
+    const meta = chart.meta || {};
+    const big = chart.big_three || {};
+    const points = chart.points || [];
+    const aspects = chart.aspects || [];
+    const dist = chart.distributions || {};
+    const elems = dist.elements || {};
+
+    el("chartDataStatus").textContent = "real";
+    el("chartMeta").textContent = [
+      meta.name ? "Name: " + meta.name : "",
+      meta.house_system ? "Häuser: " + meta.house_system : "",
+      meta.time_known === false ? "Geburtszeit unbekannt: 12:00 als Näherung" : "",
+      meta.resolved_place ? "Ort: " + meta.resolved_place : ""
+    ].filter(Boolean).join(" · ");
+
+    el("bigThreeGrid").innerHTML =
+      miniCard("Sonne", big.sun) +
+      miniCard("Mond", big.moon) +
+      miniCard("Aszendent", big.ascendant);
+
+    const shownPoints = points.filter(p => CORE_DISPLAY.has(p.name)).slice(0, 13);
+    el("planetList").innerHTML = shownPoints.map(p => `
+      <div class="planet-row">
+        <div class="left">
+          <span class="orb-sm">${PLANET_GLYPHS[p.name] || "✦"}</span>
+          <span><b>${p.name_de || p.name}</b><small>${p.sign_de || p.sign}${p.house ? " · Haus " + p.house : ""}${p.retrograde ? " · rückläufig" : ""}</small></span>
+        </div>
+        <span class="degree-pill">${fmtDeg(p.degree)}</span>
+      </div>
+    `).join("");
+
+    const maxElem = Math.max(1, ...Object.values(elems).map(Number));
+    el("elementList").innerHTML = Object.entries(elems).map(([name, value]) => `
+      <div class="element-row">
+        <b>${name}</b>
+        <div class="element-bar"><span style="width:${Math.round(Number(value) / maxElem * 100)}%"></span></div>
+        <span class="degree-pill">${value}</span>
+      </div>
+    `).join("");
+
+    el("aspectList").innerHTML = aspects.slice(0, 8).map(a => `
+      <div class="aspect-row">
+        <div class="left">
+          <span class="orb-sm">◇</span>
+          <span><b>${a.p1_de || a.p1} ${a.type_de || a.type}</b><small>${a.p2_de || a.p2}</small></span>
+        </div>
+        <span class="degree-pill">Orb ${fmtDeg(a.orb)}</span>
+      </div>
+    `).join("");
+  }
+
+  async function loadRealChartData(force) {
+    ensurePanel();
+
+    if (loadingChart) return;
+    if (lastChartData && !force) {
+      renderRealWheel(lastChartData);
+      renderChartPanel(lastChartData);
+      return;
+    }
+
+    try {
+      loadingChart = true;
+      if (el("chartDataStatus")) el("chartDataStatus").textContent = "lädt";
+      const payload = getBirthPayload();
+      const json = await callEnginePublic("/chart", payload);
+      lastChartData = json.data;
+      renderRealWheel(lastChartData);
+      renderChartPanel(lastChartData);
+      if (window.toast) toast("Echte Chart-Daten geladen.");
+    } catch (err) {
+      ensurePanel();
+      if (el("chartDataStatus")) el("chartDataStatus").textContent = "fehlt";
+      if (el("chartMeta")) el("chartMeta").textContent = err.message;
+      if (window.toast) toast("Chart-Daten konnten nicht geladen werden.");
+    } finally {
+      loadingChart = false;
+    }
+  }
+
+  window.loadRealChartData = loadRealChartData;
+
+  window.addEventListener("load", () => {
+    ensurePanel();
+
+    const oldShowSection = window.showSection;
+    if (typeof oldShowSection === "function" && !oldShowSection.__phaseBWrapped) {
+      const wrapped = function (id) {
+        oldShowSection(id);
+        if (id === "analysis") setTimeout(() => loadRealChartData(false), 120);
+      };
+      wrapped.__phaseBWrapped = true;
+      window.showSection = wrapped;
+    }
+
+    const oldCreatePerson = window.createPerson;
+    if (typeof oldCreatePerson === "function" && !oldCreatePerson.__phaseBWrapped) {
+      const wrappedCreate = async function () {
+        const result = await oldCreatePerson.apply(this, arguments);
+        setTimeout(() => loadRealChartData(true), 300);
+        return result;
+      };
+      wrappedCreate.__phaseBWrapped = true;
+      window.createPerson = wrappedCreate;
+    }
+  });
+})();
 </script>
 
 </body>
