@@ -1,0 +1,16 @@
+# Soraya Phase B.3.1 — Synastrie-Auswahl sichtbar
+
+Wichtig: Im GitHub-Repo war B.3 noch nicht vorhanden. Diese Version enthält B.3 plus kleine Sichtbarkeits-Verbesserungen.
+
+## Neu
+- Synastrie-Seite zeigt „Zweite Person“.
+- Zweite Person kann direkt angelegt werden.
+- Person kann aus Liste ausgewählt werden.
+- Manuelle UUID wird versteckt.
+- Hinweis auf Home, dass Synastrie über den Shortcut erreichbar ist.
+- Chart-Hinweis korrigiert: Das Rad ist jetzt Phase B und nutzt echte Backend-Daten.
+
+## Einbau
+1. `index.html` ersetzen.
+2. `manifest.webmanifest` und `icon.svg` können bleiben.
+3. Commit: `Phase B.3.1 synastry selector visible`
