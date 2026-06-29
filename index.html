@@ -729,6 +729,42 @@ select:-webkit-autofill {
   }
 }
 
+
+/* ===== Phase B.4: Supabase people list polish ===== */
+.people-sync-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.people-sync-row .btn {
+  padding: 9px 12px;
+  font-size: 12px;
+}
+
+#peopleSyncStatus {
+  color: var(--muted2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.partner-chip.loaded {
+  border-color: rgba(85,230,175,.35);
+  color: var(--green);
+}
+
+@media (max-width: 430px) {
+  .people-sync-row {
+    display: block;
+  }
+
+  .people-sync-row .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1726,6 +1762,152 @@ select:-webkit-autofill {
     setTimeout(() => {
       if (parseScore() !== null) renderSynastryDescription();
     }, 700);
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.4: load saved people from Supabase via /mobile/people/list ===== */
+(function () {
+  const PEOPLE_KEY = "soraya_people_cache_v1";
+
+  function el(id) { return document.getElementById(id); }
+
+  function readCache() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(PEOPLE_KEY) || "[]");
+      return Array.isArray(rows) ? rows : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeCache(rows) {
+    const byId = new Map();
+    rows.filter(Boolean).forEach(p => {
+      if (p.id) byId.set(p.id, p);
+    });
+    localStorage.setItem(PEOPLE_KEY, JSON.stringify(Array.from(byId.values())));
+  }
+
+  function normalizePerson(row) {
+    return {
+      id: row.id,
+      name: row.name || "Unbenannt",
+      relation: row.relation || null,
+      is_self: !!row.is_self,
+      birth_date: row.birth_date || null,
+      birth_time: row.birth_time || null,
+      time_known: row.time_known,
+      birthplace: row.birthplace || null,
+      created_at: row.created_at || null,
+      loaded_from_supabase: true
+    };
+  }
+
+  function setSyncStatus(text, ok) {
+    const node = el("peopleSyncStatus");
+    if (!node) return;
+    node.textContent = text;
+    node.style.color = ok ? "var(--green)" : "var(--muted2)";
+  }
+
+  function addSyncUI() {
+    const card = el("phaseB3PartnerCard");
+    if (!card || el("peopleSyncRow")) return;
+
+    const selectRow = card.querySelector(".partner-select-row");
+    if (!selectRow) return;
+
+    const row = document.createElement("div");
+    row.id = "peopleSyncRow";
+    row.className = "people-sync-row";
+    row.innerHTML = `
+      <button class="btn" onclick="window.loadPeopleFromSupabase()">Aus Supabase laden</button>
+      <div id="peopleSyncStatus">Personenliste wird lokal gespeichert. Mit Supabase-Sync werden gespeicherte Personen wieder geladen.</div>
+    `;
+
+    selectRow.insertAdjacentElement("afterend", row);
+  }
+
+  function enhanceChips() {
+    document.querySelectorAll(".partner-chip").forEach(chip => chip.classList.add("loaded"));
+  }
+
+  window.loadPeopleFromSupabase = async function () {
+    try {
+      if (!window.callSoraya) throw new Error("Backend-Verbindung ist noch nicht bereit.");
+      setSyncStatus("Lade Personen aus Supabase ...", false);
+
+      const json = await window.callSoraya("/mobile/people/list", null, "GET");
+      const people = (json.data && (json.data.people || json.data)) || [];
+      if (!Array.isArray(people)) throw new Error("Unerwartetes Format von /mobile/people/list.");
+
+      const current = readCache();
+      writeCache(current.concat(people.map(normalizePerson)));
+
+      if (typeof window.refreshSynastryPeople === "function") {
+        window.refreshSynastryPeople();
+      }
+
+      const partnerCount = people.filter(p => !p.is_self).length;
+      setSyncStatus(`✅ ${people.length} Person(en) geladen · ${partnerCount} mögliche Partnerperson(en).`, true);
+      enhanceChips();
+
+      if (window.toast) toast("Personen aus Supabase geladen.");
+    } catch (err) {
+      setSyncStatus("Supabase-Liste noch nicht verfügbar: " + err.message, false);
+      if (window.toast) toast("Personenliste konnte nicht geladen werden.");
+    }
+  };
+
+  function wrapCreateSynastryPerson() {
+    const oldCreate = window.createSynastryPerson;
+    if (typeof oldCreate !== "function" || oldCreate.__phaseB4Wrapped) return;
+
+    const wrapped = async function () {
+      const result = await oldCreate.apply(this, arguments);
+      setTimeout(() => {
+        if (typeof window.loadPeopleFromSupabase === "function") {
+          window.loadPeopleFromSupabase();
+        }
+      }, 900);
+      return result;
+    };
+
+    wrapped.__phaseB4Wrapped = true;
+    window.createSynastryPerson = wrapped;
+  }
+
+  function boot() {
+    addSyncUI();
+    wrapCreateSynastryPerson();
+
+    const active = document.querySelector(".section.active");
+    if (active && active.id === "synastry") {
+      setTimeout(() => window.loadPeopleFromSupabase && window.loadPeopleFromSupabase(), 300);
+    }
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(boot, 650);
+
+    const oldShowSection = window.showSection;
+    if (typeof oldShowSection === "function" && !oldShowSection.__phaseB4Wrapped) {
+      const wrappedShow = function (id) {
+        oldShowSection(id);
+        if (id === "synastry") {
+          setTimeout(() => {
+            addSyncUI();
+            wrapCreateSynastryPerson();
+            if (typeof window.loadPeopleFromSupabase === "function") window.loadPeopleFromSupabase();
+          }, 250);
+        }
+      };
+      wrappedShow.__phaseB4Wrapped = true;
+      window.showSection = wrappedShow;
+    }
   });
 })();
 </script>
