@@ -665,6 +665,70 @@ select:-webkit-autofill {
   color: var(--bone);
 }
 
+
+/* ===== Phase B.3.2: Synastry description card ===== */
+.synastry-description-card {
+  margin-top: 14px;
+  text-align: left;
+  display: none;
+}
+
+.synastry-description-card.active {
+  display: block;
+}
+
+.synastry-description-card h4 {
+  font-family: var(--display);
+  color: var(--gold2);
+  font-size: 27px;
+  margin: 0 0 10px;
+}
+
+.synastry-description-card p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 12px;
+}
+
+.synastry-description-card strong {
+  color: var(--bone);
+}
+
+.synastry-advice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.synastry-advice {
+  border: 1px solid var(--soft);
+  background: rgba(255,255,255,.035);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.synastry-advice b {
+  display: block;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.synastry-advice span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 430px) {
+  .synastry-advice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1509,6 +1573,159 @@ select:-webkit-autofill {
     setTimeout(updateChartNote, 250);
     setTimeout(addSynastryHints, 300);
     setTimeout(verifyB3Ui, 500);
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.3.2: generate warm Synastry interpretation from score ===== */
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  function selectedPartnerName() {
+    const select = el("synPersonSelect");
+    if (select && select.value) {
+      const text = select.options[select.selectedIndex] ? select.options[select.selectedIndex].textContent : "";
+      return (text || "").split("·")[0].trim();
+    }
+    const input = el("partnerName");
+    return input && input.value.trim() ? input.value.trim() : "die zweite Person";
+  }
+
+  function currentUserName() {
+    return localStorage.getItem("soraya_person_name") || (el("pName") && el("pName").value.trim()) || "du";
+  }
+
+  function parseScore() {
+    const raw = el("compatScore") ? el("compatScore").textContent : "";
+    const match = String(raw).match(/\d+/);
+    return match ? Number(match[0]) : null;
+  }
+
+  function category(score) {
+    if (score === null) return {
+      title: "Eine Verbindung mit vielen offenen Fragen",
+      label: "Noch nicht genug Daten",
+      tone: "Soraya braucht zuerst beide Geburtsdaten, damit die Resonanz genauer beschrieben werden kann.",
+      light: "Achte auf das erste Gefühl zwischen euch.",
+      shadow: "Nicht zu schnell urteilen.",
+      practice: "Stellt euch eine ehrliche Frage: Was fühlt sich leicht an, was braucht Geduld?"
+    };
+
+    if (score <= 35) return {
+      title: "Eine herausfordernde, aber lehrreiche Verbindung",
+      label: "Lernverbindung",
+      tone: "Zwischen euch liegt weniger automatische Leichtigkeit, dafür aber viel Entwicklungspotenzial. Diese Verbindung kann alte Muster sichtbar machen und euch zeigen, wo Geduld, Klarheit und echte Kommunikation wichtig sind.",
+      light: "Ihr könnt einander helfen, blinde Flecken zu erkennen.",
+      shadow: "Missverständnisse, unterschiedliche Bedürfnisse oder emotionale Reibung können schneller entstehen.",
+      practice: "Nicht alles sofort persönlich nehmen. Sprecht langsam, konkret und ehrlich über Erwartungen."
+    };
+
+    if (score <= 60) return {
+      title: "Eine gemischte Verbindung mit Wachstumskraft",
+      label: "Wachstumsbindung",
+      tone: "Eure Dynamik wirkt weder rein leicht noch rein schwierig. Es gibt Anziehung und gemeinsame Lernfelder. Wenn ihr bewusst miteinander umgeht, kann diese Verbindung stabiler werden, als der erste Eindruck vermuten lässt.",
+      light: "Es gibt echte Resonanz, besonders wenn ihr gemeinsame Ziele findet.",
+      shadow: "Manche Themen brauchen Wiederholung, Geduld und klare Grenzen.",
+      practice: "Pflegt Rituale: regelmäßige Gespräche, gemeinsame Pläne und bewusstes Zuhören."
+    };
+
+    if (score <= 80) return {
+      title: "Eine harmonische Verbindung mit guter Resonanz",
+      label: "Starke Resonanz",
+      tone: "Zwischen euch gibt es eine natürliche Verständigung. Vieles kann sich vertraut, unterstützend und angenehm anfühlen. Diese Verbindung eignet sich gut, um gemeinsam zu wachsen und einander emotional zu stärken.",
+      light: "Ihr könnt euch gegenseitig Sicherheit, Motivation und Wärme geben.",
+      shadow: "Achtet darauf, Harmonie nicht mit Konfliktvermeidung zu verwechseln.",
+      practice: "Sprecht auch über schwierige Dinge, solange die Stimmung ruhig ist."
+    };
+
+    return {
+      title: "Eine sehr starke seelische Resonanz",
+      label: "Tiefe Verbindung",
+      tone: "Diese Verbindung trägt eine besondere Intensität. Ihr könnt euch schnell vertraut fühlen, als würdet ihr einander auf einer tieferen Ebene erkennen. Das kann sehr schön sein, braucht aber trotzdem Bewusstheit.",
+      light: "Starke Anziehung, emotionale Nähe und inspirierende Spiegelung.",
+      shadow: "Zu viel Intensität kann Erwartungen oder Abhängigkeit erzeugen.",
+      practice: "Bewahrt Eigenständigkeit. Eine starke Verbindung wird gesünder, wenn beide frei atmen können."
+    };
+  }
+
+  function ensureDescriptionCard() {
+    let card = el("synastryDescriptionCard");
+    if (card) return card;
+
+    const result = el("synastryText");
+    card = document.createElement("div");
+    card.id = "synastryDescriptionCard";
+    card.className = "card synastry-description-card";
+    card.innerHTML = `
+      <div class="card-title">
+        <h4>Deutung eurer Verbindung</h4>
+        <span class="badge" id="synastryDescriptionBadge">Insight</span>
+      </div>
+      <div id="synastryDescriptionBody"></div>
+    `;
+
+    if (result) {
+      const stats = el("synastryMiniStats");
+      if (stats) stats.insertAdjacentElement("afterend", card);
+      else result.insertAdjacentElement("afterend", card);
+    } else {
+      const wrap = document.querySelector("#synastry .syn-wrap");
+      if (wrap) wrap.appendChild(card);
+    }
+
+    return card;
+  }
+
+  function renderSynastryDescription() {
+    const card = ensureDescriptionCard();
+    const body = el("synastryDescriptionBody");
+    const badge = el("synastryDescriptionBadge");
+    if (!card || !body) return;
+
+    const score = parseScore();
+    const c = category(score);
+    const user = currentUserName();
+    const partner = selectedPartnerName();
+
+    if (badge) badge.textContent = c.label;
+
+    body.innerHTML = `
+      <h4>${c.title}</h4>
+      <p><strong>${user}</strong> und <strong>${partner}</strong>: ${c.tone}</p>
+      <div class="synastry-advice-grid">
+        <div class="synastry-advice"><b>Lichtseite</b><span>${c.light}</span></div>
+        <div class="synastry-advice"><b>Schattenseite</b><span>${c.shadow}</span></div>
+      </div>
+      <p style="margin-top:14px"><strong>Sorayas Impuls:</strong> ${c.practice}</p>
+      <p style="font-size:12px;color:var(--muted2)">Hinweis: Diese Deutung ist eine astrologische Reflexion und ersetzt keine Beziehungs-, Rechts- oder Gesundheitsberatung.</p>
+    `;
+
+    card.classList.add("active");
+  }
+
+  window.renderSynastryDescription = renderSynastryDescription;
+
+  function wrapSaveSynastry() {
+    const oldSave = window.saveSynastry;
+    if (typeof oldSave !== "function" || oldSave.__phaseB32Wrapped) return;
+
+    const wrapped = async function () {
+      const result = await oldSave.apply(this, arguments);
+      setTimeout(renderSynastryDescription, 350);
+      return result;
+    };
+
+    wrapped.__phaseB32Wrapped = true;
+    window.saveSynastry = wrapped;
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(wrapSaveSynastry, 450);
+    setTimeout(() => {
+      if (parseScore() !== null) renderSynastryDescription();
+    }, 700);
   });
 })();
 </script>
