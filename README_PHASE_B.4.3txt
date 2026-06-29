@@ -1,0 +1,16 @@
+Soraya Phase B.4.3 — Custom Luxury Person Picker
+Dieses Paket korrigiert den hässlichen nativen Browser-Dropdown.
+Neu
+Das native Select-Dropdown wird versteckt.
+Stattdessen gibt es einen eigenen dunklen Soraya-Personenpicker.
+Die offene Liste ist dunkel, gold/violett und passt zum Luxury Design.
+Der Button „Aktualisieren“ wird zum kleinen Icon-Button.
+Die Sync-Zeile wird ruhiger.
+Doppelte Personen werden reduziert.
+Profil unten bekommt etwas mehr Abstand.
+Einbau
+In `soraya-web` die Datei `index.html` ersetzen.
+Commit:
+`Phase B.4.3 custom luxury person picker`
+Vercel deployen.
+Backend muss nicht geändert werden.
