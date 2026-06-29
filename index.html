@@ -524,6 +524,108 @@ select:-webkit-autofill {
   }
 }
 
+
+/* ===== Phase B.3: Synastry without manual UUID ===== */
+.phaseb3-partner-card {
+  text-align: left;
+  margin-top: 18px;
+}
+
+.partner-select-row {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+.partner-select-row > div {
+  flex: 1;
+}
+
+.partner-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.partner-form-grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.partner-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.partner-chip {
+  border: 1px solid var(--line);
+  background: rgba(228,181,90,.08);
+  color: var(--gold2);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+#personBId {
+  display: none !important;
+}
+
+.syn-wrap > label[style*="display: none"] + #personBId + p {
+  display: none !important;
+}
+
+.synastry-hint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+.synastry-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.synastry-mini {
+  border: 1px solid var(--soft);
+  background: rgba(255,255,255,.035);
+  border-radius: 16px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.synastry-mini b {
+  display: block;
+  font-family: var(--display);
+  color: var(--gold2);
+  font-size: 22px;
+}
+
+.synastry-mini span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 430px) {
+  .partner-select-row {
+    display: block;
+  }
+
+  .partner-select-row .btn {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .partner-form-grid,
+  .partner-form-grid.two,
+  .synastry-result-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -994,6 +1096,318 @@ select:-webkit-autofill {
   }
 
   waitForPhaseB();
+})();
+</script>
+
+
+<script>
+/* ===== Phase B.3: local people cache + partner create/select for Synastry ===== */
+(function () {
+  const PEOPLE_KEY = "soraya_people_cache_v1";
+
+  function el(id) { return document.getElementById(id); }
+
+  function readPeopleCache() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(PEOPLE_KEY) || "[]");
+      return Array.isArray(rows) ? rows : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writePeopleCache(rows) {
+    const byId = new Map();
+    rows.filter(Boolean).forEach(p => {
+      if (p.id) byId.set(p.id, p);
+    });
+    localStorage.setItem(PEOPLE_KEY, JSON.stringify(Array.from(byId.values())));
+  }
+
+  function addPersonToCache(person, extra) {
+    if (!person || !person.id) return;
+    const rows = readPeopleCache();
+    rows.push({
+      id: person.id,
+      name: person.name || (extra && extra.name) || "Unbenannt",
+      relation: (extra && extra.relation) || person.relation || null,
+      is_self: !!((extra && extra.is_self) || person.is_self),
+      birth_date: person.birth_date || null,
+      birthplace: person.birthplace || (extra && extra.birthplace) || null,
+      created_at: person.created_at || new Date().toISOString()
+    });
+    writePeopleCache(rows);
+    renderPartnerSelector();
+  }
+
+  function cacheSelfFromStorage() {
+    const pid = localStorage.getItem("soraya_person_id");
+    if (!pid) return;
+
+    let birth = null;
+    try { birth = JSON.parse(localStorage.getItem("soraya_birth") || "null"); } catch (e) {}
+
+    const name = localStorage.getItem("soraya_person_name") || (birth && birth.name) || "Ich";
+    addPersonToCache({
+      id: pid,
+      name,
+      is_self: true,
+      birthplace: birth && birth.birthplace
+    }, {is_self: true, relation: "self", name});
+  }
+
+  function getCurrentPersonId() {
+    return (el("personId") && el("personId").value.trim()) || localStorage.getItem("soraya_person_id") || "";
+  }
+
+  function renderPartnerSelector() {
+    const select = el("synPersonSelect");
+    const chips = el("partnerChipList");
+    const currentId = getCurrentPersonId();
+    if (!select) return;
+
+    const people = readPeopleCache();
+    const partners = people.filter(p => p && p.id && p.id !== currentId);
+
+    select.innerHTML = "";
+    if (!partners.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "Noch keine zweite Person gespeichert";
+      select.appendChild(opt);
+      if (el("personBId")) el("personBId").value = "";
+    } else {
+      const first = document.createElement("option");
+      first.value = "";
+      first.textContent = "Person auswählen";
+      select.appendChild(first);
+
+      partners.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.name + (p.relation ? " · " + p.relation : "");
+        select.appendChild(opt);
+      });
+    }
+
+    if (chips) {
+      chips.innerHTML = partners.slice(0, 6).map(p => `<span class="partner-chip">${p.name}</span>`).join("");
+    }
+  }
+
+  function hideRawUuidInput() {
+    const input = el("personBId");
+    if (!input) return;
+    const label = input.previousElementSibling;
+    const hint = input.nextElementSibling;
+    if (label && label.tagName === "LABEL") label.style.display = "none";
+    if (hint && hint.tagName === "P") hint.style.display = "none";
+  }
+
+  function ensureSynastryPartnerUI() {
+    if (el("phaseB3PartnerCard")) {
+      renderPartnerSelector();
+      return;
+    }
+
+    const wrap = document.querySelector("#synastry .syn-wrap");
+    if (!wrap) return;
+
+    hideRawUuidInput();
+
+    const card = document.createElement("div");
+    card.id = "phaseB3PartnerCard";
+    card.className = "card phaseb3-partner-card";
+    card.innerHTML = `
+      <div class="card-title">
+        <h4>Zweite Person</h4>
+        <span class="badge">ohne UUID</span>
+      </div>
+      <div class="partner-select-row">
+        <div>
+          <label>Gespeicherte Person wählen</label>
+          <select id="synPersonSelect"></select>
+        </div>
+        <button class="btn" onclick="window.refreshSynastryPeople()">Aktualisieren</button>
+      </div>
+      <div id="partnerChipList" class="partner-chip-list"></div>
+      <p class="synastry-hint">Du musst keine ID mehr kopieren. Lege hier eine zweite Person an oder wähle eine gespeicherte Person aus.</p>
+
+      <div style="margin-top:18px">
+        <div class="card-title" style="margin-bottom:6px"><h4>Neue Person anlegen</h4></div>
+        <label>Name</label>
+        <input id="partnerName" placeholder="Name der zweiten Person" />
+        <div class="partner-form-grid">
+          <div><label>Tag</label><input id="partnerDay" inputmode="numeric" placeholder="14" /></div>
+          <div><label>Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="9" /></div>
+          <div><label>Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="1988" /></div>
+        </div>
+        <div class="partner-form-grid two">
+          <div><label>Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="18" /></div>
+          <div><label>Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="30" /></div>
+        </div>
+        <label>Geburtsort</label>
+        <input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
+        <label>Beziehung</label>
+        <select id="partnerRelation">
+          <option value="partner">Partner/in</option>
+          <option value="friend">Freund/in</option>
+          <option value="family">Familie</option>
+          <option value="other">Andere</option>
+        </select>
+        <button class="btn gold block" onclick="window.createSynastryPerson()" style="margin-top:16px">Zweite Person speichern</button>
+        <div id="partnerCreateStatus" class="status">Noch keine zweite Person gespeichert.</div>
+      </div>
+    `;
+
+    const compat = wrap.querySelector(".compat");
+    if (compat) compat.insertAdjacentElement("afterend", card);
+    else wrap.insertAdjacentElement("afterbegin", card);
+
+    const select = el("synPersonSelect");
+    if (select) {
+      select.addEventListener("change", () => {
+        if (el("personBId")) el("personBId").value = select.value || "";
+      });
+    }
+
+    renderPartnerSelector();
+  }
+
+  function numOrNull(id) {
+    const node = el(id);
+    const v = node ? node.value.trim() : "";
+    if (v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function requiredNumber(id, label) {
+    const n = numOrNull(id);
+    if (n === null) throw new Error(label + " fehlt.");
+    return n;
+  }
+
+  window.createSynastryPerson = async function () {
+    try {
+      if (!window.callSoraya) throw new Error("Backend-Verbindung ist noch nicht bereit.");
+      const person = {
+        name: (el("partnerName") && el("partnerName").value.trim()) || "",
+        year: requiredNumber("partnerYear", "Jahr"),
+        month: requiredNumber("partnerMonth", "Monat"),
+        day: requiredNumber("partnerDay", "Tag"),
+        hour: numOrNull("partnerHour"),
+        minute: numOrNull("partnerMinute"),
+        birthplace: (el("partnerBirthplace") && el("partnerBirthplace").value.trim()) || ""
+      };
+      const relation = (el("partnerRelation") && el("partnerRelation").value) || "partner";
+
+      if (!person.name) throw new Error("Name fehlt.");
+      if (!person.birthplace) throw new Error("Geburtsort fehlt.");
+
+      const data = await window.callSoraya("/mobile/people/create", {
+        is_self: false,
+        relation,
+        person
+      });
+
+      const row = data.data && data.data.person;
+      if (!row || !row.id) throw new Error("Person wurde gespeichert, aber keine ID erhalten.");
+
+      addPersonToCache(row, {...person, relation, is_self: false});
+      const select = el("synPersonSelect");
+      if (select) select.value = row.id;
+      if (el("personBId")) el("personBId").value = row.id;
+
+      if (window.status) status("partnerCreateStatus", "✅ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
+      if (window.toast) toast("Zweite Person gespeichert.");
+    } catch (err) {
+      if (window.status) status("partnerCreateStatus", err.message, "bad");
+      if (window.toast) toast("Person konnte nicht gespeichert werden.");
+    }
+  };
+
+  window.refreshSynastryPeople = function () {
+    cacheSelfFromStorage();
+    renderPartnerSelector();
+    if (window.toast) toast("Personenliste aktualisiert.");
+  };
+
+  function improveSynastryResult() {
+    const oldSave = window.saveSynastry;
+    if (typeof oldSave !== "function" || oldSave.__phaseB3Wrapped) return;
+
+    const wrapped = async function () {
+      const selected = (el("synPersonSelect") && el("synPersonSelect").value) || "";
+      if (selected && el("personBId")) el("personBId").value = selected;
+      if (!selected && !(el("personBId") && el("personBId").value.trim())) {
+        if (window.toast) toast("Bitte zuerst eine zweite Person auswählen oder anlegen.");
+        return;
+      }
+
+      const result = await oldSave.apply(this, arguments);
+      setTimeout(() => {
+        const scoreText = el("compatScore") ? el("compatScore").textContent : "";
+        const box = el("synastryText");
+        if (box && scoreText && !document.getElementById("synastryMiniStats")) {
+          const div = document.createElement("div");
+          div.id = "synastryMiniStats";
+          div.className = "synastry-result-grid";
+          div.innerHTML = `
+            <div class="synastry-mini"><b>${scoreText}</b><span>Harmonie</span></div>
+            <div class="synastry-mini"><b>∞</b><span>Verbindung</span></div>
+            <div class="synastry-mini"><b>✦</b><span>Insight</span></div>
+          `;
+          box.insertAdjacentElement("afterend", div);
+        }
+      }, 250);
+      return result;
+    };
+
+    wrapped.__phaseB3Wrapped = true;
+    window.saveSynastry = wrapped;
+  }
+
+  function wrapSelfCreatePerson() {
+    const oldCreate = window.createPerson;
+    if (typeof oldCreate !== "function" || oldCreate.__phaseB3Wrapped) return;
+
+    const wrapped = async function () {
+      const result = await oldCreate.apply(this, arguments);
+      setTimeout(() => {
+        cacheSelfFromStorage();
+        renderPartnerSelector();
+      }, 400);
+      return result;
+    };
+
+    wrapped.__phaseB3Wrapped = true;
+    window.createPerson = wrapped;
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      ensureSynastryPartnerUI();
+      cacheSelfFromStorage();
+      improveSynastryResult();
+      wrapSelfCreatePerson();
+      renderPartnerSelector();
+    }, 350);
+
+    const oldShowSection = window.showSection;
+    if (typeof oldShowSection === "function" && !oldShowSection.__phaseB3Wrapped) {
+      const wrappedShow = function (id) {
+        oldShowSection(id);
+        if (id === "synastry") setTimeout(() => {
+          ensureSynastryPartnerUI();
+          cacheSelfFromStorage();
+          renderPartnerSelector();
+        }, 100);
+      };
+      wrappedShow.__phaseB3Wrapped = true;
+      window.showSection = wrappedShow;
+    }
+  });
 })();
 </script>
 
