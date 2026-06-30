@@ -1766,3 +1766,67 @@ window.addEventListener('load', () => {
     }
   });
 })();
+
+/* === Echte Startseite: Transite + Tagesenergie aus echten Daten (additiv) === */
+(function () {
+  var GLY = { Sonne:'☉', Mond:'☾', Merkur:'☿', Venus:'♀', Mars:'♂', Jupiter:'♃', Saturn:'♄', Uranus:'♅', Neptun:'♆', Pluto:'♇' };
+  var PLAN = ['Sonne','Mond','Merkur','Venus','Mars','Jupiter','Saturn','Uranus','Neptun','Pluto'];
+  function cfg() { try { return JSON.parse(localStorage.getItem(KEYS.config) || 'null'); } catch (e) { return null; } }
+  function birth() { try { return JSON.parse(localStorage.getItem(KEYS.birth) || 'null'); } catch (e) { return null; } }
+  function setTransits(h) { var el = $('homeTransits'); if (el) el.innerHTML = h; }
+  function row(glyph, title, sub, right) {
+    return '<div class="row"><div class="left"><span class="orb-sm">' + glyph + '</span><div><h4>' +
+      escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right || '') + '</span></div>';
+  }
+  function setEnergy(pct, label) {
+    var r = $('energyRing'), p = $('energyPct'), l = $('energyLabel');
+    if (r) r.style.setProperty('--energy', (pct == null ? 0 : pct) + '%');
+    if (p) p.textContent = pct == null ? '–' : pct + '%';
+    if (l) l.textContent = label;
+  }
+  async function renderHomeSky() {
+    var c = cfg();
+    if (!c || !c.engineUrl) { setTransits(row('✦', 'Noch keine Verbindung', 'Speichere zuerst die Verbindung.')); setEnergy(null, '–'); return; }
+    var b = birth();
+    if (!b || !b.day || !b.month || !b.year) { setTransits(row('✦', 'Profil fehlt', 'Hinterlege deine Geburtsdaten.')); setEnergy(null, 'Profil anlegen'); return; }
+    var person = { name: b.name || 'Ich', year: Number(b.year), month: Number(b.month), day: Number(b.day),
+      hour: (b.hour === '' || b.hour == null) ? null : Number(b.hour),
+      minute: (b.minute === '' || b.minute == null) ? null : Number(b.minute), birthplace: b.birthplace || '' };
+    var coords = null; try { coords = JSON.parse(localStorage.getItem('soraya_coords') || 'null'); } catch (e) {}
+    if (coords) { person.lat = coords.lat; person.lng = coords.lng; person.tz_str = coords.tz_str; }
+    try {
+      var res = await fetch(c.engineUrl.replace(/\/$/, '') + '/transits',
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ person: person, at: null }) });
+      var j = await res.json();
+      if (!j || j.ok === false || !j.data) throw new Error((j && j.error) || 'Transite nicht verfügbar');
+      var d = j.data;
+      if (d.meta && d.meta.lat) localStorage.setItem('soraya_coords', JSON.stringify({ lat: d.meta.lat, lng: d.meta.lng, tz_str: d.meta.tz_str }));
+      var asp = (d.aspects_to_natal || []).filter(function (a) { return PLAN.indexOf(a.transit_de) >= 0; });
+      var top = asp.slice(0, 3);
+      if (!top.length) setTransits(row('☾', 'Ruhiger Himmel', 'Gerade keine engen Transite.'));
+      else setTransits(top.map(function (a) {
+        var mv = a.movement === 'Applying' ? 'im Kommen' : a.movement === 'Separating' ? 'klingt ab' : 'aktiv';
+        return row(GLY[a.transit_de] || '✦', a.transit_de + ' ' + a.type_de + ' ' + a.natal_de, mv, a.orb != null ? a.orb.toFixed(1) + '°' : '');
+      }).join(''));
+      var harm = 0, tens = 0;
+      asp.slice(0, 7).forEach(function (a) {
+        if (a.type_de === 'Trigon' || a.type_de === 'Sextil') harm++;
+        else if (a.type_de === 'Quadrat' || a.type_de === 'Opposition') tens++;
+      });
+      var tot = harm + tens;
+      var score = tot ? Math.round(50 + (harm - tens) / tot * 42) : 60;
+      score = Math.max(8, Math.min(96, score));
+      var label = score >= 66 ? 'Harmonisch & offen' : score >= 45 ? 'Ausgeglichen' : 'Intensiv & fordernd';
+      setEnergy(score, label);
+    } catch (e) {
+      setTransits(row('✦', 'Transite nicht ladbar', String((e && e.message) || e)));
+      setEnergy(null, '–');
+    }
+  }
+  window._sorayaRenderHomeSky = renderHomeSky;
+  window.addEventListener('load', function () { setTimeout(renderHomeSky, 400); });
+  var _showSection = window.showSection;
+  if (typeof _showSection === 'function') {
+    window.showSection = function (id) { var r = _showSection.apply(this, arguments); if (id === 'home') renderHomeSky(); return r; };
+  }
+})();
