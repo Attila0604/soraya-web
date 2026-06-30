@@ -1,0 +1,1330 @@
+/*
+  Soraya — Phase C.1 Code Cleanup
+  Datei: style.css
+  Zweck: Alle Styles aus der alten index.html ausgelagert.
+  Hinweis: Keine Funktionsänderung, nur bessere Wartbarkeit.
+*/
+
+:root{--night:#060717;--navy:#0b1025;--glass:rgba(13,15,40,.76);--glass2:rgba(25,18,55,.76);--gold:#e4b55a;--gold2:#f7dc91;--violet:#7e39db;--violet2:#be6cff;--bone:#f8efd9;--muted:#b4a6c9;--muted2:#8d80a8;--green:#55e6af;--rose:#ff8faf;--line:rgba(228,181,90,.34);--soft:rgba(255,255,255,.08);--display:"Cormorant Garamond",Georgia,serif;--wordmark:"Cinzel",serif;--body:"Inter",system-ui,sans-serif}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--night);color:var(--bone);font-family:var(--body);line-height:1.55}button,input,textarea,select{font:inherit}button{cursor:pointer}
+    .cosmos{position:fixed;inset:0;z-index:-5;background:radial-gradient(900px 560px at 88% 10%,rgba(126,57,219,.32),transparent 62%),radial-gradient(760px 620px at 8% 4%,rgba(50,79,145,.22),transparent 58%),radial-gradient(760px 760px at 52% 115%,rgba(228,181,90,.11),transparent 62%),linear-gradient(180deg,#0b0b22 0%,#070817 48%,#04050d 100%);overflow:hidden}
+    .cosmos:before{content:"";position:absolute;inset:-10%;opacity:.78;background-image:radial-gradient(1.3px 1.3px at 12% 22%,#fff,transparent),radial-gradient(1px 1px at 33% 8%,#f7dc91,transparent),radial-gradient(1.5px 1.5px at 72% 18%,#fff,transparent),radial-gradient(1.1px 1.1px at 88% 44%,#f7dc91,transparent),radial-gradient(1px 1px at 20% 76%,#fff,transparent),radial-gradient(1.2px 1.2px at 58% 82%,#f7dc91,transparent)}
+    .app{width:min(100%,480px);min-height:100dvh;margin:0 auto;padding:0 18px calc(106px + env(safe-area-inset-bottom))}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0 8px}.round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--gold2);display:grid;place-items:center;box-shadow:inset 0 0 18px rgba(228,181,90,.05)}
+    .brand{text-align:center}.brand .sigil{font-size:24px;color:var(--gold2);filter:drop-shadow(0 0 12px rgba(228,181,90,.5))}.brand h1{margin:0;font-family:var(--wordmark);font-size:34px;line-height:.94;letter-spacing:.18em;padding-left:.18em;background:linear-gradient(180deg,#fff2bb,#d9a341 72%,#92661d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.brand .sub{margin-top:7px;color:var(--gold);font-size:10px;letter-spacing:.42em;text-transform:uppercase;padding-left:.42em}
+    .section{display:none;animation:rise .32s ease}.section.active{display:block}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .page-title{margin:24px 0 18px}.page-title h2{font-family:var(--display);font-size:clamp(34px,9vw,48px);font-weight:600;line-height:.98;margin:0}.gold{color:var(--gold2);font-style:italic}.page-title p{color:var(--muted);margin:11px 0 0;font-size:15.5px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.25em;text-transform:uppercase;font-weight:700}
+    .card{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--soft);border-radius:24px;box-shadow:0 26px 80px rgba(0,0,0,.48);padding:20px;margin:16px 0;backdrop-filter:blur(18px)}.card:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(560px 180px at 20% 0%,rgba(247,220,145,.08),transparent 60%),radial-gradient(400px 160px at 95% 10%,rgba(126,57,219,.16),transparent 60%)}.card>*{position:relative}.glow,.premium{border-color:var(--line);box-shadow:0 26px 80px rgba(0,0,0,.48),inset 0 0 65px rgba(126,57,219,.14)}
+    .card-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.card-title h3,.card-title h4{margin:0;font-family:var(--display);font-size:24px;font-weight:700}.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:rgba(228,181,90,.11);color:var(--gold2);border-radius:999px;padding:6px 11px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+    .btn{border:1px solid var(--soft);color:var(--bone);background:rgba(255,255,255,.045);border-radius:999px;padding:12px 18px;transition:.16s ease;font-weight:650}.btn.gold{border:0;color:#241705;background:linear-gradient(180deg,var(--gold2),#d7a13d);box-shadow:0 12px 34px rgba(228,181,90,.26),inset 0 1px 0 rgba(255,255,255,.55)}.btn.block{width:100%}
+    .hero-card{display:grid;grid-template-columns:128px 1fr;gap:18px;align-items:center;padding:22px}.zodiac-art{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:radial-gradient(circle at 45% 35%,rgba(247,220,145,.16),rgba(126,57,219,.22) 50%,rgba(4,5,13,.5));box-shadow:inset 0 0 30px rgba(228,181,90,.14),0 0 40px rgba(126,57,219,.2)}.zodiac-art span{font-size:64px;color:var(--gold2);text-shadow:0 0 18px rgba(228,181,90,.52)}.zodiac-info h3{margin:2px 0 2px;font-family:var(--display);font-size:40px;line-height:.95;font-weight:700}.zodiac-info p{margin:0;color:var(--muted)}
+    .props{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--soft)}.props b{display:block;color:var(--muted2);text-transform:uppercase;letter-spacing:.13em;font-size:10px;margin-bottom:4px}.props span{font-size:13px}
+    .two-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.moon-visual{width:122px;height:122px;margin:4px auto 12px;border-radius:50%;position:relative;background:radial-gradient(circle at 35% 30%,#f1e4bd,#9d8d6c 55%,#29222f 78%);box-shadow:0 0 48px rgba(247,220,145,.2);overflow:hidden}.moon-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,4,12,.92) 0%,rgba(3,4,12,.76) 38%,transparent 62%);transform:scaleX(var(--shadow-scale,1));transform-origin:left}
+    .energy-ring{width:132px;height:132px;margin:2px auto 12px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--energy,78%),rgba(255,255,255,.07) 0)}.energy-ring>div{width:106px;height:106px;border-radius:50%;display:grid;place-items:center;text-align:center;background:rgba(8,9,25,.94);border:1px solid var(--soft)}.energy-ring strong{font-family:var(--display);color:var(--gold2);font-size:38px;line-height:.9}.energy-ring small{color:var(--muted);font-size:11px}
+    .shortcut-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.tile{min-height:102px;border:1px solid var(--soft);background:rgba(255,255,255,.035);border-radius:18px;padding:14px 8px;display:grid;place-items:center;text-align:center;gap:8px;color:var(--muted)}.tile b{width:48px;height:48px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);color:var(--gold2);font-size:23px}.tile span{font-size:12px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--soft);color:inherit;background:none;width:100%;text-align:left;border-left:0;border-right:0;border-top:0}.row:last-child{border-bottom:0}.row .left{display:flex;align-items:center;gap:12px}.orb-sm{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--gold2);background:rgba(228,181,90,.08)}.row h4{margin:0;font-family:var(--display);font-size:20px;line-height:1}.row p{margin:2px 0 0;color:var(--muted);font-size:13px}
+    #chartWheel{width:100%;height:auto;max-width:430px;display:block;margin:0 auto;filter:drop-shadow(0 0 28px rgba(228,181,90,.18))}.reading{font-family:var(--display);color:#f0e5d0;font-size:21px;line-height:1.75}.reading h1,.reading h2,.reading h3{color:var(--gold2);font-weight:700;margin:26px 0 10px;line-height:1.08}.reading strong{color:var(--gold2)}
+    .segmented{display:inline-flex;gap:6px;padding:6px;border:1px solid var(--soft);border-radius:999px;background:rgba(0,0,0,.28)}.segmented select{width:auto;min-width:124px;color:var(--bone);background:transparent;border:0;padding:8px;outline:0}.horo-moon{width:108px;height:108px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff,#c79cff 45%,#5c2ea3 78%);box-shadow:0 0 50px rgba(190,108,255,.45);flex:none}.horo-layout{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}#horoMood{font-family:var(--display);font-size:34px;line-height:1.04;font-weight:700;margin:5px 0 10px}#horoBody{color:var(--muted);margin:0 0 14px;font-size:15px}
+    .ritual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.ritual{border:1px solid var(--soft);background:rgba(255,255,255,.035);border-radius:18px;padding:14px;min-height:148px}.ritual b{display:block;font-size:26px;color:var(--gold2);margin-bottom:8px}.ritual h4{margin:0;font-family:var(--display);color:var(--gold2);font-size:20px}.ritual p{color:var(--muted);font-size:12px;margin:6px 0 0}
+    .chat-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:var(--gold2);background:radial-gradient(circle at 35% 25%,rgba(247,220,145,.22),rgba(126,57,219,.35));border:1px solid var(--line)}.chat-window{height:min(52dvh,470px);min-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:4px 4px 14px;scrollbar-width:thin;scrollbar-color:rgba(228,181,90,.45) transparent}.bubble{max-width:86%;padding:13px 16px;border-radius:20px;white-space:pre-wrap;font-size:14.5px;line-height:1.55}.bubble.assistant{align-self:flex-start;background:rgba(255,255,255,.055);border:1px solid var(--soft);border-bottom-left-radius:6px}.bubble.user{align-self:flex-end;background:rgba(228,181,90,.1);border:1px solid var(--line);border-bottom-right-radius:6px}.composer{display:flex;gap:10px;align-items:end;padding-top:8px;border-top:1px solid var(--soft)}.composer textarea{min-height:52px;max-height:130px;resize:vertical}
+    label{display:block;font-size:12px;color:var(--muted);margin:14px 0 6px}input,textarea,select{width:100%;color:var(--bone);background:rgba(0,0,0,.32);border:1px solid var(--soft);border-radius:15px;padding:13px 15px;outline:0}input:focus,textarea:focus,select:focus{border-color:var(--line);box-shadow:0 0 0 3px rgba(228,181,90,.08)}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.status{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--soft);color:var(--muted);white-space:pre-wrap;font-size:13px}.status.ok{color:var(--green);border-color:rgba(85,230,175,.35)}.status.bad{color:var(--rose);border-color:rgba(255,143,175,.35)}
+    .profile-hero{display:grid;grid-template-columns:92px 1fr;gap:18px;align-items:center}.profile-avatar{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;color:var(--gold2);font-family:var(--display);font-size:42px;border:1px solid var(--line);background:radial-gradient(circle at 35% 30%,rgba(247,220,145,.22),rgba(126,57,219,.38));box-shadow:inset 0 0 34px rgba(228,181,90,.12),0 0 40px rgba(126,57,219,.24)}.profile-hero h3{margin:0;font-family:var(--display);font-size:38px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.stat{border:1px solid var(--soft);border-radius:16px;padding:12px 8px;text-align:center}.stat b{display:block;color:var(--gold2);font-family:var(--display);font-size:26px;line-height:1}.stat span{color:var(--muted);font-size:11px}.premium-list{display:grid;gap:9px;color:var(--muted);font-size:13px}.premium-list span:before{content:"✦";color:var(--violet2);margin-right:8px}
+    .compat{width:140px;height:140px;border-radius:50%;margin:14px auto;display:grid;place-items:center;background:conic-gradient(var(--violet2) var(--score,0%),rgba(255,255,255,.07) 0)}.compat>div{width:110px;height:110px;border-radius:50%;background:rgba(8,9,25,.96);border:1px solid var(--soft);display:grid;place-items:center}.compat strong{color:var(--gold2);font-family:var(--display);font-size:38px}.syn-wrap{text-align:center}
+    .tabbar{position:fixed;z-index:45;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,480px);padding:10px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:2px;background:rgba(6,7,20,.88);backdrop-filter:blur(18px);border-top:1px solid var(--soft);box-shadow:0 -16px 42px rgba(0,0,0,.34)}.tabbar button{flex:1;border:0;background:transparent;color:var(--muted2);display:grid;place-items:center;gap:3px;font-size:10.5px;padding:4px 0}.tabbar button b{font-size:22px;font-weight:400}.tabbar button.active{color:var(--gold2)}
+    .modal-backdrop{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,4,12,.74);backdrop-filter:blur(14px)}.modal-backdrop.open{display:flex}.modal{width:min(100%,430px);max-height:90dvh;overflow-y:auto;padding:22px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,13,38,.98),rgba(7,8,24,.98));box-shadow:0 30px 90px rgba(0,0,0,.62)}.toast{position:fixed;z-index:100;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(18px);opacity:0;pointer-events:none;padding:12px 18px;color:var(--bone);background:rgba(12,10,30,.96);border:1px solid var(--line);border-radius:16px;box-shadow:0 26px 80px rgba(0,0,0,.48);transition:.25s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.dev-note{color:var(--muted2);font-size:12px;margin-top:10px}
+    @media(max-width:390px){.app{padding-left:14px;padding-right:14px}.hero-card{grid-template-columns:104px 1fr}.zodiac-art{width:104px;height:104px}.zodiac-art span{font-size:52px}.shortcut-grid{gap:8px}.tile{min-height:92px}.two-grid,.ritual-grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  
+/* ===== Phase A.1 polish: input autofill, bottom spacing, chat, readable stats ===== */
+html, body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+.app {
+  padding-bottom: calc(150px + env(safe-area-inset-bottom)) !important;
+}
+
+.section {
+  padding-bottom: 62px;
+}
+
+.card:last-child {
+  margin-bottom: 34px;
+}
+
+/* Dark inputs, including Chrome/Edge autofill */
+input,
+textarea,
+select {
+  color: var(--bone) !important;
+  background: rgba(0, 0, 0, .42) !important;
+  caret-color: var(--gold-2);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(180, 166, 201, .68);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--bone) !important;
+  -webkit-box-shadow: 0 0 0 1000px #0a0920 inset !important;
+  box-shadow: 0 0 0 1000px #0a0920 inset !important;
+  border: 1px solid var(--line) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Cleaner chat layout */
+.chat-card {
+  min-height: min(74dvh, 720px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-window {
+  flex: 1;
+  height: auto !important;
+  min-height: 360px;
+  max-height: none;
+  padding-right: 8px;
+}
+
+.chat-window::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+  background: rgba(228, 181, 90, .42);
+  border-radius: 999px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bubble {
+  max-width: 92%;
+}
+
+.bubble.assistant {
+  background: rgba(255,255,255,.06);
+}
+
+/* Keep composer and buttons clear of mobile nav */
+.composer {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(11, 10, 31, 0), rgba(11, 10, 31, .96) 28%);
+  padding-top: 14px;
+}
+
+/* Statistics: avoid serif “1” looking like I */
+.stat b,
+#daysStat,
+#analysisStat,
+#savedStat {
+  font-family: var(--body) !important;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+/* Long text should not hide behind tabbar */
+.reading,
+#horoBody,
+#analysisReading {
+  padding-bottom: 28px;
+}
+
+/* Desktop presentation */
+@media (min-width: 720px) {
+  body {
+    display: block;
+  }
+
+  .app {
+    width: min(100%, 520px);
+  }
+
+  .tabbar {
+    width: min(100%, 520px);
+  }
+}
+
+@media (max-width: 430px) {
+  .two-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-card {
+    grid-template-columns: 108px 1fr;
+  }
+
+  .zodiac-art {
+    width: 108px;
+    height: 108px;
+  }
+
+  .zodiac-art span {
+    font-size: 54px;
+  }
+
+  .shortcut-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .tile {
+    min-height: 92px;
+    padding: 12px 5px;
+  }
+
+  .tile b {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  .card {
+    border-radius: 22px;
+  }
+}
+
+  
+/* ===== Phase B.1: real chart data panels ===== */
+.phaseb-panel {
+  margin-top: 16px;
+}
+
+.phaseb-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.chart-meta {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+
+.real-chart-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.big-three-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+}
+
+.astro-mini-card {
+  border: 1px solid var(--soft);
+  border-radius: 18px;
+  background: rgba(255,255,255,.035);
+  padding: 14px;
+  min-height: 112px;
+}
+
+.astro-mini-card .glyph {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--gold2);
+  margin-bottom: 8px;
+  background: rgba(228,181,90,.08);
+}
+
+.astro-mini-card h4 {
+  font-family: var(--display);
+  font-size: 22px;
+  margin: 0;
+  color: var(--bone);
+}
+
+.astro-mini-card p {
+  color: var(--muted);
+  margin: 4px 0 0;
+  font-size: 12.5px;
+}
+
+.planet-list,
+.aspect-list,
+.element-list {
+  display: grid;
+  gap: 8px;
+}
+
+.planet-row,
+.aspect-row,
+.element-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--soft);
+}
+
+.planet-row:last-child,
+.aspect-row:last-child,
+.element-row:last-child {
+  border-bottom: 0;
+}
+
+.planet-row .left,
+.aspect-row .left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.planet-row b,
+.aspect-row b,
+.element-row b {
+  font-family: var(--display);
+  font-size: 19px;
+  color: var(--bone);
+}
+
+.planet-row small,
+.aspect-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.degree-pill {
+  color: var(--gold2);
+  border: 1px solid var(--line);
+  background: rgba(228,181,90,.08);
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.element-bar {
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.07);
+  overflow: hidden;
+  margin: 0 10px;
+}
+
+.element-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--violet2), var(--gold2));
+}
+
+.phaseb-note {
+  color: var(--muted2);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+#chartWheel.real-chart-loaded text {
+  font-family: var(--body);
+}
+
+@media (max-width: 430px) {
+  .big-three-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .planet-row,
+  .aspect-row,
+  .element-row {
+    align-items: flex-start;
+  }
+}
+
+
+/* ===== Phase B.2 polish: chart readability + compact data panels ===== */
+#analysis .card:has(#chartWheel) {
+  padding: 12px;
+}
+
+#chartWheel {
+  max-width: 390px;
+}
+
+#realChartPanel {
+  gap: 12px;
+}
+
+#realChartPanel .phaseb-panel {
+  margin-top: 12px;
+}
+
+.chart-meta {
+  max-height: 72px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.phaseb-actions {
+  gap: 8px;
+}
+
+.phaseb-actions .btn {
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.big-three-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.astro-mini-card {
+  min-height: 104px;
+  padding: 12px;
+}
+
+.astro-mini-card h4 {
+  font-size: 19px;
+}
+
+.astro-mini-card p {
+  font-size: 12px;
+}
+
+.planet-list,
+.aspect-list {
+  max-height: 430px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.planet-list::-webkit-scrollbar,
+.aspect-list::-webkit-scrollbar,
+.chart-meta::-webkit-scrollbar {
+  width: 5px;
+}
+
+.planet-list::-webkit-scrollbar-thumb,
+.aspect-list::-webkit-scrollbar-thumb,
+.chart-meta::-webkit-scrollbar-thumb {
+  background: rgba(228,181,90,.38);
+  border-radius: 999px;
+}
+
+.element-list {
+  padding-top: 4px;
+}
+
+.planet-row,
+.aspect-row,
+.element-row {
+  padding: 10px 0;
+}
+
+.planet-row b,
+.aspect-row b,
+.element-row b {
+  font-size: 17px;
+}
+
+.degree-pill {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.chart-tabs button {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--soft);
+  background: rgba(255,255,255,.035);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-tabs button.active {
+  color: #241705;
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--gold2), #d7a13d);
+}
+
+.chart-detail-card {
+  display: none;
+}
+
+.chart-detail-card.active {
+  display: block;
+}
+
+#analysisReading {
+  min-height: 130px;
+}
+
+@media (max-width: 430px) {
+  #chartWheel {
+    max-width: 340px;
+  }
+
+  .big-three-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .astro-mini-card {
+    padding: 10px;
+    min-height: 96px;
+  }
+
+  .astro-mini-card .glyph {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .astro-mini-card h4 {
+    font-size: 17px;
+  }
+
+  .astro-mini-card p {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .planet-list,
+  .aspect-list {
+    max-height: 360px;
+  }
+}
+
+
+/* ===== Phase B.3: Synastry without manual UUID ===== */
+.phaseb3-partner-card {
+  text-align: left;
+  margin-top: 18px;
+}
+
+.partner-select-row {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+.partner-select-row > div {
+  flex: 1;
+}
+
+.partner-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.partner-form-grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.partner-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.partner-chip {
+  border: 1px solid var(--line);
+  background: rgba(228,181,90,.08);
+  color: var(--gold2);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+#personBId {
+  display: none !important;
+}
+
+.syn-wrap > label[style*="display: none"] + #personBId + p {
+  display: none !important;
+}
+
+.synastry-hint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+.synastry-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.synastry-mini {
+  border: 1px solid var(--soft);
+  background: rgba(255,255,255,.035);
+  border-radius: 16px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.synastry-mini b {
+  display: block;
+  font-family: var(--display);
+  color: var(--gold2);
+  font-size: 22px;
+}
+
+.synastry-mini span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 430px) {
+  .partner-select-row {
+    display: block;
+  }
+
+  .partner-select-row .btn {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .partner-form-grid,
+  .partner-form-grid.two,
+  .synastry-result-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ===== Phase B.3.1: make Synastry selector clearly visible ===== */
+#synastry .syn-wrap {
+  text-align: left;
+}
+
+.syn-wrap .compat {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.synastry-open-helper {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.home-synastry-hint {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--muted2);
+  font-size: 12px;
+}
+
+/* Keep the second-person UI high enough on screen */
+#phaseB3PartnerCard {
+  margin-top: 12px !important;
+}
+
+#phaseB3PartnerCard .card-title h4 {
+  color: var(--gold2);
+}
+
+/* Make Synastry result easier to read */
+#synastryText.ok {
+  color: var(--bone);
+}
+
+
+/* ===== Phase B.3.2: Synastry description card ===== */
+.synastry-description-card {
+  margin-top: 14px;
+  text-align: left;
+  display: none;
+}
+
+.synastry-description-card.active {
+  display: block;
+}
+
+.synastry-description-card h4 {
+  font-family: var(--display);
+  color: var(--gold2);
+  font-size: 27px;
+  margin: 0 0 10px;
+}
+
+.synastry-description-card p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 12px;
+}
+
+.synastry-description-card strong {
+  color: var(--bone);
+}
+
+.synastry-advice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.synastry-advice {
+  border: 1px solid var(--soft);
+  background: rgba(255,255,255,.035);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.synastry-advice b {
+  display: block;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.synastry-advice span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 430px) {
+  .synastry-advice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ===== Phase B.4: Supabase people list polish ===== */
+.people-sync-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.people-sync-row .btn {
+  padding: 9px 12px;
+  font-size: 12px;
+}
+
+#peopleSyncStatus {
+  color: var(--muted2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.partner-chip.loaded {
+  border-color: rgba(85,230,175,.35);
+  color: var(--green);
+}
+
+@media (max-width: 430px) {
+  .people-sync-row {
+    display: block;
+  }
+
+  .people-sync-row .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+
+/* ===== Phase B.4.1: clearer login/session state ===== */
+.login-session-card {
+  margin-top: 12px;
+  border: 1px solid rgba(255,143,175,.32);
+  background: rgba(255,143,175,.055);
+  color: var(--muted);
+}
+
+.login-session-card.ok {
+  border-color: rgba(85,230,175,.32);
+  background: rgba(85,230,175,.055);
+}
+
+.login-session-card h4 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  color: var(--gold2);
+  font-size: 22px;
+}
+
+.login-session-card p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+
+/* ===== Phase B.4.2: Luxury cleanup after Supabase sync ===== */
+
+/* Remove technical helper text from Home */
+#homeSynastryHint {
+  display: none !important;
+}
+
+/* Login status should not dominate the profile page */
+#loginSessionCard {
+  display: none !important;
+}
+
+body.soraya-needs-login #loginSessionCard {
+  display: block !important;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(126,57,219,.14), rgba(8,9,25,.76));
+  border: 1px solid rgba(228,181,90,.28);
+}
+
+body.soraya-needs-login #loginSessionCard h4 {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+body.soraya-needs-login #loginSessionCard p {
+  font-size: 12.5px;
+  margin-bottom: 10px;
+}
+
+/* Synastry should look premium, not like a database admin panel */
+#phaseB3PartnerCard {
+  padding: 18px !important;
+  border-color: rgba(228,181,90,.26);
+  background:
+    radial-gradient(340px 140px at 82% 0%, rgba(190,108,255,.16), transparent 58%),
+    linear-gradient(180deg, rgba(27,20,58,.82), rgba(10,10,30,.82));
+}
+
+#phaseB3PartnerCard .card-title {
+  margin-bottom: 8px;
+}
+
+#phaseB3PartnerCard .card-title h4 {
+  font-size: 26px;
+}
+
+/* Hide ugly duplicate chip list */
+#partnerChipList {
+  display: none !important;
+}
+
+/* Make sync small and elegant */
+.people-sync-row {
+  margin: 8px 0 10px !important;
+  padding: 10px 12px;
+  border: 1px solid rgba(228,181,90,.18);
+  border-radius: 16px;
+  background: rgba(255,255,255,.028);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.people-sync-row .btn {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 8px 12px !important;
+  font-size: 0 !important;
+  width: 42px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+}
+
+.people-sync-row .btn::before {
+  content: "↻";
+  font-size: 18px;
+  color: var(--gold2);
+}
+
+#peopleSyncStatus {
+  font-size: 12px !important;
+  color: var(--muted2) !important;
+}
+
+#peopleSyncStatus.soraya-ok {
+  color: var(--green) !important;
+}
+
+/* Friendlier select block */
+.partner-select-row {
+  align-items: end;
+}
+
+#synPersonSelect {
+  min-height: 50px;
+  border-color: rgba(228,181,90,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(0,0,0,.30)) !important;
+}
+
+/* Hide raw technical helper copy */
+#phaseB3PartnerCard .synastry-hint {
+  display: none !important;
+}
+
+/* Split create-person into a calmer advanced block */
+#phaseB3PartnerCard details.soraya-add-person {
+  margin-top: 12px;
+}
+
+#phaseB3PartnerCard details.soraya-add-person > summary {
+  list-style: none;
+  cursor: pointer;
+  border: 1px solid rgba(228,181,90,.22);
+  border-radius: 999px;
+  padding: 12px 15px;
+  color: var(--gold2);
+  background: rgba(228,181,90,.06);
+  font-weight: 700;
+  text-align: center;
+}
+
+#phaseB3PartnerCard details.soraya-add-person > summary::-webkit-details-marker {
+  display: none;
+}
+
+#phaseB3PartnerCard details.soraya-add-person[open] > summary {
+  margin-bottom: 14px;
+}
+
+/* The big compatibility circle should feel intentional */
+#synastry .compat {
+  width: 128px;
+  height: 128px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+#synastry .compat > div {
+  width: 98px;
+  height: 98px;
+}
+
+#synastry .compat strong {
+  font-size: 34px;
+}
+
+/* Result description: a bit more elegant */
+.synastry-description-card {
+  border-color: rgba(228,181,90,.28);
+  background:
+    radial-gradient(420px 160px at 20% 0%, rgba(228,181,90,.10), transparent 64%),
+    linear-gradient(180deg, rgba(28,20,58,.85), rgba(8,9,25,.88));
+}
+
+.synastry-result-grid {
+  margin-bottom: 8px;
+}
+
+/* Bottom nav spacing on Synastry */
+#synastry {
+  padding-bottom: 120px;
+}
+
+@media (max-width: 430px) {
+  .people-sync-row {
+    display: flex !important;
+  }
+
+  .people-sync-row .btn {
+    width: 40px;
+    min-width: 40px;
+    margin: 0 !important;
+  }
+
+  .partner-select-row {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+
+  .partner-select-row > div {
+    min-width: 0;
+  }
+
+  .partner-select-row > .btn {
+    height: 50px;
+    padding: 0 14px !important;
+    font-size: 0 !important;
+    border-radius: 18px;
+  }
+
+  .partner-select-row > .btn::before {
+    content: "↻";
+    font-size: 18px;
+  }
+}
+
+
+/* ===== Phase B.4.3: custom luxury person picker ===== */
+
+/* Native select is hidden because open native dropdown cannot be styled reliably */
+#synPersonSelect {
+  display: none !important;
+}
+
+.soraya-person-picker {
+  position: relative;
+  width: 100%;
+  z-index: 30;
+}
+
+.soraya-person-trigger {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid rgba(228,181,90,.32);
+  background:
+    radial-gradient(180px 80px at 18% 0%, rgba(228,181,90,.08), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(0,0,0,.38));
+  color: var(--bone);
+  border-radius: 18px;
+  padding: 0 44px 0 16px;
+  text-align: left;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  position: relative;
+}
+
+.soraya-person-trigger::after {
+  content: "⌄";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-54%);
+  color: var(--gold2);
+  font-size: 18px;
+}
+
+.soraya-person-trigger span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.soraya-person-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  display: none;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(228,181,90,.34);
+  background:
+    radial-gradient(240px 120px at 100% 0%, rgba(126,57,219,.26), transparent 65%),
+    linear-gradient(180deg, rgba(25,18,55,.98), rgba(8,9,25,.98));
+  box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter: blur(18px);
+  padding: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.soraya-person-picker.open .soraya-person-menu {
+  display: grid;
+  gap: 6px;
+}
+
+.soraya-person-option {
+  border: 0;
+  width: 100%;
+  min-height: 48px;
+  border-radius: 15px;
+  padding: 10px 12px;
+  color: var(--bone);
+  background: transparent;
+  text-align: left;
+  font-weight: 700;
+}
+
+.soraya-person-option small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.soraya-person-option:hover,
+.soraya-person-option.active {
+  background: rgba(228,181,90,.11);
+  color: var(--gold2);
+}
+
+.soraya-person-option.empty {
+  color: var(--muted2);
+  font-weight: 600;
+}
+
+/* Hide the old text-heavy refresh button and replace it visually */
+.partner-select-row > .btn {
+  width: 54px !important;
+  min-width: 54px !important;
+  height: 54px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+  border-radius: 18px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-color: rgba(228,181,90,.24);
+}
+
+.partner-select-row > .btn::before {
+  content: "↻";
+  font-size: 20px;
+  color: var(--gold2);
+}
+
+/* Make sync text almost invisible unless relevant */
+.people-sync-row {
+  padding: 0 !important;
+  margin: 8px 0 12px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.people-sync-row .btn {
+  display: none !important;
+}
+
+#peopleSyncStatus {
+  display: block;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(85,230,175,.055);
+  border: 1px solid rgba(85,230,175,.20);
+  color: var(--green) !important;
+  font-size: 11.5px !important;
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Synastry card spacing refinement */
+#phaseB3PartnerCard {
+  margin-top: 18px !important;
+}
+
+#phaseB3PartnerCard label {
+  margin-top: 10px;
+}
+
+/* Keep add-person summary visible but premium */
+#phaseB3PartnerCard details.soraya-add-person > summary {
+  background:
+    radial-gradient(160px 70px at 20% 0%, rgba(228,181,90,.11), transparent 68%),
+    rgba(255,255,255,.028);
+}
+
+/* Profile bottom cleanup */
+#profile {
+  padding-bottom: 150px;
+}
+
+#profile .card:last-of-type {
+  margin-bottom: 18px;
+}
+
+#profile > .btn.block:last-child {
+  margin-bottom: 60px;
+}
+
+@media (max-width: 430px) {
+  .partner-select-row {
+    grid-template-columns: 1fr 54px !important;
+  }
+
+  .soraya-person-menu {
+    max-height: 230px;
+  }
+}
+
+
+/* ===== Phase B.4.4: inline luxury person picker, no clipping ===== */
+
+/* The synastry cards need to allow natural height. */
+#synastry .card,
+#synastry .syn-wrap,
+#phaseB3PartnerCard {
+  overflow: visible !important;
+}
+
+/* Picker becomes inline, not floating overlay. This prevents cut-off. */
+.soraya-person-picker {
+  position: relative !important;
+  z-index: auto !important;
+}
+
+.soraya-person-menu {
+  position: static !important;
+  display: none;
+  margin-top: 9px;
+  max-height: none !important;
+  overflow: visible !important;
+  border-radius: 18px;
+  padding: 8px;
+  background:
+    radial-gradient(220px 110px at 100% 0%, rgba(126,57,219,.18), transparent 65%),
+    linear-gradient(180deg, rgba(17,14,42,.92), rgba(9,9,26,.92));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.soraya-person-picker.open .soraya-person-menu {
+  display: grid !important;
+  gap: 7px;
+}
+
+.soraya-person-option {
+  min-height: 54px;
+  border: 1px solid rgba(228,181,90,.12);
+  background: rgba(255,255,255,.025);
+}
+
+.soraya-person-option:hover,
+.soraya-person-option.active {
+  border-color: rgba(228,181,90,.38);
+  background:
+    radial-gradient(130px 70px at 15% 0%, rgba(228,181,90,.12), transparent 70%),
+    rgba(228,181,90,.075);
+}
+
+/* Better select layout */
+.partner-select-row {
+  display: grid !important;
+  grid-template-columns: 1fr 54px;
+  gap: 10px;
+  align-items: start !important;
+}
+
+.partner-select-row > div {
+  min-width: 0;
+}
+
+/* Make the trigger premium and not too huge. */
+.soraya-person-trigger {
+  min-height: 54px;
+  border-radius: 18px;
+}
+
+.soraya-person-trigger span {
+  font-size: 11.5px;
+}
+
+/* Hide technical green sync line when everything is already loaded;
+   keep it tiny if there is useful state. */
+#peopleSyncStatus {
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+/* "Neue Person anlegen" should stay below the picker and not be covered. */
+#phaseB3PartnerCard details.soraya-add-person {
+  clear: both;
+  margin-top: 14px !important;
+}
+
+/* Cleaner spacing inside synastry card. */
+#phaseB3PartnerCard {
+  padding-bottom: 20px !important;
+}
+
+#synastry .compat {
+  margin-bottom: 18px;
+}
+
+/* Result should not be hidden by bottom navigation. */
+#synastryText,
+.synastry-description-card {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 430px) {
+  .partner-select-row {
+    grid-template-columns: 1fr 50px !important;
+  }
+
+  .partner-select-row > .btn {
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 54px !important;
+  }
+
+  .soraya-person-menu {
+    padding: 7px;
+  }
+
+  .soraya-person-option {
+    min-height: 50px;
+  }
+}
+
+
+/* ===== Phase B.4.5: Login recovery after logout ===== */
+body.soraya-logged-out #loginSessionCard,
+body.soraya-needs-login #loginSessionCard {
+  display: block !important;
+  margin-top: 12px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  background:
+    radial-gradient(240px 100px at 15% 0%, rgba(228,181,90,.10), transparent 70%),
+    linear-gradient(180deg, rgba(22,17,48,.82), rgba(8,9,25,.82));
+  border: 1px solid rgba(228,181,90,.30);
+}
+
+body.soraya-logged-out #loginSessionCard h4,
+body.soraya-needs-login #loginSessionCard h4 {
+  color: var(--gold2);
+}
+
+body.soraya-logged-out #loginSessionCard p,
+body.soraya-needs-login #loginSessionCard p {
+  color: var(--muted);
+}
+
+body.soraya-logged-out #profileLoginQuickButton {
+  display: inline-flex !important;
+}
+
+#profileLoginQuickButton {
+  display: none;
+  margin-top: 12px;
+}
+
+.soraya-auth-mini {
+  color: var(--muted2);
+  font-size: 12px;
+  margin-top: 8px;
+}
