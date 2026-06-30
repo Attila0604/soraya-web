@@ -1,0 +1,66 @@
+Soraya Phase C.1 — Code Cleanup
+Dieses Paket macht keine neue Funktion, sondern macht den Code wartbarer.
+Vorher
+Fast alles war in einer riesigen `index.html`:
+HTML
+CSS
+JavaScript
+mehrere spätere Fix-Blöcke
+Das funktioniert, ist aber auf Dauer schwer zu pflegen.
+Jetzt
+Die App ist getrennt in:
+```text
+soraya-web/
+  index.html
+  style.css
+  app.js
+  manifest.webmanifest
+  icon.svg
+```
+Was wurde geändert?
+index.html
+enthält nur noch Struktur, externe Fonts, Supabase-CDN und App-Markup
+lädt `style.css`
+lädt `app.js`
+style.css
+enthält alle bisherigen Styles
+enthält auch die letzten Fixes:
+Inline Person Picker
+Login Recovery
+Luxury Cleanup
+app.js
+enthält alle bisherigen JavaScript-Funktionen
+bleibt ein normales Script, kein Modul
+bestehende `onclick`-Funktionen bleiben global erreichbar
+Was wurde NICHT geändert?
+kein Backend-Code
+keine neuen Endpoints
+keine neue Logik
+keine Änderung an Supabase
+keine Änderung an astro-engine
+Einbau
+ZIP entpacken.
+GitHub öffnen: `Attila0604/soraya-web`
+Diese Dateien hochladen/ersetzen:
+`index.html`
+`style.css`
+`app.js`
+`manifest.webmanifest` und `icon.svg` im Repo lassen.
+Commit:
+`Phase C.1 split frontend files`
+Vercel deployen.
+Test nach Deployment
+App öffnen.
+Prüfen, ob Design gleich aussieht.
+Profil öffnen.
+Login/Logout testen.
+Synastrie öffnen.
+Personenpicker öffnen.
+Verbindung berechnen.
+Analyse/Chart öffnen.
+Warum das wichtig ist
+Ab jetzt können wir zukünftige Änderungen gezielter machen:
+Design nur in `style.css`
+Funktionen nur in `app.js`
+Struktur nur in `index.html`
+Das reduziert Fehler und macht die App deutlich professioneller.
