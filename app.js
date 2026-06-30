@@ -1830,3 +1830,47 @@ window.addEventListener('load', () => {
     window.showSection = function (id) { var r = _showSection.apply(this, arguments); if (id === 'home') renderHomeSky(); return r; };
   }
 })();
+
+/* === Synastrie: Personen-Picker statt UUID (additiv) === */
+(function () {
+  function el(id) { return document.getElementById(id); }
+  function people() { try { return JSON.parse(localStorage.getItem('soraya_people_cache_v1') || '[]'); } catch (e) { return []; } }
+
+  // Die von Phase B.4 erwartete, aber nie definierte Funktion: füllt das Select aus dem Cache.
+  window.refreshSynastryPeople = function () {
+    var sel = el('synPersonSelect'); if (!sel) return;
+    var selfId = localStorage.getItem(KEYS.person);
+    var cur = sel.value;
+    var rows = people().filter(function (p) { return p && p.id; });
+    var opts = ['<option value="">Person wählen…</option>'];
+    rows.forEach(function (p) {
+      var isSelf = p.is_self || p.id === selfId;
+      var extra = p.birth_date ? ' · ' + p.birth_date : '';
+      opts.push('<option value="' + p.id + '">' + escapeHtml((p.name || 'Unbenannt') + (isSelf ? ' (ich)' : '') + extra) + '</option>');
+    });
+    sel.innerHTML = opts.join('');
+    if (cur) sel.value = cur;
+  };
+
+  function bindSelect() {
+    var sel = el('synPersonSelect'); if (!sel || sel.dataset.synBound) return;
+    sel.dataset.synBound = '1';
+    sel.addEventListener('change', function () {
+      var pid = el('personBId'); if (pid) pid.value = sel.value;
+      if (sel.value && window.toast) toast('Partnerperson gewählt.');
+    });
+  }
+
+  window.addEventListener('load', function () { bindSelect(); window.refreshSynastryPeople(); });
+
+  var _show = window.showSection;
+  if (typeof _show === 'function' && !_show.__synPicker) {
+    var w = function (id) {
+      var r = _show.apply(this, arguments);
+      if (id === 'synastry') { bindSelect(); window.refreshSynastryPeople(); }
+      return r;
+    };
+    w.__synPicker = true;
+    window.showSection = w;
+  }
+})();
