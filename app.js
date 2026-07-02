@@ -1,667 +1,718 @@
 /*
-  Soraya — Phase C.1 Code Cleanup
-  Datei: app.js
-  Zweck: Alle Inline-Scripts aus der alten index.html ausgelagert.
-  Hinweis: Kein Modul-Script, damit bestehende onclick-Funktionen global bleiben.
+  Soraya — C.2 Clean app.js
+  Ziel:
+  - Eine saubere, vollständige app.js als Ersatz
+  - /login bleibt die einzige Login-Seite
+  - keine doppelten Synastrie-Picker
+  - mobile sichere Supabase-Endpunkte bleiben erhalten
+  - Backend bleibt unverändert
 */
 
-let sb=null;const KEYS={config:'soraya_config',person:'soraya_person_id',conv:'soraya_conversation_id',name:'soraya_person_name',birth:'soraya_birth',created:'soraya_created_at',analyses:'soraya_analysis_count'};const $=id=>document.getElementById(id);
-    function toast(m){const e=$('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3300)}function status(id,t,type=''){const e=$(id);if(!e)return;e.classList.remove('ok','bad');if(type)e.classList.add(type);e.textContent=typeof t==='string'?t:JSON.stringify(t,null,2)}function safe(v,f=''){return(v===undefined||v===null||v==='')?f:String(v)}function escapeHtml(s){return safe(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}function markdownToHtml(t){return escapeHtml(t||'Noch kein Text vorhanden.').replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')}
-    function showSection(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));const t=$(id);if(t)t.classList.add('active');document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.getAttribute('data-nav')===id));window.scrollTo({top:0,behavior:'smooth'})}function openLogin(){$('loginModal').classList.add('open')}function closeLogin(){$('loginModal').classList.remove('open')}function openSettings(){$('settingsModal').classList.add('open')}function closeSettings(){$('settingsModal').classList.remove('open')}
-    function initSupabase(c){sb=window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true}})}function saveConfig(){const c={supabaseUrl:$('supabaseUrl').value.trim(),supabaseAnonKey:$('supabaseAnonKey').value.trim(),engineUrl:$('engineUrl').value.trim().replace(/\/$/,'')};if(!c.supabaseUrl||!c.supabaseAnonKey||!c.engineUrl){status('configStatus','Bitte alle Felder ausfüllen.','bad');return}localStorage.setItem(KEYS.config,JSON.stringify(c));initSupabase(c);status('configStatus','Verbindung gespeichert.','ok');toast('Verbindung gespeichert.')}function loadConfig(){const r=localStorage.getItem(KEYS.config);if(!r){status('configStatus','Noch keine Verbindung gespeichert.','bad');return false}try{const c=JSON.parse(r);$('supabaseUrl').value=c.supabaseUrl||'';$('supabaseAnonKey').value=c.supabaseAnonKey||'';$('engineUrl').value=c.engineUrl||'';initSupabase(c);status('configStatus','Verbindung geladen.','ok');return true}catch(e){status('configStatus','Gespeicherte Verbindung ist ungültig.','bad');return false}}function getEngineUrl(){const r=localStorage.getItem(KEYS.config);if(!r)throw new Error('Bitte zuerst Verbindung speichern.');return JSON.parse(r).engineUrl}async function getToken(){if(!sb&&!loadConfig())throw new Error('Supabase Client nicht bereit.');const{data,error}=await sb.auth.getSession();if(error)throw error;const token=data.session&&data.session.access_token;if(!token)throw new Error('Nicht eingeloggt oder kein Access Token vorhanden.');return token}async function callSoraya(path,body,method='POST'){const token=await getToken();const res=await fetch(getEngineUrl()+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:method==='GET'?undefined:JSON.stringify(body||{})});const text=await res.text();let json;try{json=JSON.parse(text)}catch{throw new Error(text)}if(!res.ok)throw new Error(json.detail||json.error||('HTTP '+res.status));if(json.ok===false)throw new Error(json.error||'Soraya ok=false');return json}
-    async function signIn(){try{if(!sb&&!loadConfig())throw new Error('Bitte zuerst Verbindung speichern.');const email=$('email').value.trim(),password=$('password').value;const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;const name=(data.user.email||'du').split('@')[0];localStorage.setItem(KEYS.name,localStorage.getItem(KEYS.name)||name);renderIdentity();status('authStatus','Login erfolgreich: '+data.user.email,'ok');closeLogin();toast('Login erfolgreich.')}catch(e){status('authStatus',e.message,'bad');toast('Login fehlgeschlagen.')}}async function signUp(){try{if(!sb&&!loadConfig())throw new Error('Bitte zuerst Verbindung speichern.');const{error}=await sb.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;status('authStatus','Registrierung gestartet. Bitte E-Mail bestätigen, falls nötig.','ok')}catch(e){status('authStatus',e.message,'bad')}}async function signOut(){try{if(sb)await sb.auth.signOut();localStorage.removeItem(KEYS.conv);status('authStatus','Abgemeldet.','ok');toast('Abgemeldet.')}catch(e){toast(e.message)}}
-    function nval(id){const v=$(id).value.trim();return v===''?null:Number(v)}async function createPerson(){try{const payload={is_self:true,relation:null,person:{name:$('pName').value.trim(),year:Number($('pYear').value),month:Number($('pMonth').value),day:Number($('pDay').value),hour:nval('pHour'),minute:nval('pMinute'),birthplace:$('pBirthplace').value.trim()}};if(!payload.person.name||!payload.person.year||!payload.person.month||!payload.person.day||!payload.person.birthplace)throw new Error('Bitte Name, Datum und Geburtsort ausfüllen.');const data=await callSoraya('/mobile/people/create',payload);const id=data.data.person.id;$('personId').value=id;localStorage.setItem(KEYS.person,id);localStorage.setItem(KEYS.name,payload.person.name);localStorage.setItem(KEYS.birth,JSON.stringify(payload.person));if(!localStorage.getItem(KEYS.created))localStorage.setItem(KEYS.created,new Date().toISOString());renderIdentity();status('personResult','✅ Person gespeichert.\nName: '+data.data.person.name+'\nID: '+id,'ok');toast('Profil gespeichert.')}catch(e){status('personResult',e.message,'bad')}}function needPerson(){if(!$('personId').value.trim()){toast('Bitte zuerst dein Profil speichern.');showSection('profile');return false}return true}
-    async function loadAnalysis(forceNew){if(!needPerson())return;try{$('analysisReading').innerHTML='Soraya liest dein kosmisches Feld ...';const data=await callSoraya('/mobile/analysis/save',{person_id:$('personId').value.trim(),force_new:!!forceNew});const a=data.data.analysis||{};const reading=a.reading||data.data.reading||'Keine Analyse gefunden.';$('analysisSource').textContent='source: '+(data.data.source||'loaded');$('analysisReading').innerHTML=markdownToHtml(reading);localStorage.setItem(KEYS.analyses,String(Number(localStorage.getItem(KEYS.analyses)||0)+1));renderIdentity();toast('Analyse geladen.')}catch(e){$('analysisReading').textContent='Fehler: '+e.message}}async function loadHoroscope(){if(!needPerson())return;try{$('horoMood').textContent='Soraya berechnet ...';const data=await callSoraya('/mobile/horoscope/save',{person_id:$('personId').value.trim(),period:$('period').value,at:null});const h=data.data.horoscope||{};$('horoMood').textContent=h.stimmung||data.data.stimmung||'Dein Horoskop';$('horoBody').textContent=h.body||data.data.body||data.data.text||'Keine Horoskopdaten gefunden.';$('horoTip').textContent='✦ '+(h.tipp||data.data.tipp||'Vertraue deinem inneren Kompass.');toast('Horoskop geladen.')}catch(e){$('horoMood').textContent='Fehler';$('horoBody').textContent=e.message}}
-    function appendBubble(role,text){const w=$('chatWindow'),d=document.createElement('div');d.className='bubble '+(role==='user'?'user':'assistant');d.textContent=text;w.appendChild(d);w.scrollTop=w.scrollHeight}function clearChatView(){$('chatWindow').innerHTML='<div class="bubble assistant">Hallo, ich bin Soraya ✨ Wie kann ich dich heute unterstützen?</div>'}function needsSafetyNote(m){return/(wohnung|haus|kaufen|kredit|vertrag|steuer|invest|aktie|crypto|bitcoin|gesund|krank|arzt|medizin|anwalt)/i.test(m||'')}async function sendChat(){if(!needPerson())return;const m=$('chatMessage').value.trim();if(!m)return;appendBubble('user',m);$('chatMessage').value='';try{const data=await callSoraya('/mobile/chat/save',{person_id:$('personId').value.trim(),message:m,conversation_id:$('conversationId').value.trim()||null,memory:null,people_ids:[]});$('conversationId').value=data.data.conversation_id;localStorage.setItem(KEYS.conv,data.data.conversation_id);let reply=data.data.reply||'Keine Antwort.';if(needsSafetyNote(m))reply+='\n\nHinweis: Soraya ersetzt keine professionelle Finanz-, Rechts- oder Gesundheitsberatung. Prüfe wichtige Entscheidungen bitte zusätzlich sachlich und mit passenden Expertinnen oder Experten.';appendBubble('assistant',reply)}catch(e){appendBubble('assistant','Fehler: '+e.message)}}
-    async function saveSynastry(){if(!needPerson())return;try{const data=await callSoraya('/mobile/synastry/save',{person_a_id:$('personId').value.trim(),person_b_id:$('personBId').value.trim()});const s=data.data.synastry||{};const score=s.score_value||(s.score&&s.score.value)||0;$('compatScore').textContent=score+'%';$('compatRing').style.setProperty('--score',Math.min(100,Number(score))+'%');status('synastryText','✅ Synastrie gespeichert.\nKompatibilität: '+score+'%\nKosmische Verbindung wurde berechnet.','ok');toast('Synastrie berechnet.')}catch(e){status('synastryText',e.message,'bad')}}
-    const ZOD=[{s:'Steinbock',g:'♑',el:'Erde',q:'Kardinal',r:'Saturn',from:[12,22],to:[1,19]},{s:'Wassermann',g:'♒',el:'Luft',q:'Fix',r:'Uranus & Saturn',from:[1,20],to:[2,18]},{s:'Fische',g:'♓',el:'Wasser',q:'Veränderlich',r:'Neptun & Jupiter',from:[2,19],to:[3,20]},{s:'Widder',g:'♈',el:'Feuer',q:'Kardinal',r:'Mars',from:[3,21],to:[4,19]},{s:'Stier',g:'♉',el:'Erde',q:'Fix',r:'Venus',from:[4,20],to:[5,20]},{s:'Zwillinge',g:'♊',el:'Luft',q:'Veränderlich',r:'Merkur',from:[5,21],to:[6,20]},{s:'Krebs',g:'♋',el:'Wasser',q:'Kardinal',r:'Mond',from:[6,21],to:[7,22]},{s:'Löwe',g:'♌',el:'Feuer',q:'Fix',r:'Sonne',from:[7,23],to:[8,22]},{s:'Jungfrau',g:'♍',el:'Erde',q:'Veränderlich',r:'Merkur',from:[8,23],to:[9,22]},{s:'Waage',g:'♎',el:'Luft',q:'Kardinal',r:'Venus',from:[9,23],to:[10,22]},{s:'Skorpion',g:'♏',el:'Wasser',q:'Fix',r:'Pluto & Mars',from:[10,23],to:[11,21]},{s:'Schütze',g:'♐',el:'Feuer',q:'Veränderlich',r:'Jupiter',from:[11,22],to:[12,21]}],MON=['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sep.','Okt.','Nov.','Dez.'];function signFor(d,m){return ZOD.find(z=>{const[fm,fd]=z.from,[tm,td]=z.to;return(m===fm&&d>=fd)||(m===tm&&d<=td)})||null}function renderSun(d,m){const z=signFor(d,m);if(!z)return;$('sunGlyph').textContent=z.g;$('sunSign').textContent=z.s;$('sunRange').textContent=`${z.from[1]}. ${MON[z.from[0]-1]} – ${z.to[1]}. ${MON[z.to[0]-1]}`;$('sunElement').textContent=z.el;$('sunQuality').textContent=z.q;$('sunRuler').textContent=z.r;$('sunProps').style.display='grid';$('profileSub').textContent='Seelenlicht-Sucher · '+z.s}
-    function renderMoon(){const syn=29.530588853,ref=Date.UTC(2000,0,6,18,14)/86400000,now=Date.now()/86400000;let age=((now-ref)%syn+syn)%syn,illum=Math.round((1-Math.cos(2*Math.PI*age/syn))/2*100),label='Mondphase',sub='Die Energie des Himmels für heute.';if(age<1.85){label='Neumond';sub='Zeit für Neuanfänge und Absichten.'}else if(age<5.5){label='Zunehmende Sichel';sub='Etwas Neues nimmt Form an.'}else if(age<9.2){label='Erstes Viertel';sub='Zeit zu handeln und dranzubleiben.'}else if(age<12.9){label='Zunehmender Mond';sub='Wachstum, Klärung, Ausrichtung.'}else if(age<16.6){label='Vollmond';sub='Höhepunkt — sehen, was gereift ist.'}else if(age<20.3){label='Abnehmender Mond';sub='Loslassen und dankbar sein.'}else if(age<23.99){label='Letztes Viertel';sub='Aufräumen und Klarheit schaffen.'}else{label='Abnehmende Sichel';sub='Ruhe, Rückzug, Vorbereitung.'}$('moonPhase').textContent=label;$('moonIllum').textContent=illum+'% beleuchtet';$('moonSub').textContent=sub;$('ritualMoonTitle').textContent=label;$('ritualMoonText').textContent=illum+'% beleuchtet · '+sub;$('moonVisual').style.setProperty('--shadow-scale',Math.max(.18,Math.min(1.25,1-illum/100)))}
-    function renderGreeting(){const h=new Date().getHours(),g=h<11?'Guten Morgen':h<18?'Schön, dass du da bist':'Guten Abend',name=localStorage.getItem(KEYS.name)||'du';$('greetLine').innerHTML=g+',<br><span class="gold" id="heroName">'+escapeHtml(name)+'</span>.'}function renderIdentity(){const name=localStorage.getItem(KEYS.name)||'Dein Profil';$('profileTitle').textContent=name;$('profileInitial').textContent=(name[0]||'S').toUpperCase();renderGreeting();let b=null;try{b=JSON.parse(localStorage.getItem(KEYS.birth)||'null')}catch(e){}if(b){renderSun(Number(b.day),Number(b.month));$('pName').value=$('pName').value||b.name||'';$('pDay').value=$('pDay').value||b.day||'';$('pMonth').value=$('pMonth').value||b.month||'';$('pYear').value=$('pYear').value||b.year||'';$('pHour').value=$('pHour').value||(b.hour??'');$('pMinute').value=$('pMinute').value||(b.minute??'');$('pBirthplace').value=$('pBirthplace').value||b.birthplace||''}const pid=localStorage.getItem(KEYS.person);if(pid)$('personId').value=pid;const cid=localStorage.getItem(KEYS.conv);if(cid)$('conversationId').value=cid;const created=localStorage.getItem(KEYS.created);if(created){$('daysStat').textContent=Math.max(1,Math.round((Date.now()-new Date(created).getTime())/86400000))}$('analysisStat').textContent=localStorage.getItem(KEYS.analyses)||'0'}window._sorayaPreview=function(){const d=Number($('pDay').value),m=Number($('pMonth').value);if(d>=1&&d<=31&&m>=1&&m<=12)renderSun(d,m);const n=$('pName').value.trim();if(n){localStorage.setItem(KEYS.name,n);renderIdentity()}}
-    function renderWheel(){const svg=$('chartWheel'),C=210,gold='#e4b55a',pale='rgba(228,181,90,.32)',violet='rgba(190,108,255,.48)';if(!svg)return;const glyphs=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];let p='';const ring=(r,c,w)=>`<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="${c}" stroke-width="${w}"/>`;p+=ring(190,pale,1)+ring(150,gold,1.2)+ring(110,'rgba(228,181,90,.18)',1)+ring(70,'rgba(228,181,90,.14)',1);for(let i=0;i<12;i++){const a=(i*30-90)*Math.PI/180;p+=`<line x1="${C+110*Math.cos(a)}" y1="${C+110*Math.sin(a)}" x2="${C+190*Math.cos(a)}" y2="${C+190*Math.sin(a)}" stroke="${pale}" stroke-width="1"/>`;const ga=((i*30)+15-90)*Math.PI/180;p+=`<text x="${C+170*Math.cos(ga)}" y="${C+170*Math.sin(ga)}" fill="${gold}" font-size="21" text-anchor="middle" dominant-baseline="central">${glyphs[i]}</text>`}const pts=[];for(let i=0;i<9;i++){const a=(i*40+7-90)*Math.PI/180;pts.push([C+82*Math.cos(a),C+82*Math.sin(a)]);p+=`<circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="3" fill="${i%2?gold:'#be6cff'}"/>`}for(let i=0;i<pts.length;i++)for(let j=i+2;j<pts.length;j+=3)p+=`<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[j][0]}" y2="${pts[j][1]}" stroke="${j%2?violet:'rgba(228,181,90,.4)'}" stroke-width="1"/>`;p+=`<circle cx="${C}" cy="${C}" r="5" fill="${gold}"/>`;svg.innerHTML=p}window.addEventListener('load',async()=>{loadConfig();renderMoon();renderIdentity();renderWheel();if(sb){try{const{data}=await sb.auth.getSession();if(data.session&&data.session.user&&!localStorage.getItem(KEYS.name)){localStorage.setItem(KEYS.name,(data.session.user.email||'du').split('@')[0]);renderIdentity()}}catch(e){}}})
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-window.addEventListener('load', () => {
-    const msg = document.getElementById('chatMessage');
-    if (msg && !msg.dataset.phaseA1) {
-      msg.dataset.phaseA1 = 'true';
-      msg.addEventListener('keydown', (event) => {
-        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-          event.preventDefault();
-          if (window.sendChat) window.sendChat();
-        }
-      });
-    }
-  });
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.1: real chart from backend /chart endpoint ===== */
 (function () {
-  const PLANET_GLYPHS = {
-    Sun: "☉",
-    Moon: "☾",
-    Mercury: "☿",
-    Venus: "♀",
-    Mars: "♂",
-    Jupiter: "♃",
-    Saturn: "♄",
-    Uranus: "♅",
-    Neptune: "♆",
-    Pluto: "♇",
-    Chiron: "⚷",
-    True_North_Lunar_Node: "☊",
-    Mean_Lilith: "⚸",
-    Ascendant: "AC",
-    Medium_Coeli: "MC",
-    Descendant: "DC",
-    Imum_Coeli: "IC"
+  "use strict";
+
+  const KEYS = {
+    config: "soraya_config",
+    person: "soraya_person_id",
+    conv: "soraya_conversation_id",
+    name: "soraya_person_name",
+    birth: "soraya_birth",
+    created: "soraya_created_at",
+    analyses: "soraya_analysis_count",
+    people: "soraya_people_cache_v1",
+    coords: "soraya_coords"
   };
 
-  const SIGN_GLYPHS = {
-    Ari: "♈", Tau: "♉", Gem: "♊", Can: "♋", Leo: "♌", Vir: "♍",
-    Lib: "♎", Sco: "♏", Sag: "♐", Cap: "♑", Aqu: "♒", Pis: "♓",
-    Widder: "♈", Stier: "♉", Zwillinge: "♊", Krebs: "♋", Loewe: "♌", Löwe: "♌",
-    Jungfrau: "♍", Waage: "♎", Skorpion: "♏", Schuetze: "♐", Schütze: "♐",
-    Steinbock: "♑", Wassermann: "♒", Fische: "♓"
-  };
+  const LOGIN_PATH = "/login";
+  let sb = null;
 
-  const SIGN_ORDER = ["Ari","Tau","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aqu","Pis"];
-  const CORE_POINTS = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron","Ascendant","Medium_Coeli"];
-  const CORE_DISPLAY = new Set(CORE_POINTS);
+  const $ = (id) => document.getElementById(id);
 
-  let lastChartData = null;
-  let loadingChart = false;
-
-  function el(id) {
-    return document.getElementById(id);
+  function safe(value, fallback = "") {
+    return value === undefined || value === null || value === "" ? fallback : String(value);
   }
 
-  function getConfigEngineUrl() {
-    const raw = localStorage.getItem("soraya_config");
-    if (!raw) throw new Error("Bitte zuerst unter Verbindung die Backend URL speichern.");
-    const config = JSON.parse(raw);
-    if (!config.engineUrl) throw new Error("Backend URL fehlt in Verbindung.");
-    return config.engineUrl.replace(/\/$/, "");
+  function escapeHtml(value) {
+    return safe(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
-  async function callEnginePublic(path, body) {
-    const res = await fetch(getConfigEngineUrl() + path, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(body || {})
+  function markdownToHtml(text) {
+    return escapeHtml(text || "Noch kein Text vorhanden.")
+      .replace(/^### (.*)$/gm, "<h3>$1</h3>")
+      .replace(/^## (.*)$/gm, "<h2>$1</h2>")
+      .replace(/^# (.*)$/gm, "<h1>$1</h1>")
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n\n/g, "<br><br>")
+      .replace(/\n/g, "<br>");
+  }
+
+  function toast(message) {
+    const box = $("toast");
+    if (!box) return;
+    box.textContent = message;
+    box.classList.add("show");
+    setTimeout(() => box.classList.remove("show"), 3300);
+  }
+
+  function status(id, text, type = "") {
+    const node = $(id);
+    if (!node) return;
+    node.classList.remove("ok", "bad");
+    if (type) node.classList.add(type);
+    node.textContent = typeof text === "string" ? text : JSON.stringify(text, null, 2);
+  }
+
+  function readJson(key, fallback = null) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function writeJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function showSection(id) {
+    document.querySelectorAll(".section").forEach((section) => section.classList.remove("active"));
+    const target = $(id);
+    if (target) target.classList.add("active");
+
+    document.querySelectorAll("[data-nav]").forEach((button) => {
+      button.classList.toggle("active", button.getAttribute("data-nav") === id);
     });
-    const text = await res.text();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (id === "analysis") {
+      setTimeout(() => loadRealChartData(false), 120);
+    }
+
+    if (id === "synastry") {
+      setTimeout(() => {
+        ensureSynastryUi();
+        loadPeopleFromSupabase(false);
+      }, 120);
+    }
+
+    if (id === "profile") {
+      setTimeout(renderAuthUi, 120);
+    }
+
+    if (id === "home") {
+      setTimeout(renderHomeSky, 120);
+    }
+  }
+
+  function openLogin() {
+    window.location.href = LOGIN_PATH;
+  }
+
+  function closeLogin() {
+    const modal = $("loginModal");
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  function openSettings() {
+    const modal = $("settingsModal");
+    if (modal) modal.classList.add("open");
+  }
+
+  function closeSettings() {
+    const modal = $("settingsModal");
+    if (modal) modal.classList.remove("open");
+  }
+
+  function initSupabase(config) {
+    if (!window.supabase) throw new Error("Supabase CDN wurde nicht geladen.");
+    if (!config || !config.supabaseUrl || !config.supabaseAnonKey) {
+      throw new Error("Supabase-Verbindung fehlt.");
+    }
+
+    sb = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+
+    window.sb = sb;
+    return sb;
+  }
+
+  function saveConfig() {
+    try {
+      const config = {
+        supabaseUrl: ($("supabaseUrl") && $("supabaseUrl").value.trim()) || "",
+        supabaseAnonKey: ($("supabaseAnonKey") && $("supabaseAnonKey").value.trim()) || "",
+        engineUrl: (($("engineUrl") && $("engineUrl").value.trim()) || "").replace(/\/$/, "")
+      };
+
+      if (!config.supabaseUrl || !config.supabaseAnonKey || !config.engineUrl) {
+        status("configStatus", "Bitte alle Felder ausfüllen.", "bad");
+        return false;
+      }
+
+      writeJson(KEYS.config, config);
+      initSupabase(config);
+      status("configStatus", "Verbindung gespeichert.", "ok");
+      toast("Verbindung gespeichert.");
+      renderAuthUi();
+      return true;
+    } catch (error) {
+      status("configStatus", error.message, "bad");
+      toast("Verbindung konnte nicht gespeichert werden.");
+      return false;
+    }
+  }
+
+  function loadConfig() {
+    const config = readJson(KEYS.config, null);
+    if (!config) {
+      status("configStatus", "Noch keine Verbindung gespeichert.", "bad");
+      return false;
+    }
+
+    if ($("supabaseUrl")) $("supabaseUrl").value = config.supabaseUrl || "";
+    if ($("supabaseAnonKey")) $("supabaseAnonKey").value = config.supabaseAnonKey || "";
+    if ($("engineUrl")) $("engineUrl").value = config.engineUrl || "";
+
+    try {
+      initSupabase(config);
+      status("configStatus", "Verbindung geladen.", "ok");
+      return true;
+    } catch (error) {
+      status("configStatus", error.message, "bad");
+      return false;
+    }
+  }
+
+  function getConfig() {
+    const config = readJson(KEYS.config, null);
+    if (!config) throw new Error("Bitte zuerst Verbindung speichern.");
+    return config;
+  }
+
+  function getEngineUrl() {
+    return getConfig().engineUrl.replace(/\/$/, "");
+  }
+
+  async function getToken() {
+    if (!sb && !loadConfig()) throw new Error("Supabase Client nicht bereit.");
+
+    const { data, error } = await sb.auth.getSession();
+    if (error) throw error;
+
+    const token = data && data.session && data.session.access_token;
+    if (!token) throw new Error("Nicht eingeloggt. Bitte über /login einloggen.");
+
+    return token;
+  }
+
+  async function callSoraya(path, body, method = "POST") {
+    const token = await getToken();
+    const response = await fetch(getEngineUrl() + path, {
+      method,
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: method === "GET" ? undefined : JSON.stringify(body || {})
+    });
+
+    const text = await response.text();
     let json;
+
     try {
       json = JSON.parse(text);
-    } catch (e) {
+    } catch (error) {
       throw new Error(text || "Ungültige Backend-Antwort.");
     }
-    if (!res.ok || json.ok === false) throw new Error(json.detail || json.error || ("HTTP " + res.status));
+
+    if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
+    if (json.ok === false) throw new Error(json.error || "Soraya ok=false");
+
     return json;
   }
 
-  function numberOrNull(value) {
-    if (value === undefined || value === null || value === "") return null;
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
+  async function signIn() {
+    openLogin();
   }
 
-  function getBirthPayload() {
-    let b = null;
-    try { b = JSON.parse(localStorage.getItem("soraya_birth") || "null"); } catch (e) {}
-    const payload = {
-      name: (b && b.name) || (el("pName") && el("pName").value.trim()) || "Unbenannt",
-      year: numberOrNull((b && b.year) || (el("pYear") && el("pYear").value)),
-      month: numberOrNull((b && b.month) || (el("pMonth") && el("pMonth").value)),
-      day: numberOrNull((b && b.day) || (el("pDay") && el("pDay").value)),
-      hour: numberOrNull((b && b.hour) ?? (el("pHour") && el("pHour").value)),
-      minute: numberOrNull((b && b.minute) ?? (el("pMinute") && el("pMinute").value)),
-      birthplace: (b && b.birthplace) || (el("pBirthplace") && el("pBirthplace").value.trim()) || ""
-    };
-
-    if (!payload.year || !payload.month || !payload.day || !payload.birthplace) {
-      throw new Error("Bitte Profil mit Geburtsdatum und Geburtsort speichern.");
-    }
-
-    return payload;
+  async function signUp() {
+    openLogin();
   }
 
-  function fmtDeg(v) {
-    const n = Number(v);
-    if (!Number.isFinite(n)) return "–";
-    const deg = Math.floor(n);
-    const min = Math.round((n - deg) * 60);
-    return deg + "°" + String(min).padStart(2, "0") + "′";
-  }
-
-  function angleXY(center, radius, absPos) {
-    const a = (Number(absPos) - 90) * Math.PI / 180;
-    return [center + radius * Math.cos(a), center + radius * Math.sin(a)];
-  }
-
-  function aspectColor(type) {
-    if (type === "trine" || type === "sextile") return "rgba(190,108,255,.58)";
-    if (type === "square" || type === "opposition") return "rgba(228,181,90,.48)";
-    return "rgba(255,255,255,.22)";
-  }
-
-  function renderRealWheel(chart) {
-    const svg = el("chartWheel");
-    if (!svg || !chart) return;
-
-    const C = 210, outer = 190, signR = 169, houseR = 149, pointR = 126, aspectR = 94;
-    const gold = "#e4b55a";
-    const pale = "rgba(228,181,90,.32)";
-    const soft = "rgba(228,181,90,.14)";
-    const points = (chart.points || []).filter(p => CORE_DISPLAY.has(p.name));
-    const pointMap = new Map(points.map(p => [p.name, p]));
-
-    let out = "";
-    const ring = (r, c, w) => `<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="${c}" stroke-width="${w}"/>`;
-    out += ring(outer, pale, 1);
-    out += ring(houseR, gold, 1.2);
-    out += ring(110, soft, 1);
-    out += ring(70, soft, 1);
-
-    for (let i = 0; i < 12; i++) {
-      const cusp = i * 30;
-      const [x1, y1] = angleXY(C, houseR, cusp);
-      const [x2, y2] = angleXY(C, outer, cusp);
-      const [gx, gy] = angleXY(C, signR, cusp + 15);
-      out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${pale}" stroke-width="1"/>`;
-      out += `<text x="${gx}" y="${gy}" fill="${gold}" font-size="21" text-anchor="middle" dominant-baseline="central">${SIGN_GLYPHS[SIGN_ORDER[i]]}</text>`;
-    }
-
-    (chart.houses || []).forEach(h => {
-      const [x1, y1] = angleXY(C, 72, h.cusp_abs_pos);
-      const [x2, y2] = angleXY(C, houseR, h.cusp_abs_pos);
-      const [tx, ty] = angleXY(C, 136, h.cusp_abs_pos + 5);
-      out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(228,181,90,.22)" stroke-width="1"/>`;
-      out += `<text x="${tx}" y="${ty}" fill="rgba(180,166,201,.78)" font-size="10" text-anchor="middle" dominant-baseline="central">${h.number}</text>`;
-    });
-
-    (chart.aspects || []).slice(0, 24).forEach(a => {
-      const p1 = pointMap.get(a.p1);
-      const p2 = pointMap.get(a.p2);
-      if (!p1 || !p2) return;
-      const [x1, y1] = angleXY(C, aspectR, p1.abs_pos);
-      const [x2, y2] = angleXY(C, aspectR, p2.abs_pos);
-      out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${aspectColor(a.type)}" stroke-width="1"/>`;
-    });
-
-    points.forEach((p, idx) => {
-      const r = pointR + (idx % 3) * 10;
-      const [x, y] = angleXY(C, r, p.abs_pos);
-      const [dx, dy] = angleXY(C, 106, p.abs_pos);
-      const glyph = PLANET_GLYPHS[p.name] || "•";
-      out += `<circle cx="${dx}" cy="${dy}" r="3.2" fill="${idx % 2 ? "#be6cff" : gold}"/>`;
-      out += `<text x="${x}" y="${y}" fill="${p.name === "Ascendant" ? "#f7dc91" : "#be6cff"}" font-size="${glyph.length > 1 ? 11 : 20}" font-weight="700" text-anchor="middle" dominant-baseline="central">${glyph}</text>`;
-    });
-
-    out += `<circle cx="${C}" cy="${C}" r="5" fill="${gold}"/>`;
-    svg.innerHTML = out;
-    svg.classList.add("real-chart-loaded");
-  }
-
-  function miniCard(title, point) {
-    if (!point) return "";
-    return `
-      <div class="astro-mini-card">
-        <div class="glyph">${PLANET_GLYPHS[point.name] || SIGN_GLYPHS[point.sign] || "✦"}</div>
-        <h4>${title}</h4>
-        <p>${point.sign_de || point.sign} · ${fmtDeg(point.degree)}${point.house ? " · Haus " + point.house : ""}</p>
-      </div>
-    `;
-  }
-
-  function ensurePanel() {
-    let panel = el("realChartPanel");
-    if (panel) return panel;
-
-    const wheel = el("chartWheel");
-    const card = wheel && wheel.closest(".card");
-    panel = document.createElement("div");
-    panel.id = "realChartPanel";
-    panel.className = "real-chart-grid";
-    panel.innerHTML = `
-      <div class="card phaseb-panel">
-        <div class="card-title"><h4>Echte Chart-Daten</h4><span class="badge" id="chartDataStatus">bereit</span></div>
-        <p class="phaseb-note">Phase B.1 nutzt den Backend-Endpunkt <code>/chart</code> und visualisiert echte Planeten, Häuser und Aspekte aus deinem Geburtshoroskop.</p>
-        <div class="phaseb-actions">
-          <button class="btn gold" onclick="window.loadRealChartData(true)">Chart-Daten laden</button>
-          <button class="btn" onclick="showSection('profile')">Geburtsdaten prüfen</button>
-        </div>
-        <div id="chartMeta" class="chart-meta"></div>
-      </div>
-      <div class="big-three-grid" id="bigThreeGrid"></div>
-      <div class="card"><div class="card-title"><h4>Planeten</h4><span class="badge">radix</span></div><div id="planetList" class="planet-list"></div></div>
-      <div class="card"><div class="card-title"><h4>Elemente Balance</h4><span class="badge">core 10</span></div><div id="elementList" class="element-list"></div></div>
-      <div class="card"><div class="card-title"><h4>Stärkste Aspekte</h4><span class="badge">orb</span></div><div id="aspectList" class="aspect-list"></div></div>
-    `;
-    if (card) card.insertAdjacentElement("afterend", panel);
-    return panel;
-  }
-
-  function renderChartPanel(chart) {
-    ensurePanel();
-
-    const meta = chart.meta || {};
-    const big = chart.big_three || {};
-    const points = chart.points || [];
-    const aspects = chart.aspects || [];
-    const dist = chart.distributions || {};
-    const elems = dist.elements || {};
-
-    el("chartDataStatus").textContent = "real";
-    el("chartMeta").textContent = [
-      meta.name ? "Name: " + meta.name : "",
-      meta.house_system ? "Häuser: " + meta.house_system : "",
-      meta.time_known === false ? "Geburtszeit unbekannt: 12:00 als Näherung" : "",
-      meta.resolved_place ? "Ort: " + meta.resolved_place : ""
-    ].filter(Boolean).join(" · ");
-
-    el("bigThreeGrid").innerHTML =
-      miniCard("Sonne", big.sun) +
-      miniCard("Mond", big.moon) +
-      miniCard("Aszendent", big.ascendant);
-
-    const shownPoints = points.filter(p => CORE_DISPLAY.has(p.name)).slice(0, 13);
-    el("planetList").innerHTML = shownPoints.map(p => `
-      <div class="planet-row">
-        <div class="left">
-          <span class="orb-sm">${PLANET_GLYPHS[p.name] || "✦"}</span>
-          <span><b>${p.name_de || p.name}</b><small>${p.sign_de || p.sign}${p.house ? " · Haus " + p.house : ""}${p.retrograde ? " · rückläufig" : ""}</small></span>
-        </div>
-        <span class="degree-pill">${fmtDeg(p.degree)}</span>
-      </div>
-    `).join("");
-
-    const maxElem = Math.max(1, ...Object.values(elems).map(Number));
-    el("elementList").innerHTML = Object.entries(elems).map(([name, value]) => `
-      <div class="element-row">
-        <b>${name}</b>
-        <div class="element-bar"><span style="width:${Math.round(Number(value) / maxElem * 100)}%"></span></div>
-        <span class="degree-pill">${value}</span>
-      </div>
-    `).join("");
-
-    el("aspectList").innerHTML = aspects.slice(0, 8).map(a => `
-      <div class="aspect-row">
-        <div class="left">
-          <span class="orb-sm">◇</span>
-          <span><b>${a.p1_de || a.p1} ${a.type_de || a.type}</b><small>${a.p2_de || a.p2}</small></span>
-        </div>
-        <span class="degree-pill">Orb ${fmtDeg(a.orb)}</span>
-      </div>
-    `).join("");
-  }
-
-  async function loadRealChartData(force) {
-    ensurePanel();
-
-    if (loadingChart) return;
-    if (lastChartData && !force) {
-      renderRealWheel(lastChartData);
-      renderChartPanel(lastChartData);
-      return;
-    }
-
+  async function signOut() {
     try {
-      loadingChart = true;
-      if (el("chartDataStatus")) el("chartDataStatus").textContent = "lädt";
-      const payload = getBirthPayload();
-      const json = await callEnginePublic("/chart", payload);
-      lastChartData = json.data;
-      renderRealWheel(lastChartData);
-      renderChartPanel(lastChartData);
-      if (window.toast) toast("Echte Chart-Daten geladen.");
-    } catch (err) {
-      ensurePanel();
-      if (el("chartDataStatus")) el("chartDataStatus").textContent = "fehlt";
-      if (el("chartMeta")) el("chartMeta").textContent = err.message;
-      if (window.toast) toast("Chart-Daten konnten nicht geladen werden.");
-    } finally {
-      loadingChart = false;
+      if (!sb) loadConfig();
+      if (sb) await sb.auth.signOut();
+
+      localStorage.removeItem(KEYS.conv);
+      status("authStatus", "Abgemeldet.", "ok");
+      toast("Abgemeldet.");
+      renderAuthUi();
+    } catch (error) {
+      toast(error.message || "Abmelden fehlgeschlagen.");
     }
   }
 
-  window.loadRealChartData = loadRealChartData;
-
-  window.addEventListener("load", () => {
-    ensurePanel();
-
-    const oldShowSection = window.showSection;
-    if (typeof oldShowSection === "function" && !oldShowSection.__phaseBWrapped) {
-      const wrapped = function (id) {
-        oldShowSection(id);
-        if (id === "analysis") setTimeout(() => loadRealChartData(false), 120);
-      };
-      wrapped.__phaseBWrapped = true;
-      window.showSection = wrapped;
+  async function getSessionState() {
+    try {
+      if (!sb && !loadConfig()) return { ok: false, session: null };
+      const { data, error } = await sb.auth.getSession();
+      if (error) throw error;
+      return { ok: !!(data && data.session), session: data && data.session };
+    } catch (error) {
+      return { ok: false, session: null, error };
     }
+  }
 
-    const oldCreatePerson = window.createPerson;
-    if (typeof oldCreatePerson === "function" && !oldCreatePerson.__phaseBWrapped) {
-      const wrappedCreate = async function () {
-        const result = await oldCreatePerson.apply(this, arguments);
-        setTimeout(() => loadRealChartData(true), 300);
-        return result;
-      };
-      wrappedCreate.__phaseBWrapped = true;
-      window.createPerson = wrappedCreate;
-    }
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.2: compact chart tabs + cleaner wheel label placement ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  function waitForPhaseB() {
-    if (!window.loadRealChartData) {
-      setTimeout(waitForPhaseB, 120);
-      return;
-    }
-
-    const oldLoad = window.loadRealChartData;
-    if (oldLoad.__phaseB2Wrapped) return;
-
-    window.loadRealChartData = async function () {
-      const result = await oldLoad.apply(this, arguments);
-      setTimeout(applyChartPanelTabs, 120);
-      setTimeout(polishWheelLabels, 140);
-      return result;
-    };
-    window.loadRealChartData.__phaseB2Wrapped = true;
-
-    window.addEventListener("load", () => {
-      setTimeout(applyChartPanelTabs, 250);
-      setTimeout(polishWheelLabels, 270);
+  function findLogoutButton() {
+    return Array.from(document.querySelectorAll("button")).find((button) => {
+      const text = (button.textContent || "").trim();
+      const onclick = button.getAttribute("onclick") || "";
+      return text.includes("Abmelden") || text === "Einloggen" || onclick.includes("signOut");
     });
   }
 
-  function applyChartPanelTabs() {
-    const panel = el("realChartPanel");
-    if (!panel || panel.dataset.phaseB2Tabs === "true") return;
+  async function renderAuthUi() {
+    closeLogin();
 
-    const cards = Array.from(panel.querySelectorAll(":scope > .card"));
-    const planetCard = cards.find(c => c.querySelector("#planetList"));
-    const elementCard = cards.find(c => c.querySelector("#elementList"));
-    const aspectCard = cards.find(c => c.querySelector("#aspectList"));
-    if (!planetCard || !elementCard || !aspectCard) return;
+    const loginText = $("loginSessionText");
+    const loginCard = $("loginSessionCard");
+    const button = findLogoutButton();
+    const state = await getSessionState();
 
-    panel.dataset.phaseB2Tabs = "true";
+    if (state.ok) {
+      document.body.classList.remove("soraya-logged-out", "soraya-needs-login");
 
-    planetCard.classList.add("chart-detail-card", "active");
-    elementCard.classList.add("chart-detail-card");
-    aspectCard.classList.add("chart-detail-card");
-
-    const tabs = document.createElement("div");
-    tabs.className = "chart-tabs";
-    tabs.innerHTML = `
-      <button class="active" data-chart-tab="planet">Planeten</button>
-      <button data-chart-tab="element">Elemente</button>
-      <button data-chart-tab="aspect">Aspekte</button>
-    `;
-
-    const big = el("bigThreeGrid");
-    if (big) big.insertAdjacentElement("afterend", tabs);
-
-    const tabMap = { planet: planetCard, element: elementCard, aspect: aspectCard };
-    tabs.addEventListener("click", (event) => {
-      const btn = event.target.closest("[data-chart-tab]");
-      if (!btn) return;
-      tabs.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      Object.values(tabMap).forEach(card => card.classList.remove("active"));
-      tabMap[btn.dataset.chartTab].classList.add("active");
-    });
-  }
-
-  function polishWheelLabels() {
-    const svg = el("chartWheel");
-    if (!svg || !svg.classList.contains("real-chart-loaded")) return;
-
-    const texts = Array.from(svg.querySelectorAll("text"));
-    texts.forEach(t => {
-      const content = (t.textContent || "").trim();
-
-      // Make planet labels smaller than sign labels, reducing overlap.
-      if (["☉","☾","☿","♀","♂","♃","♄","♅","♆","♇","⚷","AC","MC","DC","IC"].includes(content)) {
-        t.setAttribute("font-size", content.length > 1 ? "9" : "16");
-        t.setAttribute("font-weight", "700");
+      if (loginText) {
+        const email = state.session && state.session.user ? state.session.user.email : "Supabase User";
+        loginText.textContent = "✅ Eingeloggt als " + email + ".";
       }
 
-      // House numbers stay subtle.
-      if (/^\d+$/.test(content)) {
-        t.setAttribute("font-size", "9");
-        t.setAttribute("opacity", ".75");
+      if (loginCard) loginCard.classList.add("ok");
+
+      if (button) {
+        button.textContent = "⇥ Abmelden";
+        button.onclick = signOut;
       }
-    });
-  }
 
-  waitForPhaseB();
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.3: local people cache + partner create/select for Synastry ===== */
-(function () {
-  const PEOPLE_KEY = "soraya_people_cache_v1";
-
-  function el(id) { return document.getElementById(id); }
-
-  function readPeopleCache() {
-    try {
-      const rows = JSON.parse(localStorage.getItem(PEOPLE_KEY) || "[]");
-      return Array.isArray(rows) ? rows : [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function writePeopleCache(rows) {
-    const byId = new Map();
-    rows.filter(Boolean).forEach(p => {
-      if (p.id) byId.set(p.id, p);
-    });
-    localStorage.setItem(PEOPLE_KEY, JSON.stringify(Array.from(byId.values())));
-  }
-
-  function addPersonToCache(person, extra) {
-    if (!person || !person.id) return;
-    const rows = readPeopleCache();
-    rows.push({
-      id: person.id,
-      name: person.name || (extra && extra.name) || "Unbenannt",
-      relation: (extra && extra.relation) || person.relation || null,
-      is_self: !!((extra && extra.is_self) || person.is_self),
-      birth_date: person.birth_date || null,
-      birthplace: person.birthplace || (extra && extra.birthplace) || null,
-      created_at: person.created_at || new Date().toISOString()
-    });
-    writePeopleCache(rows);
-    renderPartnerSelector();
-  }
-
-  function cacheSelfFromStorage() {
-    const pid = localStorage.getItem("soraya_person_id");
-    if (!pid) return;
-
-    let birth = null;
-    try { birth = JSON.parse(localStorage.getItem("soraya_birth") || "null"); } catch (e) {}
-
-    const name = localStorage.getItem("soraya_person_name") || (birth && birth.name) || "Ich";
-    addPersonToCache({
-      id: pid,
-      name,
-      is_self: true,
-      birthplace: birth && birth.birthplace
-    }, {is_self: true, relation: "self", name});
-  }
-
-  function getCurrentPersonId() {
-    return (el("personId") && el("personId").value.trim()) || localStorage.getItem("soraya_person_id") || "";
-  }
-
-  function renderPartnerSelector() {
-    const select = el("synPersonSelect");
-    const chips = el("partnerChipList");
-    const currentId = getCurrentPersonId();
-    if (!select) return;
-
-    const people = readPeopleCache();
-    const partners = people.filter(p => p && p.id && p.id !== currentId);
-
-    select.innerHTML = "";
-    if (!partners.length) {
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "Noch keine zweite Person gespeichert";
-      select.appendChild(opt);
-      if (el("personBId")) el("personBId").value = "";
-    } else {
-      const first = document.createElement("option");
-      first.value = "";
-      first.textContent = "Person auswählen";
-      select.appendChild(first);
-
-      partners.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = p.name + (p.relation ? " · " + p.relation : "");
-        select.appendChild(opt);
-      });
+      return true;
     }
 
-    if (chips) {
-      chips.innerHTML = partners.slice(0, 6).map(p => `<span class="partner-chip">${p.name}</span>`).join("");
-    }
-  }
+    document.body.classList.add("soraya-logged-out", "soraya-needs-login");
 
-  function hideRawUuidInput() {
-    const input = el("personBId");
-    if (!input) return;
-    const label = input.previousElementSibling;
-    const hint = input.nextElementSibling;
-    if (label && label.tagName === "LABEL") label.style.display = "none";
-    if (hint && hint.tagName === "P") hint.style.display = "none";
-  }
+    if (loginText) loginText.textContent = "Du bist abgemeldet. Bitte einloggen, um Daten zu speichern.";
+    if (loginCard) loginCard.classList.remove("ok");
 
-  function ensureSynastryPartnerUI() {
-    if (el("phaseB3PartnerCard")) {
-      renderPartnerSelector();
-      return;
+    if (button) {
+      button.textContent = "Einloggen";
+      button.onclick = openLogin;
     }
 
-    const wrap = document.querySelector("#synastry .syn-wrap");
-    if (!wrap) return;
-
-    hideRawUuidInput();
-
-    const card = document.createElement("div");
-    card.id = "phaseB3PartnerCard";
-    card.className = "card phaseb3-partner-card";
-    card.innerHTML = `
-      <div class="card-title">
-        <h4>Zweite Person</h4>
-        <span class="badge">ohne UUID</span>
-      </div>
-      <div class="partner-select-row">
-        <div>
-          <label>Gespeicherte Person wählen</label>
-          <select id="synPersonSelect"></select>
-        </div>
-        <button class="btn" onclick="window.refreshSynastryPeople()">Aktualisieren</button>
-      </div>
-      <div id="partnerChipList" class="partner-chip-list"></div>
-      <p class="synastry-hint">Du musst keine ID mehr kopieren. Lege hier eine zweite Person an oder wähle eine gespeicherte Person aus.</p>
-
-      <div style="margin-top:18px">
-        <div class="card-title" style="margin-bottom:6px"><h4>Neue Person anlegen</h4></div>
-        <label>Name</label>
-        <input id="partnerName" placeholder="Name der zweiten Person" />
-        <div class="partner-form-grid">
-          <div><label>Tag</label><input id="partnerDay" inputmode="numeric" placeholder="14" /></div>
-          <div><label>Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="9" /></div>
-          <div><label>Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="1988" /></div>
-        </div>
-        <div class="partner-form-grid two">
-          <div><label>Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="18" /></div>
-          <div><label>Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="30" /></div>
-        </div>
-        <label>Geburtsort</label>
-        <input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
-        <label>Beziehung</label>
-        <select id="partnerRelation">
-          <option value="partner">Partner/in</option>
-          <option value="friend">Freund/in</option>
-          <option value="family">Familie</option>
-          <option value="other">Andere</option>
-        </select>
-        <button class="btn gold block" onclick="window.createSynastryPerson()" style="margin-top:16px">Zweite Person speichern</button>
-        <div id="partnerCreateStatus" class="status">Noch keine zweite Person gespeichert.</div>
-      </div>
-    `;
-
-    const compat = wrap.querySelector(".compat");
-    if (compat) compat.insertAdjacentElement("afterend", card);
-    else wrap.insertAdjacentElement("afterbegin", card);
-
-    const select = el("synPersonSelect");
-    if (select) {
-      select.addEventListener("change", () => {
-        if (el("personBId")) el("personBId").value = select.value || "";
-      });
-    }
-
-    renderPartnerSelector();
+    return false;
   }
 
   function numOrNull(id) {
-    const node = el(id);
-    const v = node ? node.value.trim() : "";
-    if (v === "") return null;
-    const n = Number(v);
+    const node = $(id);
+    if (!node) return null;
+    const raw = node.value.trim();
+    if (raw === "") return null;
+    const n = Number(raw);
     return Number.isFinite(n) ? n : null;
   }
 
   function requiredNumber(id, label) {
-    const n = numOrNull(id);
-    if (n === null) throw new Error(label + " fehlt.");
-    return n;
+    const value = numOrNull(id);
+    if (value === null) throw new Error(label + " fehlt.");
+    return value;
   }
 
-  window.createSynastryPerson = async function () {
+  function getBirthFromForm() {
+    return {
+      name: ($("pName") && $("pName").value.trim()) || "",
+      year: requiredNumber("pYear", "Jahr"),
+      month: requiredNumber("pMonth", "Monat"),
+      day: requiredNumber("pDay", "Tag"),
+      hour: numOrNull("pHour"),
+      minute: numOrNull("pMinute"),
+      birthplace: ($("pBirthplace") && $("pBirthplace").value.trim()) || ""
+    };
+  }
+
+  function getCurrentPersonId() {
+    return (($("personId") && $("personId").value.trim()) || localStorage.getItem(KEYS.person) || "").trim();
+  }
+
+  async function createPerson() {
     try {
-      if (!window.callSoraya) throw new Error("Backend-Verbindung ist noch nicht bereit.");
+      const person = getBirthFromForm();
+
+      if (!person.name) throw new Error("Name fehlt.");
+      if (!person.birthplace) throw new Error("Geburtsort fehlt.");
+
+      const data = await callSoraya("/mobile/people/create", {
+        is_self: true,
+        relation: null,
+        person
+      });
+
+      const row = data.data && data.data.person;
+      if (!row || !row.id) throw new Error("Person wurde gespeichert, aber keine ID erhalten.");
+
+      if ($("personId")) $("personId").value = row.id;
+
+      localStorage.setItem(KEYS.person, row.id);
+      localStorage.setItem(KEYS.name, row.name || person.name);
+      writeJson(KEYS.birth, person);
+      if (!localStorage.getItem(KEYS.created)) localStorage.setItem(KEYS.created, new Date().toISOString());
+
+      addPersonToCache(row, { ...person, is_self: true, relation: "self" });
+      renderIdentity();
+      renderHomeSky();
+      loadRealChartData(true);
+      status("personResult", "✅ Person gespeichert.\nName: " + (row.name || person.name) + "\nID: " + row.id, "ok");
+      toast("Profil gespeichert.");
+    } catch (error) {
+      status("personResult", error.message, "bad");
+      toast("Profil konnte nicht gespeichert werden.");
+    }
+  }
+
+  function needPerson() {
+    const id = getCurrentPersonId();
+    if (!id) {
+      toast("Bitte zuerst dein Profil speichern.");
+      showSection("profile");
+      return false;
+    }
+    return true;
+  }
+
+  async function loadAnalysis(forceNew) {
+    if (!needPerson()) return;
+
+    try {
+      if ($("analysisReading")) $("analysisReading").innerHTML = "Soraya liest dein kosmisches Feld ...";
+
+      const data = await callSoraya("/mobile/analysis/save", {
+        person_id: getCurrentPersonId(),
+        force_new: !!forceNew
+      });
+
+      const analysis = data.data && data.data.analysis ? data.data.analysis : {};
+      const reading = analysis.reading || data.data.reading || data.data.text || "Keine Analyse gefunden.";
+
+      if ($("analysisSource")) $("analysisSource").textContent = "source: " + (data.data.source || "loaded");
+      if ($("analysisReading")) $("analysisReading").innerHTML = markdownToHtml(reading);
+
+      const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
+      localStorage.setItem(KEYS.analyses, String(count));
+      renderIdentity();
+      toast("Analyse geladen.");
+    } catch (error) {
+      if ($("analysisReading")) $("analysisReading").textContent = "Fehler: " + error.message;
+      toast("Analyse konnte nicht geladen werden.");
+    }
+  }
+
+  async function loadHoroscope() {
+    if (!needPerson()) return;
+
+    try {
+      if ($("horoMood")) $("horoMood").textContent = "Soraya berechnet ...";
+
+      const data = await callSoraya("/mobile/horoscope/save", {
+        person_id: getCurrentPersonId(),
+        period: ($("period") && $("period").value) || "daily",
+        at: null
+      });
+
+      const h = data.data && data.data.horoscope ? data.data.horoscope : {};
+      const mood = h.stimmung || data.data.stimmung || "Dein Horoskop";
+      const body = h.body || h.text || data.data.body || data.data.text || "Keine Horoskopdaten gefunden.";
+      const tip = h.tipp || data.data.tipp || "Vertraue deinem inneren Kompass.";
+
+      if ($("horoMood")) $("horoMood").textContent = mood;
+      if ($("horoBody")) $("horoBody").textContent = body;
+      if ($("horoTip")) $("horoTip").textContent = "✦ " + tip;
+
+      toast("Horoskop geladen.");
+    } catch (error) {
+      if ($("horoMood")) $("horoMood").textContent = "Fehler";
+      if ($("horoBody")) $("horoBody").textContent = error.message;
+      toast("Horoskop konnte nicht geladen werden.");
+    }
+  }
+
+  function appendBubble(role, text) {
+    const windowNode = $("chatWindow");
+    if (!windowNode) return;
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble " + (role === "user" ? "user" : "assistant");
+    bubble.textContent = text;
+
+    windowNode.appendChild(bubble);
+    windowNode.scrollTop = windowNode.scrollHeight;
+  }
+
+  function clearChatView() {
+    const windowNode = $("chatWindow");
+    if (!windowNode) return;
+    windowNode.innerHTML = '<div class="bubble assistant">Hallo, ich bin Soraya ✨ Wie kann ich dich heute unterstützen?</div>';
+  }
+
+  function needsSafetyNote(message) {
+    return /(wohnung|haus|kaufen|kredit|vertrag|steuer|invest|aktie|crypto|bitcoin|gesund|krank|arzt|medizin|anwalt)/i.test(message || "");
+  }
+
+  async function sendChat() {
+    if (!needPerson()) return;
+
+    const field = $("chatMessage");
+    const message = field ? field.value.trim() : "";
+    if (!message) return;
+
+    appendBubble("user", message);
+    if (field) field.value = "";
+
+    try {
+      const data = await callSoraya("/mobile/chat/save", {
+        person_id: getCurrentPersonId(),
+        message,
+        conversation_id: ($("conversationId") && $("conversationId").value.trim()) || null,
+        memory: null,
+        people_ids: []
+      });
+
+      if ($("conversationId")) $("conversationId").value = data.data.conversation_id;
+      if (data.data.conversation_id) localStorage.setItem(KEYS.conv, data.data.conversation_id);
+
+      let reply = data.data.reply || "Keine Antwort.";
+      if (needsSafetyNote(message)) {
+        reply += "\n\nHinweis: Soraya ersetzt keine professionelle Finanz-, Rechts- oder Gesundheitsberatung.";
+      }
+
+      appendBubble("assistant", reply);
+    } catch (error) {
+      appendBubble("assistant", "Fehler: " + error.message);
+    }
+  }
+
+  function readPeopleCache() {
+    const rows = readJson(KEYS.people, []);
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  function writePeopleCache(rows) {
+    const seen = new Set();
+    const clean = [];
+
+    rows.forEach((row) => {
+      if (!row || !row.id || seen.has(row.id)) return;
+      seen.add(row.id);
+      clean.push(row);
+    });
+
+    writeJson(KEYS.people, clean);
+  }
+
+  function addPersonToCache(row, fallback = {}) {
+    const rows = readPeopleCache();
+    const merged = {
+      id: row.id || fallback.id,
+      name: row.name || fallback.name || "Unbenannt",
+      is_self: row.is_self !== undefined ? row.is_self : !!fallback.is_self,
+      relation: row.relation || fallback.relation || null,
+      birth_date: row.birth_date || fallback.birth_date || null,
+      birthplace: row.birthplace || fallback.birthplace || null,
+      created_at: row.created_at || fallback.created_at || null
+    };
+
+    writePeopleCache([merged, ...rows.filter((item) => item.id !== merged.id)]);
+  }
+
+  function cacheSelfFromStorage() {
+    const id = getCurrentPersonId();
+    if (!id) return;
+
+    const birth = readJson(KEYS.birth, null);
+    addPersonToCache({
+      id,
+      name: localStorage.getItem(KEYS.name) || (birth && birth.name) || "Ich",
+      is_self: true,
+      relation: "self",
+      birthplace: birth && birth.birthplace
+    });
+  }
+
+  async function loadPeopleFromSupabase(showToast = true) {
+    try {
+      const data = await callSoraya("/mobile/people/list", null, "GET");
+      const people = data.data && Array.isArray(data.data.people) ? data.data.people : [];
+
+      people.forEach((person) => addPersonToCache(person));
+      cacheSelfFromStorage();
+      refreshSynastryPeople();
+
+      if (showToast) toast("Personen geladen.");
+      return people;
+    } catch (error) {
+      cacheSelfFromStorage();
+      refreshSynastryPeople();
+      if (showToast) toast("Personen konnten nicht geladen werden.");
+      return readPeopleCache();
+    }
+  }
+
+  function hideNode(node) {
+    if (!node) return;
+    node.style.display = "none";
+    node.setAttribute("aria-hidden", "true");
+  }
+
+  function cleanSynastryDom() {
+    const section = $("synastry");
+    if (!section) return;
+
+    const selects = Array.from(section.querySelectorAll("#synPersonSelect"));
+    const main = selects[0] || null;
+
+    selects.forEach((select, index) => {
+      if (select === main) return;
+      select.id = "synPersonSelectLegacy" + index;
+      hideNode(select);
+    });
+
+    const raw = $("personBId");
+    if (raw) {
+      const label = raw.previousElementSibling;
+      const hint = raw.nextElementSibling;
+      hideNode(raw);
+      if (label && label.tagName === "LABEL") hideNode(label);
+      if (hint && hint.tagName === "P") hideNode(hint);
+    }
+  }
+
+  function ensureSynastryUi() {
+    cleanSynastryDom();
+
+    const wrap = document.querySelector("#synastry .syn-wrap");
+    if (!wrap || $("synastryPersonCreateCard")) {
+      refreshSynastryPeople();
+      return;
+    }
+
+    const select = $("synPersonSelect");
+    if (select && !select.dataset.sorayaBound) {
+      select.dataset.sorayaBound = "1";
+      select.addEventListener("change", () => {
+        const raw = $("personBId");
+        if (raw) raw.value = select.value || "";
+      });
+    }
+
+    const createCard = document.createElement("div");
+    createCard.id = "synastryPersonCreateCard";
+    createCard.className = "card phaseb3-partner-card";
+    createCard.innerHTML = `
+      <div class="card-title">
+        <h4>Zweite Person anlegen</h4>
+        <span class="badge">ohne UUID</span>
+      </div>
+      <p class="synastry-hint">Lege eine zweite Person an. Danach erscheint sie automatisch oben in der Liste.</p>
+      <label>Name</label>
+      <input id="partnerName" placeholder="Name der zweiten Person" />
+      <div class="partner-form-grid">
+        <div><label>Tag</label><input id="partnerDay" inputmode="numeric" placeholder="14" /></div>
+        <div><label>Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="9" /></div>
+        <div><label>Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="1988" /></div>
+      </div>
+      <div class="partner-form-grid two">
+        <div><label>Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="18" /></div>
+        <div><label>Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="30" /></div>
+      </div>
+      <label>Geburtsort</label>
+      <input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
+      <label>Beziehung</label>
+      <select id="partnerRelation">
+        <option value="partner">Partner/in</option>
+        <option value="friend">Freund/in</option>
+        <option value="family">Familie</option>
+        <option value="other">Andere</option>
+      </select>
+      <button class="btn gold block" onclick="createSynastryPerson()" style="margin-top:16px">Zweite Person speichern</button>
+      <div id="partnerCreateStatus" class="status">Noch keine zweite Person gespeichert.</div>
+    `;
+
+    const resultBox = $("synastryText");
+    if (resultBox) resultBox.insertAdjacentElement("afterend", createCard);
+    else wrap.appendChild(createCard);
+
+    refreshSynastryPeople();
+  }
+
+  function refreshSynastryPeople() {
+    cleanSynastryDom();
+
+    const select = $("synPersonSelect");
+    if (!select) return;
+
+    const selfId = getCurrentPersonId();
+    const people = readPeopleCache().filter((person) => person && person.id && person.id !== selfId);
+    const current = select.value;
+
+    select.innerHTML = "";
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = people.length ? "Person wählen…" : "Noch keine zweite Person gespeichert";
+    select.appendChild(first);
+
+    people.forEach((person) => {
+      const option = document.createElement("option");
+      option.value = person.id;
+      option.textContent = (person.name || "Unbenannt") + (person.relation ? " · " + person.relation : "");
+      select.appendChild(option);
+    });
+
+    if (current && people.some((person) => person.id === current)) {
+      select.value = current;
+    }
+
+    const raw = $("personBId");
+    if (raw) raw.value = select.value || "";
+  }
+
+  async function createSynastryPerson() {
+    try {
       const person = {
-        name: (el("partnerName") && el("partnerName").value.trim()) || "",
+        name: ($("partnerName") && $("partnerName").value.trim()) || "",
         year: requiredNumber("partnerYear", "Jahr"),
         month: requiredNumber("partnerMonth", "Monat"),
         day: requiredNumber("partnerDay", "Tag"),
         hour: numOrNull("partnerHour"),
         minute: numOrNull("partnerMinute"),
-        birthplace: (el("partnerBirthplace") && el("partnerBirthplace").value.trim()) || ""
+        birthplace: ($("partnerBirthplace") && $("partnerBirthplace").value.trim()) || ""
       };
-      const relation = (el("partnerRelation") && el("partnerRelation").value) || "partner";
+
+      const relation = ($("partnerRelation") && $("partnerRelation").value) || "partner";
 
       if (!person.name) throw new Error("Name fehlt.");
       if (!person.birthplace) throw new Error("Geburtsort fehlt.");
 
-      const data = await window.callSoraya("/mobile/people/create", {
+      const data = await callSoraya("/mobile/people/create", {
         is_self: false,
         relation,
         person
@@ -670,1274 +721,552 @@ window.addEventListener('load', () => {
       const row = data.data && data.data.person;
       if (!row || !row.id) throw new Error("Person wurde gespeichert, aber keine ID erhalten.");
 
-      addPersonToCache(row, {...person, relation, is_self: false});
-      const select = el("synPersonSelect");
+      addPersonToCache(row, { ...person, relation, is_self: false });
+      refreshSynastryPeople();
+
+      const select = $("synPersonSelect");
       if (select) select.value = row.id;
-      if (el("personBId")) el("personBId").value = row.id;
+      if ($("personBId")) $("personBId").value = row.id;
 
-      if (window.status) status("partnerCreateStatus", "✅ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
-      if (window.toast) toast("Zweite Person gespeichert.");
-    } catch (err) {
-      if (window.status) status("partnerCreateStatus", err.message, "bad");
-      if (window.toast) toast("Person konnte nicht gespeichert werden.");
-    }
-  };
-
-  window.refreshSynastryPeople = function () {
-    cacheSelfFromStorage();
-    renderPartnerSelector();
-    if (window.toast) toast("Personenliste aktualisiert.");
-  };
-
-  function improveSynastryResult() {
-    const oldSave = window.saveSynastry;
-    if (typeof oldSave !== "function" || oldSave.__phaseB3Wrapped) return;
-
-    const wrapped = async function () {
-      const selected = (el("synPersonSelect") && el("synPersonSelect").value) || "";
-      if (selected && el("personBId")) el("personBId").value = selected;
-      if (!selected && !(el("personBId") && el("personBId").value.trim())) {
-        if (window.toast) toast("Bitte zuerst eine zweite Person auswählen oder anlegen.");
-        return;
-      }
-
-      const result = await oldSave.apply(this, arguments);
-      setTimeout(() => {
-        const scoreText = el("compatScore") ? el("compatScore").textContent : "";
-        const box = el("synastryText");
-        if (box && scoreText && !document.getElementById("synastryMiniStats")) {
-          const div = document.createElement("div");
-          div.id = "synastryMiniStats";
-          div.className = "synastry-result-grid";
-          div.innerHTML = `
-            <div class="synastry-mini"><b>${scoreText}</b><span>Harmonie</span></div>
-            <div class="synastry-mini"><b>∞</b><span>Verbindung</span></div>
-            <div class="synastry-mini"><b>✦</b><span>Insight</span></div>
-          `;
-          box.insertAdjacentElement("afterend", div);
-        }
-      }, 250);
-      return result;
-    };
-
-    wrapped.__phaseB3Wrapped = true;
-    window.saveSynastry = wrapped;
-  }
-
-  function wrapSelfCreatePerson() {
-    const oldCreate = window.createPerson;
-    if (typeof oldCreate !== "function" || oldCreate.__phaseB3Wrapped) return;
-
-    const wrapped = async function () {
-      const result = await oldCreate.apply(this, arguments);
-      setTimeout(() => {
-        cacheSelfFromStorage();
-        renderPartnerSelector();
-      }, 400);
-      return result;
-    };
-
-    wrapped.__phaseB3Wrapped = true;
-    window.createPerson = wrapped;
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      ensureSynastryPartnerUI();
-      cacheSelfFromStorage();
-      improveSynastryResult();
-      wrapSelfCreatePerson();
-      renderPartnerSelector();
-    }, 350);
-
-    const oldShowSection = window.showSection;
-    if (typeof oldShowSection === "function" && !oldShowSection.__phaseB3Wrapped) {
-      const wrappedShow = function (id) {
-        oldShowSection(id);
-        if (id === "synastry") setTimeout(() => {
-          ensureSynastryPartnerUI();
-          cacheSelfFromStorage();
-          renderPartnerSelector();
-        }, 100);
-      };
-      wrappedShow.__phaseB3Wrapped = true;
-      window.showSection = wrappedShow;
-    }
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.3.1: visibility helper and chart-note correction ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  function updateChartNote() {
-    const cards = document.querySelectorAll("#analysis .card");
-    cards.forEach(card => {
-      const text = card.textContent || "";
-      if (text.includes("Phase A: Das Rad ist dekorativ")) {
-        const nodes = Array.from(card.querySelectorAll("p, .dev-note, .phaseb-note"));
-        nodes.forEach(n => {
-          if ((n.textContent || "").includes("Phase A: Das Rad ist dekorativ")) {
-            n.textContent = "Phase B: Dieses Rad nutzt echte Chart-Daten aus deinem Backend. Planeten, Häuser und Aspekte werden berechnet visualisiert.";
-          }
-        });
-      }
-    });
-  }
-
-  function addSynastryHints() {
-    const synSection = el("synastry");
-    if (synSection && !el("synastryOpenHelper")) {
-      const title = synSection.querySelector(".page-title");
-      if (title) {
-        const p = document.createElement("p");
-        p.id = "synastryOpenHelper";
-        p.className = "synastry-open-helper";
-        p.textContent = "Lege eine zweite Person an oder wähle eine gespeicherte Person. Danach berechnet Soraya eure Verbindung.";
-        title.appendChild(p);
-      }
-    }
-
-    const tile = Array.from(document.querySelectorAll(".tile")).find(t => (t.textContent || "").includes("Synastrie"));
-    if (tile && !document.getElementById("homeSynastryHint")) {
-      const hint = document.createElement("div");
-      hint.id = "homeSynastryHint";
-      hint.className = "home-synastry-hint";
-      hint.textContent = "Synastrie ist über diesen Shortcut erreichbar.";
-      const grid = tile.closest(".shortcut-grid");
-      if (grid) grid.insertAdjacentElement("afterend", hint);
+      status("partnerCreateStatus", "✅ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
+      toast("Zweite Person gespeichert.");
+    } catch (error) {
+      status("partnerCreateStatus", error.message, "bad");
+      toast("Person konnte nicht gespeichert werden.");
     }
   }
 
-  function verifyB3Ui() {
-    // If B3 partner UI was not created yet, try to open helper by re-triggering the wrapped section flow.
-    if (!el("phaseB3PartnerCard") && typeof window.showSection === "function") {
-      const active = document.querySelector(".section.active");
-      if (active && active.id === "synastry") {
-        setTimeout(() => window.showSection("synastry"), 100);
-      }
+  function renderSynastryDescription(payload) {
+    const box = $("synastryText");
+    if (!box) return;
+
+    const syn = payload.synastry || {};
+    const score = payload.score || syn.score || {};
+    const summary = payload.summary || syn.summary || {};
+    const aspects = payload.aspects || syn.aspects || [];
+
+    const value = syn.score_value || score.value || score.score || 0;
+    const label = score.label || summary.label || "Kosmische Verbindung";
+    const text =
+      summary.text ||
+      summary.short ||
+      syn.summary ||
+      "Eure Verbindung wurde berechnet. Achtet darauf, wo Harmonie entsteht und wo bewusste Kommunikation wichtig ist.";
+
+    let html = "";
+    html += "✅ Synastrie gespeichert.\n";
+    html += "Kompatibilität: " + value + "%\n\n";
+    html += label + "\n";
+    html += text;
+
+    if (Array.isArray(aspects) && aspects.length) {
+      html += "\n\nWichtige Aspekte:\n";
+      aspects.slice(0, 5).forEach((aspect) => {
+        html += "• " + safe(aspect.text || aspect.name || aspect.type_de || JSON.stringify(aspect)) + "\n";
+      });
+    }
+
+    status("synastryText", html, "ok");
+  }
+
+  async function saveSynastry() {
+    if (!needPerson()) return;
+
+    try {
+      ensureSynastryUi();
+
+      const partnerId =
+        (($("synPersonSelect") && $("synPersonSelect").value) || "") ||
+        (($("personBId") && $("personBId").value.trim()) || "");
+
+      if (!partnerId) throw new Error("Bitte zuerst eine zweite Person auswählen oder anlegen.");
+      if (partnerId === getCurrentPersonId()) throw new Error("Bitte eine andere Person auswählen.");
+
+      const data = await callSoraya("/mobile/synastry/save", {
+        person_a_id: getCurrentPersonId(),
+        person_b_id: partnerId
+      });
+
+      const syn = (data.data && data.data.synastry) || {};
+      const scoreObj = (data.data && data.data.score) || syn.score || {};
+      const value = syn.score_value || scoreObj.value || scoreObj.score || 0;
+
+      if ($("compatScore")) $("compatScore").textContent = value + "%";
+      if ($("compatRing")) $("compatRing").style.setProperty("--score", Math.min(100, Number(value) || 0) + "%");
+
+      renderSynastryDescription({
+        synastry: syn,
+        score: scoreObj,
+        summary: data.data && data.data.summary,
+        aspects: data.data && data.data.aspects
+      });
+
+      toast("Synastrie berechnet.");
+    } catch (error) {
+      status("synastryText", error.message, "bad");
+      toast("Synastrie konnte nicht berechnet werden.");
     }
   }
 
-  window.addEventListener("load", () => {
-    setTimeout(updateChartNote, 250);
-    setTimeout(addSynastryHints, 300);
-    setTimeout(verifyB3Ui, 500);
-  });
-})();
+  const ZODIAC = [
+    { s: "Steinbock", g: "♑", el: "Erde", q: "Kardinal", r: "Saturn", from: [12, 22], to: [1, 19] },
+    { s: "Wassermann", g: "♒", el: "Luft", q: "Fix", r: "Uranus & Saturn", from: [1, 20], to: [2, 18] },
+    { s: "Fische", g: "♓", el: "Wasser", q: "Veränderlich", r: "Neptun & Jupiter", from: [2, 19], to: [3, 20] },
+    { s: "Widder", g: "♈", el: "Feuer", q: "Kardinal", r: "Mars", from: [3, 21], to: [4, 19] },
+    { s: "Stier", g: "♉", el: "Erde", q: "Fix", r: "Venus", from: [4, 20], to: [5, 20] },
+    { s: "Zwillinge", g: "♊", el: "Luft", q: "Veränderlich", r: "Merkur", from: [5, 21], to: [6, 20] },
+    { s: "Krebs", g: "♋", el: "Wasser", q: "Kardinal", r: "Mond", from: [6, 21], to: [7, 22] },
+    { s: "Löwe", g: "♌", el: "Feuer", q: "Fix", r: "Sonne", from: [7, 23], to: [8, 22] },
+    { s: "Jungfrau", g: "♍", el: "Erde", q: "Veränderlich", r: "Merkur", from: [8, 23], to: [9, 22] },
+    { s: "Waage", g: "♎", el: "Luft", q: "Kardinal", r: "Venus", from: [9, 23], to: [10, 22] },
+    { s: "Skorpion", g: "♏", el: "Wasser", q: "Fix", r: "Pluto & Mars", from: [10, 23], to: [11, 21] },
+    { s: "Schütze", g: "♐", el: "Feuer", q: "Veränderlich", r: "Jupiter", from: [11, 22], to: [12, 21] }
+  ];
 
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
+  const MONTHS = ["Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
 
-/* ===== Phase B.3.2: generate warm Synastry interpretation from score ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
+  function signFor(day, month) {
+    return ZODIAC.find((z) => {
+      const [fromMonth, fromDay] = z.from;
+      const [toMonth, toDay] = z.to;
+      return (month === fromMonth && day >= fromDay) || (month === toMonth && day <= toDay);
+    }) || null;
+  }
 
-  function selectedPartnerName() {
-    const select = el("synPersonSelect");
-    if (select && select.value) {
-      const text = select.options[select.selectedIndex] ? select.options[select.selectedIndex].textContent : "";
-      return (text || "").split("·")[0].trim();
+  function renderSun(day, month) {
+    const sign = signFor(day, month);
+    if (!sign) return;
+
+    if ($("sunGlyph")) $("sunGlyph").textContent = sign.g;
+    if ($("sunSign")) $("sunSign").textContent = sign.s;
+    if ($("sunRange")) $("sunRange").textContent = `${sign.from[1]}. ${MONTHS[sign.from[0] - 1]} – ${sign.to[1]}. ${MONTHS[sign.to[0] - 1]}`;
+    if ($("sunElement")) $("sunElement").textContent = sign.el;
+    if ($("sunQuality")) $("sunQuality").textContent = sign.q;
+    if ($("sunRuler")) $("sunRuler").textContent = sign.r;
+    if ($("sunProps")) $("sunProps").style.display = "grid";
+    if ($("profileSub")) $("profileSub").textContent = "Seelenlicht-Sucher · " + sign.s;
+  }
+
+  function renderGreeting() {
+    const hour = new Date().getHours();
+    const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Schön, dass du da bist" : "Guten Abend";
+    const name = localStorage.getItem(KEYS.name) || "du";
+
+    if ($("greetLine")) {
+      $("greetLine").innerHTML = greeting + ',<br><span class="gold" id="heroName">' + escapeHtml(name) + "</span>.";
     }
-    const input = el("partnerName");
-    return input && input.value.trim() ? input.value.trim() : "die zweite Person";
   }
 
-  function currentUserName() {
-    return localStorage.getItem("soraya_person_name") || (el("pName") && el("pName").value.trim()) || "du";
-  }
+  function renderMoon() {
+    const synodic = 29.530588853;
+    const reference = Date.UTC(2000, 0, 6, 18, 14) / 86400000;
+    const now = Date.now() / 86400000;
+    const age = ((now - reference) % synodic + synodic) % synodic;
+    const illum = Math.round(((1 - Math.cos((2 * Math.PI * age) / synodic)) / 2) * 100);
 
-  function parseScore() {
-    const raw = el("compatScore") ? el("compatScore").textContent : "";
-    const match = String(raw).match(/\d+/);
-    return match ? Number(match[0]) : null;
-  }
+    let label = "Mondphase";
+    let sub = "Die Energie des Himmels für heute.";
 
-  function category(score) {
-    if (score === null) return {
-      title: "Eine Verbindung mit vielen offenen Fragen",
-      label: "Noch nicht genug Daten",
-      tone: "Soraya braucht zuerst beide Geburtsdaten, damit die Resonanz genauer beschrieben werden kann.",
-      light: "Achte auf das erste Gefühl zwischen euch.",
-      shadow: "Nicht zu schnell urteilen.",
-      practice: "Stellt euch eine ehrliche Frage: Was fühlt sich leicht an, was braucht Geduld?"
-    };
-
-    if (score <= 35) return {
-      title: "Eine herausfordernde, aber lehrreiche Verbindung",
-      label: "Lernverbindung",
-      tone: "Zwischen euch liegt weniger automatische Leichtigkeit, dafür aber viel Entwicklungspotenzial. Diese Verbindung kann alte Muster sichtbar machen und euch zeigen, wo Geduld, Klarheit und echte Kommunikation wichtig sind.",
-      light: "Ihr könnt einander helfen, blinde Flecken zu erkennen.",
-      shadow: "Missverständnisse, unterschiedliche Bedürfnisse oder emotionale Reibung können schneller entstehen.",
-      practice: "Nicht alles sofort persönlich nehmen. Sprecht langsam, konkret und ehrlich über Erwartungen."
-    };
-
-    if (score <= 60) return {
-      title: "Eine gemischte Verbindung mit Wachstumskraft",
-      label: "Wachstumsbindung",
-      tone: "Eure Dynamik wirkt weder rein leicht noch rein schwierig. Es gibt Anziehung und gemeinsame Lernfelder. Wenn ihr bewusst miteinander umgeht, kann diese Verbindung stabiler werden, als der erste Eindruck vermuten lässt.",
-      light: "Es gibt echte Resonanz, besonders wenn ihr gemeinsame Ziele findet.",
-      shadow: "Manche Themen brauchen Wiederholung, Geduld und klare Grenzen.",
-      practice: "Pflegt Rituale: regelmäßige Gespräche, gemeinsame Pläne und bewusstes Zuhören."
-    };
-
-    if (score <= 80) return {
-      title: "Eine harmonische Verbindung mit guter Resonanz",
-      label: "Starke Resonanz",
-      tone: "Zwischen euch gibt es eine natürliche Verständigung. Vieles kann sich vertraut, unterstützend und angenehm anfühlen. Diese Verbindung eignet sich gut, um gemeinsam zu wachsen und einander emotional zu stärken.",
-      light: "Ihr könnt euch gegenseitig Sicherheit, Motivation und Wärme geben.",
-      shadow: "Achtet darauf, Harmonie nicht mit Konfliktvermeidung zu verwechseln.",
-      practice: "Sprecht auch über schwierige Dinge, solange die Stimmung ruhig ist."
-    };
-
-    return {
-      title: "Eine sehr starke seelische Resonanz",
-      label: "Tiefe Verbindung",
-      tone: "Diese Verbindung trägt eine besondere Intensität. Ihr könnt euch schnell vertraut fühlen, als würdet ihr einander auf einer tieferen Ebene erkennen. Das kann sehr schön sein, braucht aber trotzdem Bewusstheit.",
-      light: "Starke Anziehung, emotionale Nähe und inspirierende Spiegelung.",
-      shadow: "Zu viel Intensität kann Erwartungen oder Abhängigkeit erzeugen.",
-      practice: "Bewahrt Eigenständigkeit. Eine starke Verbindung wird gesünder, wenn beide frei atmen können."
-    };
-  }
-
-  function ensureDescriptionCard() {
-    let card = el("synastryDescriptionCard");
-    if (card) return card;
-
-    const result = el("synastryText");
-    card = document.createElement("div");
-    card.id = "synastryDescriptionCard";
-    card.className = "card synastry-description-card";
-    card.innerHTML = `
-      <div class="card-title">
-        <h4>Deutung eurer Verbindung</h4>
-        <span class="badge" id="synastryDescriptionBadge">Insight</span>
-      </div>
-      <div id="synastryDescriptionBody"></div>
-    `;
-
-    if (result) {
-      const stats = el("synastryMiniStats");
-      if (stats) stats.insertAdjacentElement("afterend", card);
-      else result.insertAdjacentElement("afterend", card);
+    if (age < 1.85) {
+      label = "Neumond";
+      sub = "Zeit für Neuanfänge und Absichten.";
+    } else if (age < 5.5) {
+      label = "Zunehmende Sichel";
+      sub = "Etwas Neues nimmt Form an.";
+    } else if (age < 9.2) {
+      label = "Erstes Viertel";
+      sub = "Zeit zu handeln und dranzubleiben.";
+    } else if (age < 12.9) {
+      label = "Zunehmender Mond";
+      sub = "Wachstum, Klärung, Ausrichtung.";
+    } else if (age < 16.6) {
+      label = "Vollmond";
+      sub = "Höhepunkt — sehen, was gereift ist.";
+    } else if (age < 20.3) {
+      label = "Abnehmender Mond";
+      sub = "Loslassen und dankbar sein.";
+    } else if (age < 23.99) {
+      label = "Letztes Viertel";
+      sub = "Aufräumen und Klarheit schaffen.";
     } else {
-      const wrap = document.querySelector("#synastry .syn-wrap");
-      if (wrap) wrap.appendChild(card);
+      label = "Abnehmende Sichel";
+      sub = "Ruhe, Rückzug, Vorbereitung.";
     }
 
-    return card;
+    if ($("moonPhase")) $("moonPhase").textContent = label;
+    if ($("moonIllum")) $("moonIllum").textContent = illum + "% beleuchtet";
+    if ($("moonSub")) $("moonSub").textContent = sub;
+    if ($("ritualMoonTitle")) $("ritualMoonTitle").textContent = label;
+    if ($("ritualMoonText")) $("ritualMoonText").textContent = illum + "% beleuchtet · " + sub;
+    if ($("moonVisual")) $("moonVisual").style.setProperty("--shadow-scale", Math.max(0.18, Math.min(1.25, 1 - illum / 100)));
   }
 
-  function renderSynastryDescription() {
-    const card = ensureDescriptionCard();
-    const body = el("synastryDescriptionBody");
-    const badge = el("synastryDescriptionBadge");
-    if (!card || !body) return;
+  function renderIdentity() {
+    const name = localStorage.getItem(KEYS.name) || "Dein Profil";
+    const birth = readJson(KEYS.birth, null);
 
-    const score = parseScore();
-    const c = category(score);
-    const user = currentUserName();
-    const partner = selectedPartnerName();
+    if ($("profileTitle")) $("profileTitle").textContent = name;
+    if ($("profileInitial")) $("profileInitial").textContent = (name[0] || "S").toUpperCase();
 
-    if (badge) badge.textContent = c.label;
+    renderGreeting();
 
-    body.innerHTML = `
-      <h4>${c.title}</h4>
-      <p><strong>${user}</strong> und <strong>${partner}</strong>: ${c.tone}</p>
-      <div class="synastry-advice-grid">
-        <div class="synastry-advice"><b>Lichtseite</b><span>${c.light}</span></div>
-        <div class="synastry-advice"><b>Schattenseite</b><span>${c.shadow}</span></div>
-      </div>
-      <p style="margin-top:14px"><strong>Sorayas Impuls:</strong> ${c.practice}</p>
-      <p style="font-size:12px;color:var(--muted2)">Hinweis: Diese Deutung ist eine astrologische Reflexion und ersetzt keine Beziehungs-, Rechts- oder Gesundheitsberatung.</p>
-    `;
+    if (birth) {
+      if ($("pName")) $("pName").value = $("pName").value || birth.name || "";
+      if ($("pDay")) $("pDay").value = $("pDay").value || birth.day || "";
+      if ($("pMonth")) $("pMonth").value = $("pMonth").value || birth.month || "";
+      if ($("pYear")) $("pYear").value = $("pYear").value || birth.year || "";
+      if ($("pHour")) $("pHour").value = $("pHour").value || (birth.hour ?? "");
+      if ($("pMinute")) $("pMinute").value = $("pMinute").value || (birth.minute ?? "");
+      if ($("pBirthplace")) $("pBirthplace").value = $("pBirthplace").value || birth.birthplace || "";
 
-    card.classList.add("active");
-  }
-
-  window.renderSynastryDescription = renderSynastryDescription;
-
-  function wrapSaveSynastry() {
-    const oldSave = window.saveSynastry;
-    if (typeof oldSave !== "function" || oldSave.__phaseB32Wrapped) return;
-
-    const wrapped = async function () {
-      const result = await oldSave.apply(this, arguments);
-      setTimeout(renderSynastryDescription, 350);
-      return result;
-    };
-
-    wrapped.__phaseB32Wrapped = true;
-    window.saveSynastry = wrapped;
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(wrapSaveSynastry, 450);
-    setTimeout(() => {
-      if (parseScore() !== null) renderSynastryDescription();
-    }, 700);
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.4: load saved people from Supabase via /mobile/people/list ===== */
-(function () {
-  const PEOPLE_KEY = "soraya_people_cache_v1";
-
-  function el(id) { return document.getElementById(id); }
-
-  function readCache() {
-    try {
-      const rows = JSON.parse(localStorage.getItem(PEOPLE_KEY) || "[]");
-      return Array.isArray(rows) ? rows : [];
-    } catch (e) {
-      return [];
+      renderSun(Number(birth.day), Number(birth.month));
     }
+
+    if ($("personId")) $("personId").value = localStorage.getItem(KEYS.person) || "";
+
+    const created = localStorage.getItem(KEYS.created);
+    if ($("daysStat")) {
+      const days = created ? Math.max(1, Math.ceil((Date.now() - new Date(created).getTime()) / 86400000)) : 1;
+      $("daysStat").textContent = String(days);
+    }
+
+    if ($("analysisStat")) $("analysisStat").textContent = localStorage.getItem(KEYS.analyses) || "0";
+    if ($("savedStat")) $("savedStat").textContent = localStorage.getItem(KEYS.person) ? "1" : "0";
   }
 
-  function writeCache(rows) {
-    const byId = new Map();
-    rows.filter(Boolean).forEach(p => {
-      if (p.id) byId.set(p.id, p);
-    });
-    localStorage.setItem(PEOPLE_KEY, JSON.stringify(Array.from(byId.values())));
+  function zodiacAngle(index) {
+    return ((index * 30 - 90) * Math.PI) / 180;
   }
 
-  function normalizePerson(row) {
+  function xy(cx, cy, radius, angle) {
     return {
-      id: row.id,
-      name: row.name || "Unbenannt",
-      relation: row.relation || null,
-      is_self: !!row.is_self,
-      birth_date: row.birth_date || null,
-      birth_time: row.birth_time || null,
-      time_known: row.time_known,
-      birthplace: row.birthplace || null,
-      created_at: row.created_at || null,
-      loaded_from_supabase: true
+      x: cx + Math.cos(angle) * radius,
+      y: cy + Math.sin(angle) * radius
     };
   }
 
-  function setSyncStatus(text, ok) {
-    const node = el("peopleSyncStatus");
-    if (!node) return;
-    node.textContent = text;
-    node.style.color = ok ? "var(--green)" : "var(--muted2)";
-  }
+  function renderWheel(chartData = null) {
+    const svg = $("chartWheel");
+    if (!svg) return;
 
-  function addSyncUI() {
-    const card = el("phaseB3PartnerCard");
-    if (!card || el("peopleSyncRow")) return;
+    const cx = 210;
+    const cy = 210;
+    const outer = 190;
+    const middle = 145;
+    const inner = 72;
 
-    const selectRow = card.querySelector(".partner-select-row");
-    if (!selectRow) return;
+    let html = "";
+    html += `<circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(255,255,255,.025)" stroke="rgba(228,181,90,.55)" stroke-width="1.4"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${middle}" fill="none" stroke="rgba(190,108,255,.22)" stroke-width="1"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${inner}" fill="rgba(7,8,23,.55)" stroke="rgba(255,255,255,.12)" stroke-width="1"/>`;
 
-    const row = document.createElement("div");
-    row.id = "peopleSyncRow";
-    row.className = "people-sync-row";
-    row.innerHTML = `
-      <button class="btn" onclick="window.loadPeopleFromSupabase()">Aus Supabase laden</button>
-      <div id="peopleSyncStatus">Personenliste wird lokal gespeichert. Mit Supabase-Sync werden gespeicherte Personen wieder geladen.</div>
-    `;
+    ZODIAC.forEach((sign, index) => {
+      const a = zodiacAngle(index);
+      const p1 = xy(cx, cy, inner, a);
+      const p2 = xy(cx, cy, outer, a);
+      const label = xy(cx, cy, 166, a + Math.PI / 12);
 
-    selectRow.insertAdjacentElement("afterend", row);
-  }
-
-  function enhanceChips() {
-    document.querySelectorAll(".partner-chip").forEach(chip => chip.classList.add("loaded"));
-  }
-
-  window.loadPeopleFromSupabase = async function () {
-    try {
-      if (!window.callSoraya) throw new Error("Backend-Verbindung ist noch nicht bereit.");
-      setSyncStatus("Lade Personen aus Supabase ...", false);
-
-      const json = await window.callSoraya("/mobile/people/list", null, "GET");
-      const people = (json.data && (json.data.people || json.data)) || [];
-      if (!Array.isArray(people)) throw new Error("Unerwartetes Format von /mobile/people/list.");
-
-      const current = readCache();
-      writeCache(current.concat(people.map(normalizePerson)));
-
-      if (typeof window.refreshSynastryPeople === "function") {
-        window.refreshSynastryPeople();
-      }
-
-      const partnerCount = people.filter(p => !p.is_self).length;
-      setSyncStatus(`✅ ${people.length} Person(en) geladen · ${partnerCount} mögliche Partnerperson(en).`, true);
-      enhanceChips();
-
-      if (window.toast) toast("Personen aus Supabase geladen.");
-    } catch (err) {
-      setSyncStatus("Supabase-Liste noch nicht verfügbar: " + err.message, false);
-      if (window.toast) toast("Personenliste konnte nicht geladen werden.");
-    }
-  };
-
-  function wrapCreateSynastryPerson() {
-    const oldCreate = window.createSynastryPerson;
-    if (typeof oldCreate !== "function" || oldCreate.__phaseB4Wrapped) return;
-
-    const wrapped = async function () {
-      const result = await oldCreate.apply(this, arguments);
-      setTimeout(() => {
-        if (typeof window.loadPeopleFromSupabase === "function") {
-          window.loadPeopleFromSupabase();
-        }
-      }, 900);
-      return result;
-    };
-
-    wrapped.__phaseB4Wrapped = true;
-    window.createSynastryPerson = wrapped;
-  }
-
-  function boot() {
-    addSyncUI();
-    wrapCreateSynastryPerson();
-
-    const active = document.querySelector(".section.active");
-    if (active && active.id === "synastry") {
-      setTimeout(() => window.loadPeopleFromSupabase && window.loadPeopleFromSupabase(), 300);
-    }
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(boot, 650);
-
-    const oldShowSection = window.showSection;
-    if (typeof oldShowSection === "function" && !oldShowSection.__phaseB4Wrapped) {
-      const wrappedShow = function (id) {
-        oldShowSection(id);
-        if (id === "synastry") {
-          setTimeout(() => {
-            addSyncUI();
-            wrapCreateSynastryPerson();
-            if (typeof window.loadPeopleFromSupabase === "function") window.loadPeopleFromSupabase();
-          }, 250);
-        }
-      };
-      wrappedShow.__phaseB4Wrapped = true;
-      window.showSection = wrappedShow;
-    }
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.4.1: login guard and visible session check ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  async function getSessionSafe() {
-    try {
-      if (!window.sb && typeof window.loadConfig === "function") {
-        window.loadConfig();
-      }
-      if (!window.sb && typeof sb !== "undefined") {
-        window.sb = sb;
-      }
-      const client = window.sb || (typeof sb !== "undefined" ? sb : null);
-      if (!client || !client.auth) return { ok: false, error: "Supabase-Verbindung fehlt." };
-
-      const { data, error } = await client.auth.getSession();
-      if (error) return { ok: false, error: error.message };
-      if (!data || !data.session || !data.session.access_token) {
-        return { ok: false, error: "Nicht eingeloggt oder Session abgelaufen." };
-      }
-      return { ok: true, session: data.session };
-    } catch (err) {
-      return { ok: false, error: err.message || String(err) };
-    }
-  }
-
-  async function ensureLoggedIn(actionName) {
-    const result = await getSessionSafe();
-    if (result.ok) return true;
-
-    const message = "Bitte zuerst einloggen. " + (actionName ? "Dann erneut: " + actionName + "." : "");
-    if (window.toast) toast(message);
-    if (window.status) {
-      ["personResult", "partnerCreateStatus", "synastryText", "peopleSyncStatus"].forEach(id => {
-        const node = el(id);
-        if (node) {
-          if (id === "peopleSyncStatus") node.textContent = message;
-          else status(id, message, "bad");
-        }
-      });
-    }
-
-    if (typeof window.openLogin === "function") {
-      window.openLogin();
-      const authStatus = el("authStatus");
-      if (authStatus) {
-        authStatus.textContent = "Deine Session fehlt oder ist abgelaufen. Bitte mit E-Mail und Passwort einloggen.";
-        authStatus.classList.remove("ok");
-        authStatus.classList.add("bad");
-      }
-    }
-
-    return false;
-  }
-
-  function addSessionCard() {
-    if (el("loginSessionCard")) return;
-
-    const profile = el("profile");
-    if (!profile) return;
-
-    const card = document.createElement("div");
-    card.id = "loginSessionCard";
-    card.className = "card login-session-card";
-    card.innerHTML = `
-      <h4>Login-Status</h4>
-      <p id="loginSessionText">Session wird geprüft ...</p>
-      <button class="btn gold" onclick="window.checkLoginSession()">Login prüfen</button>
-      <button class="btn" onclick="openLogin()" style="margin-left:8px">Einloggen</button>
-    `;
-
-    const title = profile.querySelector(".page-title");
-    if (title) title.insertAdjacentElement("afterend", card);
-  }
-
-  window.checkLoginSession = async function () {
-    addSessionCard();
-    const card = el("loginSessionCard");
-    const text = el("loginSessionText");
-    const result = await getSessionSafe();
-
-    if (result.ok) {
-      if (card) card.classList.add("ok");
-      if (text) text.textContent = "✅ Eingeloggt als " + (result.session.user && result.session.user.email ? result.session.user.email : "Supabase User") + ". Mobile Endpoints sind bereit.";
-      if (window.toast) toast("Login aktiv.");
-      return true;
-    }
-
-    if (card) card.classList.remove("ok");
-    if (text) text.textContent = "⚠️ Nicht eingeloggt: " + result.error;
-    if (window.toast) toast("Bitte einloggen.");
-    return false;
-  };
-
-  function wrapAction(name, label) {
-    const oldFn = window[name];
-    if (typeof oldFn !== "function" || oldFn.__phaseB41Wrapped) return;
-
-    const wrapped = async function () {
-      const ok = await ensureLoggedIn(label);
-      if (!ok) return;
-      return oldFn.apply(this, arguments);
-    };
-
-    wrapped.__phaseB41Wrapped = true;
-    window[name] = wrapped;
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      addSessionCard();
-      window.checkLoginSession && window.checkLoginSession();
-
-      wrapAction("createPerson", "Profil speichern");
-      wrapAction("createSynastryPerson", "Zweite Person speichern");
-      wrapAction("saveSynastry", "Verbindung berechnen");
-      wrapAction("loadPeopleFromSupabase", "Aus Supabase laden");
-      wrapAction("loadAnalysis", "Analyse öffnen");
-      wrapAction("loadHoroscope", "Horoskop laden");
-      wrapAction("sendChat", "Chat senden");
-    }, 800);
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.4.2: premium UX cleanup ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  function cleanSyncText() {
-    const node = el("peopleSyncStatus");
-    if (!node) return;
-
-    const txt = node.textContent || "";
-    if (txt.includes("Person(en) geladen")) {
-      const match = txt.match(/(\d+)\s+Person\(en\).*?(\d+)\s+mögliche/);
-      if (match) {
-        node.textContent = "Gespeicherte Personen bereit · " + match[2] + " auswählbar";
-      } else {
-        node.textContent = "Gespeicherte Personen bereit";
-      }
-      node.classList.add("soraya-ok");
-    } else if (txt.includes("Personenliste wird lokal")) {
-      node.textContent = "Gespeicherte Personen werden automatisch geladen.";
-      node.classList.remove("soraya-ok");
-    } else if (txt.includes("Supabase-Liste noch nicht")) {
-      node.textContent = "Noch keine gespeicherte Personenliste verfügbar.";
-      node.classList.remove("soraya-ok");
-    }
-  }
-
-  function cleanLoginCard() {
-    const text = el("loginSessionText");
-    const body = document.body;
-    if (!text || !body) return;
-
-    const txt = text.textContent || "";
-    if (txt.includes("✅") || txt.includes("Eingeloggt")) {
-      body.classList.remove("soraya-needs-login");
-    } else {
-      body.classList.add("soraya-needs-login");
-    }
-  }
-
-  function wrapAddPersonForm() {
-    const card = el("phaseB3PartnerCard");
-    if (!card || card.dataset.b42Wrapped === "true") return;
-
-    const title = Array.from(card.querySelectorAll("h4")).find(h => (h.textContent || "").includes("Neue Person anlegen"));
-    if (!title) return;
-
-    const container = title.closest("div[style*='margin-top']") || title.parentElement;
-    if (!container || container.closest("details.soraya-add-person")) return;
-
-    const details = document.createElement("details");
-    details.className = "soraya-add-person";
-    details.open = false;
-
-    const summary = document.createElement("summary");
-    summary.textContent = "＋ Neue Person anlegen";
-    details.appendChild(summary);
-
-    container.parentNode.insertBefore(details, container);
-    details.appendChild(container);
-
-    // Make duplicate heading smaller by changing text
-    title.textContent = "Geburtsdaten";
-    card.dataset.b42Wrapped = "true";
-  }
-
-  function cleanSelectOptions() {
-    const select = el("synPersonSelect");
-    if (!select) return;
-
-    const seen = new Set();
-    Array.from(select.options).forEach(option => {
-      const normalized = (option.textContent || "").trim().toLowerCase();
-      if (!option.value) return;
-      if (seen.has(normalized)) {
-        option.remove();
-      } else {
-        seen.add(normalized);
-      }
+      html += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="rgba(255,255,255,.11)" stroke-width="1"/>`;
+      html += `<text x="${label.x.toFixed(1)}" y="${label.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="20" fill="rgba(228,181,90,.95)">${sign.g}</text>`;
     });
+
+    const planets = extractPlanets(chartData);
+    planets.slice(0, 10).forEach((planet, index) => {
+      const deg = Number(planet.degree_total ?? planet.lon ?? planet.longitude ?? index * 36);
+      const angle = ((deg - 90) * Math.PI) / 180;
+      const point = xy(cx, cy, 108 + (index % 3) * 9, angle);
+      html += `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="10" fill="rgba(228,181,90,.14)" stroke="rgba(228,181,90,.65)"/>`;
+      html += `<text x="${point.x.toFixed(1)}" y="${point.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#fff">${planetGlyph(planet.name || planet.planet || planet.de || "")}</text>`;
+    });
+
+    html += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="22" fill="rgba(228,181,90,.95)" font-family="serif">SORAYA</text>`;
+    html += `<text x="${cx}" y="${cy + 18}" text-anchor="middle" font-size="11" fill="rgba(231,222,255,.65)">Birth Chart</text>`;
+
+    svg.innerHTML = html;
   }
 
-  function polish() {
-    cleanSyncText();
-    cleanLoginCard();
-    wrapAddPersonForm();
-    cleanSelectOptions();
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(polish, 700);
-    setTimeout(polish, 1400);
-
-    const oldShowSection = window.showSection;
-    if (typeof oldShowSection === "function" && !oldShowSection.__phaseB42Wrapped) {
-      const wrappedShow = function (id) {
-        oldShowSection(id);
-        setTimeout(polish, 300);
-        setTimeout(polish, 900);
-      };
-      wrappedShow.__phaseB42Wrapped = true;
-      window.showSection = wrappedShow;
-    }
-
-    const oldLoadPeople = window.loadPeopleFromSupabase;
-    if (typeof oldLoadPeople === "function" && !oldLoadPeople.__phaseB42Wrapped) {
-      const wrappedLoad = async function () {
-        const result = await oldLoadPeople.apply(this, arguments);
-        setTimeout(polish, 150);
-        return result;
-      };
-      wrappedLoad.__phaseB42Wrapped = true;
-      window.loadPeopleFromSupabase = wrappedLoad;
-    }
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.4.3: custom luxury person picker logic ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  function parseOptionLabel(option) {
-    const raw = (option.textContent || "").trim();
-    const parts = raw.split("·").map(x => x.trim()).filter(Boolean);
-    return {
-      title: parts[0] || raw || "Person",
-      subtitle: parts.slice(1).join(" · ")
+  function planetGlyph(name) {
+    const map = {
+      Sonne: "☉",
+      Sun: "☉",
+      Mond: "☾",
+      Moon: "☾",
+      Merkur: "☿",
+      Mercury: "☿",
+      Venus: "♀",
+      Mars: "♂",
+      Jupiter: "♃",
+      Saturn: "♄",
+      Uranus: "♅",
+      Neptun: "♆",
+      Neptune: "♆",
+      Pluto: "♇"
     };
+
+    return map[name] || "✦";
   }
 
-  function ensurePicker() {
-    const select = el("synPersonSelect");
-    if (!select) return;
+  function extractPlanets(chartData) {
+    if (!chartData) return [];
 
-    let picker = el("sorayaPersonPicker");
-    if (!picker) {
-      picker = document.createElement("div");
-      picker.id = "sorayaPersonPicker";
-      picker.className = "soraya-person-picker";
-      picker.innerHTML = `
-        <button type="button" class="soraya-person-trigger" id="sorayaPersonTrigger">Person auswählen<span>Gespeicherte Partnerperson</span></button>
-        <div class="soraya-person-menu" id="sorayaPersonMenu"></div>
-      `;
-      select.insertAdjacentElement("afterend", picker);
+    const data = chartData.data || chartData;
+    const candidates = [
+      data.planets,
+      data.planet_positions,
+      data.positions,
+      data.chart && data.chart.planets
+    ];
 
-      const trigger = el("sorayaPersonTrigger");
-      trigger.addEventListener("click", (event) => {
-        event.preventDefault();
-        picker.classList.toggle("open");
-      });
+    const found = candidates.find((candidate) => candidate && (Array.isArray(candidate) || typeof candidate === "object"));
+    if (!found) return [];
 
-      document.addEventListener("click", (event) => {
-        if (!picker.contains(event.target)) picker.classList.remove("open");
-      });
+    if (Array.isArray(found)) return found;
+
+    return Object.entries(found).map(([name, value]) => ({
+      name,
+      ...(typeof value === "object" ? value : { degree_total: Number(value) || 0 })
+    }));
+  }
+
+  function ensureChartDetails() {
+    if ($("chartDetails")) return $("chartDetails");
+    const svg = $("chartWheel");
+    if (!svg || !svg.parentElement) return null;
+
+    const box = document.createElement("div");
+    box.id = "chartDetails";
+    box.className = "reading";
+    box.style.marginTop = "14px";
+    box.textContent = "Birth-Chart-Daten werden geladen.";
+    svg.parentElement.appendChild(box);
+    return box;
+  }
+
+  async function loadRealChartData(force = false) {
+    const birth = readJson(KEYS.birth, null);
+    const details = ensureChartDetails();
+
+    if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
+      renderWheel(null);
+      if (details) details.textContent = "Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.";
+      return null;
     }
 
-    renderPickerOptions();
+    try {
+      const config = getConfig();
+      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(birth)
+      });
+
+      const json = await response.json();
+      if (!json || json.ok === false) throw new Error((json && json.error) || "Chart nicht verfügbar.");
+
+      renderWheel(json);
+
+      const data = json.data || json;
+      const big = data.big_three || {};
+      const text = [
+        "✅ Birth Chart geladen.",
+        big.sun ? "Sonne: " + safe(big.sun.sign || big.sun) : "",
+        big.moon ? "Mond: " + safe(big.moon.sign || big.moon) : "",
+        big.ascendant ? "Aszendent: " + safe(big.ascendant.sign || big.ascendant) : ""
+      ].filter(Boolean).join("\n");
+
+      if (details) details.textContent = text || "✅ Birth Chart geladen.";
+      return json;
+    } catch (error) {
+      renderWheel(null);
+      if (details) details.textContent = "Chart konnte nicht geladen werden: " + error.message;
+      return null;
+    }
   }
 
-  function renderPickerOptions() {
-    const select = el("synPersonSelect");
-    const picker = el("sorayaPersonPicker");
-    const menu = el("sorayaPersonMenu");
-    const trigger = el("sorayaPersonTrigger");
-    if (!select || !picker || !menu || !trigger) return;
+  function setHomeTransits(html) {
+    const box = $("homeTransits");
+    if (box) box.innerHTML = html;
+  }
 
-    const options = Array.from(select.options);
-    const realOptions = options.filter(o => o.value);
+  function transitRow(glyph, title, sub, right = "") {
+    return '<div class="row"><div class="left"><span class="orb-sm">' + glyph + '</span><div><h4>' +
+      escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right) + '</span></div>';
+  }
 
-    if (!realOptions.length) {
-      menu.innerHTML = `<button type="button" class="soraya-person-option empty">Noch keine Person gespeichert<small>Lege unten eine zweite Person an.</small></button>`;
-      trigger.innerHTML = `Person auswählen<span>Noch keine gespeicherte Partnerperson</span>`;
+  function setEnergy(percent, label) {
+    if ($("energyRing")) $("energyRing").style.setProperty("--energy", (percent == null ? 0 : percent) + "%");
+    if ($("energyPct")) $("energyPct").textContent = percent == null ? "–" : percent + "%";
+    if ($("energyLabel")) $("energyLabel").textContent = label || "–";
+  }
+
+  async function renderHomeSky() {
+    const birth = readJson(KEYS.birth, null);
+    const config = readJson(KEYS.config, null);
+
+    if (!config || !config.engineUrl) {
+      setHomeTransits(transitRow("✦", "Noch keine Verbindung", "Speichere zuerst Supabase & Backend."));
+      setEnergy(null, "Verbindung fehlt");
       return;
     }
 
-    const seen = new Set();
-    const unique = [];
-    realOptions.forEach(o => {
-      const parsed = parseOptionLabel(o);
-      const key = (parsed.title + "|" + parsed.subtitle).toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(o);
-      }
-    });
-
-    menu.innerHTML = unique.map(o => {
-      const p = parseOptionLabel(o);
-      const active = o.value === select.value ? " active" : "";
-      return `<button type="button" class="soraya-person-option${active}" data-value="${o.value.replace(/"/g, "&quot;")}">${p.title}<small>${p.subtitle || "gespeichert"}</small></button>`;
-    }).join("");
-
-    menu.querySelectorAll("[data-value]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        select.value = btn.dataset.value;
-        select.dispatchEvent(new Event("change", { bubbles: true }));
-        const p = { title: btn.childNodes[0].textContent.trim(), subtitle: btn.querySelector("small") ? btn.querySelector("small").textContent : "" };
-        trigger.innerHTML = `${p.title}<span>${p.subtitle || "gespeicherte Person"}</span>`;
-        picker.classList.remove("open");
-        renderPickerOptions();
-      });
-    });
-
-    const selected = unique.find(o => o.value === select.value);
-    if (selected) {
-      const p = parseOptionLabel(selected);
-      trigger.innerHTML = `${p.title}<span>${p.subtitle || "gespeicherte Person"}</span>`;
-    } else {
-      trigger.innerHTML = `Person auswählen<span>${unique.length} gespeicherte Person(en)</span>`;
-    }
-  }
-
-  function cleanTechnicalCopy() {
-    const sync = el("peopleSyncStatus");
-    if (sync) {
-      const text = sync.textContent || "";
-      if (text.includes("auswählbar") || text.includes("geladen")) {
-        const m = text.match(/(\d+)\s+auswählbar|(\d+)\s+mögliche/);
-        const count = m ? (m[1] || m[2]) : "";
-        sync.textContent = count ? `✦ ${count} gespeicherte Partnerperson(en)` : "✦ Gespeicherte Personen bereit";
-      }
+    if (!birth || !birth.day || !birth.month || !birth.year) {
+      setHomeTransits(transitRow("✦", "Profil fehlt", "Hinterlege deine Geburtsdaten."));
+      setEnergy(null, "Profil anlegen");
+      return;
     }
 
-    // Remove duplicated self names from native select before picker reads it.
-    const select = el("synPersonSelect");
-    if (select) {
-      const seen = new Set();
-      Array.from(select.options).forEach(option => {
-        if (!option.value) return;
-        const key = (option.textContent || "").trim().toLowerCase();
-        if (seen.has(key)) option.remove();
-        else seen.add(key);
-      });
-    }
-  }
-
-  function bootPicker() {
-    cleanTechnicalCopy();
-    ensurePicker();
-    renderPickerOptions();
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(bootPicker, 900);
-    setTimeout(bootPicker, 1600);
-
-    const oldShow = window.showSection;
-    if (typeof oldShow === "function" && !oldShow.__phaseB43Wrapped) {
-      const wrapped = function (id) {
-        oldShow(id);
-        setTimeout(bootPicker, 350);
-        setTimeout(bootPicker, 1000);
-      };
-      wrapped.__phaseB43Wrapped = true;
-      window.showSection = wrapped;
-    }
-
-    const oldRefresh = window.refreshSynastryPeople;
-    if (typeof oldRefresh === "function" && !oldRefresh.__phaseB43Wrapped) {
-      const wrappedRefresh = function () {
-        const result = oldRefresh.apply(this, arguments);
-        setTimeout(bootPicker, 120);
-        return result;
-      };
-      wrappedRefresh.__phaseB43Wrapped = true;
-      window.refreshSynastryPeople = wrappedRefresh;
-    }
-
-    const oldLoad = window.loadPeopleFromSupabase;
-    if (typeof oldLoad === "function" && !oldLoad.__phaseB43Wrapped) {
-      const wrappedLoad = async function () {
-        const result = await oldLoad.apply(this, arguments);
-        setTimeout(bootPicker, 180);
-        return result;
-      };
-      wrappedLoad.__phaseB43Wrapped = true;
-      window.loadPeopleFromSupabase = wrappedLoad;
-    }
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.4.4: inline picker refinement ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  function closePickerAfterChoice() {
-    const menu = el("sorayaPersonMenu");
-    const picker = el("sorayaPersonPicker");
-    if (!menu || !picker || picker.dataset.b44Bound === "true") return;
-
-    picker.dataset.b44Bound = "true";
-    menu.addEventListener("click", (event) => {
-      const option = event.target.closest(".soraya-person-option[data-value]");
-      if (!option) return;
-      setTimeout(() => {
-        picker.classList.remove("open");
-      }, 80);
-    });
-  }
-
-  function improveTriggerCopy() {
-    const trigger = el("sorayaPersonTrigger");
-    if (!trigger) return;
-
-    const text = trigger.textContent || "";
-    if (text.includes("Person auswählen") && text.includes("gespeicherte Person")) {
-      const count = (text.match(/\d+/) || [""])[0];
-      trigger.innerHTML = `Person auswählen<span>${count ? count + " gespeicherte Partnerperson(en)" : "Gespeicherte Partnerperson"}</span>`;
-    }
-  }
-
-  function reduceSelfDuplicateOptions() {
-    const select = el("synPersonSelect");
-    if (!select) return;
-
-    const currentName = (localStorage.getItem("soraya_person_name") || "").trim().toLowerCase();
-    let selfSeen = false;
-
-    Array.from(select.options).forEach(option => {
-      if (!option.value) return;
-      const label = (option.textContent || "").trim().toLowerCase();
-
-      // Keep at most one own profile option if it appears by mistake.
-      if (currentName && label.startsWith(currentName)) {
-        if (selfSeen) option.remove();
-        selfSeen = true;
-      }
-    });
-  }
-
-  function polishB44() {
-    reduceSelfDuplicateOptions();
-    improveTriggerCopy();
-    closePickerAfterChoice();
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(polishB44, 900);
-    setTimeout(polishB44, 1700);
-
-    const oldShow = window.showSection;
-    if (typeof oldShow === "function" && !oldShow.__phaseB44Wrapped) {
-      const wrapped = function (id) {
-        oldShow(id);
-        setTimeout(polishB44, 300);
-        setTimeout(polishB44, 900);
-      };
-      wrapped.__phaseB44Wrapped = true;
-      window.showSection = wrapped;
-    }
-
-    const oldLoad = window.loadPeopleFromSupabase;
-    if (typeof oldLoad === "function" && !oldLoad.__phaseB44Wrapped) {
-      const wrappedLoad = async function () {
-        const result = await oldLoad.apply(this, arguments);
-        setTimeout(polishB44, 200);
-        return result;
-      };
-      wrappedLoad.__phaseB44Wrapped = true;
-      window.loadPeopleFromSupabase = wrappedLoad;
-    }
-  });
-})();
-
-/* =========================================================
-   Soraya Phase C.1 — extracted scripts
-   ========================================================= */
-
-/* ===== Phase B.4.5: login recovery logic ===== */
-(function () {
-  function el(id) { return document.getElementById(id); }
-
-  async function sessionState() {
     try {
-      if (!window.sb && typeof window.loadConfig === "function") window.loadConfig();
-      const client = window.sb || (typeof sb !== "undefined" ? sb : null);
-      if (!client || !client.auth) return { ok: false, error: "Supabase-Verbindung fehlt." };
-      const { data, error } = await client.auth.getSession();
-      if (error) return { ok: false, error: error.message };
-      if (!data || !data.session || !data.session.access_token) return { ok: false, error: "Nicht eingeloggt." };
-      return { ok: true, session: data.session };
-    } catch (err) {
-      return { ok: false, error: err.message || String(err) };
-    }
-  }
-
-  function ensureQuickLoginButton() {
-    const profileCard = document.querySelector("#profile .profile-hero");
-    if (!profileCard || el("profileLoginQuickButton")) return;
-
-    const wrap = document.createElement("div");
-    wrap.id = "profileLoginQuickButton";
-    wrap.innerHTML = `
-      <button class="btn gold" onclick="openLogin()">Einloggen</button>
-      <div class="soraya-auth-mini">Du bist abgemeldet. Logge dich ein, um Profil, Synastrie und Chat zu speichern.</div>
-    `;
-
-    const card = profileCard.closest(".card");
-    if (card) card.appendChild(wrap);
-  }
-
-  function findLogoutButton() {
-    const buttons = Array.from(document.querySelectorAll("#profile button, #profile .btn"));
-    return buttons.find(btn => (btn.textContent || "").includes("Abmelden") || (btn.textContent || "").includes("Einloggen"));
-  }
-
-  async function renderAuthUi() {
-    ensureQuickLoginButton();
-
-    const state = await sessionState();
-    const body = document.body;
-    const loginText = el("loginSessionText");
-    const loginCard = el("loginSessionCard");
-    const logoutBtn = findLogoutButton();
-
-    if (state.ok) {
-      body.classList.remove("soraya-logged-out", "soraya-needs-login");
-
-      if (loginText) loginText.textContent = "✅ Eingeloggt als " + (state.session.user && state.session.user.email ? state.session.user.email : "Supabase User") + ". Mobile Endpoints sind bereit.";
-      if (loginCard) loginCard.classList.add("ok");
-
-      if (logoutBtn) {
-        logoutBtn.textContent = "⇥ Abmelden";
-        logoutBtn.onclick = window.signOut;
-      }
-      return true;
-    }
-
-    body.classList.add("soraya-logged-out", "soraya-needs-login");
-
-    if (loginText) loginText.textContent = "Du bist abgemeldet. Bitte einloggen, um Daten zu speichern.";
-    if (loginCard) loginCard.classList.remove("ok");
-
-    if (logoutBtn) {
-      logoutBtn.textContent = "Einloggen";
-      logoutBtn.onclick = function () {
-        if (typeof window.openLogin === "function") window.openLogin();
-      };
-    }
-
-    return false;
-  }
-
-  function wrapAuthFunctions() {
-    const oldSignOut = window.signOut;
-    if (typeof oldSignOut === "function" && !oldSignOut.__phaseB45Wrapped) {
-      const wrappedOut = async function () {
-        const result = await oldSignOut.apply(this, arguments);
-        setTimeout(renderAuthUi, 150);
-        setTimeout(() => {
-          if (window.toast) toast("Du bist abgemeldet. Einloggen ist im Profil wieder sichtbar.");
-        }, 250);
-        return result;
-      };
-      wrappedOut.__phaseB45Wrapped = true;
-      window.signOut = wrappedOut;
-    }
-
-    const oldSignIn = window.signIn;
-    if (typeof oldSignIn === "function" && !oldSignIn.__phaseB45Wrapped) {
-      const wrappedIn = async function () {
-        const result = await oldSignIn.apply(this, arguments);
-        setTimeout(renderAuthUi, 250);
-        return result;
-      };
-      wrappedIn.__phaseB45Wrapped = true;
-      window.signIn = wrappedIn;
-    }
-  }
-
-  window.sorayaRenderAuthUi = renderAuthUi;
-
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      ensureQuickLoginButton();
-      wrapAuthFunctions();
-      renderAuthUi();
-    }, 900);
-
-    const oldShow = window.showSection;
-    if (typeof oldShow === "function" && !oldShow.__phaseB45Wrapped) {
-      const wrappedShow = function (id) {
-        oldShow(id);
-        if (id === "profile") {
-          setTimeout(() => {
-            ensureQuickLoginButton();
-            wrapAuthFunctions();
-            renderAuthUi();
-          }, 250);
-        }
-      };
-      wrappedShow.__phaseB45Wrapped = true;
-      window.showSection = wrappedShow;
-    }
-  });
-})();
-
-/* === Echte Startseite: Transite + Tagesenergie aus echten Daten (additiv) === */
-(function () {
-  var GLY = { Sonne:'☉', Mond:'☾', Merkur:'☿', Venus:'♀', Mars:'♂', Jupiter:'♃', Saturn:'♄', Uranus:'♅', Neptun:'♆', Pluto:'♇' };
-  var PLAN = ['Sonne','Mond','Merkur','Venus','Mars','Jupiter','Saturn','Uranus','Neptun','Pluto'];
-  function cfg() { try { return JSON.parse(localStorage.getItem(KEYS.config) || 'null'); } catch (e) { return null; } }
-  function birth() { try { return JSON.parse(localStorage.getItem(KEYS.birth) || 'null'); } catch (e) { return null; } }
-  function setTransits(h) { var el = $('homeTransits'); if (el) el.innerHTML = h; }
-  function row(glyph, title, sub, right) {
-    return '<div class="row"><div class="left"><span class="orb-sm">' + glyph + '</span><div><h4>' +
-      escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right || '') + '</span></div>';
-  }
-  function setEnergy(pct, label) {
-    var r = $('energyRing'), p = $('energyPct'), l = $('energyLabel');
-    if (r) r.style.setProperty('--energy', (pct == null ? 0 : pct) + '%');
-    if (p) p.textContent = pct == null ? '–' : pct + '%';
-    if (l) l.textContent = label;
-  }
-  async function renderHomeSky() {
-    var c = cfg();
-    if (!c || !c.engineUrl) { setTransits(row('✦', 'Noch keine Verbindung', 'Speichere zuerst die Verbindung.')); setEnergy(null, '–'); return; }
-    var b = birth();
-    if (!b || !b.day || !b.month || !b.year) { setTransits(row('✦', 'Profil fehlt', 'Hinterlege deine Geburtsdaten.')); setEnergy(null, 'Profil anlegen'); return; }
-    var person = { name: b.name || 'Ich', year: Number(b.year), month: Number(b.month), day: Number(b.day),
-      hour: (b.hour === '' || b.hour == null) ? null : Number(b.hour),
-      minute: (b.minute === '' || b.minute == null) ? null : Number(b.minute), birthplace: b.birthplace || '' };
-    var coords = null; try { coords = JSON.parse(localStorage.getItem('soraya_coords') || 'null'); } catch (e) {}
-    if (coords) { person.lat = coords.lat; person.lng = coords.lng; person.tz_str = coords.tz_str; }
-    try {
-      var res = await fetch(c.engineUrl.replace(/\/$/, '') + '/transits',
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ person: person, at: null }) });
-      var j = await res.json();
-      if (!j || j.ok === false || !j.data) throw new Error((j && j.error) || 'Transite nicht verfügbar');
-      var d = j.data;
-      if (d.meta && d.meta.lat) localStorage.setItem('soraya_coords', JSON.stringify({ lat: d.meta.lat, lng: d.meta.lng, tz_str: d.meta.tz_str }));
-      var asp = (d.aspects_to_natal || []).filter(function (a) { return PLAN.indexOf(a.transit_de) >= 0; });
-      var top = asp.slice(0, 3);
-      if (!top.length) setTransits(row('☾', 'Ruhiger Himmel', 'Gerade keine engen Transite.'));
-      else setTransits(top.map(function (a) {
-        var mv = a.movement === 'Applying' ? 'im Kommen' : a.movement === 'Separating' ? 'klingt ab' : 'aktiv';
-        return row(GLY[a.transit_de] || '✦', a.transit_de + ' ' + a.type_de + ' ' + a.natal_de, mv, a.orb != null ? a.orb.toFixed(1) + '°' : '');
-      }).join(''));
-      var harm = 0, tens = 0;
-      asp.slice(0, 7).forEach(function (a) {
-        if (a.type_de === 'Trigon' || a.type_de === 'Sextil') harm++;
-        else if (a.type_de === 'Quadrat' || a.type_de === 'Opposition') tens++;
+      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/transits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ person: birth, at: null })
       });
-      var tot = harm + tens;
-      var score = tot ? Math.round(50 + (harm - tens) / tot * 42) : 60;
+
+      const json = await response.json();
+      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Transite nicht verfügbar.");
+
+      const aspects = (json.data.aspects_to_natal || []).slice(0, 3);
+
+      if (!aspects.length) {
+        setHomeTransits(transitRow("☾", "Ruhiger Himmel", "Gerade keine engen Transite."));
+        setEnergy(60, "Ruhig & offen");
+        return;
+      }
+
+      const rows = aspects.map((aspect) => {
+        const movement = aspect.movement === "Applying" ? "im Kommen" : aspect.movement === "Separating" ? "klingt ab" : "aktiv";
+        const title = [aspect.transit_de, aspect.type_de, aspect.natal_de].filter(Boolean).join(" ");
+        const right = aspect.orb != null ? Number(aspect.orb).toFixed(1) + "°" : "";
+        return transitRow(planetGlyph(aspect.transit_de), title || "Transit", movement, right);
+      }).join("");
+
+      setHomeTransits(rows);
+
+      let harmony = 0;
+      let tension = 0;
+      (json.data.aspects_to_natal || []).slice(0, 7).forEach((aspect) => {
+        if (aspect.type_de === "Trigon" || aspect.type_de === "Sextil") harmony += 1;
+        if (aspect.type_de === "Quadrat" || aspect.type_de === "Opposition") tension += 1;
+      });
+
+      const total = harmony + tension;
+      let score = total ? Math.round(50 + ((harmony - tension) / total) * 42) : 60;
       score = Math.max(8, Math.min(96, score));
-      var label = score >= 66 ? 'Harmonisch & offen' : score >= 45 ? 'Ausgeglichen' : 'Intensiv & fordernd';
+
+      const label = score >= 66 ? "Harmonisch & offen" : score >= 45 ? "Ausgeglichen" : "Intensiv & fordernd";
       setEnergy(score, label);
-    } catch (e) {
-      setTransits(row('✦', 'Transite nicht ladbar', String((e && e.message) || e)));
-      setEnergy(null, '–');
-    }
-  }
-  window._sorayaRenderHomeSky = renderHomeSky;
-  window.addEventListener('load', function () { setTimeout(renderHomeSky, 400); });
-  var _showSection = window.showSection;
-  if (typeof _showSection === 'function') {
-    window.showSection = function (id) { var r = _showSection.apply(this, arguments); if (id === 'home') renderHomeSky(); return r; };
-  }
-})();
-
-/* === Synastrie: Personen-Picker statt UUID (additiv) === */
-(function () {
-  function el(id) { return document.getElementById(id); }
-  function people() { try { return JSON.parse(localStorage.getItem('soraya_people_cache_v1') || '[]'); } catch (e) { return []; } }
-
-  // Die von Phase B.4 erwartete, aber nie definierte Funktion: füllt das Select aus dem Cache.
-  window.refreshSynastryPeople = function () {
-    var sel = el('synPersonSelect'); if (!sel) return;
-    var selfId = localStorage.getItem(KEYS.person);
-    var cur = sel.value;
-    var rows = people().filter(function (p) { return p && p.id; });
-    var opts = ['<option value="">Person wählen…</option>'];
-    rows.forEach(function (p) {
-      var isSelf = p.is_self || p.id === selfId;
-      var extra = p.birth_date ? ' · ' + p.birth_date : '';
-      opts.push('<option value="' + p.id + '">' + escapeHtml((p.name || 'Unbenannt') + (isSelf ? ' (ich)' : '') + extra) + '</option>');
-    });
-    sel.innerHTML = opts.join('');
-    if (cur) sel.value = cur;
-  };
-
-  function bindSelect() {
-    var sel = el('synPersonSelect'); if (!sel || sel.dataset.synBound) return;
-    sel.dataset.synBound = '1';
-    sel.addEventListener('change', function () {
-      var pid = el('personBId'); if (pid) pid.value = sel.value;
-      if (sel.value && window.toast) toast('Partnerperson gewählt.');
-    });
-  }
-
-  window.addEventListener('load', function () { bindSelect(); window.refreshSynastryPeople(); });
-
-  var _show = window.showSection;
-  if (typeof _show === 'function' && !_show.__synPicker) {
-    var w = function (id) {
-      var r = _show.apply(this, arguments);
-      if (id === 'synastry') { bindSelect(); window.refreshSynastryPeople(); }
-      return r;
-    };
-    w.__synPicker = true;
-    window.showSection = w;
-  }
-})();
-
-/* ===== Phase C.1.1: separate Login-Seite (Redirect-Shim, additiv) ===== */
-/* ===== Phase C.1.1: separate Login-Seite =====
-   Ziel:
-   - /login = saubere Login-Seite
-   - /      = Soraya App
-   - alter Login-Modal wird nicht mehr benutzt
-   - kein Backend-Change
-*/
-
-(function () {
-  function goToLogin() {
-    window.location.href = "/login";
-  }
-
-  function hideOldLoginModal() {
-    const modal = document.getElementById("loginModal");
-    if (modal) {
-      modal.classList.remove("open");
-      modal.style.display = "none";
+    } catch (error) {
+      setHomeTransits(transitRow("✦", "Transite nicht ladbar", error.message));
+      setEnergy(null, "–");
     }
   }
 
-  function replaceLoginButtons() {
-    document.querySelectorAll("button, a").forEach((el) => {
-      const text = (el.textContent || "").trim();
-      const onclick = el.getAttribute("onclick") || "";
+  function previewIdentityFromForm() {
+    const name = ($("pName") && $("pName").value.trim()) || localStorage.getItem(KEYS.name) || "du";
+    if ($("profileTitle")) $("profileTitle").textContent = name;
+    if ($("profileInitial")) $("profileInitial").textContent = (name[0] || "S").toUpperCase();
 
-      const looksLikeLogin =
-        text.includes("Einloggen") ||
+    const day = Number(($("pDay") && $("pDay").value) || 0);
+    const month = Number(($("pMonth") && $("pMonth").value) || 0);
+    if (day && month) renderSun(day, month);
+  }
+
+  function cleanLoginButtons() {
+    closeLogin();
+
+    document.querySelectorAll("button, a").forEach((node) => {
+      const text = (node.textContent || "").trim();
+      const onclick = node.getAttribute("onclick") || "";
+
+      const isLoginTrigger =
         onclick.includes("openLogin") ||
-        onclick.includes("signIn");
+        onclick.includes("signIn") ||
+        text === "Einloggen";
 
-      if (!looksLikeLogin) return;
+      if (!isLoginTrigger) return;
 
-      el.removeAttribute("onclick");
+      node.removeAttribute("onclick");
 
-      if (el.tagName === "A") {
-        el.setAttribute("href", "/login");
+      if (node.tagName === "A") {
+        node.href = LOGIN_PATH;
       } else {
-        el.onclick = function (event) {
-          event.preventDefault();
-          goToLogin();
-        };
+        node.onclick = openLogin;
       }
     });
   }
 
-  function installCleanLoginFlow() {
-    hideOldLoginModal();
-    replaceLoginButtons();
+  function bootstrap() {
+    closeLogin();
+    loadConfig();
 
-    window.openLogin = goToLogin;
-    window.closeLogin = hideOldLoginModal;
+    const storedPersonId = localStorage.getItem(KEYS.person);
+    if ($("personId") && storedPersonId) $("personId").value = storedPersonId;
+
+    const storedConversation = localStorage.getItem(KEYS.conv);
+    if ($("conversationId") && storedConversation) $("conversationId").value = storedConversation;
+
+    renderMoon();
+    renderIdentity();
+    renderWheel(null);
+    renderHomeSky();
+    renderAuthUi();
+    cleanLoginButtons();
+    ensureSynastryUi();
+    loadPeopleFromSupabase(false);
+
+    setTimeout(() => {
+      renderIdentity();
+      renderAuthUi();
+      cleanLoginButtons();
+      ensureSynastryUi();
+      refreshSynastryPeople();
+    }, 700);
   }
 
-  installCleanLoginFlow();
+  window.toast = toast;
+  window.status = status;
+  window.safe = safe;
+  window.escapeHtml = escapeHtml;
+  window.markdownToHtml = markdownToHtml;
 
-  window.addEventListener("load", () => {
-    installCleanLoginFlow();
+  window.showSection = showSection;
+  window.openLogin = openLogin;
+  window.closeLogin = closeLogin;
+  window.openSettings = openSettings;
+  window.closeSettings = closeSettings;
 
-    // Einige Soraya-Blöcke erzeugen Buttons später dynamisch.
-    // Deshalb nach kurzer Zeit nochmals prüfen.
-    setTimeout(installCleanLoginFlow, 500);
-    setTimeout(installCleanLoginFlow, 1500);
-  });
+  window.initSupabase = initSupabase;
+  window.saveConfig = saveConfig;
+  window.loadConfig = loadConfig;
+  window.getEngineUrl = getEngineUrl;
+  window.getToken = getToken;
+  window.callSoraya = callSoraya;
+
+  window.signIn = signIn;
+  window.signUp = signUp;
+  window.signOut = signOut;
+
+  window.createPerson = createPerson;
+  window.needPerson = needPerson;
+  window.loadAnalysis = loadAnalysis;
+  window.loadHoroscope = loadHoroscope;
+  window.appendBubble = appendBubble;
+  window.clearChatView = clearChatView;
+  window.sendChat = sendChat;
+
+  window.loadPeopleFromSupabase = loadPeopleFromSupabase;
+  window.refreshSynastryPeople = refreshSynastryPeople;
+  window.createSynastryPerson = createSynastryPerson;
+  window.saveSynastry = saveSynastry;
+  window.renderSynastryDescription = renderSynastryDescription;
+
+  window.renderMoon = renderMoon;
+  window.renderIdentity = renderIdentity;
+  window.renderWheel = renderWheel;
+  window.loadRealChartData = loadRealChartData;
+  window._sorayaPreview = previewIdentityFromForm;
+  window.sorayaRenderAuthUi = renderAuthUi;
+  window.sorayaBootstrap = bootstrap;
+
+  window.addEventListener("load", bootstrap);
 })();
