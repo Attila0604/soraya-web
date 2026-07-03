@@ -2461,3 +2461,120 @@ label + select {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   26. Soraya C.4.2 — Horoskop Premium Upgrade
+   ========================================================================== */
+
+.c42-horoscope-hero {
+  position: relative;
+}
+
+.c42-horoscope-hero::after {
+  content: "☾";
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  color: rgba(255, 226, 155, .16);
+  font-size: 92px;
+  font-family: var(--display);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.c42-horo-layout {
+  margin-top: 14px;
+}
+
+.c42-horo-orb {
+  width: 126px;
+  height: 126px;
+}
+
+.c42-guidance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+}
+
+.c42-guidance-card {
+  min-height: 210px;
+  text-align: left;
+}
+
+.c42-guidance-card b {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 10px 0 12px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .30);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 226, 155, .16), transparent 55%),
+    rgba(255, 218, 135, .055);
+  box-shadow: 0 0 26px rgba(181, 107, 255, .14);
+  font-family: var(--display);
+  font-size: 22px;
+}
+
+.c42-guidance-card h4 {
+  margin: 0 0 8px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 24px;
+  line-height: 1.05;
+}
+
+.c42-guidance-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c42-ritual-card {
+  overflow: hidden;
+}
+
+.c42-ritual-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.c42-ritual-layout h4 {
+  margin: 8px 0;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 26px;
+}
+
+.c42-ritual-layout p {
+  color: var(--muted);
+}
+
+.c42-affirmation {
+  margin: 9px 0 0;
+  color: var(--champagne) !important;
+  font-family: var(--display);
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+@media (max-width: 430px) {
+  .c42-guidance-grid,
+  .c42-ritual-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .c42-guidance-card {
+    min-height: auto;
+  }
+
+  .c42-horo-orb {
+    width: 112px;
+    height: 112px;
+  }
+}
