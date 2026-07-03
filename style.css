@@ -1740,3 +1740,369 @@ textarea::placeholder {
     margin-top: 24px;
   }
 }
+
+
+/* ==========================================================================
+   23. Soraya C.3.2 — App Screen Polish
+   Voll integriert in style.css.
+   Ziel: Home, Analyse, Horoskop, Chat, Profil und Synastrie wirken mehr
+   wie eine moderne Premium-App.
+   ========================================================================== */
+
+/* Global screen rhythm */
+.section.active {
+  padding-bottom: 8px;
+}
+
+.section > .card:first-of-type {
+  margin-top: 18px;
+}
+
+.card + .card {
+  margin-top: 18px;
+}
+
+/* Home: dashboard feel */
+#home .page-title h2 {
+  max-width: 92%;
+}
+
+#home .page-title p {
+  max-width: 90%;
+}
+
+#home .hero-card::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 218, 135, .12);
+  background:
+    radial-gradient(circle at 42% 35%, rgba(255, 226, 155, .16), transparent 35%),
+    radial-gradient(circle, transparent 0 48%, rgba(181, 107, 255, .08) 49% 51%, transparent 52%);
+  opacity: .55;
+  pointer-events: none;
+}
+
+#home .shortcut-grid .tile:nth-child(1) b { color: #ffe39b; }
+#home .shortcut-grid .tile:nth-child(2) b { color: #d3a6ff; }
+#home .shortcut-grid .tile:nth-child(3) b { color: #ffd2ea; }
+#home .shortcut-grid .tile:nth-child(4) b { color: #9debcf; }
+
+#homeTransits .row {
+  padding: 15px 0;
+}
+
+/* Analysis: true app module look */
+#analysis .page-title h2 {
+  letter-spacing: -.045em;
+}
+
+#analysis .card-title {
+  align-items: flex-start;
+}
+
+#analysis .card-title::after {
+  content: "Radix";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 218, 135, .22);
+  color: var(--gold2);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  background: rgba(255, 218, 135, .06);
+}
+
+#analysis .reading {
+  position: relative;
+}
+
+#analysis .reading::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: -1px;
+  width: 46px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold2), transparent);
+  opacity: .75;
+}
+
+#chartDetails {
+  min-height: 92px;
+}
+
+#chartDetails::after {
+  content: "";
+  display: block;
+  margin-top: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 218, 135, .18), transparent);
+}
+
+/* SVG chart wrapper vibe */
+#chartWheel {
+  padding: 6px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 218, 135, .04), transparent 64%),
+    radial-gradient(circle at 50% 4%, rgba(181, 107, 255, .10), transparent 56%);
+}
+
+/* Horoscope: premium daily guidance */
+#horoscope .segmented {
+  width: 100%;
+  justify-content: space-between;
+}
+
+#horoscope .segmented select {
+  flex: 1;
+  text-align: center;
+}
+
+#horoscope .horo-layout {
+  align-items: center;
+}
+
+#horoscope .horo-layout > div:last-child {
+  flex: 1;
+  min-width: 190px;
+}
+
+#horoMood::before {
+  content: "✦ ";
+  color: var(--gold2);
+  opacity: .85;
+}
+
+#horoTip {
+  border-left: 2px solid rgba(255, 218, 135, .42);
+  padding-left: 12px;
+  color: var(--champagne);
+}
+
+.ritual-grid .ritual:nth-child(1) {
+  background:
+    radial-gradient(180px 120px at 22% 0%, rgba(255, 226, 155, .10), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .022));
+}
+
+.ritual-grid .ritual:nth-child(2) {
+  background:
+    radial-gradient(180px 120px at 22% 0%, rgba(181, 107, 255, .13), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .022));
+}
+
+.ritual-grid .ritual:nth-child(3) {
+  background:
+    radial-gradient(180px 120px at 22% 0%, rgba(101, 240, 188, .08), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .022));
+}
+
+/* Chat: more assistant-like premium identity */
+#chat .chat-head .avatar {
+  width: 58px;
+  height: 58px;
+  font-size: 24px;
+}
+
+#chat .chat-head h4 {
+  margin-bottom: 2px;
+}
+
+#chat .chat-head p {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+.chat-window {
+  border-radius: 22px;
+  background:
+    radial-gradient(300px 220px at 80% 0%, rgba(181, 107, 255, .07), transparent 70%),
+    rgba(255, 255, 255, .018);
+  border: 1px solid rgba(255, 255, 255, .06);
+  padding: 14px 12px 16px;
+}
+
+.bubble.assistant::before {
+  content: "✦";
+  margin-right: 6px;
+  color: rgba(255, 226, 155, .72);
+}
+
+.bubble.user {
+  color: #fff2ff;
+}
+
+.composer textarea {
+  border-radius: 20px;
+}
+
+.composer .round,
+.composer button {
+  flex: none;
+}
+
+/* Profile: luxury personal identity */
+#profile .profile-hero {
+  grid-template-columns: 96px 1fr;
+}
+
+#profile .profile-avatar {
+  width: 96px;
+  height: 96px;
+}
+
+#profile .profile-hero h3 {
+  line-height: .95;
+}
+
+#profile .stats {
+  margin-top: 18px;
+}
+
+#profile .stat b {
+  font-size: 30px;
+}
+
+#profile .premium-list span::before {
+  content: "✦";
+  color: rgba(255, 226, 155, .75);
+  margin-right: 9px;
+}
+
+/* Synastry: premium relationship module */
+#synastry .page-title h2 {
+  max-width: 94%;
+}
+
+#synastry .compat {
+  margin-top: 8px;
+  margin-bottom: 22px;
+}
+
+#synastry .compat strong {
+  letter-spacing: -.03em;
+}
+
+#synastry .card-title h4::before,
+#phaseB3PartnerCard .card-title h4::before,
+#synastryPersonCreateCard .card-title h4::before {
+  content: "♡ ";
+  color: rgba(255, 226, 155, .75);
+}
+
+.partner-select-row select,
+#synPersonSelect {
+  min-height: 52px;
+  border-color: rgba(255, 218, 135, .20);
+}
+
+#partnerCreateStatus.ok {
+  background:
+    radial-gradient(260px 120px at 0% 0%, rgba(101, 240, 188, .10), transparent 70%),
+    rgba(255, 255, 255, .035);
+}
+
+/* Settings modal refinement */
+#settingsModal .modal,
+#loginModal .modal {
+  position: relative;
+}
+
+#settingsModal .modal::before,
+#loginModal .modal::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 218, 135, .62), transparent);
+}
+
+/* Inputs layout polish */
+.form-row > div,
+.form-row-3 > div,
+.partner-form-grid > div {
+  min-width: 0;
+}
+
+label + input,
+label + textarea,
+label + select {
+  margin-top: 0;
+}
+
+/* More polished button groups */
+.card .btn + .btn,
+.login-secondary .btn + .btn {
+  margin-left: 0;
+}
+
+.login-secondary {
+  gap: 10px;
+}
+
+/* Luxury dividers inside cards */
+.card .row:first-of-type {
+  padding-top: 4px;
+}
+
+.card .row:last-of-type {
+  padding-bottom: 4px;
+}
+
+/* Better desktop preview while still mobile-first */
+@media (min-width: 760px) {
+  body::before {
+    content: "";
+    position: fixed;
+    left: 50%;
+    top: 32px;
+    width: 560px;
+    height: 880px;
+    transform: translateX(-50%);
+    border-radius: 46px;
+    border: 1px solid rgba(255, 218, 135, .08);
+    pointer-events: none;
+    z-index: -1;
+    box-shadow:
+      0 0 120px rgba(181, 107, 255, .08),
+      0 0 100px rgba(255, 218, 135, .06);
+  }
+}
+
+/* Small phones: keep luxury but reduce density */
+@media (max-width: 380px) {
+  .brand h1 {
+    font-size: 31px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .tile {
+    min-height: 92px;
+  }
+
+  .tile b {
+    width: 42px;
+    height: 42px;
+  }
+
+  .chat-window {
+    min-height: 300px;
+  }
+}
