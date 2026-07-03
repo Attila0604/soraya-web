@@ -140,10 +140,45 @@
           <svg id="chartWheel" viewBox="0 0 420 420"></svg>
         </div>
 
-        <div class="c4-big-three-grid">
-          <div class="card c4-mini-card"><span class="eyebrow">Sonne</span><b>☉</b><p>Identität · Ausdruck · Lebenslicht</p></div>
-          <div class="card c4-mini-card"><span class="eyebrow">Mond</span><b>☾</b><p>Gefühl · Bedürfnis · innere Welt</p></div>
-          <div class="card c4-mini-card"><span class="eyebrow">Aszendent</span><b>AC</b><p>Auftreten · Weg · erste Wirkung</p></div>
+        <div class="c4-big-three-grid" id="bigThreeGrid">
+          <div class="card c4-mini-card c41-big-card">
+            <span class="eyebrow">Sonne</span>
+            <b id="bigSunGlyph">☉</b>
+            <strong id="bigSunSign">–</strong>
+            <p id="bigSunText">Identität · Ausdruck · Lebenslicht</p>
+          </div>
+          <div class="card c4-mini-card c41-big-card">
+            <span class="eyebrow">Mond</span>
+            <b id="bigMoonGlyph">☾</b>
+            <strong id="bigMoonSign">–</strong>
+            <p id="bigMoonText">Gefühl · Bedürfnis · innere Welt</p>
+          </div>
+          <div class="card c4-mini-card c41-big-card">
+            <span class="eyebrow">Aszendent</span>
+            <b id="bigAscGlyph">AC</b>
+            <strong id="bigAscSign">–</strong>
+            <p id="bigAscText">Auftreten · Weg · erste Wirkung</p>
+          </div>
+        </div>
+
+        <div class="card c41-analysis-panel">
+          <div class="card-title">
+            <h4>Planeten & Häuser</h4>
+            <span class="badge">Live Chart</span>
+          </div>
+          <div id="planetList" class="c41-planet-list">
+            <div class="c41-empty">Speichere dein Profil und öffne die Analyse.</div>
+          </div>
+        </div>
+
+        <div class="card c41-analysis-panel">
+          <div class="card-title">
+            <h4>Aspekte & Balance</h4>
+            <span class="badge">Übersicht</span>
+          </div>
+          <div id="aspectSummary" class="c41-aspect-summary">
+            <div class="c41-empty">Aspekte werden mit deinem Chart geladen.</div>
+          </div>
         </div>
 
         <div class="card c4-reading-card">
