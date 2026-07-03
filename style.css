@@ -2299,3 +2299,165 @@ label + select {
     margin: 0;
   }
 }
+
+
+/* ==========================================================================
+   25. Soraya C.4.1 — Analysis Premium Components
+   ========================================================================== */
+
+.c41-big-card {
+  position: relative;
+  min-height: 184px;
+}
+
+.c41-big-card strong {
+  display: block;
+  margin: 4px 0 8px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 25px;
+  line-height: 1.05;
+}
+
+.c41-big-card p {
+  color: var(--muted);
+}
+
+.c41-analysis-panel {
+  margin-top: 18px;
+}
+
+.c41-planet-list {
+  display: grid;
+  gap: 8px;
+}
+
+.c41-planet-row {
+  display: grid;
+  grid-template-columns: 42px 1.15fr 1.15fr .8fr;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 16px;
+  background:
+    radial-gradient(140px 80px at 0% 0%, rgba(255, 226, 155, .06), transparent 70%),
+    rgba(255, 255, 255, .025);
+}
+
+.c41-planet-glyph {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .30);
+  background: rgba(255, 218, 135, .06);
+  font-family: var(--display);
+  font-size: 18px;
+}
+
+.c41-planet-name {
+  color: var(--champagne);
+  font-weight: 700;
+}
+
+.c41-planet-sign,
+.c41-planet-house {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c41-planet-house {
+  text-align: right;
+}
+
+.c41-empty {
+  padding: 14px;
+  border-radius: 16px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, .035);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.c41-aspect-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.c41-aspect-cards > div {
+  text-align: center;
+  padding: 13px 8px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 218, 135, .16);
+  background:
+    radial-gradient(140px 80px at 50% 0%, rgba(255, 226, 155, .07), transparent 70%),
+    rgba(255, 255, 255, .03);
+}
+
+.c41-aspect-cards b {
+  display: block;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 31px;
+  line-height: 1;
+}
+
+.c41-aspect-cards span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.c41-balance {
+  display: grid;
+  gap: 9px;
+}
+
+.c41-balance-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 28px;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c41-balance-row i {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+}
+
+.c41-balance-row em {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 218, 135, .72), rgba(181, 107, 255, .58));
+  box-shadow: 0 0 12px rgba(255, 218, 135, .22);
+}
+
+.c41-balance-row b {
+  text-align: right;
+  color: var(--gold2);
+}
+
+@media (max-width: 430px) {
+  .c41-planet-row {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .c41-planet-sign,
+  .c41-planet-house {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .c41-aspect-cards {
+    grid-template-columns: 1fr;
+  }
+}
