@@ -1104,11 +1104,118 @@
   }
 
 
+
+  function setText(id, value) {
+    const node = $(id);
+    if (node) node.textContent = value;
+  }
+
+  function formatDegree(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "–";
+    return Math.round(n * 10) / 10 + "°";
+  }
+
+  function planetGlyphByName(name) {
+    const map = {
+      Sun: "☉",
+      Moon: "☾",
+      Mercury: "☿",
+      Venus: "♀",
+      Mars: "♂",
+      Jupiter: "♃",
+      Saturn: "♄",
+      Uranus: "♅",
+      Neptune: "♆",
+      Pluto: "♇",
+      Chiron: "⚷",
+      True_North_Lunar_Node: "☊",
+      Mean_Lilith: "⚸",
+      Ascendant: "AC",
+      Medium_Coeli: "MC"
+    };
+    return map[name] || "✦";
+  }
+
+  function renderAnalysisPremium(chartJson) {
+    const data = chartJson ? (chartJson.data || chartJson) : null;
+    if (!data) return;
+
+    const points = Array.isArray(data.points) ? data.points : [];
+    const houses = Array.isArray(data.houses) ? data.houses : [];
+    const aspects = Array.isArray(data.aspects) ? data.aspects : [];
+    const big = data.big_three || {};
+
+    const sun = big.sun || points.find((p) => p.name === "Sun");
+    const moon = big.moon || points.find((p) => p.name === "Moon");
+    const asc = big.ascendant || points.find((p) => p.name === "Ascendant");
+
+    setText("bigSunSign", sun ? signName(sun) + " · " + formatDegree(sun.degree) : "–");
+    setText("bigMoonSign", moon ? signName(moon) + " · " + formatDegree(moon.degree) : "–");
+    setText("bigAscSign", asc ? signName(asc) + " · " + formatDegree(asc.degree) : "–");
+
+    setText("bigSunText", sun && sun.house ? "Haus " + sun.house + " · Identität, Wille und Lebenslicht" : "Identität · Ausdruck · Lebenslicht");
+    setText("bigMoonText", moon && moon.house ? "Haus " + moon.house + " · Gefühle, Sicherheit und innere Welt" : "Gefühl · Bedürfnis · innere Welt");
+    setText("bigAscText", asc ? "Dein erster Eindruck, dein Weg und dein Auftreten" : "Auftreten · Weg · erste Wirkung");
+
+    const planetList = $("planetList");
+    if (planetList) {
+      const wanted = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"];
+      const rows = points
+        .filter((p) => wanted.includes(p.name))
+        .map((p) => {
+          const glyph = planetGlyphByName(p.name);
+          const name = pointLabel(p);
+          const sign = signName(p);
+          const degree = formatDegree(p.degree);
+          const house = p.house ? "Haus " + p.house : "Haus –";
+          return `<div class="c41-planet-row">
+            <span class="c41-planet-glyph">${escapeHtml(glyph)}</span>
+            <span class="c41-planet-name">${escapeHtml(name)}</span>
+            <span class="c41-planet-sign">${escapeHtml(sign)} ${escapeHtml(degree)}</span>
+            <span class="c41-planet-house">${escapeHtml(house)}</span>
+          </div>`;
+        })
+        .join("");
+
+      planetList.innerHTML = rows || `<div class="c41-empty">Keine Planetenliste verfügbar.</div>`;
+    }
+
+    const aspectSummary = $("aspectSummary");
+    if (aspectSummary) {
+      const total = aspects.length;
+      const harmoniousNames = ["Trine", "Sextile", "Conjunction"];
+      const challengingNames = ["Square", "Opposition"];
+      const harmonious = aspects.filter((a) => harmoniousNames.includes(a.type || a.aspect || a.name)).length;
+      const challenging = aspects.filter((a) => challengingNames.includes(a.type || a.aspect || a.name)).length;
+      const neutral = Math.max(0, total - harmonious - challenging);
+
+      const elements = data.distributions && data.distributions.elements ? data.distributions.elements : null;
+      const elementRows = elements ? Object.entries(elements).map(([key, val]) => {
+        const label = { fire: "Feuer", earth: "Erde", air: "Luft", water: "Wasser", Feuer: "Feuer", Erde: "Erde", Luft: "Luft", Wasser: "Wasser" }[key] || key;
+        const count = Number(val) || 0;
+        const pct = Math.min(100, Math.max(6, count * 12));
+        return `<div class="c41-balance-row"><span>${escapeHtml(label)}</span><i><em style="width:${pct}%"></em></i><b>${count}</b></div>`;
+      }).join("") : "";
+
+      aspectSummary.innerHTML = `
+        <div class="c41-aspect-cards">
+          <div><b>${harmonious}</b><span>Harmonisch</span></div>
+          <div><b>${challenging}</b><span>Spannung</span></div>
+          <div><b>${neutral}</b><span>Neutral</span></div>
+        </div>
+        ${elementRows ? `<div class="c41-balance">${elementRows}</div>` : `<div class="c41-empty">Elemente-Balance wird geladen, sobald verfügbar.</div>`}
+      `;
+    }
+  }
+
+
   async function loadRealChartData(force = false) {
     const birth = readJson(KEYS.birth, null);
     const details = ensureChartDetails();
     if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
       renderWheel(null);
+      renderAnalysisPremium(null);
       if (details) details.textContent = "Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.";
       return null;
     }
