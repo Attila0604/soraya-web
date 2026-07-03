@@ -1396,3 +1396,347 @@ select:focus {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   22. Soraya C.3.1 — Premium Polish Layer
+   Diese Sektion ist in die komplette style.css integriert.
+   Ziel: noch eleganter, mystischer, moderner, hochwertiger.
+   ========================================================================== */
+
+/* Subtle celestial hero atmosphere on every page */
+.section::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 0 auto 4px;
+  width: min(62%, 260px);
+  background: linear-gradient(90deg, transparent, rgba(255, 218, 135, .34), transparent);
+  opacity: .75;
+  filter: drop-shadow(0 0 12px rgba(255, 218, 135, .18));
+}
+
+.page-title::after {
+  content: "";
+  display: block;
+  width: 54px;
+  height: 1px;
+  margin-top: 16px;
+  background: linear-gradient(90deg, rgba(255, 218, 135, .0), rgba(255, 218, 135, .85), rgba(181, 107, 255, .0));
+  box-shadow: 0 0 18px rgba(255, 218, 135, .30);
+}
+
+/* Stronger luxury wordmark rhythm */
+.brand h1 {
+  transform: translateY(1px);
+}
+
+.brand .sub::before,
+.brand .sub::after {
+  content: "•";
+  margin: 0 8px;
+  color: rgba(255, 226, 155, .58);
+  letter-spacing: 0;
+}
+
+/* Premium card edge highlight */
+.card {
+  isolation: isolate;
+}
+
+.card:hover {
+  border-color: rgba(255, 218, 135, .30);
+  box-shadow:
+    0 32px 100px rgba(0, 0, 0, .62),
+    inset 0 1px 0 rgba(255, 255, 255, .10),
+    inset 0 0 70px rgba(181, 107, 255, .10),
+    0 0 42px rgba(255, 218, 135, .08);
+}
+
+/* Editorial home cards */
+#home .hero-card {
+  background:
+    radial-gradient(260px 180px at 18% 28%, rgba(255, 226, 155, .12), transparent 68%),
+    radial-gradient(360px 220px at 95% 12%, rgba(181, 107, 255, .20), transparent 72%),
+    linear-gradient(180deg, rgba(35, 23, 72, .70), rgba(9, 12, 32, .78));
+}
+
+#home .two-grid .card {
+  min-height: 236px;
+}
+
+#home .card h4 {
+  color: #fff1d4;
+}
+
+/* Make quick actions look more like luxury app tools */
+.tile {
+  position: relative;
+  overflow: hidden;
+}
+
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: auto 10px 8px 10px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 218, 135, .22), transparent);
+  opacity: .65;
+}
+
+.tile b {
+  font-family: var(--display);
+}
+
+/* More premium analysis page */
+#analysis .card.glow:first-of-type {
+  padding-top: 24px;
+  padding-bottom: 24px;
+  background:
+    radial-gradient(300px 300px at 50% 42%, rgba(255, 218, 135, .10), transparent 64%),
+    radial-gradient(360px 260px at 50% 0%, rgba(181, 107, 255, .18), transparent 70%),
+    linear-gradient(180deg, rgba(25, 17, 56, .74), rgba(7, 10, 28, .82));
+}
+
+#analysisReading,
+#chartDetails {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .025)),
+    radial-gradient(420px 180px at 18% 0%, rgba(255, 226, 155, .07), transparent 64%);
+}
+
+/* Better chart presentation */
+#chartWheel text {
+  paint-order: stroke;
+  stroke: rgba(3, 4, 13, .42);
+  stroke-width: .8px;
+}
+
+#chartDetails::first-line {
+  color: var(--gold2);
+}
+
+/* Horoscope page feels more cinematic */
+#horoscope .card.glow {
+  background:
+    radial-gradient(240px 180px at 20% 25%, rgba(255, 226, 155, .12), transparent 70%),
+    radial-gradient(390px 250px at 92% 8%, rgba(181, 107, 255, .22), transparent 74%),
+    linear-gradient(180deg, rgba(27, 18, 62, .72), rgba(7, 10, 28, .80));
+}
+
+#horoMood {
+  color: var(--gold2);
+  text-shadow: 0 0 24px rgba(255, 218, 135, .16);
+}
+
+#horoTip {
+  margin-top: 4px;
+}
+
+/* Ritual cards look more like premium modules */
+.ritual {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(180px 120px at 20% 0%, rgba(255, 226, 155, .08), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .02));
+}
+
+.ritual::after {
+  content: "";
+  position: absolute;
+  right: -26px;
+  bottom: -26px;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 218, 135, .14);
+}
+
+/* Chat as mystical advisor */
+#chat .page-title h2 {
+  font-size: clamp(46px, 12vw, 64px);
+}
+
+.chat-card {
+  background:
+    radial-gradient(300px 240px at 50% 0%, rgba(255, 218, 135, .09), transparent 68%),
+    radial-gradient(420px 300px at 98% 8%, rgba(181, 107, 255, .16), transparent 72%),
+    linear-gradient(180deg, rgba(22, 15, 50, .70), rgba(7, 10, 28, .82));
+}
+
+.chat-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 218, 135, .12);
+}
+
+.chat-head h4 {
+  color: var(--gold2);
+  text-shadow: 0 0 18px rgba(255, 218, 135, .16);
+}
+
+.bubble.assistant {
+  border-top-left-radius: 22px;
+}
+
+.bubble.user {
+  border-top-right-radius: 22px;
+}
+
+.composer {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent, rgba(8, 10, 26, .88) 22%);
+  padding-bottom: 2px;
+}
+
+/* Profile: more refined identity */
+#profile .profile-hero {
+  position: relative;
+}
+
+#profile .profile-hero::after {
+  content: "✦";
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  color: rgba(255, 226, 155, .52);
+  text-shadow: 0 0 18px rgba(255, 218, 135, .35);
+}
+
+.stats .stat {
+  background:
+    radial-gradient(140px 80px at 50% 0%, rgba(255, 226, 155, .07), transparent 70%),
+    rgba(255, 255, 255, .03);
+}
+
+.premium {
+  background:
+    radial-gradient(260px 180px at 14% 0%, rgba(255, 226, 155, .10), transparent 70%),
+    radial-gradient(360px 240px at 100% 0%, rgba(181, 107, 255, .20), transparent 72%),
+    linear-gradient(180deg, rgba(35, 23, 72, .72), rgba(9, 12, 32, .78));
+}
+
+/* Synastry: more emotional and premium */
+#synastry .syn-wrap {
+  background:
+    radial-gradient(260px 230px at 50% 26%, rgba(255, 218, 135, .10), transparent 66%),
+    radial-gradient(380px 260px at 92% 4%, rgba(181, 107, 255, .19), transparent 72%),
+    linear-gradient(180deg, rgba(33, 21, 70, .72), rgba(7, 10, 28, .82));
+}
+
+.compat {
+  position: relative;
+}
+
+.compat::after {
+  content: "♡";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin-top: 34px;
+  color: rgba(255, 226, 155, .42);
+  font-size: 20px;
+  pointer-events: none;
+}
+
+#synastryText.ok,
+#synastryText.status.ok {
+  background:
+    linear-gradient(180deg, rgba(101, 240, 188, .075), rgba(255, 255, 255, .025)),
+    radial-gradient(320px 120px at 0% 0%, rgba(255, 226, 155, .06), transparent 70%);
+}
+
+/* Forms feel softer and more premium */
+input,
+textarea,
+select {
+  min-height: 48px;
+}
+
+textarea {
+  line-height: 1.55;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(200, 186, 223, .55);
+}
+
+/* Stronger active bottom nav */
+.tabbar button.active::before {
+  content: "";
+  width: 26px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+  box-shadow: 0 0 12px rgba(255, 218, 135, .35);
+  order: -1;
+}
+
+/* Login page: more cinematic */
+.login-logo .sigil {
+  animation: sorayaFloat 5s ease-in-out infinite;
+}
+
+.login-logo h1 {
+  letter-spacing: .26em !important;
+  padding-left: .26em !important;
+}
+
+.login-card h2 {
+  color: var(--champagne);
+  text-shadow: 0 0 24px rgba(255, 218, 135, .14);
+}
+
+.login-foot {
+  letter-spacing: .03em;
+}
+
+/* Better scrollbars on web */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 218, 135, .38) rgba(255, 255, 255, .03);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, .03);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255, 218, 135, .48), rgba(181, 107, 255, .30));
+  border-radius: 999px;
+}
+
+/* Mobile spacing polish */
+@media (max-width: 430px) {
+  .topbar {
+    padding-top: 18px;
+  }
+
+  .brand h1 {
+    font-size: 34px;
+  }
+
+  .brand .sub {
+    font-size: 8.5px;
+  }
+
+  .round {
+    width: 46px;
+    height: 46px;
+  }
+
+  .card {
+    border-radius: 26px;
+  }
+
+  .page-title {
+    margin-top: 24px;
+  }
+}
