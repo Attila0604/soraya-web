@@ -2106,3 +2106,196 @@ label + select {
     min-height: 300px;
   }
 }
+
+
+/* ==========================================================================
+   24. Soraya C.4 — Structure Upgrade Styles
+   Diese Styles gehören zur neuen index.html-Struktur.
+   ========================================================================== */
+
+.c4-hero-title .eyebrow,
+.page-title > .eyebrow {
+  display: inline-flex;
+  margin-bottom: 12px;
+}
+
+.c4-card-title .btn {
+  padding: 8px 13px;
+  font-size: 12px;
+}
+
+.c4-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.c4-center-title {
+  font-family: var(--display);
+  font-size: 24px;
+  text-align: center;
+  margin: 0;
+  color: var(--champagne);
+}
+
+.c4-center-muted,
+.c4-muted {
+  color: var(--muted);
+  margin: 2px 0 0;
+  font-size: 14px;
+}
+
+.c4-center-muted {
+  text-align: center;
+}
+
+.c4-daily-card h3 {
+  margin: 10px 0;
+  font-family: var(--display);
+  font-size: 31px;
+  line-height: 1.02;
+  color: var(--gold2);
+}
+
+.c4-daily-card p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.c4-transit-card .btn,
+.c4-moon-calendar-card .btn {
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.c4-big-three-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.c4-mini-card {
+  text-align: center;
+  padding: 16px 10px;
+}
+
+.c4-mini-card b {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 8px auto 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 218, 135, .30);
+  color: var(--gold2);
+  background: rgba(255, 218, 135, .06);
+  font-family: var(--display);
+  font-size: 22px;
+}
+
+.c4-mini-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.c4-action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.c4-action-row .btn {
+  flex: 1;
+  min-width: 128px;
+}
+
+.c4-period-picker {
+  margin-bottom: 18px;
+}
+
+.c4-ritual-title {
+  font-family: var(--display);
+  font-size: 32px;
+  margin: 8px 0;
+  color: var(--gold2);
+}
+
+.c4-affirmation {
+  font-family: var(--display);
+  font-size: 27px;
+  line-height: 1.25;
+  margin: 12px 0 0;
+  color: var(--champagne);
+}
+
+.c4-chat-card .chat-head h4 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 26px;
+}
+
+.c4-chat-card .chat-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c4-clear-chat {
+  margin-top: 10px;
+  padding: 9px 14px;
+  font-size: 12px;
+}
+
+.c4-synastry-card > .btn {
+  margin-top: 10px;
+}
+
+.c4-synastry-card .btn.gold {
+  margin-top: 12px;
+}
+
+.c4-profile-card #profileSub {
+  color: var(--muted);
+  margin: 0;
+}
+
+.c4-login-session p {
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.c4-birth-form-card .btn.gold {
+  margin-top: 18px;
+}
+
+.c4-logout-btn {
+  border-color: rgba(190, 108, 255, .45);
+  color: var(--violet2);
+  margin-top: 14px;
+}
+
+@media (max-width: 430px) {
+  .c4-dashboard-grid,
+  .c4-big-three-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .c4-mini-card {
+    text-align: left;
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .c4-mini-card .eyebrow {
+    grid-column: 1 / -1;
+  }
+
+  .c4-mini-card b {
+    margin: 0;
+  }
+}
