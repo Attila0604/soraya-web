@@ -315,28 +315,55 @@
           <p>Frag mich, was dich bewegt — mit deinem Chart, deinen Transiten und deiner Geschichte im Blick.</p>
         </div>
 
-        <div class="card chat-card c4-chat-card">
+        <div class="card glow c43-chat-intro">
+          <div class="c43-assistant-orb">✦</div>
+          <div>
+            <span class="eyebrow">Soraya ist bereit</span>
+            <h3>Was möchtest du heute verstehen?</h3>
+            <p>Wähle eine Frage oder schreibe frei. Soraya antwortet mit astrologischer Tiefe, aber verständlich und persönlich.</p>
+          </div>
+        </div>
+
+        <div class="c43-prompt-grid">
+          <button class="card c43-prompt" onclick="quickChat('Was sagt mein Geburtshoroskop über meine aktuelle Lebensphase?')">
+            <b>☉</b><span>Meine Lebensphase</span>
+          </button>
+          <button class="card c43-prompt" onclick="quickChat('Welche Energie begleitet mich heute in Liebe und Beziehungen?')">
+            <b>♡</b><span>Liebe & Beziehungen</span>
+          </button>
+          <button class="card c43-prompt" onclick="quickChat('Worauf soll ich beruflich oder finanziell aktuell achten?')">
+            <b>◇</b><span>Beruf & Richtung</span>
+          </button>
+          <button class="card c43-prompt" onclick="quickChat('Welche Blockade darf ich gerade loslassen?')">
+            <b>☾</b><span>Blockade lösen</span>
+          </button>
+        </div>
+
+        <div class="card chat-card c4-chat-card c43-chat-card">
           <div class="chat-head">
             <div class="avatar">✦</div>
             <div>
               <h4>Chat mit Soraya</h4>
-              <p>Online · Transite & Geburtshoroskop</p>
+              <p>Online · Birth Chart · Transite · Intuition</p>
             </div>
           </div>
 
           <input id="conversationId" type="hidden" />
 
           <div class="chat-window" id="chatWindow">
-            <div class="bubble assistant">Hallo, ich bin Soraya ✨ Wie kann ich dich heute unterstützen?</div>
+            <div class="bubble assistant">Hallo, ich bin Soraya ✨ Wähle eine Frage oben oder schreibe mir direkt, was dich beschäftigt.</div>
           </div>
 
           <label>Deine Nachricht</label>
-          <div class="composer">
+          <div class="composer c43-composer">
             <textarea id="chatMessage" placeholder="Nachricht an Soraya…"></textarea>
             <button class="round" onclick="sendChat()" title="Senden">➤</button>
           </div>
 
-          <button class="btn c4-clear-chat" onclick="clearChatView()">Chat-Anzeige leeren</button>
+          <div class="c43-chat-footer">
+            <button class="btn" onclick="clearChatView()">Chat-Anzeige leeren</button>
+            <button class="btn" onclick="quickChat('Gib mir bitte eine kurze, klare Tagesbotschaft.')">Tagesbotschaft</button>
+          </div>
         </div>
       </section>
 
