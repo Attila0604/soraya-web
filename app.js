@@ -426,6 +426,44 @@
     }
   }
 
+
+  function pickText(source, keys, fallback) {
+    if (!source) return fallback;
+    for (const key of keys) {
+      const value = source[key];
+      if (value !== undefined && value !== null && String(value).trim() !== "") return String(value);
+    }
+    return fallback;
+  }
+
+  function renderHoroscopePremium(payload) {
+    const root = payload && payload.data ? payload.data : payload || {};
+    const h = root.horoscope || root || {};
+
+    const body = pickText(h, ["body", "text", "beschreibung", "deutung", "message"], pickText(root, ["body", "text"], ""));
+    const mood = pickText(h, ["stimmung", "mood", "title", "titel"], pickText(root, ["stimmung", "mood"], "Dein Horoskop"));
+    const tip = pickText(h, ["tipp", "tip", "hinweis", "advice"], pickText(root, ["tipp", "tip"], "Vertraue deinem inneren Kompass."));
+
+    const lower = (body + " " + mood + " " + tip).toLowerCase();
+
+    const focus = pickText(h, ["fokus", "focus"], lower.includes("klar") ? "Klarheit entsteht, wenn du heute bewusst langsamer wirst." : "Richte deine Energie auf eine Sache, die wirklich wichtig ist.");
+    const love = pickText(h, ["liebe", "love", "beziehung"], lower.includes("herz") || lower.includes("liebe") ? "Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören." : "Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen.");
+    const work = pickText(h, ["beruf", "work", "career"], lower.includes("geduld") ? "Geduld bringt heute mehr als Druck. Schritt für Schritt entsteht Stabilität." : "Struktur hilft dir, deine Kraft sinnvoll einzusetzen.");
+    const ritual = pickText(h, ["ritual", "ritual_text"], "Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention.");
+    const affirmation = pickText(h, ["affirmation", "mantra"], "Ich vertraue meinem Weg und bewege mich mit Klarheit.");
+
+    setText("horoFocusTitle", "Dein Fokus");
+    setText("horoFocusText", focus);
+    setText("horoLoveTitle", "Herz & Nähe");
+    setText("horoLoveText", love);
+    setText("horoWorkTitle", "Richtung & Kraft");
+    setText("horoWorkText", work);
+    setText("horoRitualTitle", "Dein Ritual");
+    setText("horoRitualText", ritual);
+    setText("horoAffirmation", "„" + affirmation.replace(/^„|“$|^"|"$/g, "") + "“");
+  }
+
+
   async function loadHoroscope() {
     if (!needPerson()) return;
 
@@ -446,6 +484,8 @@
       if ($("horoMood")) $("horoMood").textContent = mood;
       if ($("horoBody")) $("horoBody").textContent = body;
       if ($("horoTip")) $("horoTip").textContent = "✦ " + tip;
+
+      renderHoroscopePremium(data);
 
       toast("Horoskop geladen.");
     } catch (error) {
