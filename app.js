@@ -517,6 +517,18 @@
     return /(wohnung|haus|kaufen|kredit|vertrag|steuer|invest|aktie|crypto|bitcoin|gesund|krank|arzt|medizin|anwalt)/i.test(message || "");
   }
 
+
+  function quickChat(message) {
+    const input = $("chatMessage");
+    if (input) {
+      input.value = message;
+      input.focus();
+    }
+    showSection("chat");
+    setTimeout(() => sendChat(), 120);
+  }
+
+
   async function sendChat() {
     if (!needPerson()) return;
 
