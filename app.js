@@ -1,5 +1,5 @@
 /*
-  Soraya — C.2 Clean app.js
+  Soraya — C.2.1 Clean app.js
   Ziel:
   - Eine saubere, vollständige app.js als Ersatz
   - /login bleibt die einzige Login-Seite
@@ -945,45 +945,101 @@
     };
   }
 
+
+  function signName(pointOrSign) {
+    const sign = typeof pointOrSign === "string" ? pointOrSign : pointOrSign && pointOrSign.sign;
+    const signDe = typeof pointOrSign === "object" && pointOrSign ? pointOrSign.sign_de : "";
+    const map = { Ari: "Widder", Tau: "Stier", Gem: "Zwillinge", Can: "Krebs", Leo: "Löwe", Vir: "Jungfrau", Lib: "Waage", Sco: "Skorpion", Sag: "Schütze", Cap: "Steinbock", Aqu: "Wassermann", Pis: "Fische" };
+    return signDe || map[sign] || sign || "–";
+  }
+
+  function signStart(sign) {
+    const map = { Ari: 0, Tau: 30, Gem: 60, Can: 90, Leo: 120, Vir: 150, Lib: 180, Sco: 210, Sag: 240, Cap: 270, Aqu: 300, Pis: 330, Widder: 0, Stier: 30, Zwillinge: 60, Krebs: 90, Löwe: 120, Jungfrau: 150, Waage: 180, Skorpion: 210, Schütze: 240, Steinbock: 270, Wassermann: 300, Fische: 330 };
+    return map[sign] || 0;
+  }
+
+  function pointAbsPos(point) {
+    const value = point && point.abs_pos !== undefined ? point.abs_pos : point && point.degree_total !== undefined ? point.degree_total : point && point.longitude !== undefined ? point.longitude : point && point.lon !== undefined ? point.lon : point && point.degree !== undefined && point.sign ? signStart(point.sign) + Number(point.degree) : 0;
+    const n = Number(value);
+    return Number.isFinite(n) ? ((n % 360) + 360) % 360 : 0;
+  }
+
+  function pointLabel(point) { return point && (point.name_de || point.name) ? (point.name_de || point.name) : "Planet"; }
+
+  function svgText(x, y, text, size, fill, weight = "500") {
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${size}" font-weight="${weight}" fill="${fill}">${escapeHtml(text)}</text>`;
+  }
+
+  function chartRotation(data) {
+    const asc = data.big_three && data.big_three.ascendant ? pointAbsPos(data.big_three.ascendant) : Array.isArray(data.houses) && data.houses[0] ? Number(data.houses[0].cusp_abs_pos) : 180;
+    return 180 - asc;
+  }
+
+
   function renderWheel(chartData = null) {
     const svg = $("chartWheel");
     if (!svg) return;
 
-    const cx = 210;
-    const cy = 210;
-    const outer = 190;
-    const middle = 145;
-    const inner = 72;
-
+    const data = chartData ? (chartData.data || chartData) : {};
+    const points = Array.isArray(data.points) ? data.points : [];
+    const houses = Array.isArray(data.houses) ? data.houses : [];
+    const signData = [
+      { key: "Ari", de: "Widder", glyph: "♈", start: 0 }, { key: "Tau", de: "Stier", glyph: "♉", start: 30 }, { key: "Gem", de: "Zwillinge", glyph: "♊", start: 60 }, { key: "Can", de: "Krebs", glyph: "♋", start: 90 },
+      { key: "Leo", de: "Löwe", glyph: "♌", start: 120 }, { key: "Vir", de: "Jungfrau", glyph: "♍", start: 150 }, { key: "Lib", de: "Waage", glyph: "♎", start: 180 }, { key: "Sco", de: "Skorpion", glyph: "♏", start: 210 },
+      { key: "Sag", de: "Schütze", glyph: "♐", start: 240 }, { key: "Cap", de: "Steinbock", glyph: "♑", start: 270 }, { key: "Aqu", de: "Wassermann", glyph: "♒", start: 300 }, { key: "Pis", de: "Fische", glyph: "♓", start: 330 }
+    ];
+    const corePoints = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron", "True_North_Lunar_Node", "Mean_Lilith"];
+    const cx = 210, cy = 210, outer = 190, zodiacR = 166, houseR = 145, planetR = 112, inner = 66;
+    const rotation = chartRotation(data);
     let html = "";
-    html += `<circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(255,255,255,.025)" stroke="rgba(228,181,90,.55)" stroke-width="1.4"/>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${middle}" fill="none" stroke="rgba(190,108,255,.22)" stroke-width="1"/>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${inner}" fill="rgba(7,8,23,.55)" stroke="rgba(255,255,255,.12)" stroke-width="1"/>`;
 
-    ZODIAC.forEach((sign, index) => {
-      const a = zodiacAngle(index);
-      const p1 = xy(cx, cy, inner, a);
-      const p2 = xy(cx, cy, outer, a);
-      const label = xy(cx, cy, 166, a + Math.PI / 12);
+    html += `<circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(255,255,255,.025)" stroke="rgba(228,181,90,.72)" stroke-width="1.5"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${houseR}" fill="none" stroke="rgba(190,108,255,.25)" stroke-width="1"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${planetR - 20}" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="1"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${inner}" fill="rgba(7,8,23,.72)" stroke="rgba(228,181,90,.28)" stroke-width="1"/>`;
 
-      html += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="rgba(255,255,255,.11)" stroke-width="1"/>`;
-      html += `<text x="${label.x.toFixed(1)}" y="${label.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="20" fill="rgba(228,181,90,.95)">${sign.g}</text>`;
+    signData.forEach((sign) => {
+      const boundary = sign.start + rotation;
+      const p1 = xy(cx, cy, inner, boundary);
+      const p2 = xy(cx, cy, outer, boundary);
+      const label = xy(cx, cy, zodiacR, sign.start + 15 + rotation);
+      html += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="rgba(255,255,255,.10)" stroke-width="1"/>`;
+      html += svgText(label.x, label.y, sign.glyph, 21, "rgba(228,181,90,.96)", "600");
     });
 
-    const planets = extractPlanets(chartData);
-    planets.slice(0, 10).forEach((planet, index) => {
-      const deg = Number(planet.degree_total ?? planet.lon ?? planet.longitude ?? index * 36);
-      const angle = ((deg - 90) * Math.PI) / 180;
-      const point = xy(cx, cy, 108 + (index % 3) * 9, angle);
-      html += `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="10" fill="rgba(228,181,90,.14)" stroke="rgba(228,181,90,.65)"/>`;
-      html += `<text x="${point.x.toFixed(1)}" y="${point.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#fff">${planetGlyph(planet.name || planet.planet || planet.de || "")}</text>`;
+    houses.forEach((house) => {
+      if (house.cusp_abs_pos === undefined) return;
+      const deg = Number(house.cusp_abs_pos) + rotation;
+      const p1 = xy(cx, cy, inner, deg);
+      const p2 = xy(cx, cy, outer, deg);
+      const label = xy(cx, cy, 132, deg + 3);
+      const isAngle = house.number === 1 || house.number === 4 || house.number === 7 || house.number === 10;
+      html += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="${isAngle ? "rgba(228,181,90,.62)" : "rgba(190,108,255,.25)"}" stroke-width="${isAngle ? 1.8 : 1}"/>`;
+      html += svgText(label.x, label.y, String(house.number), 9, "rgba(231,222,255,.55)", "600");
     });
 
-    html += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="22" fill="rgba(228,181,90,.95)" font-family="serif">SORAYA</text>`;
-    html += `<text x="${cx}" y="${cy + 18}" text-anchor="middle" font-size="11" fill="rgba(231,222,255,.65)">Birth Chart</text>`;
+    const drawablePoints = points.filter((point) => corePoints.includes(point.name)).sort((a, b) => pointAbsPos(a) - pointAbsPos(b));
+    drawablePoints.forEach((point, index) => {
+      const deg = pointAbsPos(point) + rotation;
+      const radius = planetR + (index % 3) * 8;
+      const p = xy(cx, cy, radius, deg);
+      const lineStart = xy(cx, cy, inner + 8, deg);
+      const glyph = planetGlyph(point.name || point.name_de || "");
+      html += `<line x1="${lineStart.x.toFixed(1)}" y1="${lineStart.y.toFixed(1)}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="rgba(228,181,90,.18)" stroke-width="1"/>`;
+      html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="11" fill="rgba(22,13,45,.95)" stroke="rgba(228,181,90,.76)" stroke-width="1"/>`;
+      html += svgText(p.x, p.y, glyph, glyph.length > 1 ? 9 : 15, "#fff4c9", "700");
+      html += `<title>${escapeHtml(pointLabel(point))} · ${escapeHtml(signName(point))} ${safe(point.degree)}°</title>`;
+    });
 
+    const asc = data.big_three && data.big_three.ascendant ? data.big_three.ascendant : null;
+    const mc = points.find((point) => point.name === "Medium_Coeli");
+    if (asc) { const p = xy(cx, cy, outer + 1, pointAbsPos(asc) + rotation); html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="rgba(228,181,90,.20)" stroke="rgba(228,181,90,.85)"/>`; html += svgText(p.x, p.y, "AC", 9, "#fff4c9", "800"); }
+    if (mc) { const p = xy(cx, cy, outer + 1, pointAbsPos(mc) + rotation); html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="rgba(190,108,255,.20)" stroke="rgba(190,108,255,.85)"/>`; html += svgText(p.x, p.y, "MC", 9, "#fff4c9", "800"); }
+    html += svgText(cx, cy - 5, "SORAYA", 20, "rgba(228,181,90,.96)", "700");
+    html += svgText(cx, cy + 17, drawablePoints.length ? "Radix" : "Birth Chart", 11, "rgba(231,222,255,.65)", "500");
     svg.innerHTML = html;
   }
+
 
   function planetGlyph(name) {
     const map = {
@@ -1000,7 +1056,12 @@
       Uranus: "♅",
       Neptun: "♆",
       Neptune: "♆",
-      Pluto: "♇"
+      Pluto: "♇",
+      Chiron: "⚷",
+      True_North_Lunar_Node: "☊",
+      Mean_Lilith: "⚸",
+      Ascendant: "AC",
+      Medium_Coeli: "MC"
     };
 
     return map[name] || "✦";
@@ -1042,39 +1103,33 @@
     return box;
   }
 
+
   async function loadRealChartData(force = false) {
     const birth = readJson(KEYS.birth, null);
     const details = ensureChartDetails();
-
     if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
       renderWheel(null);
       if (details) details.textContent = "Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.";
       return null;
     }
-
     try {
       const config = getConfig();
-      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(birth)
-      });
-
+      if (details) details.textContent = "Soraya berechnet dein echtes Radix ...";
+      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(birth) });
       const json = await response.json();
-      if (!json || json.ok === false) throw new Error((json && json.error) || "Chart nicht verfügbar.");
-
+      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Chart nicht verfügbar.");
       renderWheel(json);
-
       const data = json.data || json;
       const big = data.big_three || {};
-      const text = [
-        "✅ Birth Chart geladen.",
-        big.sun ? "Sonne: " + safe(big.sun.sign || big.sun) : "",
-        big.moon ? "Mond: " + safe(big.moon.sign || big.moon) : "",
-        big.ascendant ? "Aszendent: " + safe(big.ascendant.sign || big.ascendant) : ""
-      ].filter(Boolean).join("\n");
-
-      if (details) details.textContent = text || "✅ Birth Chart geladen.";
+      const meta = data.meta || {};
+      const points = Array.isArray(data.points) ? data.points : [];
+      const sun = big.sun ? signName(big.sun) : "–";
+      const moon = big.moon ? signName(big.moon) : "–";
+      const asc = big.ascendant ? signName(big.ascendant) : "–";
+      const planetLine = points.filter((point) => ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].includes(point.name)).map((point) => `${pointLabel(point)}: ${signName(point)} ${safe(point.degree)}°`).join("\n");
+      const houseSystem = meta.house_system ? "Häusersystem: " + meta.house_system : "";
+      const timeKnown = meta.time_known === false ? "Geburtszeit unbekannt: Soraya nutzt 12:00 als Näherung." : "";
+      if (details) { details.textContent = ["✅ Echtes Birth Chart geladen.", "Sonne: " + sun, "Mond: " + moon, "Aszendent: " + asc, houseSystem, timeKnown, "", planetLine].filter((line) => line !== "").join("\n"); }
       return json;
     } catch (error) {
       renderWheel(null);
@@ -1082,6 +1137,7 @@
       return null;
     }
   }
+
 
   function setHomeTransits(html) {
     const box = $("homeTransits");
