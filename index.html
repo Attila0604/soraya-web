@@ -202,9 +202,9 @@
           <p>Ein astrologischer Impuls für dein Herz, deinen Fokus und deinen nächsten Schritt.</p>
         </div>
 
-        <div class="card glow c4-horoscope-card">
+        <div class="card glow c4-horoscope-card c42-horoscope-hero">
           <div class="card-title">
-            <h4>Deine Botschaft</h4>
+            <h4>Deine kosmische Botschaft</h4>
             <span class="badge">Soraya</span>
           </div>
 
@@ -214,16 +214,57 @@
               <option value="weekly">Woche</option>
               <option value="monthly">Monat</option>
             </select>
-            <button class="btn gold" onclick="loadHoroscope()">Laden</button>
+            <button class="btn gold" onclick="loadHoroscope()">Horoskop laden</button>
           </div>
 
-          <div class="horo-layout">
-            <div class="horo-moon"></div>
+          <div class="horo-layout c42-horo-layout">
+            <div class="horo-moon c42-horo-orb"></div>
             <div>
-              <span class="eyebrow">Deine Botschaft</span>
+              <span class="eyebrow">Stimmung</span>
               <h4 id="horoMood">Dein Horoskop</h4>
-              <p id="horoBody">Wähle einen Zeitraum und tippe auf „Laden“.</p>
+              <p id="horoBody">Wähle einen Zeitraum und tippe auf „Horoskop laden“.</p>
               <span id="horoTip" class="badge">✦ Dein Tipp erscheint hier</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="c42-guidance-grid">
+          <div class="card c42-guidance-card">
+            <span class="eyebrow">Fokus</span>
+            <b>✦</b>
+            <h4 id="horoFocusTitle">Innere Klarheit</h4>
+            <p id="horoFocusText">Dein Fokus erscheint nach dem Laden.</p>
+          </div>
+
+          <div class="card c42-guidance-card">
+            <span class="eyebrow">Liebe</span>
+            <b>♡</b>
+            <h4 id="horoLoveTitle">Herz & Nähe</h4>
+            <p id="horoLoveText">Beziehungsimpulse erscheinen nach dem Laden.</p>
+          </div>
+
+          <div class="card c42-guidance-card">
+            <span class="eyebrow">Beruf</span>
+            <b>◇</b>
+            <h4 id="horoWorkTitle">Richtung & Kraft</h4>
+            <p id="horoWorkText">Berufliche Hinweise erscheinen nach dem Laden.</p>
+          </div>
+        </div>
+
+        <div class="card premium c42-ritual-card">
+          <div class="card-title">
+            <h4>Ritual & Affirmation</h4>
+            <span class="badge">Heute</span>
+          </div>
+          <div class="c42-ritual-layout">
+            <div>
+              <span class="eyebrow">Ritual</span>
+              <h4 id="horoRitualTitle">Atem & Erdung</h4>
+              <p id="horoRitualText">Ein kleines Ritual für deine Tagesenergie erscheint nach dem Laden.</p>
+            </div>
+            <div>
+              <span class="eyebrow">Affirmation</span>
+              <p id="horoAffirmation" class="c42-affirmation">„Ich vertraue meinem Weg.“</p>
             </div>
           </div>
         </div>
