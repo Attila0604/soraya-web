@@ -445,47 +445,39 @@
           <p>Deine Geburtsdaten sind der Schlüssel für echte Analysen, Transite und Synastrie.</p>
         </div>
 
-        <div class="card glow c4-profile-card">
+        <div class="card glow c4-profile-card c45-profile-hero">
           <div class="profile-hero">
             <div class="profile-avatar" id="profileInitial">S</div>
             <div>
+              <span class="eyebrow">Soraya Mitglied</span>
               <h3 id="profileTitle">Dein Profil</h3>
               <p id="profileSub">Seelenlicht-Sucher · Soraya Mitglied</p>
             </div>
           </div>
 
-          <div class="stats">
+          <div class="stats c45-stats">
             <div class="stat"><b id="daysStat">1</b><span>Tag dabei</span></div>
             <div class="stat"><b id="analysisStat">0</b><span>Analysen</span></div>
             <div class="stat"><b id="savedStat">0</b><span>Gespeichert</span></div>
           </div>
         </div>
 
-        <div class="card c4-login-session" id="loginSessionCard">
+        <div class="card c4-login-session c45-login-card" id="loginSessionCard">
           <div class="card-title">
             <h4>Login-Status</h4>
             <span class="badge">Supabase</span>
           </div>
+          <div class="c45-status-orb">☾</div>
           <p id="loginSessionText">Session wird geprüft…</p>
           <button class="btn gold block" onclick="openLogin()">Einloggen</button>
         </div>
 
-        <div class="card premium">
+        <div class="card c4-birth-form-card c45-birth-card">
           <div class="card-title">
-            <h4>Soraya Premium ✦</h4>
-            <span class="badge">Demo</span>
+            <h4>Geburtsdaten</h4>
+            <span class="badge">Radix Basis</span>
           </div>
-          <p>Premium UI ist vorbereitet. Zahlung & Limits kommen später.</p>
-          <div class="premium-list">
-            <span>Unbegrenzte Analysen</span>
-            <span>Prioritäts-Chat mit Soraya</span>
-            <span>Synastrie & Mondrituale</span>
-          </div>
-          <button class="btn gold block" onclick="showSection('premium')">Premium ansehen</button>
-        </div>
 
-        <div class="card c4-birth-form-card">
-          <div class="card-title"><h4>Geburtsdaten</h4></div>
           <input id="personId" type="hidden" />
 
           <label>Name</label>
@@ -505,12 +497,34 @@
           <label>Geburtsort</label>
           <input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
 
+          <div class="c45-birth-preview">
+            <div><b>☉</b><span>Sonne wird nach dem Speichern berechnet</span></div>
+            <div><b>☾</b><span>Mond & Aszendent erscheinen in der Analyse</span></div>
+          </div>
+
           <button class="btn gold block" onclick="createPerson()">Profil speichern</button>
           <div id="personResult" class="status">Noch nicht gespeichert.</div>
         </div>
 
-        <div class="card">
-          <div class="card-title"><h4>Einstellungen</h4></div>
+        <div class="card premium c45-premium-card">
+          <div class="card-title">
+            <h4>Soraya Premium ✦</h4>
+            <span class="badge">Demo</span>
+          </div>
+          <p>Premium UI ist vorbereitet. Zahlung & Limits kommen später.</p>
+          <div class="premium-list">
+            <span>Unbegrenzte Analysen</span>
+            <span>Prioritäts-Chat mit Soraya</span>
+            <span>Synastrie & Mondrituale</span>
+          </div>
+          <button class="btn gold block" onclick="showSection('premium')">Premium ansehen</button>
+        </div>
+
+        <div class="card c45-settings-card">
+          <div class="card-title">
+            <h4>Einstellungen</h4>
+            <span class="badge">App</span>
+          </div>
           <button class="row" onclick="openSettings()">
             <span class="left"><span class="orb-sm">⚙</span><span><h4>Verbindung</h4><p>Supabase & Backend</p></span></span><span>›</span>
           </button>
@@ -522,7 +536,7 @@
           </button>
         </div>
 
-        <button class="btn block c4-logout-btn" onclick="signOut()">⇥ Abmelden</button>
+        <button class="btn block c4-logout-btn c45-logout-btn" onclick="signOut()">⇥ Abmelden</button>
       </section>
 
       <!-- PREMIUM -->
