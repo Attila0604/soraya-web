@@ -375,8 +375,15 @@
           <p>Erkenne die Dynamik zwischen zwei Menschen — Anziehung, Harmonie, Lernfelder und Magie.</p>
         </div>
 
-        <div class="card glow syn-wrap c4-synastry-card">
+        <div class="card glow syn-wrap c4-synastry-card c44-synastry-hero">
           <span class="eyebrow">Partnerschaftsanalyse</span>
+
+          <div class="c44-connection-visual">
+            <div class="c44-person-orb"><span id="synAInitial">Du</span><small id="synAName">Dein Chart</small></div>
+            <div class="c44-link-symbol">♡</div>
+            <div class="c44-person-orb"><span id="synBInitial">?</span><small id="synBName">Zweite Person</small></div>
+          </div>
+
           <div class="compat" id="compatRing" style="--score:0%">
             <div><strong id="compatScore">–</strong></div>
           </div>
@@ -384,14 +391,49 @@
           <label>Zweite Person</label>
           <select id="synPersonSelect"><option value="">Person wählen…</option></select>
 
-          <button class="btn" onclick="window.loadPeopleFromSupabase&&window.loadPeopleFromSupabase()">↻ Meine Personen laden</button>
+          <div class="c44-button-row">
+            <button class="btn" onclick="window.loadPeopleFromSupabase&&window.loadPeopleFromSupabase()">↻ Personen laden</button>
+            <button class="btn" onclick="showSection('profile')">+ Person anlegen</button>
+          </div>
 
           <label style="margin-top:14px">Kein Treffer? ID manuell</label>
           <input id="personBId" placeholder="Person-ID (optional)" />
-          <p class="c4-muted">Wähle oben eine gespeicherte Person — oder lege darunter eine zweite Person an.</p>
+
+          <p class="c4-muted">Wähle eine gespeicherte Person oder gib eine ID manuell ein. Danach berechnet Soraya die Verbindung.</p>
 
           <button class="btn gold block" onclick="saveSynastry()">Verbindung berechnen</button>
           <div id="synastryText" class="status">Noch nicht berechnet.</div>
+        </div>
+
+        <div class="c44-synastry-grid">
+          <div class="card c44-syn-card">
+            <span class="eyebrow">Harmonie</span>
+            <b>✦</b>
+            <h4 id="synHarmonyTitle">Seelische Resonanz</h4>
+            <p id="synHarmonyText">Nach der Berechnung zeigt Soraya, wo eure Verbindung leicht und natürlich fließt.</p>
+          </div>
+
+          <div class="card c44-syn-card">
+            <span class="eyebrow">Spannung</span>
+            <b>◇</b>
+            <h4 id="synChallengeTitle">Lernfelder</h4>
+            <p id="synChallengeText">Hier erscheinen eure Wachstumsthemen, Reibungen und bewussten Entwicklungspunkte.</p>
+          </div>
+
+          <div class="card c44-syn-card">
+            <span class="eyebrow">Magnetismus</span>
+            <b>♡</b>
+            <h4 id="synMagnetTitle">Anziehung</h4>
+            <p id="synMagnetText">Soraya zeigt, was euch emotional, geistig oder körperlich zusammenzieht.</p>
+          </div>
+        </div>
+
+        <div class="card premium c44-advice-card">
+          <div class="card-title">
+            <h4>Sorayas Empfehlung</h4>
+            <span class="badge">Liebevoll</span>
+          </div>
+          <p id="synAdviceText">Berechne zuerst eure Verbindung. Danach erhältst du eine sanfte Empfehlung, wie ihr bewusster miteinander umgehen könnt.</p>
         </div>
       </section>
 
