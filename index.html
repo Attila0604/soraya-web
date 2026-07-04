@@ -581,26 +581,84 @@
 
       <!-- PREMIUM -->
       <section id="premium" class="section">
-        <div class="page-title">
+        <div class="page-title c48-premium-title">
           <span class="eyebrow">Mehr Tiefe · mehr Führung</span>
           <h2>Soraya<br><span class="gold">Premium</span></h2>
-          <p>Premium ist vorbereitet. Später kommen Limits, Zahlungen und erweiterte Funktionen.</p>
+          <p>Ein hochwertiger Bereich für tiefere Analysen, tägliche Begleitung, Synastrie und persönliche Rituale.</p>
         </div>
 
-        <div class="card premium">
+        <div class="card glow c48-premium-hero">
+          <div class="c48-crown-orb">✦</div>
+          <div>
+            <span class="eyebrow">Premium Vorschau</span>
+            <h3>Deine persönliche Astro-Begleitung</h3>
+            <p>Premium ist als UI vorbereitet. Zahlung, Limits und echte Abos kommen später. Der Bereich zeigt schon jetzt, wie Soraya als Produkt wirken kann.</p>
+          </div>
+        </div>
+
+        <div class="c48-plan-grid">
+          <div class="card c48-plan">
+            <span class="eyebrow">Free</span>
+            <h3>Basis</h3>
+            <p class="c48-price">0 €</p>
+            <div class="premium-list">
+              <span>Basis-Profil</span>
+              <span>Demo-Horoskop</span>
+              <span>begrenzter Chat</span>
+            </div>
+            <button class="btn block" onclick="showSection('profile')">Profil nutzen</button>
+          </div>
+
+          <div class="card premium c48-plan c48-featured-plan">
+            <span class="eyebrow">Empfohlen</span>
+            <h3>Premium</h3>
+            <p class="c48-price">9,99 €</p>
+            <div class="premium-list">
+              <span>Unbegrenzte Analysen</span>
+              <span>Tägliche Transit-Impulse</span>
+              <span>Prioritäts-Chat mit Soraya</span>
+              <span>Erweiterte Synastrie</span>
+            </div>
+            <button class="btn gold block" onclick="showPremiumDemo()">Premium vormerken</button>
+          </div>
+
+          <div class="card c48-plan">
+            <span class="eyebrow">Deep Work</span>
+            <h3>Cosmic</h3>
+            <p class="c48-price">19,99 €</p>
+            <div class="premium-list">
+              <span>Monats-Reading</span>
+              <span>Ritual-Empfehlungen</span>
+              <span>Beziehungs-Deep-Dive</span>
+              <span>Jahreszyklen</span>
+            </div>
+            <button class="btn block" onclick="showPremiumDemo()">Coming soon</button>
+          </div>
+        </div>
+
+        <div class="card c48-benefits-card">
           <div class="card-title">
-            <h4>Premium Vorschau</h4>
+            <h4>Premium Vorteile</h4>
+            <span class="badge">Roadmap</span>
+          </div>
+          <div class="c48-benefit-grid">
+            <div><b>✷</b><h4>Deep Chart</h4><p>Tiefere Geburtshoroskop-Deutungen mit Themen, Häusern und Aspekten.</p></div>
+            <div><b>☾</b><h4>Transite</h4><p>Persönliche Tages-, Wochen- und Monatsimpulse.</p></div>
+            <div><b>♡</b><h4>Synastrie</h4><p>Erweiterte Beziehungsanalyse mit Harmonie und Lernfeldern.</p></div>
+            <div><b>◇</b><h4>Rituale</h4><p>Spirituelle Mini-Rituale passend zu Mondphase und Stimmung.</p></div>
+          </div>
+        </div>
+
+        <div class="card c48-demo-note">
+          <div class="card-title">
+            <h4>Aktueller Status</h4>
             <span class="badge">Demo</span>
           </div>
-          <div class="premium-list">
-            <span>Unbegrenzte Birth-Chart-Readings</span>
-            <span>Tägliche Transit-Impulse</span>
-            <span>Erweiterte Synastrie</span>
-            <span>Persönliche Ritual-Empfehlungen</span>
-          </div>
-          <button class="btn gold block" onclick="showSection('profile')">Zurück zum Profil</button>
+          <p id="premiumStatusText">Premium ist aktuell eine vorbereitete Produktseite. Es wird noch keine Zahlung ausgelöst.</p>
+          <button class="btn gold block" onclick="showSection('chat')">Soraya fragen</button>
         </div>
       </section>
+
     </main>
   </div>
 
