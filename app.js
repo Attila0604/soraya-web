@@ -542,6 +542,39 @@
   }
 
 
+
+  function setRitualFocus(kind) {
+    const title = $("ritualMoonTitle");
+    const text = $("ritualMoonText");
+    const affirmation = $("ritualAffirmation");
+
+    const data = {
+      "Mondwasser": {
+        title: "Mondwasser",
+        text: "Stelle ein Glas Wasser ans Fenster. Setze eine Intention und trinke es später bewusst als Symbol für Reinigung und innere Klarheit.",
+        affirmation: "Ich reinige meine Energie und öffne mich für klare Führung."
+      },
+      "Dankbarkeit": {
+        title: "Dankbarkeit",
+        text: "Schreibe drei Dinge auf, für die du heute dankbar bist. Spüre jeden Satz kurz im Körper nach.",
+        affirmation: "Ich erkenne die Fülle, die bereits in meinem Leben wirkt."
+      },
+      "Loslassen": {
+        title: "Loslassen",
+        text: "Schreibe auf, was du nicht länger tragen möchtest. Atme aus und stelle dir vor, wie diese Last leichter wird.",
+        affirmation: "Ich lasse los, was nicht mehr zu meinem Weg gehört."
+      }
+    };
+
+    const selected = data[kind] || data["Dankbarkeit"];
+    if (title) title.textContent = selected.title;
+    if (text) text.textContent = selected.text;
+    if (affirmation) affirmation.textContent = "„" + selected.affirmation + "“";
+
+    toast("Ritual gewählt: " + selected.title);
+  }
+
+
   function quickChat(message) {
     const input = $("chatMessage");
     if (input) {
