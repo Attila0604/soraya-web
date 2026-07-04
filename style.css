@@ -2738,3 +2738,142 @@ label + select {
     min-height: auto;
   }
 }
+
+
+/* ==========================================================================
+   28. Soraya C.4.4 — Synastrie Premium Upgrade
+   ========================================================================== */
+
+.c44-synastry-hero {
+  overflow: hidden;
+}
+
+.c44-connection-visual {
+  display: grid;
+  grid-template-columns: 1fr 58px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 8px;
+}
+
+.c44-person-orb {
+  min-height: 118px;
+  border: 1px solid rgba(255, 218, 135, .22);
+  border-radius: 26px;
+  background:
+    radial-gradient(160px 110px at 50% 0%, rgba(255, 226, 155, .08), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02));
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 14px 8px;
+}
+
+.c44-person-orb span {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 23px;
+  border: 1px solid rgba(255, 218, 135, .34);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 226, 155, .18), transparent 55%),
+    rgba(255, 218, 135, .055);
+  box-shadow: 0 0 28px rgba(181, 107, 255, .14);
+}
+
+.c44-person-orb small {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.c44-link-symbol {
+  display: grid;
+  place-items: center;
+  height: 58px;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 34px;
+  text-shadow: 0 0 26px rgba(255, 218, 135, .30);
+}
+
+.c44-button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.c44-button-row .btn {
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.c44-synastry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+}
+
+.c44-syn-card {
+  min-height: 220px;
+}
+
+.c44-syn-card b {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 10px 0 12px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .30);
+  background: rgba(255, 218, 135, .06);
+  font-family: var(--display);
+  font-size: 22px;
+}
+
+.c44-syn-card h4 {
+  margin: 0 0 8px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 24px;
+  line-height: 1.05;
+}
+
+.c44-syn-card p,
+.c44-advice-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c44-advice-card p {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.35;
+  color: var(--champagne);
+}
+
+@media (max-width: 430px) {
+  .c44-connection-visual {
+    grid-template-columns: 1fr;
+  }
+
+  .c44-link-symbol {
+    height: 36px;
+  }
+
+  .c44-synastry-grid,
+  .c44-button-row {
+    grid-template-columns: 1fr;
+  }
+
+  .c44-syn-card {
+    min-height: auto;
+  }
+}
