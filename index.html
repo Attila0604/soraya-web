@@ -302,29 +302,48 @@
       <!-- RITUALS -->
       <section id="rituals" class="section">
         <div class="page-title">
-          <span class="eyebrow">Moon Rituals</span>
+          <span class="eyebrow">Moon Rituals · Achtsamkeit</span>
           <h2>Moon<br><span class="gold">Rituals</span></h2>
           <p>Rituale für Reinigung, Dankbarkeit, Loslassen und seelische Ausrichtung.</p>
         </div>
 
-        <div class="card glow">
-          <span class="eyebrow">Aktuelle Mondphase</span>
-          <h3 id="ritualMoonTitle" class="c4-ritual-title">Mondphase</h3>
-          <p id="ritualMoonText" class="c4-muted">Mondenergie wird geladen.</p>
-        </div>
-
-        <div class="card">
-          <div class="card-title"><h4>Deine Rituale</h4></div>
-          <div class="ritual-grid">
-            <div class="ritual"><b>♨</b><h4>Mondwasser</h4><p>Reinige deine Energie und lade deine Intuition auf.</p></div>
-            <div class="ritual"><b>◇</b><h4>Dankbarkeit</h4><p>Öffne dein Herz für Fülle und Führung.</p></div>
-            <div class="ritual"><b>❀</b><h4>Loslassen</h4><p>Lasse los, was dir nicht mehr dient.</p></div>
+        <div class="card glow c47-ritual-hero">
+          <div class="c47-moon-orb">☾</div>
+          <div>
+            <span class="eyebrow">Aktuelle Mondphase</span>
+            <h3 id="ritualMoonTitle" class="c4-ritual-title">Mondphase</h3>
+            <p id="ritualMoonText" class="c4-muted">Mondenergie wird geladen.</p>
           </div>
         </div>
 
-        <div class="card premium">
+        <div class="card premium c47-today-ritual">
+          <div class="card-title">
+            <h4>Ritual des Tages</h4>
+            <span class="badge">5 Minuten</span>
+          </div>
+          <div class="c47-ritual-steps">
+            <div><b>1</b><span>Atme fünfmal tief und lege beide Füße bewusst auf den Boden.</span></div>
+            <div><b>2</b><span>Formuliere eine klare Intention für deinen heutigen Weg.</span></div>
+            <div><b>3</b><span>Schließe mit einem Satz der Dankbarkeit ab.</span></div>
+          </div>
+        </div>
+
+        <div class="card c47-rituals-card">
+          <div class="card-title">
+            <h4>Deine Rituale</h4>
+            <span class="badge">Auswahl</span>
+          </div>
+          <div class="ritual-grid c47-ritual-grid">
+            <div class="ritual c47-ritual"><b>♨</b><h4>Mondwasser</h4><p>Reinige deine Energie und lade deine Intuition auf.</p><button class="btn" onclick="setRitualFocus('Mondwasser')">Wählen</button></div>
+            <div class="ritual c47-ritual"><b>◇</b><h4>Dankbarkeit</h4><p>Öffne dein Herz für Fülle und Führung.</p><button class="btn" onclick="setRitualFocus('Dankbarkeit')">Wählen</button></div>
+            <div class="ritual c47-ritual"><b>❀</b><h4>Loslassen</h4><p>Lasse los, was dir nicht mehr dient.</p><button class="btn" onclick="setRitualFocus('Loslassen')">Wählen</button></div>
+          </div>
+        </div>
+
+        <div class="card premium c47-affirmation-card">
           <span class="eyebrow">Affirmation des Tages</span>
-          <p class="c4-affirmation">„Ich wachse mit jeder Erfahrung und vertraue meinem kosmischen Weg.“</p>
+          <p id="ritualAffirmation" class="c4-affirmation">„Ich wachse mit jeder Erfahrung und vertraue meinem kosmischen Weg.“</p>
+          <button class="btn gold block" onclick="quickChat('Bitte deute diese Affirmation für mich: Ich wachse mit jeder Erfahrung und vertraue meinem kosmischen Weg.')">Mit Soraya vertiefen</button>
         </div>
       </section>
 
