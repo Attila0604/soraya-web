@@ -96,6 +96,7 @@
     if (id === "synastry") {
       setTimeout(() => {
         ensureSynastryUi();
+        updateSynastryNames();
         loadPeopleFromSupabase(false);
       }, 120);
     }
@@ -379,6 +380,7 @@
 
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
       renderIdentity();
+    bindSynastryPremiumEvents();
       renderHomeSky();
       loadRealChartData(true);
       status("personResult", "✅ Person gespeichert.\nName: " + (row.name || person.name) + "\nID: " + row.id, "ok");
@@ -820,6 +822,73 @@
 
     status("synastryText", html, "ok");
   }
+
+
+  function initials(value, fallback = "?") {
+    const text = safe(value).trim();
+    if (!text) return fallback;
+    return text
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("");
+  }
+
+  function updateSynastryNames() {
+    const selfName = localStorage.getItem(KEYS.name) || "Du";
+    setText("synAInitial", initials(selfName, "Du"));
+    setText("synAName", selfName);
+
+    const select = $("synPersonSelect");
+    const label = select && select.options && select.selectedIndex >= 0
+      ? select.options[select.selectedIndex].textContent
+      : "";
+    const partner = label && !label.includes("Person wählen") ? label.replace(/\s*\(.+\)\s*$/, "") : "Zweite Person";
+
+    setText("synBInitial", initials(partner, "?"));
+    setText("synBName", partner);
+  }
+
+  function renderSynastryPremium(payload) {
+    updateSynastryNames();
+
+    const root = payload && payload.data ? payload.data : payload || {};
+    const text = [
+      root.text,
+      root.reading,
+      root.analysis,
+      root.message,
+      root.summary,
+      root.synastry_text
+    ].filter(Boolean).join(" ");
+
+    const lower = text.toLowerCase();
+
+    const harmony = lower.includes("harmonie") || lower.includes("trigon") || lower.includes("sextil")
+      ? "Zwischen euch gibt es Bereiche, die leicht, unterstützend und natürlich fließen."
+      : "Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt. Dort liegt eure natürliche Harmonie.";
+
+    const challenge = lower.includes("spannung") || lower.includes("quadrat") || lower.includes("opposition")
+      ? "Spannungen zeigen keine Schwäche, sondern Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel."
+      : "Unterschiede können euch reifen lassen, wenn ihr sie nicht als Kampf, sondern als Spiegel versteht.";
+
+    const magnet = lower.includes("venus") || lower.includes("mars") || lower.includes("mond")
+      ? "Eure Anziehung wirkt besonders über Gefühl, Nähe und persönliche Resonanz."
+      : "Eure Verbindung kann durch ehrliche Aufmerksamkeit und gegenseitiges Interesse stärker werden.";
+
+    const advice = text
+      ? "Sorayas Empfehlung: Sprecht nicht nur über Probleme, sondern auch über eure Bedürfnisse. Je klarer ihr euch zeigt, desto tiefer kann die Verbindung werden."
+      : "Berechne zuerst eure Verbindung. Danach erhältst du eine sanfte Empfehlung, wie ihr bewusster miteinander umgehen könnt.";
+
+    setText("synHarmonyTitle", "Seelische Resonanz");
+    setText("synHarmonyText", harmony);
+    setText("synChallengeTitle", "Lernfelder");
+    setText("synChallengeText", challenge);
+    setText("synMagnetTitle", "Anziehung");
+    setText("synMagnetText", magnet);
+    setText("synAdviceText", advice);
+  }
+
 
   async function saveSynastry() {
     if (!needPerson()) return;
