@@ -3034,3 +3034,138 @@ label + select {
     transform: translateX(-50%);
   }
 }
+
+
+/* ==========================================================================
+   30. Soraya C.4.6 — Home Dashboard Premium Upgrade
+   ========================================================================== */
+
+.c46-home-title p {
+  max-width: 94%;
+}
+
+.c46-hero-dashboard {
+  min-height: 198px;
+}
+
+.c46-hero-dashboard::before {
+  opacity: .95;
+}
+
+.c46-daily-focus {
+  position: relative;
+  overflow: hidden;
+}
+
+.c46-daily-focus::after {
+  content: "✦";
+  position: absolute;
+  right: 24px;
+  top: 18px;
+  color: rgba(255, 226, 155, .16);
+  font-size: 84px;
+  pointer-events: none;
+}
+
+.c46-focus-layout {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.c46-focus-orb {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .38);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 226, 155, .20), transparent 55%),
+    rgba(255, 218, 135, .055);
+  box-shadow:
+    0 0 34px rgba(181, 107, 255, .18),
+    inset 0 0 28px rgba(255, 218, 135, .08);
+  font-size: 28px;
+  animation: sorayaFloat 6s ease-in-out infinite;
+}
+
+.c46-focus-layout h3 {
+  margin: 0 0 7px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 32px;
+  line-height: 1.05;
+}
+
+.c46-focus-layout p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.c46-dashboard-grid .card {
+  min-height: 248px;
+}
+
+.c46-moon-card,
+.c46-energy-card,
+.c46-transit-preview {
+  background:
+    radial-gradient(220px 150px at 20% 0%, rgba(255, 226, 155, .08), transparent 70%),
+    radial-gradient(320px 180px at 100% 0%, rgba(181, 107, 255, .12), transparent 72%),
+    linear-gradient(180deg, rgba(35, 23, 72, .68), rgba(9, 12, 32, .78));
+}
+
+.c46-transit-preview .row {
+  padding: 15px 0;
+}
+
+.c46-shortcut-grid .tile {
+  min-height: 116px;
+}
+
+.c46-insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.c46-insight-card {
+  min-height: 238px;
+}
+
+.c46-insight-card h3 {
+  margin: 10px 0;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 30px;
+  line-height: 1.04;
+}
+
+.c46-insight-card p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 430px) {
+  .c46-focus-layout,
+  .c46-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .c46-focus-orb {
+    margin: 0 auto;
+  }
+
+  .c46-daily-focus {
+    text-align: center;
+  }
+
+  .c46-dashboard-grid .card,
+  .c46-insight-card {
+    min-height: auto;
+  }
+}
