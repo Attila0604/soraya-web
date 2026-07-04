@@ -106,7 +106,7 @@
     }
 
     if (id === "home") {
-      setTimeout(renderHomeSky, 120);
+      setTimeout(() => { renderHomeSky(); renderHomeDashboardPremium(); }, 120);
     }
   }
 
@@ -403,6 +403,7 @@
       renderIdentity();
     bindSynastryPremiumEvents();
       renderHomeSky();
+      renderHomeDashboardPremium();
       loadRealChartData(true);
       status("personResult", "✅ Person gespeichert.\nName: " + (row.name || person.name) + "\nID: " + row.id, "ok");
       toast("Profil gespeichert.");
