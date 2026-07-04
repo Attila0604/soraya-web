@@ -102,7 +102,7 @@
     }
 
     if (id === "profile") {
-      setTimeout(renderAuthUi, 120);
+      setTimeout(() => { renderAuthUi(); renderProfilePremium(); }, 120);
     }
 
     if (id === "home") {
@@ -284,6 +284,27 @@
       return text.includes("Abmelden") || text === "Einloggen" || onclick.includes("signOut");
     });
   }
+
+
+  function renderProfilePremium() {
+    const birth = readJson(KEYS.birth, null);
+    const name = localStorage.getItem(KEYS.name) || (birth && birth.name) || "";
+    const profileTitle = $("profileTitle");
+
+    if (profileTitle && name) profileTitle.textContent = name;
+
+    const preview = document.querySelector(".c45-birth-preview");
+    if (preview && birth && birth.day && birth.month && birth.year && birth.birthplace) {
+      const time = birth.hour !== null && birth.hour !== undefined && birth.hour !== ""
+        ? String(birth.hour).padStart(2, "0") + ":" + String(birth.minute || 0).padStart(2, "0")
+        : "Geburtszeit offen";
+      preview.innerHTML = `
+        <div><b>✦</b><span>${escapeHtml(birth.day)}.${escapeHtml(birth.month)}.${escapeHtml(birth.year)} · ${escapeHtml(time)}</span></div>
+        <div><b>⌖</b><span>${escapeHtml(birth.birthplace)}</span></div>
+      `;
+    }
+  }
+
 
   async function renderAuthUi() {
     closeLogin();
