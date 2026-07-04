@@ -3278,3 +3278,168 @@ label + select {
     margin: 0 auto;
   }
 }
+
+
+/* ==========================================================================
+   32. Soraya C.4.8 — Premium Page Upgrade
+   ========================================================================== */
+
+.c48-premium-title p {
+  max-width: 94%;
+}
+
+.c48-premium-hero {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 18px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.c48-crown-orb {
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .44);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 226, 155, .23), transparent 46%),
+    radial-gradient(circle at 70% 70%, rgba(181, 107, 255, .20), transparent 60%),
+    rgba(255, 255, 255, .035);
+  box-shadow:
+    0 0 54px rgba(255, 218, 135, .13),
+    0 0 48px rgba(181, 107, 255, .22),
+    inset 0 0 34px rgba(255, 218, 135, .08);
+  font-family: var(--display);
+  font-size: 42px;
+  animation: sorayaFloat 6s ease-in-out infinite;
+}
+
+.c48-premium-hero h3 {
+  margin: 6px 0 8px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 34px;
+  line-height: 1.03;
+}
+
+.c48-premium-hero p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.c48-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+}
+
+.c48-plan {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+.c48-plan h3 {
+  margin: 8px 0 0;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 30px;
+}
+
+.c48-price {
+  margin: 8px 0 14px;
+  color: var(--gold2);
+  font-family: var(--display);
+  font-size: 38px;
+  line-height: 1;
+}
+
+.c48-plan .premium-list {
+  margin-top: 2px;
+  flex: 1;
+}
+
+.c48-plan .btn {
+  margin-top: 16px;
+}
+
+.c48-featured-plan {
+  transform: translateY(-8px);
+  border-color: rgba(255, 218, 135, .36);
+  box-shadow:
+    0 34px 100px rgba(0, 0, 0, .58),
+    0 0 52px rgba(255, 218, 135, .12),
+    inset 0 0 70px rgba(181, 107, 255, .12);
+}
+
+.c48-benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 11px;
+}
+
+.c48-benefit-grid div {
+  padding: 14px 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 218, 135, .14);
+  background: rgba(255, 255, 255, .03);
+}
+
+.c48-benefit-grid b {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .26);
+  background: rgba(255, 218, 135, .055);
+  font-family: var(--display);
+  font-size: 20px;
+}
+
+.c48-benefit-grid h4 {
+  margin: 0 0 6px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 21px;
+}
+
+.c48-benefit-grid p,
+.c48-demo-note p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c48-demo-note .btn {
+  margin-top: 16px;
+}
+
+@media (max-width: 430px) {
+  .c48-premium-hero,
+  .c48-plan-grid,
+  .c48-benefit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .c48-premium-hero {
+    text-align: center;
+  }
+
+  .c48-crown-orb {
+    margin: 0 auto;
+  }
+
+  .c48-featured-plan {
+    transform: none;
+  }
+
+  .c48-plan {
+    min-height: auto;
+  }
+}
