@@ -2877,3 +2877,160 @@ label + select {
     min-height: auto;
   }
 }
+
+
+/* ==========================================================================
+   29. Soraya C.4.5 — Profil Premium Upgrade
+   ========================================================================== */
+
+.c45-profile-hero {
+  overflow: hidden;
+}
+
+.c45-profile-hero::after {
+  content: "✦";
+  position: absolute;
+  right: 22px;
+  top: 22px;
+  color: rgba(255, 226, 155, .18);
+  font-size: 76px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.c45-profile-hero .profile-hero {
+  grid-template-columns: 104px 1fr;
+}
+
+.c45-profile-hero .profile-avatar {
+  width: 104px;
+  height: 104px;
+  font-size: 46px;
+}
+
+.c45-profile-hero .profile-hero h3 {
+  margin-top: 4px;
+  font-size: 42px;
+}
+
+.c45-stats {
+  gap: 11px;
+}
+
+.c45-stats .stat {
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+}
+
+.c45-login-card {
+  position: relative;
+  padding-left: 92px;
+  min-height: 150px;
+}
+
+.c45-status-orb {
+  position: absolute;
+  left: 20px;
+  top: 54px;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .34);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 226, 155, .18), transparent 55%),
+    rgba(255, 218, 135, .055);
+  box-shadow: 0 0 28px rgba(181, 107, 255, .14);
+}
+
+.c45-login-card.ok .c45-status-orb {
+  color: var(--green);
+  border-color: rgba(101, 240, 188, .34);
+  box-shadow: 0 0 28px rgba(101, 240, 188, .18);
+}
+
+.c45-birth-card {
+  background:
+    radial-gradient(320px 180px at 0% 0%, rgba(255, 226, 155, .09), transparent 70%),
+    radial-gradient(360px 220px at 100% 0%, rgba(181, 107, 255, .15), transparent 72%),
+    linear-gradient(180deg, rgba(35, 23, 72, .70), rgba(9, 12, 32, .78));
+}
+
+.c45-birth-preview {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 16px;
+}
+
+.c45-birth-preview div {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 218, 135, .16);
+  background: rgba(255, 255, 255, .03);
+}
+
+.c45-birth-preview b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .28);
+  background: rgba(255, 218, 135, .055);
+  font-family: var(--display);
+}
+
+.c45-birth-preview span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c45-premium-card {
+  position: relative;
+}
+
+.c45-premium-card::before {
+  opacity: .9;
+}
+
+.c45-settings-card .row {
+  transition: .18s ease;
+}
+
+.c45-settings-card .row:hover {
+  transform: translateX(2px);
+}
+
+.c45-logout-btn {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 430px) {
+  .c45-profile-hero .profile-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .c45-profile-hero .profile-avatar {
+    margin: 0 auto;
+  }
+
+  .c45-login-card {
+    padding-left: 20px;
+    padding-top: 88px;
+  }
+
+  .c45-status-orb {
+    left: 50%;
+    top: 24px;
+    transform: translateX(-50%);
+  }
+}
