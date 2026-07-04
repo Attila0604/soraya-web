@@ -3169,3 +3169,112 @@ label + select {
     min-height: auto;
   }
 }
+
+
+/* ==========================================================================
+   31. Soraya C.4.7 — Moon Rituals Premium Upgrade
+   ========================================================================== */
+
+.c47-ritual-hero {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 18px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.c47-moon-orb {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .42);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 226, 155, .22), transparent 45%),
+    radial-gradient(circle at 70% 70%, rgba(181, 107, 255, .18), transparent 60%),
+    rgba(255, 255, 255, .035);
+  box-shadow:
+    0 0 48px rgba(181, 107, 255, .22),
+    inset 0 0 34px rgba(255, 218, 135, .08);
+  font-family: var(--display);
+  font-size: 42px;
+  animation: sorayaFloat 6s ease-in-out infinite;
+}
+
+.c47-ritual-hero h3 {
+  color: var(--gold2);
+}
+
+.c47-today-ritual {
+  position: relative;
+}
+
+.c47-today-ritual::after {
+  content: "✦";
+  position: absolute;
+  right: 24px;
+  top: 18px;
+  color: rgba(255, 226, 155, .14);
+  font-size: 80px;
+  pointer-events: none;
+}
+
+.c47-ritual-steps {
+  display: grid;
+  gap: 10px;
+}
+
+.c47-ritual-steps div {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 218, 135, .16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .03);
+}
+
+.c47-ritual-steps b {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .30);
+  background: rgba(255, 218, 135, .055);
+  font-family: var(--display);
+}
+
+.c47-ritual-steps span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.c47-ritual-grid .ritual {
+  min-height: 190px;
+}
+
+.c47-ritual .btn {
+  margin-top: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.c47-affirmation-card .btn {
+  margin-top: 16px;
+}
+
+@media (max-width: 430px) {
+  .c47-ritual-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .c47-moon-orb {
+    margin: 0 auto;
+  }
+}
