@@ -37,17 +37,17 @@
     <main>
       <!-- HOME -->
       <section id="home" class="section active">
-        <div class="page-title c4-hero-title">
+        <div class="page-title c4-hero-title c46-home-title">
           <span class="eyebrow">Dein Kosmos · Dein Weg</span>
           <h2 id="greetLine">Willkommen,<br><span class="gold" id="heroName">du</span>.</h2>
           <p>Ein mystischer Begleiter für Birth Chart, Horoskop, Transite, Rituale und seelische Klarheit.</p>
         </div>
 
-        <div class="card glow hero-card c4-hero-card">
+        <div class="card glow hero-card c4-hero-card c46-hero-dashboard">
           <div class="zodiac-art"><span id="sunGlyph">✦</span></div>
           <div class="zodiac-info">
             <div class="card-title c4-card-title">
-              <span class="eyebrow">Dein Sternzeichen</span>
+              <span class="eyebrow">Dein kosmischer Kern</span>
               <button class="btn" onclick="showSection('profile')">Profil ›</button>
             </div>
             <h3 id="sunSign">Noch kein Profil</h3>
@@ -60,21 +60,35 @@
           </div>
         </div>
 
-        <div class="c4-dashboard-grid">
-          <div class="card c4-moon-card">
+        <div class="card premium c46-daily-focus">
+          <div class="card-title">
+            <h4>Dein Tagesfokus</h4>
+            <span class="badge">Heute</span>
+          </div>
+          <div class="c46-focus-layout">
+            <div class="c46-focus-orb">✦</div>
+            <div>
+              <h3 id="dailyFocusTitle">Innere Klarheit</h3>
+              <p id="dailyFocusText">Soraya berechnet deine aktuelle Tagesenergie aus deinem Profil und den Transiten.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="c4-dashboard-grid c46-dashboard-grid">
+          <div class="card c4-moon-card c46-moon-card">
             <div class="card-title">
               <h4>Mondphase</h4>
-              <span class="badge">Heute</span>
+              <span class="badge">Live</span>
             </div>
             <div class="moon-visual" id="moonVisual"></div>
             <h4 id="moonPhase" class="c4-center-title">Mondphase</h4>
             <p id="moonIllum" class="c4-center-muted">– beleuchtet</p>
           </div>
 
-          <div class="card c4-energy-card">
+          <div class="card c4-energy-card c46-energy-card">
             <div class="card-title">
               <h4>Tagesenergie</h4>
-              <span class="badge">Live</span>
+              <span class="badge">Aura</span>
             </div>
             <div class="energy-ring" id="energyRing" style="--energy:0%">
               <div><span><strong id="energyPct">–</strong><br><small id="energyLabel">wird berechnet</small></span></div>
@@ -83,43 +97,50 @@
           </div>
         </div>
 
-        <div class="card c4-tools-card">
+        <div class="card c46-transit-preview">
           <div class="card-title">
-            <h4>Kosmische Tools</h4>
+            <h4>Transit-Vorschau</h4>
+            <span class="badge">Aktuell</span>
+          </div>
+          <div class="transit-list" id="homeTransits">
+            <div class="row">
+              <div class="left">
+                <span class="orb-sm">✦</span>
+                <div>
+                  <h4>Aktuelle Transite</h4>
+                  <p>werden geladen…</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card c4-tools-card c46-tools-card">
+          <div class="card-title">
+            <h4>Kosmische Wege</h4>
             <span class="badge">Schnellzugriff</span>
           </div>
-          <div class="shortcut-grid">
+          <div class="shortcut-grid c46-shortcut-grid">
             <button class="tile" onclick="showSection('analysis')"><b>✷</b><span>Birth Chart</span></button>
             <button class="tile" onclick="showSection('horoscope')"><b>☾</b><span>Horoskop</span></button>
-            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Chat</span></button>
+            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Soraya Chat</span></button>
             <button class="tile" onclick="showSection('synastry')"><b>♡</b><span>Synastrie</span></button>
           </div>
         </div>
 
-        <div class="c4-dashboard-grid">
-          <div class="card glow c4-daily-card">
+        <div class="c46-insight-grid">
+          <div class="card glow c4-daily-card c46-insight-card">
             <span class="eyebrow">Dein Tag</span>
             <h3>Sprich mit Soraya</h3>
             <p>Frag nach deiner heutigen Energie. Soraya verbindet dein Profil mit echten Transiten.</p>
             <button class="btn gold block" onclick="showSection('chat')">Mit Soraya sprechen</button>
           </div>
 
-          <div class="card c4-transit-card">
-            <div class="card-title">
-              <h4>Aktuelle Transite</h4>
-              <button class="btn" onclick="showSection('chat')">Mehr ›</button>
-            </div>
-            <div class="transit-list" id="homeTransits">
-              <div class="row">
-                <div class="left">
-                  <span class="orb-sm">✦</span>
-                  <div>
-                    <h4>Aktuelle Transite</h4>
-                    <p>werden geladen…</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="card c46-insight-card">
+            <span class="eyebrow">Ritual</span>
+            <h3>5 Minuten Erdung</h3>
+            <p>Atme bewusst, lege eine klare Intention fest und öffne dich für deinen nächsten Schritt.</p>
+            <button class="btn block" onclick="showSection('rituals')">Ritual öffnen</button>
           </div>
         </div>
       </section>
