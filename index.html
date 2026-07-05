@@ -227,6 +227,15 @@
           </div>
         </div>
 
+        <div class="card c51-paywall-card" id="analysisPaywallCard">
+          <div class="card-title">
+            <h4>Premium Tiefenmodus</h4>
+            <span class="badge">Optional</span>
+          </div>
+          <p>Für spätere Versionen vorbereitet: längere Readings, Monatsdeutung, mehr Aspekte und persönliche Empfehlungen.</p>
+          <button class="btn gold block" onclick="showSection('premium')">Premium ansehen</button>
+        </div>
+
         <div class="card c4-reading-card">
           <div class="card-title">
             <h4>Tiefen-Reading</h4>
@@ -572,6 +581,26 @@
 
           <button class="btn gold block" onclick="createPerson()">Profil speichern</button>
           <div id="personResult" class="status" aria-live="polite">Noch nicht gespeichert.</div>
+        </div>
+
+        <div class="card c51-usage-card">
+          <div class="card-title">
+            <h4>Dein Plan</h4>
+            <span class="badge" id="planBadge">Free</span>
+          </div>
+          <div class="c51-plan-status">
+            <div class="c51-plan-orb" id="planOrb">◇</div>
+            <div>
+              <h3 id="planTitle">Free Plan</h3>
+              <p id="planText">Premium ist vorbereitet. Du kannst die Demo aktivieren, echte Zahlungen kommen später.</p>
+            </div>
+          </div>
+          <div class="c51-usage-grid">
+            <div><b id="usageAnalysis">0/3</b><span>Analysen</span></div>
+            <div><b id="usageChat">0/10</b><span>Chat</span></div>
+            <div><b id="usageSynastry">0/1</b><span>Synastrie</span></div>
+          </div>
+          <button class="btn gold block" onclick="showSection('premium')">Upgrade ansehen</button>
         </div>
 
         <div class="card premium c45-premium-card">
