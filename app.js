@@ -436,6 +436,7 @@
     bindLuxuryInteractions();
     installAccessibilityPolish();
     sorayaHealthCheck();
+    renderReleasePolish();
     bindSynastryPremiumEvents();
       renderHomeSky();
       renderHomeDashboardPremium();
