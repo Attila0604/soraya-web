@@ -4440,3 +4440,186 @@ html[data-soraya-version="C4.14"] body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   39. Soraya C.5.0 — Product Foundation
+   ========================================================================== */
+
+html[data-soraya-product="C5.0"] .c414-release-badge {
+  border-color: rgba(101, 240, 188, .24);
+}
+
+html[data-soraya-product="C5.0"] .c414-release-badge::after {
+  content: " · Product Foundation";
+}
+
+.c50-premium-hint {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 11px 12px;
+  border-radius: 17px;
+  border: 1px solid rgba(255, 218, 135, .16);
+  background:
+    radial-gradient(160px 80px at 0% 0%, rgba(255, 226, 155, .08), transparent 70%),
+    rgba(255, 255, 255, .03);
+}
+
+.c50-premium-hint b {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .28);
+  background: rgba(255, 218, 135, .055);
+}
+
+.c50-premium-hint span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.c50-roadmap {
+  display: grid;
+  gap: 10px;
+}
+
+.c50-roadmap > div {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 218, 135, .14);
+  background: rgba(255, 255, 255, .03);
+}
+
+.c50-roadmap b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .035);
+  font-family: var(--display);
+}
+
+.c50-roadmap span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.c50-roadmap .done {
+  border-color: rgba(101, 240, 188, .24);
+}
+
+.c50-roadmap .done b {
+  color: var(--green);
+  border-color: rgba(101, 240, 188, .32);
+}
+
+.c50-roadmap .active {
+  border-color: rgba(255, 218, 135, .28);
+  background:
+    radial-gradient(180px 80px at 0% 0%, rgba(255, 226, 155, .09), transparent 70%),
+    rgba(255, 255, 255, .03);
+}
+
+.c50-roadmap .active b {
+  color: var(--gold2);
+  border-color: rgba(255, 218, 135, .32);
+}
+
+.c50-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 11px;
+}
+
+.c50-feature-grid > div {
+  position: relative;
+  min-height: 198px;
+  padding: 14px 10px;
+  border-radius: 19px;
+  border: 1px solid rgba(255, 218, 135, .14);
+  background:
+    radial-gradient(140px 80px at 0% 0%, rgba(255, 226, 155, .07), transparent 70%),
+    rgba(255, 255, 255, .03);
+}
+
+.c50-feature-grid b {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .28);
+  background: rgba(255, 218, 135, .055);
+  font-family: var(--display);
+}
+
+.c50-feature-grid h4 {
+  margin: 0 0 7px;
+  color: var(--champagne);
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.05;
+}
+
+.c50-feature-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.c50-feature-grid span {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 218, 135, .18);
+  color: var(--gold2);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  background: rgba(255, 218, 135, .055);
+}
+
+.soraya-premium-demo .c50-feature-grid span,
+.soraya-premium-demo .c48-featured-plan .badge {
+  color: var(--green);
+  border-color: rgba(101, 240, 188, .26);
+}
+
+.soraya-premium-demo .c48-featured-plan {
+  border-color: rgba(101, 240, 188, .30);
+}
+
+@media (max-width: 430px) {
+  .c50-feature-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .c50-feature-grid > div {
+    min-height: 188px;
+  }
+}
+
+@media (max-width: 360px) {
+  .c50-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
