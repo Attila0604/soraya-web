@@ -32,6 +32,7 @@
       </div>
 
       <button class="round" onclick="openSettings()" aria-label="Einstellungen">✦</button>
+      <div class="c410-app-status" id="appStatusPill">Soraya · bereit</div>
     </header>
 
     <main>
@@ -684,12 +685,12 @@
     </main>
   </div>
 
-  <nav class="tabbar">
-    <button class="active" data-nav="home" onclick="showSection('home')"><b>⌂</b>Home</button>
-    <button data-nav="analysis" onclick="showSection('analysis')"><b>✷</b>Analyse</button>
-    <button data-nav="horoscope" onclick="showSection('horoscope')"><b>☾</b>Horoskop</button>
-    <button data-nav="chat" onclick="showSection('chat')"><b>✦</b>Chat</button>
-    <button data-nav="profile" onclick="showSection('profile')"><b>☉</b>Profil</button>
+  <nav class="tabbar c410-tabbar" aria-label="Soraya Navigation">
+    <button class="active" data-nav="home" onclick="showSection('home')" aria-label="Home"><b>⌂</b><span>Home</span></button>
+    <button data-nav="analysis" onclick="showSection('analysis')" aria-label="Analyse"><b>✷</b><span>Analyse</span></button>
+    <button data-nav="horoscope" onclick="showSection('horoscope')" aria-label="Horoskop"><b>☾</b><span>Horoskop</span></button>
+    <button data-nav="chat" onclick="showSection('chat')" aria-label="Chat"><b>✦</b><span>Chat</span></button>
+    <button data-nav="profile" onclick="showSection('profile')" aria-label="Profil"><b>☉</b><span>Profil</span></button>
   </nav>
 
   <!-- Alte Login-Modal bleibt aus Kompatibilitätsgründen vorhanden, wird aber durch /login ersetzt. -->
