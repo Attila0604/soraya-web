@@ -1,11 +1,11 @@
 /*
-  Soraya — C.2.1 Clean app.js
+  Soraya — C.5.3 Mobile Debug & Button Cleanup
+  Datei: app.js
   Ziel:
-  - Eine saubere, vollständige app.js als Ersatz
-  - /login bleibt die einzige Login-Seite
-  - keine doppelten Synastrie-Picker
-  - mobile sichere Supabase-Endpunkte bleiben erhalten
-  - Backend bleibt unverändert
+  - alle sichtbaren Buttons haben eine Funktion
+  - unnötige Premium-/Demo-Buttons entfernt
+  - keine Backend-Änderung
+  - mobile Performance ruhiger
 */
 
 (function () {
@@ -19,14 +19,15 @@
     birth: "soraya_birth",
     created: "soraya_created_at",
     analyses: "soraya_analysis_count",
-    people: "soraya_people_cache_v1",
-    coords: "soraya_coords"
+    people: "soraya_people_cache_v1"
   };
 
   const LOGIN_PATH = "/login";
   let sb = null;
+  let homeSkyTimer = null;
 
   const $ = (id) => document.getElementById(id);
+  const isMobile = () => window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
 
   function safe(value, fallback = "") {
     return value === undefined || value === null || value === "" ? fallback : String(value);
@@ -36,7 +37,8 @@
     return safe(value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function markdownToHtml(text) {
@@ -54,7 +56,7 @@
     if (!box) return;
     box.textContent = message;
     box.classList.add("show");
-    setTimeout(() => box.classList.remove("show"), 3300);
+    window.setTimeout(() => box.classList.remove("show"), 2600);
   }
 
   function status(id, text, type = "") {
@@ -63,6 +65,28 @@
     node.classList.remove("ok", "bad");
     if (type) node.classList.add(type);
     node.textContent = typeof text === "string" ? text : JSON.stringify(text, null, 2);
+  }
+
+  function friendlyError(error, fallback) {
+    const text = error && error.message ? error.message : fallback;
+    if (/not logged|nicht eingeloggt|JWT|session/i.test(text)) return "Bitte zuerst einloggen.";
+    if (/Failed to fetch|NetworkError|Load failed|fetch/i.test(text)) return "Verbindung nicht erreichbar. Bitte Backend-URL und Internet prüfen.";
+    return text || fallback;
+  }
+
+  function showGlobalError(message, type = "") {
+    const panel = $("globalErrorPanel");
+    const text = $("globalErrorText");
+    if (!panel || !text) return;
+    text.textContent = message;
+    panel.classList.remove("ok", "bad");
+    if (type) panel.classList.add(type);
+    panel.classList.add("show");
+  }
+
+  function hideGlobalError() {
+    const panel = $("globalErrorPanel");
+    if (panel) panel.classList.remove("show");
   }
 
   function readJson(key, fallback = null) {
@@ -78,37 +102,55 @@
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+  function setText(id, value) {
+    const node = $(id);
+    if (node) node.textContent = value;
+  }
+
   function showSection(id) {
-    document.querySelectorAll(".section").forEach((section) => section.classList.remove("active"));
     const target = $(id);
-    if (target) target.classList.add("active");
+    if (!target) {
+      showGlobalError("Bereich nicht gefunden: " + id, "bad");
+      return false;
+    }
+
+    document.querySelectorAll(".section").forEach((section) => section.classList.remove("active"));
+    target.classList.add("active");
 
     document.querySelectorAll("[data-nav]").forEach((button) => {
       button.classList.toggle("active", button.getAttribute("data-nav") === id);
     });
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: isMobile() ? "auto" : "smooth" });
     renderAppStatus();
 
     if (id === "analysis") {
-      setTimeout(() => loadRealChartData(false), 120);
+      window.setTimeout(() => loadRealChartData(false), 80);
     }
 
     if (id === "synastry") {
-      setTimeout(() => {
-        ensureSynastryUi();
+      window.setTimeout(() => {
         updateSynastryNames();
         loadPeopleFromSupabase(false);
-      }, 120);
+      }, 80);
     }
 
     if (id === "profile") {
-      setTimeout(() => { renderAuthUi(); renderProfilePremium(); renderOnboardingState(); }, 120);
+      window.setTimeout(() => {
+        renderAuthUi();
+        renderProfilePreview();
+        renderOnboardingState();
+      }, 80);
     }
 
     if (id === "home") {
-      setTimeout(() => { renderHomeSky(); renderHomeDashboardPremium(); renderOnboardingState(); }, 120);
+      window.setTimeout(() => {
+        renderHomeSkyThrottled();
+        renderOnboardingState();
+      }, 80);
     }
+
+    return true;
   }
 
   function openLogin() {
@@ -118,22 +160,19 @@
     window.location.href = LOGIN_PATH;
   }
 
-  function closeLogin() {
-    const modal = $("loginModal");
-    if (!modal) return;
-    modal.classList.remove("open");
-    modal.style.display = "none";
-    modal.setAttribute("aria-hidden", "true");
-  }
-
   function openSettings() {
     const modal = $("settingsModal");
-    if (modal) modal.classList.add("open");
+    if (!modal) return;
+    loadConfig(false);
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
   }
 
   function closeSettings() {
     const modal = $("settingsModal");
-    if (modal) modal.classList.remove("open");
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
   }
 
   function initSupabase(config) {
@@ -166,23 +205,28 @@
         return false;
       }
 
+      if (!/^https:\/\//i.test(config.supabaseUrl) || !/^https:\/\//i.test(config.engineUrl)) {
+        status("configStatus", "Bitte gültige HTTPS-URLs verwenden.", "bad");
+        return false;
+      }
+
       writeJson(KEYS.config, config);
       initSupabase(config);
       status("configStatus", "Verbindung gespeichert.", "ok");
       toast("Verbindung gespeichert.");
       renderAuthUi();
+      renderAppStatus();
       return true;
     } catch (error) {
-      status("configStatus", error.message, "bad");
-      toast("Verbindung konnte nicht gespeichert werden.");
+      status("configStatus", friendlyError(error, "Verbindung konnte nicht gespeichert werden."), "bad");
       return false;
     }
   }
 
-  function loadConfig() {
+  function loadConfig(showMessage = false) {
     const config = readJson(KEYS.config, null);
     if (!config) {
-      status("configStatus", "Noch keine Verbindung gespeichert.", "bad");
+      if (showMessage) status("configStatus", "Noch keine Verbindung gespeichert.", "bad");
       return false;
     }
 
@@ -192,10 +236,10 @@
 
     try {
       initSupabase(config);
-      status("configStatus", "Verbindung geladen.", "ok");
+      if (showMessage) status("configStatus", "Verbindung geladen.", "ok");
       return true;
     } catch (error) {
-      status("configStatus", error.message, "bad");
+      if (showMessage) status("configStatus", friendlyError(error, "Verbindung konnte nicht geladen werden."), "bad");
       return false;
     }
   }
@@ -210,8 +254,23 @@
     return getConfig().engineUrl.replace(/\/$/, "");
   }
 
+  async function checkSorayaConnection() {
+    try {
+      const ok = saveConfig() || loadConfig(true);
+      if (!ok) return false;
+      const config = getConfig();
+      const state = await getSessionState();
+      const loginText = state.ok ? "Login aktiv" : "Login offen";
+      status("connectionHealthStatus", "✅ Frontend-Verbindung gespeichert. Backend: " + config.engineUrl + " · " + loginText, "ok");
+      return true;
+    } catch (error) {
+      status("connectionHealthStatus", friendlyError(error, "Verbindung konnte nicht geprüft werden."), "bad");
+      return false;
+    }
+  }
+
   async function getToken() {
-    if (!sb && !loadConfig()) throw new Error("Supabase Client nicht bereit.");
+    if (!sb && !loadConfig(false)) throw new Error("Supabase Client nicht bereit.");
 
     const { data, error } = await sb.auth.getSession();
     if (error) throw error;
@@ -248,32 +307,26 @@
     return json;
   }
 
-  async function signIn() {
-    openLogin();
-  }
-
-  async function signUp() {
-    openLogin();
-  }
-
   async function signOut() {
     try {
-      if (!sb) loadConfig();
+      if (!sb) loadConfig(false);
       if (sb) await sb.auth.signOut();
 
       localStorage.removeItem(KEYS.conv);
       status("authStatus", "Abgemeldet.", "ok");
       toast("Abgemeldet.");
       renderAuthUi();
+      renderAppStatus();
     } catch (error) {
-      showGlobalError(friendlyError(error, "Abmelden fehlgeschlagen."), "bad");
-      toast(friendlyError(error, "Abmelden fehlgeschlagen."));
+      const msg = friendlyError(error, "Abmelden fehlgeschlagen.");
+      showGlobalError(msg, "bad");
+      toast(msg);
     }
   }
 
   async function getSessionState() {
     try {
-      if (!sb && !loadConfig()) return { ok: false, session: null };
+      if (!sb && !loadConfig(false)) return { ok: false, session: null };
       const { data, error } = await sb.auth.getSession();
       if (error) throw error;
       return { ok: !!(data && data.session), session: data && data.session };
@@ -282,100 +335,54 @@
     }
   }
 
-  function findLogoutButton() {
-    return Array.from(document.querySelectorAll("button")).find((button) => {
-      const text = (button.textContent || "").trim();
-      const onclick = button.getAttribute("onclick") || "";
-      return text.includes("Abmelden") || text === "Einloggen" || onclick.includes("signOut");
-    });
-  }
-
-
-  function renderProfilePremium() {
-    const birth = readJson(KEYS.birth, null);
-    const name = localStorage.getItem(KEYS.name) || (birth && birth.name) || "";
-    const profileTitle = $("profileTitle");
-
-    if (profileTitle && name) profileTitle.textContent = name;
-
-    const preview = document.querySelector(".c45-birth-preview");
-    if (preview && birth && birth.day && birth.month && birth.year && birth.birthplace) {
-      const time = birth.hour !== null && birth.hour !== undefined && birth.hour !== ""
-        ? String(birth.hour).padStart(2, "0") + ":" + String(birth.minute || 0).padStart(2, "0")
-        : "Geburtszeit offen";
-      preview.innerHTML = `
-        <div><b>✦</b><span>${escapeHtml(birth.day)}.${escapeHtml(birth.month)}.${escapeHtml(birth.year)} · ${escapeHtml(time)}</span></div>
-        <div><b>⌖</b><span>${escapeHtml(birth.birthplace)}</span></div>
-      `;
-    }
-  }
-
-
-
-  async function renderOnboardingState() {
-    const birth = readJson(KEYS.birth, null);
-    const personId = getCurrentPersonId();
-    const state = await getSessionState();
-
-    const card = $("onboardingCard");
-    const analysisGuide = $("analysisEmptyGuide");
-
-    const hasProfile = !!(personId || (birth && birth.name && birth.day && birth.month && birth.year && birth.birthplace));
-
-    const loginStep = $("stepLogin");
-    const profileStep = $("stepProfile");
-    const analysisStep = $("stepAnalysis");
-
-    if (loginStep) loginStep.classList.toggle("done", !!state.ok);
-    if (profileStep) profileStep.classList.toggle("done", !!hasProfile);
-    if (analysisStep) analysisStep.classList.toggle("done", !!hasProfile);
-
-    if (card) {
-      card.style.display = state.ok && hasProfile ? "none" : "";
-    }
-
-    if (analysisGuide) {
-      analysisGuide.style.display = hasProfile ? "none" : "";
-    }
-  }
-
-
   async function renderAuthUi() {
-    closeLogin();
-
-    const loginText = $("loginSessionText");
-    const loginCard = $("loginSessionCard");
-    const button = findLogoutButton();
     const state = await getSessionState();
+    const topButton = $("authTopButton");
+    const profileButton = $("profileAuthButton");
+    const logoutButton = $("logoutButton");
+    const loginText = $("loginSessionText");
+    const loginBadge = $("loginBadge");
+    const loginCard = $("loginSessionCard");
 
     if (state.ok) {
       document.body.classList.remove("soraya-logged-out", "soraya-needs-login");
+      const email = state.session && state.session.user ? state.session.user.email : "Supabase User";
 
-      if (loginText) {
-        const email = state.session && state.session.user ? state.session.user.email : "Supabase User";
-        loginText.textContent = "✅ Eingeloggt als " + email + ".";
+      if (topButton) {
+        topButton.textContent = "✓";
+        topButton.onclick = () => showSection("profile");
+        topButton.setAttribute("aria-label", "Profil öffnen");
       }
 
+      if (profileButton) {
+        profileButton.textContent = "Eingeloggt";
+        profileButton.onclick = () => toast("Du bist bereits eingeloggt.");
+      }
+
+      if (logoutButton) logoutButton.style.display = "block";
+      if (loginText) loginText.textContent = "Eingeloggt als " + email + ".";
+      if (loginBadge) loginBadge.textContent = "Aktiv";
       if (loginCard) loginCard.classList.add("ok");
-
-      if (button) {
-        button.textContent = "⇥ Abmelden";
-        button.onclick = signOut;
-      }
-
       return true;
     }
 
     document.body.classList.add("soraya-logged-out", "soraya-needs-login");
 
-    if (loginText) loginText.textContent = "Du bist abgemeldet. Bitte einloggen, um Daten zu speichern.";
-    if (loginCard) loginCard.classList.remove("ok");
-
-    if (button) {
-      button.textContent = "Einloggen";
-      button.onclick = openLogin;
+    if (topButton) {
+      topButton.textContent = "☾";
+      topButton.onclick = openLogin;
+      topButton.setAttribute("aria-label", "Einloggen");
     }
 
+    if (profileButton) {
+      profileButton.textContent = "Einloggen";
+      profileButton.onclick = openLogin;
+    }
+
+    if (logoutButton) logoutButton.style.display = "none";
+    if (loginText) loginText.textContent = "Du bist abgemeldet. Bitte einloggen, um Daten zu speichern.";
+    if (loginBadge) loginBadge.textContent = "Offen";
+    if (loginCard) loginCard.classList.remove("ok");
     return false;
   }
 
@@ -417,6 +424,7 @@
       if (!person.name) throw new Error("Name fehlt.");
       if (!person.birthplace) throw new Error("Geburtsort fehlt.");
 
+      showLoadingVeil("Profil wird gespeichert…");
       const data = await callSoraya("/mobile/people/create", {
         is_self: true,
         relation: null,
@@ -435,23 +443,19 @@
 
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
       renderIdentity();
-    bindLuxuryInteractions();
-    installMobileStability();
-    installAccessibilityPolish();
-    sorayaHealthCheck();
-    renderReleasePolish();
-    renderProductState();
-    bindSynastryPremiumEvents();
-      renderHomeSky();
-      renderHomeDashboardPremium();
+      renderProfilePreview();
+      renderHomeSkyThrottled(true);
       renderOnboardingState();
       renderAppStatus();
       loadRealChartData(true);
-      status("personResult", "✅ Person gespeichert.\nName: " + (row.name || person.name) + "\nID: " + row.id, "ok");
+      status("personResult", "✅ Profil gespeichert.\nName: " + (row.name || person.name), "ok");
       toast("Profil gespeichert.");
     } catch (error) {
-      status("personResult", error.message, "bad");
-      toast("Profil konnte nicht gespeichert werden.");
+      const msg = friendlyError(error, "Profil konnte nicht gespeichert werden.");
+      status("personResult", msg, "bad");
+      toast(msg);
+    } finally {
+      hideLoadingVeil();
     }
   }
 
@@ -469,7 +473,8 @@
     if (!needPerson()) return;
 
     try {
-      if ($("analysisReading")) $("analysisReading").innerHTML = "Soraya liest dein kosmisches Feld ...";
+      if ($("analysisReading")) $("analysisReading").innerHTML = "Soraya lädt deine Analyse…";
+      showLoadingVeil("Analyse wird geladen…");
 
       const data = await callSoraya("/mobile/analysis/save", {
         person_id: getCurrentPersonId(),
@@ -479,21 +484,21 @@
       const analysis = data.data && data.data.analysis ? data.data.analysis : {};
       const reading = analysis.reading || data.data.reading || data.data.text || "Keine Analyse gefunden.";
 
-      if ($("analysisSource")) $("analysisSource").textContent = "source: " + (data.data.source || "loaded");
+      if ($("analysisSource")) $("analysisSource").textContent = data.data.source || "geladen";
       if ($("analysisReading")) $("analysisReading").innerHTML = markdownToHtml(reading);
 
       const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
       localStorage.setItem(KEYS.analyses, String(count));
       renderIdentity();
-      bumpUsage("analysis");
-      hideLoadingVeil();
       toast("Analyse geladen.");
     } catch (error) {
-      if ($("analysisReading")) $("analysisReading").textContent = "Fehler: " + error.message;
-      toast("Analyse konnte nicht geladen werden.");
+      const msg = friendlyError(error, "Analyse konnte nicht geladen werden.");
+      if ($("analysisReading")) $("analysisReading").textContent = msg;
+      toast(msg);
+    } finally {
+      hideLoadingVeil();
     }
   }
-
 
   function pickText(source, keys, fallback) {
     if (!source) return fallback;
@@ -507,16 +512,14 @@
   function renderHoroscopePremium(payload) {
     const root = payload && payload.data ? payload.data : payload || {};
     const h = root.horoscope || root || {};
-
     const body = pickText(h, ["body", "text", "beschreibung", "deutung", "message"], pickText(root, ["body", "text"], ""));
     const mood = pickText(h, ["stimmung", "mood", "title", "titel"], pickText(root, ["stimmung", "mood"], "Dein Horoskop"));
     const tip = pickText(h, ["tipp", "tip", "hinweis", "advice"], pickText(root, ["tipp", "tip"], "Vertraue deinem inneren Kompass."));
-
     const lower = (body + " " + mood + " " + tip).toLowerCase();
 
     const focus = pickText(h, ["fokus", "focus"], lower.includes("klar") ? "Klarheit entsteht, wenn du heute bewusst langsamer wirst." : "Richte deine Energie auf eine Sache, die wirklich wichtig ist.");
     const love = pickText(h, ["liebe", "love", "beziehung"], lower.includes("herz") || lower.includes("liebe") ? "Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören." : "Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen.");
-    const work = pickText(h, ["beruf", "work", "career"], lower.includes("geduld") ? "Geduld bringt heute mehr als Druck. Schritt für Schritt entsteht Stabilität." : "Struktur hilft dir, deine Kraft sinnvoll einzusetzen.");
+    const work = pickText(h, ["beruf", "work", "career"], lower.includes("geduld") ? "Geduld bringt heute mehr als Druck." : "Struktur hilft dir, deine Kraft sinnvoll einzusetzen.");
     const ritual = pickText(h, ["ritual", "ritual_text"], "Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention.");
     const affirmation = pickText(h, ["affirmation", "mantra"], "Ich vertraue meinem Weg und bewege mich mit Klarheit.");
 
@@ -531,12 +534,12 @@
     setText("horoAffirmation", "„" + affirmation.replace(/^„|“$|^"|"$/g, "") + "“");
   }
 
-
   async function loadHoroscope() {
     if (!needPerson()) return;
 
     try {
-      if ($("horoMood")) $("horoMood").textContent = "Soraya berechnet ...";
+      if ($("horoMood")) $("horoMood").textContent = "Soraya berechnet…";
+      showLoadingVeil("Horoskop wird geladen…");
 
       const data = await callSoraya("/mobile/horoscope/save", {
         person_id: getCurrentPersonId(),
@@ -549,18 +552,18 @@
       const body = h.body || h.text || data.data.body || data.data.text || "Keine Horoskopdaten gefunden.";
       const tip = h.tipp || data.data.tipp || "Vertraue deinem inneren Kompass.";
 
-      if ($("horoMood")) $("horoMood").textContent = mood;
-      if ($("horoBody")) $("horoBody").textContent = body;
-      if ($("horoTip")) $("horoTip").textContent = "✦ " + tip;
-
+      setText("horoMood", mood);
+      setText("horoBody", body);
+      setText("horoTip", "✦ " + tip);
       renderHoroscopePremium(data);
-
-      hideLoadingVeil();
       toast("Horoskop geladen.");
     } catch (error) {
-      if ($("horoMood")) $("horoMood").textContent = "Fehler";
-      if ($("horoBody")) $("horoBody").textContent = error.message;
-      toast("Horoskop konnte nicht geladen werden.");
+      const msg = friendlyError(error, "Horoskop konnte nicht geladen werden.");
+      setText("horoMood", "Fehler");
+      setText("horoBody", msg);
+      toast(msg);
+    } finally {
+      hideLoadingVeil();
     }
   }
 
@@ -579,46 +582,12 @@
   function clearChatView() {
     const windowNode = $("chatWindow");
     if (!windowNode) return;
-    windowNode.innerHTML = '<div class="bubble assistant">Hallo, ich bin Soraya ✨ Wie kann ich dich heute unterstützen?</div>';
+    windowNode.innerHTML = '<div class="bubble assistant">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div>';
   }
 
   function needsSafetyNote(message) {
     return /(wohnung|haus|kaufen|kredit|vertrag|steuer|invest|aktie|crypto|bitcoin|gesund|krank|arzt|medizin|anwalt)/i.test(message || "");
   }
-
-
-
-  function setRitualFocus(kind) {
-    const title = $("ritualMoonTitle");
-    const text = $("ritualMoonText");
-    const affirmation = $("ritualAffirmation");
-
-    const data = {
-      "Mondwasser": {
-        title: "Mondwasser",
-        text: "Stelle ein Glas Wasser ans Fenster. Setze eine Intention und trinke es später bewusst als Symbol für Reinigung und innere Klarheit.",
-        affirmation: "Ich reinige meine Energie und öffne mich für klare Führung."
-      },
-      "Dankbarkeit": {
-        title: "Dankbarkeit",
-        text: "Schreibe drei Dinge auf, für die du heute dankbar bist. Spüre jeden Satz kurz im Körper nach.",
-        affirmation: "Ich erkenne die Fülle, die bereits in meinem Leben wirkt."
-      },
-      "Loslassen": {
-        title: "Loslassen",
-        text: "Schreibe auf, was du nicht länger tragen möchtest. Atme aus und stelle dir vor, wie diese Last leichter wird.",
-        affirmation: "Ich lasse los, was nicht mehr zu meinem Weg gehört."
-      }
-    };
-
-    const selected = data[kind] || data["Dankbarkeit"];
-    if (title) title.textContent = selected.title;
-    if (text) text.textContent = selected.text;
-    if (affirmation) affirmation.textContent = "„" + selected.affirmation + "“";
-
-    toast("Ritual gewählt: " + selected.title);
-  }
-
 
   function quickChat(message) {
     const input = $("chatMessage");
@@ -627,16 +596,18 @@
       input.focus();
     }
     showSection("chat");
-    setTimeout(() => sendChat(), 120);
+    window.setTimeout(() => sendChat(), 90);
   }
-
 
   async function sendChat() {
     if (!needPerson()) return;
 
     const field = $("chatMessage");
     const message = field ? field.value.trim() : "";
-    if (!message) return;
+    if (!message) {
+      toast("Bitte zuerst eine Nachricht schreiben.");
+      return;
+    }
 
     appendBubble("user", message);
     if (field) field.value = "";
@@ -650,7 +621,7 @@
         people_ids: []
       });
 
-      if ($("conversationId")) $("conversationId").value = data.data.conversation_id;
+      if ($("conversationId")) $("conversationId").value = data.data.conversation_id || "";
       if (data.data.conversation_id) localStorage.setItem(KEYS.conv, data.data.conversation_id);
 
       let reply = data.data.reply || "Keine Antwort.";
@@ -660,7 +631,7 @@
 
       appendBubble("assistant", reply);
     } catch (error) {
-      appendBubble("assistant", "Fehler: " + error.message);
+      appendBubble("assistant", friendlyError(error, "Chat konnte nicht geladen werden."));
     }
   }
 
@@ -730,96 +701,7 @@
     }
   }
 
-  function hideNode(node) {
-    if (!node) return;
-    node.style.display = "none";
-    node.setAttribute("aria-hidden", "true");
-  }
-
-  function cleanSynastryDom() {
-    const section = $("synastry");
-    if (!section) return;
-
-    const selects = Array.from(section.querySelectorAll("#synPersonSelect"));
-    const main = selects[0] || null;
-
-    selects.forEach((select, index) => {
-      if (select === main) return;
-      select.id = "synPersonSelectLegacy" + index;
-      hideNode(select);
-    });
-
-    const raw = $("personBId");
-    if (raw) {
-      const label = raw.previousElementSibling;
-      const hint = raw.nextElementSibling;
-      hideNode(raw);
-      if (label && label.tagName === "LABEL") hideNode(label);
-      if (hint && hint.tagName === "P") hideNode(hint);
-    }
-  }
-
-  function ensureSynastryUi() {
-    cleanSynastryDom();
-
-    const wrap = document.querySelector("#synastry .syn-wrap");
-    if (!wrap || $("synastryPersonCreateCard")) {
-      refreshSynastryPeople();
-      return;
-    }
-
-    const select = $("synPersonSelect");
-    if (select && !select.dataset.sorayaBound) {
-      select.dataset.sorayaBound = "1";
-      select.addEventListener("change", () => {
-        const raw = $("personBId");
-        if (raw) raw.value = select.value || "";
-      });
-    }
-
-    const createCard = document.createElement("div");
-    createCard.id = "synastryPersonCreateCard";
-    createCard.className = "card phaseb3-partner-card";
-    createCard.innerHTML = `
-      <div class="card-title">
-        <h4>Zweite Person anlegen</h4>
-        <span class="badge">ohne UUID</span>
-      </div>
-      <p class="synastry-hint">Lege eine zweite Person an. Danach erscheint sie automatisch oben in der Liste.</p>
-      <label>Name</label>
-      <input id="partnerName" placeholder="Name der zweiten Person" />
-      <div class="partner-form-grid">
-        <div><label>Tag</label><input id="partnerDay" inputmode="numeric" placeholder="14" /></div>
-        <div><label>Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="9" /></div>
-        <div><label>Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="1988" /></div>
-      </div>
-      <div class="partner-form-grid two">
-        <div><label>Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="18" /></div>
-        <div><label>Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="30" /></div>
-      </div>
-      <label>Geburtsort</label>
-      <input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
-      <label>Beziehung</label>
-      <select id="partnerRelation">
-        <option value="partner">Partner/in</option>
-        <option value="friend">Freund/in</option>
-        <option value="family">Familie</option>
-        <option value="other">Andere</option>
-      </select>
-      <button class="btn gold block" onclick="createSynastryPerson()" style="margin-top:16px">Zweite Person speichern</button>
-      <div id="partnerCreateStatus" class="status">Noch keine zweite Person gespeichert.</div>
-    `;
-
-    const resultBox = $("synastryText");
-    if (resultBox) resultBox.insertAdjacentElement("afterend", createCard);
-    else wrap.appendChild(createCard);
-
-    refreshSynastryPeople();
-  }
-
   function refreshSynastryPeople() {
-    cleanSynastryDom();
-
     const select = $("synPersonSelect");
     if (!select) return;
 
@@ -847,6 +729,7 @@
 
     const raw = $("personBId");
     if (raw) raw.value = select.value || "";
+    updateSynastryNames();
   }
 
   async function createSynastryPerson() {
@@ -866,6 +749,7 @@
       if (!person.name) throw new Error("Name fehlt.");
       if (!person.birthplace) throw new Error("Geburtsort fehlt.");
 
+      showLoadingVeil("Zweite Person wird gespeichert…");
       const data = await callSoraya("/mobile/people/create", {
         is_self: false,
         relation,
@@ -881,12 +765,16 @@
       const select = $("synPersonSelect");
       if (select) select.value = row.id;
       if ($("personBId")) $("personBId").value = row.id;
+      updateSynastryNames();
 
       status("partnerCreateStatus", "✅ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
       toast("Zweite Person gespeichert.");
     } catch (error) {
-      status("partnerCreateStatus", error.message, "bad");
-      toast("Person konnte nicht gespeichert werden.");
+      const msg = friendlyError(error, "Person konnte nicht gespeichert werden.");
+      status("partnerCreateStatus", msg, "bad");
+      toast(msg);
+    } finally {
+      hideLoadingVeil();
     }
   }
 
@@ -923,7 +811,6 @@
     status("synastryText", html, "ok");
   }
 
-
   function initials(value, fallback = "?") {
     const text = safe(value).trim();
     if (!text) return fallback;
@@ -943,7 +830,7 @@
     const label = select && select.options && select.selectedIndex >= 0
       ? select.options[select.selectedIndex].textContent
       : "";
-    const partner = label && !label.includes("Person wählen") ? label.replace(/\s*\(.+\)\s*$/, "") : "Zweite Person";
+    const partner = label && !label.includes("Person wählen") && !label.includes("Noch keine") ? label.replace(/\s*\(.+\)\s*$/, "") : "Zweite Person";
 
     setText("synBInitial", initials(partner, "?"));
     setText("synBName", partner);
@@ -965,20 +852,16 @@
     const lower = text.toLowerCase();
 
     const harmony = lower.includes("harmonie") || lower.includes("trigon") || lower.includes("sextil")
-      ? "Zwischen euch gibt es Bereiche, die leicht, unterstützend und natürlich fließen."
-      : "Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt. Dort liegt eure natürliche Harmonie.";
+      ? "Zwischen euch gibt es Bereiche, die leicht und unterstützend fließen."
+      : "Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt.";
 
     const challenge = lower.includes("spannung") || lower.includes("quadrat") || lower.includes("opposition")
-      ? "Spannungen zeigen keine Schwäche, sondern Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel."
-      : "Unterschiede können euch reifen lassen, wenn ihr sie nicht als Kampf, sondern als Spiegel versteht.";
+      ? "Spannungen zeigen Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel."
+      : "Unterschiede können euch reifen lassen, wenn ihr sie bewusst anschaut.";
 
     const magnet = lower.includes("venus") || lower.includes("mars") || lower.includes("mond")
       ? "Eure Anziehung wirkt besonders über Gefühl, Nähe und persönliche Resonanz."
-      : "Eure Verbindung kann durch ehrliche Aufmerksamkeit und gegenseitiges Interesse stärker werden.";
-
-    const advice = text
-      ? "Sorayas Empfehlung: Sprecht nicht nur über Probleme, sondern auch über eure Bedürfnisse. Je klarer ihr euch zeigt, desto tiefer kann die Verbindung werden."
-      : "Berechne zuerst eure Verbindung. Danach erhältst du eine sanfte Empfehlung, wie ihr bewusster miteinander umgehen könnt.";
+      : "Eure Verbindung kann durch ehrliche Aufmerksamkeit stärker werden.";
 
     setText("synHarmonyTitle", "Seelische Resonanz");
     setText("synHarmonyText", harmony);
@@ -986,23 +869,18 @@
     setText("synChallengeText", challenge);
     setText("synMagnetTitle", "Anziehung");
     setText("synMagnetText", magnet);
-    setText("synAdviceText", advice);
   }
-
 
   async function saveSynastry() {
     if (!needPerson()) return;
 
     try {
-      ensureSynastryUi();
-
-      const partnerId =
-        (($("synPersonSelect") && $("synPersonSelect").value) || "") ||
-        (($("personBId") && $("personBId").value.trim()) || "");
+      const partnerId = (($("synPersonSelect") && $("synPersonSelect").value) || "") || (($("personBId") && $("personBId").value.trim()) || "");
 
       if (!partnerId) throw new Error("Bitte zuerst eine zweite Person auswählen oder anlegen.");
       if (partnerId === getCurrentPersonId()) throw new Error("Bitte eine andere Person auswählen.");
 
+      showLoadingVeil("Synastrie wird berechnet…");
       const data = await callSoraya("/mobile/synastry/save", {
         person_a_id: getCurrentPersonId(),
         person_b_id: partnerId
@@ -1021,11 +899,14 @@
         summary: data.data && data.data.summary,
         aspects: data.data && data.data.aspects
       });
-
+      renderSynastryPremium(data);
       toast("Synastrie berechnet.");
     } catch (error) {
-      status("synastryText", error.message, "bad");
-      toast("Synastrie konnte nicht berechnet werden.");
+      const msg = friendlyError(error, "Synastrie konnte nicht berechnet werden.");
+      status("synastryText", msg, "bad");
+      toast(msg);
+    } finally {
+      hideLoadingVeil();
     }
   }
 
@@ -1058,14 +939,14 @@
     const sign = signFor(day, month);
     if (!sign) return;
 
-    if ($("sunGlyph")) $("sunGlyph").textContent = sign.g;
-    if ($("sunSign")) $("sunSign").textContent = sign.s;
-    if ($("sunRange")) $("sunRange").textContent = `${sign.from[1]}. ${MONTHS[sign.from[0] - 1]} – ${sign.to[1]}. ${MONTHS[sign.to[0] - 1]}`;
-    if ($("sunElement")) $("sunElement").textContent = sign.el;
-    if ($("sunQuality")) $("sunQuality").textContent = sign.q;
-    if ($("sunRuler")) $("sunRuler").textContent = sign.r;
+    setText("sunGlyph", sign.g);
+    setText("sunSign", sign.s);
+    setText("sunRange", `${sign.from[1]}. ${MONTHS[sign.from[0] - 1]} – ${sign.to[1]}. ${MONTHS[sign.to[0] - 1]}`);
+    setText("sunElement", sign.el);
+    setText("sunQuality", sign.q);
+    setText("sunRuler", sign.r);
     if ($("sunProps")) $("sunProps").style.display = "grid";
-    if ($("profileSub")) $("profileSub").textContent = "Seelenlicht-Sucher · " + sign.s;
+    setText("profileSub", "Sonnenzeichen · " + sign.s);
   }
 
   function renderGreeting() {
@@ -1088,37 +969,17 @@
     let label = "Mondphase";
     let sub = "Die Energie des Himmels für heute.";
 
-    if (age < 1.85) {
-      label = "Neumond";
-      sub = "Zeit für Neuanfänge und Absichten.";
-    } else if (age < 5.5) {
-      label = "Zunehmende Sichel";
-      sub = "Etwas Neues nimmt Form an.";
-    } else if (age < 9.2) {
-      label = "Erstes Viertel";
-      sub = "Zeit zu handeln und dranzubleiben.";
-    } else if (age < 12.9) {
-      label = "Zunehmender Mond";
-      sub = "Wachstum, Klärung, Ausrichtung.";
-    } else if (age < 16.6) {
-      label = "Vollmond";
-      sub = "Höhepunkt — sehen, was gereift ist.";
-    } else if (age < 20.3) {
-      label = "Abnehmender Mond";
-      sub = "Loslassen und dankbar sein.";
-    } else if (age < 23.99) {
-      label = "Letztes Viertel";
-      sub = "Aufräumen und Klarheit schaffen.";
-    } else {
-      label = "Abnehmende Sichel";
-      sub = "Ruhe, Rückzug, Vorbereitung.";
-    }
+    if (age < 1.85) { label = "Neumond"; sub = "Zeit für Neuanfänge und Absichten."; }
+    else if (age < 5.5) { label = "Zunehmende Sichel"; sub = "Etwas Neues nimmt Form an."; }
+    else if (age < 9.2) { label = "Erstes Viertel"; sub = "Zeit zu handeln und dranzubleiben."; }
+    else if (age < 12.9) { label = "Zunehmender Mond"; sub = "Wachstum, Klärung, Ausrichtung."; }
+    else if (age < 16.6) { label = "Vollmond"; sub = "Höhepunkt — sehen, was gereift ist."; }
+    else if (age < 20.3) { label = "Abnehmender Mond"; sub = "Loslassen und dankbar sein."; }
+    else if (age < 23.99) { label = "Letztes Viertel"; sub = "Aufräumen und Klarheit schaffen."; }
+    else { label = "Abnehmende Sichel"; sub = "Ruhe, Rückzug, Vorbereitung."; }
 
-    if ($("moonPhase")) $("moonPhase").textContent = label;
-    if ($("moonIllum")) $("moonIllum").textContent = illum + "% beleuchtet";
-    if ($("moonSub")) $("moonSub").textContent = sub;
-    if ($("ritualMoonTitle")) $("ritualMoonTitle").textContent = label;
-    if ($("ritualMoonText")) $("ritualMoonText").textContent = illum + "% beleuchtet · " + sub;
+    setText("moonPhase", label);
+    setText("moonIllum", illum + "% beleuchtet");
     if ($("moonVisual")) $("moonVisual").style.setProperty("--shadow-scale", Math.max(0.18, Math.min(1.25, 1 - illum / 100)));
   }
 
@@ -1126,9 +987,8 @@
     const name = localStorage.getItem(KEYS.name) || "Dein Profil";
     const birth = readJson(KEYS.birth, null);
 
-    if ($("profileTitle")) $("profileTitle").textContent = name;
-    if ($("profileInitial")) $("profileInitial").textContent = (name[0] || "S").toUpperCase();
-
+    setText("profileTitle", name);
+    setText("profileInitial", (name[0] || "S").toUpperCase());
     renderGreeting();
 
     if (birth) {
@@ -1139,7 +999,6 @@
       if ($("pHour")) $("pHour").value = $("pHour").value || (birth.hour ?? "");
       if ($("pMinute")) $("pMinute").value = $("pMinute").value || (birth.minute ?? "");
       if ($("pBirthplace")) $("pBirthplace").value = $("pBirthplace").value || birth.birthplace || "";
-
       renderSun(Number(birth.day), Number(birth.month));
     }
 
@@ -1151,21 +1010,43 @@
       $("daysStat").textContent = String(days);
     }
 
-    if ($("analysisStat")) $("analysisStat").textContent = localStorage.getItem(KEYS.analyses) || "0";
-    if ($("savedStat")) $("savedStat").textContent = localStorage.getItem(KEYS.person) ? "1" : "0";
+    setText("analysisStat", localStorage.getItem(KEYS.analyses) || "0");
+    setText("savedStat", localStorage.getItem(KEYS.person) ? "1" : "0");
   }
 
-  function zodiacAngle(index) {
-    return ((index * 30 - 90) * Math.PI) / 180;
+  function renderProfilePreview() {
+    const birth = readJson(KEYS.birth, null);
+    const preview = document.querySelector(".c45-birth-preview");
+    if (!preview || !birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) return;
+
+    const time = birth.hour !== null && birth.hour !== undefined && birth.hour !== ""
+      ? String(birth.hour).padStart(2, "0") + ":" + String(birth.minute || 0).padStart(2, "0")
+      : "Geburtszeit offen";
+
+    preview.innerHTML = `
+      <div><b>✦</b><span>${escapeHtml(birth.day)}.${escapeHtml(birth.month)}.${escapeHtml(birth.year)} · ${escapeHtml(time)}</span></div>
+      <div><b>⌖</b><span>${escapeHtml(birth.birthplace)}</span></div>
+    `;
   }
 
-  function xy(cx, cy, radius, angle) {
-    return {
-      x: cx + Math.cos(angle) * radius,
-      y: cy + Math.sin(angle) * radius
-    };
-  }
+  async function renderOnboardingState() {
+    const birth = readJson(KEYS.birth, null);
+    const personId = getCurrentPersonId();
+    const state = await getSessionState();
+    const hasProfile = !!(personId || (birth && birth.name && birth.day && birth.month && birth.year && birth.birthplace));
 
+    const card = $("onboardingCard");
+    const analysisGuide = $("analysisEmptyGuide");
+    const loginStep = $("stepLogin");
+    const profileStep = $("stepProfile");
+    const analysisStep = $("stepAnalysis");
+
+    if (loginStep) loginStep.classList.toggle("done", !!state.ok);
+    if (profileStep) profileStep.classList.toggle("done", !!hasProfile);
+    if (analysisStep) analysisStep.classList.toggle("done", !!hasProfile);
+    if (card) card.style.display = state.ok && hasProfile ? "none" : "";
+    if (analysisGuide) analysisGuide.style.display = hasProfile ? "none" : "";
+  }
 
   function signName(pointOrSign) {
     const sign = typeof pointOrSign === "string" ? pointOrSign : pointOrSign && pointOrSign.sign;
@@ -1185,7 +1066,30 @@
     return Number.isFinite(n) ? ((n % 360) + 360) % 360 : 0;
   }
 
-  function pointLabel(point) { return point && (point.name_de || point.name) ? (point.name_de || point.name) : "Planet"; }
+  function pointLabel(point) {
+    return point && (point.name_de || point.name) ? (point.name_de || point.name) : "Planet";
+  }
+
+  function planetGlyph(name) {
+    const map = {
+      Sonne: "☉", Sun: "☉", Mond: "☾", Moon: "☾", Merkur: "☿", Mercury: "☿",
+      Venus: "♀", Mars: "♂", Jupiter: "♃", Saturn: "♄", Uranus: "♅",
+      Neptun: "♆", Neptune: "♆", Pluto: "♇", Chiron: "⚷",
+      True_North_Lunar_Node: "☊", Mean_Lilith: "⚸", Ascendant: "AC", Medium_Coeli: "MC"
+    };
+    return map[name] || "✦";
+  }
+
+  function formatDegree(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "–";
+    return Math.round(n * 10) / 10 + "°";
+  }
+
+  function xy(cx, cy, radius, deg) {
+    const angle = ((deg - 90) * Math.PI) / 180;
+    return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+  }
 
   function svgText(x, y, text, size, fill, weight = "500") {
     return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${size}" font-weight="${weight}" fill="${fill}">${escapeHtml(text)}</text>`;
@@ -1196,7 +1100,6 @@
     return 180 - asc;
   }
 
-
   function renderWheel(chartData = null) {
     const svg = $("chartWheel");
     if (!svg) return;
@@ -1205,9 +1108,9 @@
     const points = Array.isArray(data.points) ? data.points : [];
     const houses = Array.isArray(data.houses) ? data.houses : [];
     const signData = [
-      { key: "Ari", de: "Widder", glyph: "♈", start: 0 }, { key: "Tau", de: "Stier", glyph: "♉", start: 30 }, { key: "Gem", de: "Zwillinge", glyph: "♊", start: 60 }, { key: "Can", de: "Krebs", glyph: "♋", start: 90 },
-      { key: "Leo", de: "Löwe", glyph: "♌", start: 120 }, { key: "Vir", de: "Jungfrau", glyph: "♍", start: 150 }, { key: "Lib", de: "Waage", glyph: "♎", start: 180 }, { key: "Sco", de: "Skorpion", glyph: "♏", start: 210 },
-      { key: "Sag", de: "Schütze", glyph: "♐", start: 240 }, { key: "Cap", de: "Steinbock", glyph: "♑", start: 270 }, { key: "Aqu", de: "Wassermann", glyph: "♒", start: 300 }, { key: "Pis", de: "Fische", glyph: "♓", start: 330 }
+      { key: "Ari", glyph: "♈", start: 0 }, { key: "Tau", glyph: "♉", start: 30 }, { key: "Gem", glyph: "♊", start: 60 }, { key: "Can", glyph: "♋", start: 90 },
+      { key: "Leo", glyph: "♌", start: 120 }, { key: "Vir", glyph: "♍", start: 150 }, { key: "Lib", glyph: "♎", start: 180 }, { key: "Sco", glyph: "♏", start: 210 },
+      { key: "Sag", glyph: "♐", start: 240 }, { key: "Cap", glyph: "♑", start: 270 }, { key: "Aqu", glyph: "♒", start: 300 }, { key: "Pis", glyph: "♓", start: 330 }
     ];
     const corePoints = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron", "True_North_Lunar_Node", "Mean_Lilith"];
     const cx = 210, cy = 210, outer = 190, zodiacR = 166, houseR = 145, planetR = 112, inner = 66;
@@ -1216,7 +1119,6 @@
 
     html += `<circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(255,255,255,.025)" stroke="rgba(228,181,90,.72)" stroke-width="1.5"/>`;
     html += `<circle cx="${cx}" cy="${cy}" r="${houseR}" fill="none" stroke="rgba(190,108,255,.25)" stroke-width="1"/>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${planetR - 20}" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="1"/>`;
     html += `<circle cx="${cx}" cy="${cy}" r="${inner}" fill="rgba(7,8,23,.72)" stroke="rgba(228,181,90,.28)" stroke-width="1"/>`;
 
     signData.forEach((sign) => {
@@ -1249,65 +1151,11 @@
       html += `<line x1="${lineStart.x.toFixed(1)}" y1="${lineStart.y.toFixed(1)}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="rgba(228,181,90,.18)" stroke-width="1"/>`;
       html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="11" fill="rgba(22,13,45,.95)" stroke="rgba(228,181,90,.76)" stroke-width="1"/>`;
       html += svgText(p.x, p.y, glyph, glyph.length > 1 ? 9 : 15, "#fff4c9", "700");
-      html += `<title>${escapeHtml(pointLabel(point))} · ${escapeHtml(signName(point))} ${safe(point.degree)}°</title>`;
     });
 
-    const asc = data.big_three && data.big_three.ascendant ? data.big_three.ascendant : null;
-    const mc = points.find((point) => point.name === "Medium_Coeli");
-    if (asc) { const p = xy(cx, cy, outer + 1, pointAbsPos(asc) + rotation); html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="rgba(228,181,90,.20)" stroke="rgba(228,181,90,.85)"/>`; html += svgText(p.x, p.y, "AC", 9, "#fff4c9", "800"); }
-    if (mc) { const p = xy(cx, cy, outer + 1, pointAbsPos(mc) + rotation); html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="rgba(190,108,255,.20)" stroke="rgba(190,108,255,.85)"/>`; html += svgText(p.x, p.y, "MC", 9, "#fff4c9", "800"); }
     html += svgText(cx, cy - 5, "SORAYA", 20, "rgba(228,181,90,.96)", "700");
     html += svgText(cx, cy + 17, drawablePoints.length ? "Radix" : "Birth Chart", 11, "rgba(231,222,255,.65)", "500");
     svg.innerHTML = html;
-  }
-
-
-  function planetGlyph(name) {
-    const map = {
-      Sonne: "☉",
-      Sun: "☉",
-      Mond: "☾",
-      Moon: "☾",
-      Merkur: "☿",
-      Mercury: "☿",
-      Venus: "♀",
-      Mars: "♂",
-      Jupiter: "♃",
-      Saturn: "♄",
-      Uranus: "♅",
-      Neptun: "♆",
-      Neptune: "♆",
-      Pluto: "♇",
-      Chiron: "⚷",
-      True_North_Lunar_Node: "☊",
-      Mean_Lilith: "⚸",
-      Ascendant: "AC",
-      Medium_Coeli: "MC"
-    };
-
-    return map[name] || "✦";
-  }
-
-  function extractPlanets(chartData) {
-    if (!chartData) return [];
-
-    const data = chartData.data || chartData;
-    const candidates = [
-      data.planets,
-      data.planet_positions,
-      data.positions,
-      data.chart && data.chart.planets
-    ];
-
-    const found = candidates.find((candidate) => candidate && (Array.isArray(candidate) || typeof candidate === "object"));
-    if (!found) return [];
-
-    if (Array.isArray(found)) return found;
-
-    return Object.entries(found).map(([name, value]) => ({
-      name,
-      ...(typeof value === "object" ? value : { degree_total: Number(value) || 0 })
-    }));
   }
 
   function ensureChartDetails() {
@@ -1324,43 +1172,207 @@
     return box;
   }
 
+  function renderAnalysisDetails(chartJson) {
+    const data = chartJson ? (chartJson.data || chartJson) : null;
+    if (!data) return;
 
+    const points = Array.isArray(data.points) ? data.points : [];
+    const aspects = Array.isArray(data.aspects) ? data.aspects : [];
+    const big = data.big_three || {};
+    const sun = big.sun || points.find((p) => p.name === "Sun");
+    const moon = big.moon || points.find((p) => p.name === "Moon");
+    const asc = big.ascendant || points.find((p) => p.name === "Ascendant");
 
+    setText("bigSunSign", sun ? signName(sun) + " · " + formatDegree(sun.degree) : "–");
+    setText("bigMoonSign", moon ? signName(moon) + " · " + formatDegree(moon.degree) : "–");
+    setText("bigAscSign", asc ? signName(asc) + " · " + formatDegree(asc.degree) : "–");
+    setText("bigSunText", sun && sun.house ? "Haus " + sun.house + " · Identität und Wille" : "Identität · Ausdruck · Lebenslicht");
+    setText("bigMoonText", moon && moon.house ? "Haus " + moon.house + " · Gefühl und Sicherheit" : "Gefühl · Bedürfnis · innere Welt");
+    setText("bigAscText", asc ? "Dein Auftreten und dein Weg" : "Auftreten · Weg · Wirkung");
 
+    const planetList = $("planetList");
+    if (planetList) {
+      const wanted = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"];
+      const rows = points.filter((p) => wanted.includes(p.name)).map((p) => {
+        const glyph = planetGlyph(p.name);
+        const name = pointLabel(p);
+        const sign = signName(p);
+        const degree = formatDegree(p.degree);
+        const house = p.house ? "Haus " + p.house : "Haus –";
+        return `<div class="c41-planet-row">
+          <span class="c41-planet-glyph">${escapeHtml(glyph)}</span>
+          <span class="c41-planet-name">${escapeHtml(name)}</span>
+          <span class="c41-planet-sign">${escapeHtml(sign)} ${escapeHtml(degree)}</span>
+          <span class="c41-planet-house">${escapeHtml(house)}</span>
+        </div>`;
+      }).join("");
+      planetList.innerHTML = rows || `<div class="c41-empty">Keine Planetenliste verfügbar.</div>`;
+    }
 
-  function showLoadingVeil(text = "Soraya liest den Himmel…") {
-    const veil = $("loadingVeil");
-    if (!veil) return;
-    const p = veil.querySelector("p");
-    if (p) p.textContent = text;
-    veil.classList.add("show");
-    veil.setAttribute("aria-hidden", "false");
+    const aspectSummary = $("aspectSummary");
+    if (aspectSummary) {
+      const total = aspects.length;
+      const harmoniousNames = ["Trine", "Sextile", "Conjunction", "Trigon", "Sextil", "Konjunktion"];
+      const challengingNames = ["Square", "Opposition", "Quadrat"];
+      const harmonious = aspects.filter((a) => harmoniousNames.includes(a.type || a.aspect || a.name || a.type_de)).length;
+      const challenging = aspects.filter((a) => challengingNames.includes(a.type || a.aspect || a.name || a.type_de)).length;
+      const neutral = Math.max(0, total - harmonious - challenging);
+
+      const elements = data.distributions && data.distributions.elements ? data.distributions.elements : null;
+      const elementRows = elements ? Object.entries(elements).map(([key, val]) => {
+        const label = { fire: "Feuer", earth: "Erde", air: "Luft", water: "Wasser", Feuer: "Feuer", Erde: "Erde", Luft: "Luft", Wasser: "Wasser" }[key] || key;
+        const count = Number(val) || 0;
+        const pct = Math.min(100, Math.max(6, count * 12));
+        return `<div class="c41-balance-row"><span>${escapeHtml(label)}</span><i><em style="width:${pct}%"></em></i><b>${count}</b></div>`;
+      }).join("") : "";
+
+      aspectSummary.innerHTML = `
+        <div class="c41-aspect-cards">
+          <div><b>${harmonious}</b><span>Harmonisch</span></div>
+          <div><b>${challenging}</b><span>Spannung</span></div>
+          <div><b>${neutral}</b><span>Neutral</span></div>
+        </div>
+        ${elementRows ? `<div class="c41-balance">${elementRows}</div>` : `<div class="c41-empty">Elemente-Balance wird geladen, sobald verfügbar.</div>`}
+      `;
+    }
   }
 
-  function hideLoadingVeil() {
-    const veil = $("loadingVeil");
-    if (!veil) return;
-    veil.classList.remove("show");
-    veil.setAttribute("aria-hidden", "true");
+  async function loadRealChartData(force = false) {
+    const birth = readJson(KEYS.birth, null);
+    const details = ensureChartDetails();
+    if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
+      renderWheel(null);
+      if (details) details.textContent = "Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.";
+      return null;
+    }
+
+    try {
+      const config = getConfig();
+      if (details) details.textContent = "Soraya berechnet dein echtes Radix…";
+      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(birth)
+      });
+      const json = await response.json();
+      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Chart nicht verfügbar.");
+      renderWheel(json);
+      renderAnalysisDetails(json);
+
+      const data = json.data || json;
+      const big = data.big_three || {};
+      const meta = data.meta || {};
+      const points = Array.isArray(data.points) ? data.points : [];
+      const sun = big.sun ? signName(big.sun) : "–";
+      const moon = big.moon ? signName(big.moon) : "–";
+      const asc = big.ascendant ? signName(big.ascendant) : "–";
+      const planetLine = points
+        .filter((point) => ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].includes(point.name))
+        .map((point) => `${pointLabel(point)}: ${signName(point)} ${safe(point.degree)}°`)
+        .join("\n");
+      const houseSystem = meta.house_system ? "Häusersystem: " + meta.house_system : "";
+      const timeKnown = meta.time_known === false ? "Geburtszeit unbekannt: Soraya nutzt 12:00 als Näherung." : "";
+      if (details) {
+        details.textContent = ["✅ Echtes Birth Chart geladen.", "Sonne: " + sun, "Mond: " + moon, "Aszendent: " + asc, houseSystem, timeKnown, "", planetLine].filter((line) => line !== "").join("\n");
+      }
+      return json;
+    } catch (error) {
+      renderWheel(null);
+      if (details) details.textContent = "Chart konnte nicht geladen werden: " + friendlyError(error, "Chart nicht verfügbar.");
+      return null;
+    }
   }
 
-  function pulseLoading(text, ms = 650) {
-    showLoadingVeil(text);
-    window.setTimeout(hideLoadingVeil, ms);
+  function setHomeTransits(html) {
+    const box = $("homeTransits");
+    if (box) box.innerHTML = html;
   }
 
-  function bindLuxuryInteractions() {
-    if (document.body.dataset.c411Bound) return;
-    document.body.dataset.c411Bound = "1";
-
-    document.addEventListener("click", (event) => {
-      const interactive = event.target.closest("button, .tile, .card[onclick], .row");
-      if (!interactive) return;
-      interactive.classList.add("c411-tapped");
-      window.setTimeout(() => interactive.classList.remove("c411-tapped"), 260);
-    }, { passive: true });
+  function transitRow(glyph, title, sub, right = "") {
+    return '<div class="row"><div class="left"><span class="orb-sm">' + escapeHtml(glyph) + '</span><div><h4>' +
+      escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right) + '</span></div>';
   }
 
+  function setEnergy(percent, label) {
+    if ($("energyRing")) $("energyRing").style.setProperty("--energy", (percent == null ? 0 : percent) + "%");
+    setText("energyPct", percent == null ? "–" : percent + "%");
+    setText("energyLabel", label || "–");
+  }
+
+  function renderHomeSkyThrottled(force = false) {
+    if (homeSkyTimer) window.clearTimeout(homeSkyTimer);
+    homeSkyTimer = window.setTimeout(() => renderHomeSky(force), force ? 0 : 120);
+  }
+
+  async function renderHomeSky() {
+    const birth = readJson(KEYS.birth, null);
+    const config = readJson(KEYS.config, null);
+
+    if (!config || !config.engineUrl) {
+      setHomeTransits(transitRow("✦", "Verbindung fehlt", "Speichere zuerst Supabase & Backend."));
+      setEnergy(null, "Verbindung fehlt");
+      return;
+    }
+
+    if (!birth || !birth.day || !birth.month || !birth.year) {
+      setHomeTransits(transitRow("✦", "Profil fehlt", "Hinterlege deine Geburtsdaten."));
+      setEnergy(null, "Profil anlegen");
+      return;
+    }
+
+    try {
+      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/transits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ person: birth, at: null })
+      });
+
+      const json = await response.json();
+      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Transite nicht verfügbar.");
+
+      const aspects = (json.data.aspects_to_natal || []).slice(0, 3);
+      if (!aspects.length) {
+        setHomeTransits(transitRow("☾", "Ruhiger Himmel", "Gerade keine engen Transite."));
+        setEnergy(60, "Ruhig & offen");
+        return;
+      }
+
+      const rows = aspects.map((aspect) => {
+        const movement = aspect.movement === "Applying" ? "im Kommen" : aspect.movement === "Separating" ? "klingt ab" : "aktiv";
+        const title = [aspect.transit_de, aspect.type_de, aspect.natal_de].filter(Boolean).join(" ");
+        const right = aspect.orb != null ? Number(aspect.orb).toFixed(1) + "°" : "";
+        return transitRow(planetGlyph(aspect.transit_de), title || "Transit", movement, right);
+      }).join("");
+
+      setHomeTransits(rows);
+
+      let harmony = 0;
+      let tension = 0;
+      (json.data.aspects_to_natal || []).slice(0, 7).forEach((aspect) => {
+        if (aspect.type_de === "Trigon" || aspect.type_de === "Sextil") harmony += 1;
+        if (aspect.type_de === "Quadrat" || aspect.type_de === "Opposition") tension += 1;
+      });
+
+      const total = harmony + tension;
+      let score = total ? Math.round(50 + ((harmony - tension) / total) * 42) : 60;
+      score = Math.max(8, Math.min(96, score));
+      const label = score >= 66 ? "Harmonisch & offen" : score >= 45 ? "Ausgeglichen" : "Intensiv & fordernd";
+      setEnergy(score, label);
+    } catch (error) {
+      setHomeTransits(transitRow("✦", "Transite nicht ladbar", friendlyError(error, "Backend nicht erreichbar.")));
+      setEnergy(null, "–");
+    }
+  }
+
+  function previewIdentityFromForm() {
+    const name = ($("pName") && $("pName").value.trim()) || localStorage.getItem(KEYS.name) || "du";
+    setText("profileTitle", name);
+    setText("profileInitial", (name[0] || "S").toUpperCase());
+
+    const day = Number(($("pDay") && $("pDay").value) || 0);
+    const month = Number(($("pMonth") && $("pMonth").value) || 0);
+    if (day && month) renderSun(day, month);
+  }
 
   function setAppStatus(text, type = "") {
     const pill = $("appStatusPill");
@@ -1387,263 +1399,66 @@
     setAppStatus("Soraya · aktiv", "ok");
   }
 
-
-  function setText(id, value) {
-    const node = $(id);
-    if (node) node.textContent = value;
+  function showLoadingVeil(text = "Soraya lädt…") {
+    const veil = $("loadingVeil");
+    if (!veil) return;
+    const p = veil.querySelector("p");
+    if (p) p.textContent = text;
+    veil.classList.add("show");
+    veil.setAttribute("aria-hidden", "false");
   }
 
-  function formatDegree(value) {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return "–";
-    return Math.round(n * 10) / 10 + "°";
+  function hideLoadingVeil() {
+    const veil = $("loadingVeil");
+    if (!veil) return;
+    veil.classList.remove("show");
+    veil.setAttribute("aria-hidden", "true");
   }
 
-  function planetGlyphByName(name) {
-    const map = {
-      Sun: "☉",
-      Moon: "☾",
-      Mercury: "☿",
-      Venus: "♀",
-      Mars: "♂",
-      Jupiter: "♃",
-      Saturn: "♄",
-      Uranus: "♅",
-      Neptune: "♆",
-      Pluto: "♇",
-      Chiron: "⚷",
-      True_North_Lunar_Node: "☊",
-      Mean_Lilith: "⚸",
-      Ascendant: "AC",
-      Medium_Coeli: "MC"
-    };
-    return map[name] || "✦";
-  }
-
-  function renderAnalysisPremium(chartJson) {
-    const data = chartJson ? (chartJson.data || chartJson) : null;
-    if (!data) return;
-
-    const points = Array.isArray(data.points) ? data.points : [];
-    const houses = Array.isArray(data.houses) ? data.houses : [];
-    const aspects = Array.isArray(data.aspects) ? data.aspects : [];
-    const big = data.big_three || {};
-
-    const sun = big.sun || points.find((p) => p.name === "Sun");
-    const moon = big.moon || points.find((p) => p.name === "Moon");
-    const asc = big.ascendant || points.find((p) => p.name === "Ascendant");
-
-    setText("bigSunSign", sun ? signName(sun) + " · " + formatDegree(sun.degree) : "–");
-    setText("bigMoonSign", moon ? signName(moon) + " · " + formatDegree(moon.degree) : "–");
-    setText("bigAscSign", asc ? signName(asc) + " · " + formatDegree(asc.degree) : "–");
-
-    setText("bigSunText", sun && sun.house ? "Haus " + sun.house + " · Identität, Wille und Lebenslicht" : "Identität · Ausdruck · Lebenslicht");
-    setText("bigMoonText", moon && moon.house ? "Haus " + moon.house + " · Gefühle, Sicherheit und innere Welt" : "Gefühl · Bedürfnis · innere Welt");
-    setText("bigAscText", asc ? "Dein erster Eindruck, dein Weg und dein Auftreten" : "Auftreten · Weg · erste Wirkung");
-
-    const planetList = $("planetList");
-    if (planetList) {
-      const wanted = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"];
-      const rows = points
-        .filter((p) => wanted.includes(p.name))
-        .map((p) => {
-          const glyph = planetGlyphByName(p.name);
-          const name = pointLabel(p);
-          const sign = signName(p);
-          const degree = formatDegree(p.degree);
-          const house = p.house ? "Haus " + p.house : "Haus –";
-          return `<div class="c41-planet-row">
-            <span class="c41-planet-glyph">${escapeHtml(glyph)}</span>
-            <span class="c41-planet-name">${escapeHtml(name)}</span>
-            <span class="c41-planet-sign">${escapeHtml(sign)} ${escapeHtml(degree)}</span>
-            <span class="c41-planet-house">${escapeHtml(house)}</span>
-          </div>`;
-        })
-        .join("");
-
-      planetList.innerHTML = rows || `<div class="c41-empty">Keine Planetenliste verfügbar.</div>`;
-    }
-
-    const aspectSummary = $("aspectSummary");
-    if (aspectSummary) {
-      const total = aspects.length;
-      const harmoniousNames = ["Trine", "Sextile", "Conjunction"];
-      const challengingNames = ["Square", "Opposition"];
-      const harmonious = aspects.filter((a) => harmoniousNames.includes(a.type || a.aspect || a.name)).length;
-      const challenging = aspects.filter((a) => challengingNames.includes(a.type || a.aspect || a.name)).length;
-      const neutral = Math.max(0, total - harmonious - challenging);
-
-      const elements = data.distributions && data.distributions.elements ? data.distributions.elements : null;
-      const elementRows = elements ? Object.entries(elements).map(([key, val]) => {
-        const label = { fire: "Feuer", earth: "Erde", air: "Luft", water: "Wasser", Feuer: "Feuer", Erde: "Erde", Luft: "Luft", Wasser: "Wasser" }[key] || key;
-        const count = Number(val) || 0;
-        const pct = Math.min(100, Math.max(6, count * 12));
-        return `<div class="c41-balance-row"><span>${escapeHtml(label)}</span><i><em style="width:${pct}%"></em></i><b>${count}</b></div>`;
-      }).join("") : "";
-
-      aspectSummary.innerHTML = `
-        <div class="c41-aspect-cards">
-          <div><b>${harmonious}</b><span>Harmonisch</span></div>
-          <div><b>${challenging}</b><span>Spannung</span></div>
-          <div><b>${neutral}</b><span>Neutral</span></div>
-        </div>
-        ${elementRows ? `<div class="c41-balance">${elementRows}</div>` : `<div class="c41-empty">Elemente-Balance wird geladen, sobald verfügbar.</div>`}
-      `;
-    }
-  }
-
-
-  async function loadRealChartData(force = false) {
-    const birth = readJson(KEYS.birth, null);
-    const details = ensureChartDetails();
-    if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
-      renderWheel(null);
-      renderAnalysisPremium(null);
-      if (details) details.textContent = "Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.";
-      return null;
-    }
-    try {
-      const config = getConfig();
-      if (details) details.textContent = "Soraya berechnet dein echtes Radix ...";
-      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(birth) });
-      const json = await response.json();
-      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Chart nicht verfügbar.");
-      renderWheel(json);
-      const data = json.data || json;
-      const big = data.big_three || {};
-      const meta = data.meta || {};
-      const points = Array.isArray(data.points) ? data.points : [];
-      const sun = big.sun ? signName(big.sun) : "–";
-      const moon = big.moon ? signName(big.moon) : "–";
-      const asc = big.ascendant ? signName(big.ascendant) : "–";
-      const planetLine = points.filter((point) => ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].includes(point.name)).map((point) => `${pointLabel(point)}: ${signName(point)} ${safe(point.degree)}°`).join("\n");
-      const houseSystem = meta.house_system ? "Häusersystem: " + meta.house_system : "";
-      const timeKnown = meta.time_known === false ? "Geburtszeit unbekannt: Soraya nutzt 12:00 als Näherung." : "";
-      if (details) { details.textContent = ["✅ Echtes Birth Chart geladen.", "Sonne: " + sun, "Mond: " + moon, "Aszendent: " + asc, houseSystem, timeKnown, "", planetLine].filter((line) => line !== "").join("\n"); }
-      return json;
-    } catch (error) {
-      renderWheel(null);
-      if (details) details.textContent = "Chart konnte nicht geladen werden: " + error.message;
-      return null;
-    }
-  }
-
-
-  function setHomeTransits(html) {
-    const box = $("homeTransits");
-    if (box) box.innerHTML = html;
-  }
-
-  function transitRow(glyph, title, sub, right = "") {
-    return '<div class="row"><div class="left"><span class="orb-sm">' + glyph + '</span><div><h4>' +
-      escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right) + '</span></div>';
-  }
-
-  function setEnergy(percent, label) {
-    if ($("energyRing")) $("energyRing").style.setProperty("--energy", (percent == null ? 0 : percent) + "%");
-    if ($("energyPct")) $("energyPct").textContent = percent == null ? "–" : percent + "%";
-    if ($("energyLabel")) $("energyLabel").textContent = label || "–";
-  }
-
-  async function renderHomeSky() {
-    const birth = readJson(KEYS.birth, null);
-    const config = readJson(KEYS.config, null);
-
-    if (!config || !config.engineUrl) {
-      setHomeTransits(transitRow("✦", "Noch keine Verbindung", "Speichere zuerst Supabase & Backend."));
-      setEnergy(null, "Verbindung fehlt");
-      return;
-    }
-
-    if (!birth || !birth.day || !birth.month || !birth.year) {
-      setHomeTransits(transitRow("✦", "Profil fehlt", "Hinterlege deine Geburtsdaten."));
-      setEnergy(null, "Profil anlegen");
-      return;
-    }
-
-    try {
-      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/transits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ person: birth, at: null })
+  function bindUiEvents() {
+    const brand = document.querySelector(".brand");
+    if (brand && !brand.dataset.bound) {
+      brand.dataset.bound = "1";
+      brand.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          showSection("home");
+        }
       });
-
-      const json = await response.json();
-      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Transite nicht verfügbar.");
-
-      const aspects = (json.data.aspects_to_natal || []).slice(0, 3);
-
-      if (!aspects.length) {
-        setHomeTransits(transitRow("☾", "Ruhiger Himmel", "Gerade keine engen Transite."));
-        setEnergy(60, "Ruhig & offen");
-        return;
-      }
-
-      const rows = aspects.map((aspect) => {
-        const movement = aspect.movement === "Applying" ? "im Kommen" : aspect.movement === "Separating" ? "klingt ab" : "aktiv";
-        const title = [aspect.transit_de, aspect.type_de, aspect.natal_de].filter(Boolean).join(" ");
-        const right = aspect.orb != null ? Number(aspect.orb).toFixed(1) + "°" : "";
-        return transitRow(planetGlyph(aspect.transit_de), title || "Transit", movement, right);
-      }).join("");
-
-      setHomeTransits(rows);
-
-      let harmony = 0;
-      let tension = 0;
-      (json.data.aspects_to_natal || []).slice(0, 7).forEach((aspect) => {
-        if (aspect.type_de === "Trigon" || aspect.type_de === "Sextil") harmony += 1;
-        if (aspect.type_de === "Quadrat" || aspect.type_de === "Opposition") tension += 1;
-      });
-
-      const total = harmony + tension;
-      let score = total ? Math.round(50 + ((harmony - tension) / total) * 42) : 60;
-      score = Math.max(8, Math.min(96, score));
-
-      const label = score >= 66 ? "Harmonisch & offen" : score >= 45 ? "Ausgeglichen" : "Intensiv & fordernd";
-      setEnergy(score, label);
-    } catch (error) {
-      setHomeTransits(transitRow("✦", "Transite nicht ladbar", error.message));
-      setEnergy(null, "–");
     }
-  }
 
-  function previewIdentityFromForm() {
-    const name = ($("pName") && $("pName").value.trim()) || localStorage.getItem(KEYS.name) || "du";
-    if ($("profileTitle")) $("profileTitle").textContent = name;
-    if ($("profileInitial")) $("profileInitial").textContent = (name[0] || "S").toUpperCase();
+    const synSelect = $("synPersonSelect");
+    if (synSelect && !synSelect.dataset.bound) {
+      synSelect.dataset.bound = "1";
+      synSelect.addEventListener("change", () => {
+        const raw = $("personBId");
+        if (raw) raw.value = synSelect.value || "";
+        updateSynastryNames();
+      });
+    }
 
-    const day = Number(($("pDay") && $("pDay").value) || 0);
-    const month = Number(($("pMonth") && $("pMonth").value) || 0);
-    if (day && month) renderSun(day, month);
-  }
-
-  function cleanLoginButtons() {
-    closeLogin();
-
-    document.querySelectorAll("button, a").forEach((node) => {
-      const text = (node.textContent || "").trim();
-      const onclick = node.getAttribute("onclick") || "";
-
-      const isLoginTrigger =
-        onclick.includes("openLogin") ||
-        onclick.includes("signIn") ||
-        text === "Einloggen";
-
-      if (!isLoginTrigger) return;
-
-      node.removeAttribute("onclick");
-
-      if (node.tagName === "A") {
-        node.href = LOGIN_PATH;
-      } else {
-        node.onclick = openLogin;
-      }
+    document.addEventListener("click", (event) => {
+      const panel = $("settingsModal");
+      if (!panel || !panel.classList.contains("open")) return;
+      if (event.target === panel) closeSettings();
     });
   }
 
+  function auditButtons() {
+    const broken = Array.from(document.querySelectorAll("button")).filter((button) => {
+      if (button.disabled) return false;
+      if (button.closest(".section") && !button.closest(".section").classList.contains("active")) return false;
+      return !button.onclick && !button.getAttribute("onclick");
+    });
+
+    if (broken.length) {
+      console.warn("Soraya Button Audit: Buttons ohne Funktion", broken);
+      setAppStatus("Button prüfen", "warn");
+    }
+  }
+
   function bootstrap() {
-    closeLogin();
-    loadConfig();
+    loadConfig(false);
 
     const storedPersonId = localStorage.getItem(KEYS.person);
     if ($("personId") && storedPersonId) $("personId").value = storedPersonId;
@@ -1653,20 +1468,18 @@
 
     renderMoon();
     renderIdentity();
+    renderProfilePreview();
     renderWheel(null);
-    renderHomeSky();
+    renderHomeSkyThrottled();
     renderAuthUi();
-    cleanLoginButtons();
-    ensureSynastryUi();
+    bindUiEvents();
+    cacheSelfFromStorage();
+    refreshSynastryPeople();
     loadPeopleFromSupabase(false);
+    renderOnboardingState();
+    renderAppStatus();
 
-    setTimeout(() => {
-      renderIdentity();
-      renderAuthUi();
-      cleanLoginButtons();
-      ensureSynastryUi();
-      refreshSynastryPeople();
-    }, 700);
+    window.setTimeout(auditButtons, 500);
   }
 
   window.toast = toast;
@@ -1674,30 +1487,31 @@
   window.safe = safe;
   window.escapeHtml = escapeHtml;
   window.markdownToHtml = markdownToHtml;
+  window.friendlyError = friendlyError;
+  window.showGlobalError = showGlobalError;
+  window.hideGlobalError = hideGlobalError;
 
   window.showSection = showSection;
   window.openLogin = openLogin;
-  window.closeLogin = closeLogin;
   window.openSettings = openSettings;
   window.closeSettings = closeSettings;
 
   window.initSupabase = initSupabase;
   window.saveConfig = saveConfig;
   window.loadConfig = loadConfig;
+  window.checkSorayaConnection = checkSorayaConnection;
   window.getEngineUrl = getEngineUrl;
   window.getToken = getToken;
   window.callSoraya = callSoraya;
 
-  window.signIn = signIn;
-  window.signUp = signUp;
   window.signOut = signOut;
-
   window.createPerson = createPerson;
   window.needPerson = needPerson;
   window.loadAnalysis = loadAnalysis;
   window.loadHoroscope = loadHoroscope;
   window.appendBubble = appendBubble;
   window.clearChatView = clearChatView;
+  window.quickChat = quickChat;
   window.sendChat = sendChat;
 
   window.loadPeopleFromSupabase = loadPeopleFromSupabase;
