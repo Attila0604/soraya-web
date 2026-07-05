@@ -88,7 +88,6 @@
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-    pulseLoading("Soraya öffnet " + id + "…", 360);
     renderAppStatus();
 
     if (id === "analysis") {
@@ -113,6 +112,9 @@
   }
 
   function openLogin() {
+    try {
+      localStorage.setItem("soraya_after_login_path", window.location.pathname + window.location.search + window.location.hash);
+    } catch (error) {}
     window.location.href = LOGIN_PATH;
   }
 
@@ -434,6 +436,7 @@
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
       renderIdentity();
     bindLuxuryInteractions();
+    installMobileStability();
     installAccessibilityPolish();
     sorayaHealthCheck();
     renderReleasePolish();
