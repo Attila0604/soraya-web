@@ -19,6 +19,7 @@
 </head>
 
 <body>
+  <a class="c412-skip-link" href="#mainContent">Zum Inhalt springen</a>
   <div class="cosmos"></div>
 
   <div class="app">
@@ -35,7 +36,7 @@
       <div class="c410-app-status" id="appStatusPill">Soraya · bereit</div>
     </header>
 
-    <main>
+    <main id="mainContent">
       <!-- HOME -->
       <section id="home" class="section active">
         <div class="page-title c4-hero-title c46-home-title">
@@ -465,7 +466,7 @@
           <p class="c4-muted">Wähle eine gespeicherte Person oder gib eine ID manuell ein. Danach berechnet Soraya die Verbindung.</p>
 
           <button class="btn gold block" onclick="saveSynastry()">Verbindung berechnen</button>
-          <div id="synastryText" class="status">Noch nicht berechnet.</div>
+          <div id="synastryText" class="status" aria-live="polite">Noch nicht berechnet.</div>
         </div>
 
         <div class="c44-synastry-grid">
@@ -566,7 +567,7 @@
           </div>
 
           <button class="btn gold block" onclick="createPerson()">Profil speichern</button>
-          <div id="personResult" class="status">Noch nicht gespeichert.</div>
+          <div id="personResult" class="status" aria-live="polite">Noch nicht gespeichert.</div>
         </div>
 
         <div class="card premium c45-premium-card">
@@ -705,7 +706,7 @@
         <button class="btn gold" onclick="signIn()">Einloggen</button>
         <button class="btn" onclick="signUp()">Registrieren</button>
       </div>
-      <div id="authStatus" class="status">Bitte Verbindung speichern und dann einloggen.</div>
+      <div id="authStatus" class="status" aria-live="polite">Bitte Verbindung speichern und dann einloggen.</div>
     </div>
   </div>
 
@@ -728,7 +729,7 @@
         <button class="btn" onclick="loadConfig()">Laden</button>
       </div>
 
-      <div id="configStatus" class="status">Noch nicht gespeichert.</div>
+      <div id="configStatus" class="status" aria-live="polite">Noch nicht gespeichert.</div>
     </div>
   </div>
 
