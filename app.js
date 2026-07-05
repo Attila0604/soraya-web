@@ -1,11 +1,12 @@
 /*
-  Soraya — C.5.3 Mobile Debug & Button Cleanup
+  Soraya — C.5.4 Visual Restore Lite
   Datei: app.js
   Ziel:
   - alle sichtbaren Buttons haben eine Funktion
-  - unnötige Premium-/Demo-Buttons entfernt
+  - C.5.3 Stabilität bleibt erhalten
+  - Visual Restore im Frontend
   - keine Backend-Änderung
-  - mobile Performance ruhiger
+  - mobile Performance bleibt ruhig
 */
 
 (function () {
