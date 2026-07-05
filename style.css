@@ -4739,3 +4739,242 @@ html[data-soraya-product="C5.0"] .c414-release-badge::after {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   41. Soraya C.5.2 — Mobile Stability & Button Fix
+   Ziel: flüssiger auf Handy, weniger schwere Effekte, bessere Bedienbarkeit.
+   ========================================================================== */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body.soraya-lite-mode * {
+  scroll-behavior: auto !important;
+}
+
+body.soraya-lite-mode .card,
+body.soraya-lite-mode .btn,
+body.soraya-lite-mode .round,
+body.soraya-lite-mode .tile,
+body.soraya-lite-mode .bubble,
+body.soraya-lite-mode .section.active,
+body.soraya-lite-mode .section.active .card {
+  animation: none !important;
+  transition-duration: .12s !important;
+}
+
+body.soraya-lite-mode .cosmos::before,
+body.soraya-lite-mode .cosmos::after {
+  opacity: .36 !important;
+  filter: none !important;
+}
+
+body.soraya-lite-mode .card,
+body.soraya-lite-mode .card.glow,
+body.soraya-lite-mode .premium {
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, .38),
+    inset 0 1px 0 rgba(255, 255, 255, .07) !important;
+}
+
+body.soraya-lite-mode .topbar,
+body.soraya-lite-mode .tabbar,
+body.soraya-lite-mode .modal,
+body.soraya-lite-mode .c413-error-panel,
+body.soraya-lite-mode .c411-loading-veil {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.soraya-lite-mode #chartWheel {
+  filter: none !important;
+}
+
+body.soraya-lite-mode .btn.gold::after {
+  display: none !important;
+}
+
+body.soraya-lite-mode .c411-loading-veil {
+  background: rgba(3, 4, 13, .58) !important;
+}
+
+.soraya-mobile-device .app {
+  width: min(100%, 520px);
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+
+.soraya-mobile-device .topbar {
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+
+.soraya-mobile-device main {
+  padding-bottom: calc(116px + env(safe-area-inset-bottom));
+}
+
+.soraya-mobile-device .page-title {
+  margin-top: 22px;
+  margin-bottom: 16px;
+}
+
+.soraya-mobile-device .page-title h2 {
+  font-size: clamp(44px, 13vw, 58px);
+  line-height: .90;
+}
+
+.soraya-mobile-device .page-title p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.soraya-mobile-device .card {
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.soraya-mobile-device .card + .card,
+.soraya-mobile-device .section > .card:first-of-type {
+  margin-top: 14px;
+}
+
+.soraya-mobile-device .btn,
+.soraya-mobile-device button,
+.soraya-mobile-device input,
+.soraya-mobile-device textarea,
+.soraya-mobile-device select {
+  touch-action: manipulation;
+}
+
+.soraya-mobile-device .btn,
+.soraya-mobile-device input,
+.soraya-mobile-device select {
+  min-height: 48px;
+}
+
+.soraya-mobile-device textarea {
+  min-height: 86px;
+}
+
+.soraya-mobile-device .shortcut-grid,
+.soraya-mobile-device .c46-shortcut-grid,
+.soraya-mobile-device .c43-prompt-grid,
+.soraya-mobile-device .c50-feature-grid {
+  gap: 10px;
+}
+
+.soraya-mobile-device .tile,
+.soraya-mobile-device .c43-prompt {
+  min-height: 104px;
+}
+
+.soraya-mobile-device .c410-tabbar {
+  width: calc(100% - 18px);
+  bottom: max(10px, env(safe-area-inset-bottom));
+  padding: 8px;
+  border-radius: 26px;
+}
+
+.soraya-mobile-device .c410-tabbar button {
+  min-height: 54px;
+  padding: 7px 3px;
+}
+
+.soraya-mobile-device .c410-tabbar button b {
+  font-size: 18px;
+  height: 22px;
+}
+
+.soraya-mobile-device .c410-tabbar button span {
+  font-size: 9px;
+}
+
+.soraya-mobile-device .chat-window,
+.soraya-mobile-device .c43-chat-card .chat-window {
+  min-height: 310px;
+  height: min(48dvh, 420px);
+}
+
+.soraya-mobile-device .composer,
+.soraya-mobile-device .c43-composer {
+  align-items: end;
+}
+
+.soraya-mobile-device .composer textarea,
+.soraya-mobile-device .c43-composer textarea {
+  min-height: 58px;
+  max-height: 150px;
+}
+
+.soraya-mobile-device .horo-layout,
+.soraya-mobile-device .c42-horo-layout,
+.soraya-mobile-device .profile-hero,
+.soraya-mobile-device .c45-profile-hero .profile-hero,
+.soraya-mobile-device .c47-ritual-hero,
+.soraya-mobile-device .c48-premium-hero,
+.soraya-mobile-device .c43-chat-intro {
+  gap: 14px;
+}
+
+.soraya-mobile-device .modal {
+  width: min(100% - 22px, 520px);
+  max-height: min(82dvh, 720px);
+  overflow: auto;
+  border-radius: 26px;
+}
+
+.soraya-mobile-device .c411-loader {
+  min-width: min(240px, calc(100vw - 48px));
+  padding: 18px;
+}
+
+.soraya-mobile-device .c411-loader p {
+  font-size: 19px;
+}
+
+.soraya-mobile-device .c413-error-panel {
+  width: calc(100% - 22px);
+  top: max(76px, env(safe-area-inset-top));
+}
+
+/* Buttons must remain clearly tappable */
+button[onclick],
+.btn,
+.tile,
+.row {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Safer layout for very small Android screens */
+@media (max-width: 360px) {
+  .soraya-mobile-device .app {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .soraya-mobile-device .brand h1 {
+    font-size: 26px;
+    letter-spacing: .18em;
+  }
+
+  .soraya-mobile-device .brand .sub {
+    font-size: 8px;
+  }
+
+  .soraya-mobile-device .round {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  .soraya-mobile-device .page-title h2 {
+    font-size: 42px;
+  }
+
+  .soraya-mobile-device .card {
+    padding: 14px;
+    border-radius: 22px;
+  }
+}
