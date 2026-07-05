@@ -4148,3 +4148,127 @@ body {
     color: #111 !important;
   }
 }
+
+
+/* ==========================================================================
+   37. Soraya C.4.13 — Stability & Error-State Premium Upgrade
+   ========================================================================== */
+
+.c413-error-panel {
+  position: fixed;
+  left: 50%;
+  top: max(84px, env(safe-area-inset-top));
+  z-index: 130;
+  width: min(500px, calc(100% - 26px));
+  transform: translate(-50%, -18px);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 218, 135, .22);
+  background:
+    radial-gradient(240px 110px at 0% 0%, rgba(255, 226, 155, .10), transparent 72%),
+    linear-gradient(180deg, rgba(22, 15, 50, .92), rgba(7, 10, 28, .92));
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, .58),
+    inset 0 1px 0 rgba(255, 255, 255, .08);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.c413-error-panel.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.c413-error-panel > div {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.c413-error-panel b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .30);
+  background: rgba(255, 218, 135, .055);
+  font-family: var(--display);
+}
+
+.c413-error-panel span {
+  color: var(--champagne);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.c413-error-panel.ok {
+  border-color: rgba(101, 240, 188, .28);
+}
+
+.c413-error-panel.ok b {
+  color: var(--green);
+  border-color: rgba(101, 240, 188, .34);
+}
+
+.c413-error-panel.bad {
+  border-color: rgba(255, 118, 118, .30);
+}
+
+.c413-error-panel.bad b {
+  color: #ffb4b4;
+  border-color: rgba(255, 118, 118, .34);
+}
+
+.c413-health-btn {
+  margin-top: 14px;
+}
+
+.c413-health-status {
+  margin-top: 10px;
+  white-space: pre-line;
+}
+
+.status.bad,
+.status.ok {
+  position: relative;
+  overflow: hidden;
+}
+
+.status.bad::before,
+.status.ok::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: inherit;
+}
+
+.status.bad::before {
+  background: rgba(255, 118, 118, .70);
+}
+
+.status.ok::before {
+  background: rgba(101, 240, 188, .70);
+}
+
+@media (max-width: 430px) {
+  .c413-error-panel {
+    top: max(74px, env(safe-area-inset-top));
+    border-radius: 20px;
+  }
+
+  .c413-error-panel span {
+    font-size: 12px;
+  }
+}
