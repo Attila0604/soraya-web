@@ -3,58 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Soraya — Einloggen</title>
+  <title>Soraya — Login</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#070817" />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
   <link rel="stylesheet" href="/style.css" />
-  <style>
-    .login-app{width:min(100%,480px);min-height:100dvh;margin:0 auto;padding:28px 18px calc(34px + env(safe-area-inset-bottom));display:grid;align-items:center}
-    .login-logo{text-align:center;margin-bottom:22px}.login-logo .sigil{font-size:34px;color:var(--gold2);filter:drop-shadow(0 0 18px rgba(228,181,90,.45))}.login-logo h1{margin:4px 0 0;font-family:var(--wordmark);font-size:42px;line-height:.94;letter-spacing:.18em;padding-left:.18em;background:linear-gradient(180deg,#fff2bb,#d9a341 72%,#92661d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.login-logo p{margin:10px 0 0;color:var(--muted);font-size:14px}
-    .login-card{padding:24px}.login-card h2{font-family:var(--display);font-size:40px;line-height:.98;margin:0 0 8px}.login-card .lead{color:var(--muted);margin:0 0 20px;font-size:14px}.login-actions{display:grid;gap:10px;margin-top:18px}.login-secondary{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.login-secondary .btn{flex:1;min-width:130px;text-align:center;text-decoration:none}.login-config{margin-top:16px;border-top:1px solid var(--soft);padding-top:14px}.login-config summary{cursor:pointer;color:var(--gold2);font-weight:700;font-size:13px}.login-config p{color:var(--muted2);font-size:12px;line-height:1.5}.login-status{margin-top:14px}.login-foot{text-align:center;color:var(--muted2);font-size:12px;margin-top:18px}
-  </style>
 </head>
-<body>
-  <div class="cosmos"></div>
+<body class="login-body">
+  <div class="cosmos" aria-hidden="true"></div>
+
   <main class="login-app">
-    <section>
-      <div class="login-logo"><div class="sigil">✵</div><h1>SORAYA</h1><p>Luxury Astro Guide</p></div>
-      <div class="card glow login-card">
-        <span class="eyebrow">Willkommen zurück</span>
-        <h2>Einloggen</h2>
-        <p class="lead">Melde dich an, damit Soraya dein Profil, deine Analysen und deine Synastrie sicher laden kann.</p>
-        <form id="loginForm">
-          <label>E-Mail</label>
-          <input id="loginEmail" type="email" autocomplete="email" placeholder="deine@email.de" required />
-          <label>Passwort</label>
-          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Dein Passwort" required />
-          <div class="login-actions"><button class="btn gold block" type="submit">Einloggen</button></div>
-        </form>
-        <div class="login-secondary">
-          <button class="btn" type="button" onclick="sorayaLogin.signUp()">Registrieren</button>
-          <a class="btn" href="/">Zur App</a>
-        </div>
-        <div id="loginStatus" class="status login-status">Bereit.</div>
-        <details id="connectionBox" class="login-config">
-          <summary>Verbindung einrichten</summary>
-          <p>Nur nötig, wenn diese Seite die gespeicherte Soraya-Verbindung noch nicht kennt.</p>
-          <label>Supabase URL</label>
-          <input id="loginSupabaseUrl" placeholder="https://...supabase.co" />
-          <label>Supabase anon/public key</label>
-          <textarea id="loginSupabaseAnonKey" placeholder="anon/public key"></textarea>
-          <label>Soraya Backend URL</label>
-          <input id="loginEngineUrl" placeholder="https://...railway.app" />
-          <button class="btn gold block" type="button" onclick="sorayaLogin.saveConfig()" style="margin-top:14px">Verbindung speichern</button>
-        </details>
+    <section class="login-shell card glow">
+      <div class="login-logo">
+        <div class="sigil">✵</div>
+        <h1>SORAYA</h1>
+        <p>Dein persönlicher Sternenraum</p>
       </div>
-      <div class="login-foot">Deine Anmeldung läuft über Supabase. Keine geheimen Keys im Browser.</div>
+
+      <div class="login-tabs" role="tablist" aria-label="Login Modus">
+        <button id="loginTabButton" class="active" type="button" onclick="sorayaLogin.setMode('login')">Einloggen</button>
+        <button id="registerTabButton" type="button" onclick="sorayaLogin.setMode('register')">Registrieren</button>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <input id="loginMode" type="hidden" value="login" />
+
+        <label for="loginEmail">E-Mail</label>
+        <input id="loginEmail" type="email" inputmode="email" autocomplete="email" placeholder="deine@email.de" required />
+
+        <label for="loginPassword">Passwort</label>
+        <div class="password-wrap">
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Mindestens 6 Zeichen" required />
+          <button class="password-toggle" type="button" onclick="sorayaLogin.togglePassword()" aria-label="Passwort anzeigen">👁</button>
+        </div>
+
+        <button id="loginSubmitButton" class="btn gold block" type="submit">Einloggen</button>
+      </form>
+
+      <div class="login-mini-actions">
+        <button class="btn" type="button" onclick="sorayaLogin.resetPassword()">Passwort vergessen</button>
+        <a class="btn" href="/">Zur App</a>
+      </div>
+
+      <div id="loginStatus" class="status login-status" aria-live="polite">Bereit.</div>
+
+      <details id="connectionBox" class="login-config developer-only">
+        <summary>Admin-Verbindung</summary>
+        <p>Nur sichtbar, wenn die öffentliche Verbindung in <code>config.js</code> noch fehlt.</p>
+        <label for="loginSupabaseUrl">Supabase URL</label>
+        <input id="loginSupabaseUrl" placeholder="https://...supabase.co" />
+        <label for="loginSupabaseAnonKey">Supabase anon/public key</label>
+        <textarea id="loginSupabaseAnonKey" placeholder="anon/public key"></textarea>
+        <label for="loginEngineUrl">Soraya Backend URL</label>
+        <input id="loginEngineUrl" placeholder="https://...railway.app" />
+        <button class="btn gold block" type="button" onclick="sorayaLogin.saveConfig()">Verbindung speichern</button>
+      </details>
     </section>
   </main>
+
   <script src="/login.js" defer></script>
 </body>
 </html>
