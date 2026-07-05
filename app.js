@@ -264,7 +264,8 @@
       toast("Abgemeldet.");
       renderAuthUi();
     } catch (error) {
-      toast(error.message || "Abmelden fehlgeschlagen.");
+      showGlobalError(friendlyError(error, "Abmelden fehlgeschlagen."), "bad");
+      toast(friendlyError(error, "Abmelden fehlgeschlagen."));
     }
   }
 
