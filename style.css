@@ -4272,3 +4272,171 @@ body {
     font-size: 12px;
   }
 }
+
+
+/* ==========================================================================
+   38. Soraya C.4.14 — Final Premium Polish & Release Candidate
+   ========================================================================== */
+
+html[data-soraya-version="C4.14"] body {
+  text-rendering: optimizeLegibility;
+}
+
+.c414-release-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: var(--gold2);
+  border: 1px solid rgba(255, 218, 135, .24);
+  background:
+    radial-gradient(120px 50px at 50% 0%, rgba(255, 226, 155, .08), transparent 70%),
+    rgba(255, 255, 255, .035);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  box-shadow: 0 0 24px rgba(255, 218, 135, .08);
+}
+
+.c414-release-badge::before {
+  content: "✦";
+}
+
+.page-title {
+  margin-bottom: 20px;
+}
+
+.page-title h2 {
+  letter-spacing: -.055em;
+}
+
+.page-title p {
+  font-size: 15px;
+}
+
+.card-title h4 {
+  letter-spacing: -.015em;
+}
+
+.card {
+  box-shadow:
+    0 24px 74px rgba(0, 0, 0, .48),
+    inset 0 1px 0 rgba(255, 255, 255, .075);
+}
+
+.card.glow,
+.premium {
+  box-shadow:
+    0 32px 100px rgba(0, 0, 0, .58),
+    0 0 54px rgba(181, 107, 255, .10),
+    inset 0 1px 0 rgba(255, 255, 255, .09);
+}
+
+.btn {
+  letter-spacing: .01em;
+}
+
+.btn.gold {
+  box-shadow:
+    0 14px 32px rgba(255, 183, 77, .13),
+    inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+
+.badge {
+  white-space: nowrap;
+}
+
+.eyebrow {
+  letter-spacing: .16em;
+}
+
+.reading h1,
+.reading h2,
+.reading h3 {
+  color: var(--champagne);
+  font-family: var(--display);
+  line-height: 1.1;
+}
+
+.c414-quality-card {
+  background:
+    radial-gradient(260px 160px at 0% 0%, rgba(101, 240, 188, .07), transparent 72%),
+    radial-gradient(280px 160px at 100% 0%, rgba(255, 226, 155, .08), transparent 72%),
+    linear-gradient(180deg, rgba(35, 23, 72, .68), rgba(9, 12, 32, .78));
+}
+
+.c414-quality-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+
+.c414-quality-grid div {
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  text-align: center;
+  min-height: 92px;
+  padding: 12px 8px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 218, 135, .14);
+  background: rgba(255, 255, 255, .03);
+}
+
+.c414-quality-grid b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--green);
+  border: 1px solid rgba(101, 240, 188, .28);
+  background: rgba(101, 240, 188, .06);
+}
+
+.c414-quality-grid span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#chartWheel {
+  filter:
+    drop-shadow(0 0 20px rgba(255, 218, 135, .08))
+    drop-shadow(0 0 28px rgba(181, 107, 255, .08));
+}
+
+.c410-tabbar {
+  box-shadow:
+    0 26px 90px rgba(0, 0, 0, .68),
+    0 0 34px rgba(255, 218, 135, .05),
+    inset 0 1px 0 rgba(255, 255, 255, .09);
+}
+
+.toast.show {
+  box-shadow:
+    0 26px 80px rgba(0, 0, 0, .62),
+    0 0 32px rgba(255, 218, 135, .10);
+}
+
+@media (max-width: 430px) {
+  .page-title {
+    margin-bottom: 18px;
+  }
+
+  .card {
+    padding: 17px;
+  }
+
+  .c414-quality-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .c414-quality-grid {
+    grid-template-columns: 1fr;
+  }
+}
