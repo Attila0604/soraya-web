@@ -3578,3 +3578,173 @@ label + select {
     margin: 0 auto;
   }
 }
+
+
+/* ==========================================================================
+   34. Soraya C.4.10 — Navigation & App-Feel Premium Upgrade
+   ========================================================================== */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.c410-app-status {
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 218, 135, .18);
+  background:
+    linear-gradient(180deg, rgba(22, 15, 50, .82), rgba(7, 10, 28, .78));
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, .34);
+  white-space: nowrap;
+}
+
+.c410-app-status.ok {
+  color: var(--green);
+  border-color: rgba(101, 240, 188, .22);
+}
+
+.c410-app-status.warn {
+  color: var(--gold2);
+  border-color: rgba(255, 218, 135, .28);
+}
+
+.c410-tabbar {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 22px));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  border-radius: 30px;
+  padding: 9px 10px;
+  background:
+    radial-gradient(240px 90px at 50% 0%, rgba(255, 226, 155, .08), transparent 75%),
+    linear-gradient(180deg, rgba(22, 15, 50, .86), rgba(7, 10, 28, .88));
+  border: 1px solid rgba(255, 218, 135, .14);
+  box-shadow:
+    0 26px 80px rgba(0, 0, 0, .62),
+    inset 0 1px 0 rgba(255, 255, 255, .08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.c410-tabbar button {
+  border-radius: 22px;
+  padding: 8px 5px 7px;
+  min-height: 56px;
+  transition: transform .18s ease, background .18s ease, color .18s ease;
+}
+
+.c410-tabbar button b {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 24px;
+  margin: 0 auto 2px;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.c410-tabbar button span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: .02em;
+}
+
+.c410-tabbar button.active {
+  color: var(--gold2);
+  background:
+    radial-gradient(60px 36px at 50% 8%, rgba(255, 226, 155, .18), transparent 72%),
+    rgba(255, 218, 135, .06);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 218, 135, .12),
+    0 0 20px rgba(255, 218, 135, .08);
+}
+
+.c410-tabbar button.active b {
+  text-shadow: 0 0 18px rgba(255, 218, 135, .38);
+}
+
+.c410-tabbar button:active {
+  transform: scale(.96);
+}
+
+.section {
+  scroll-margin-top: 100px;
+}
+
+.section.active {
+  animation: c410ScreenIn .28s ease both;
+}
+
+@keyframes c410ScreenIn {
+  from {
+    opacity: .82;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main {
+  padding-bottom: calc(108px + env(safe-area-inset-bottom));
+}
+
+.card,
+.btn,
+.tile,
+.round,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active,
+.tile:active,
+.round:active {
+  transform: scale(.98);
+}
+
+@media (min-width: 760px) {
+  .c410-tabbar {
+    bottom: 20px;
+  }
+
+  main {
+    padding-bottom: 126px;
+  }
+}
+
+@media (max-width: 380px) {
+  .c410-tabbar {
+    width: calc(100% - 14px);
+    padding: 8px 7px;
+  }
+
+  .c410-tabbar button span {
+    font-size: 9px;
+  }
+
+  .c410-tabbar button b {
+    font-size: 18px;
+  }
+
+  .c410-app-status {
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+}
