@@ -433,6 +433,8 @@
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
       renderIdentity();
     bindLuxuryInteractions();
+    installAccessibilityPolish();
+    sorayaHealthCheck();
     bindSynastryPremiumEvents();
       renderHomeSky();
       renderHomeDashboardPremium();
