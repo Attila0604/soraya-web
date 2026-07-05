@@ -4,17 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Soraya — Login</title>
+
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#070817" />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/icon.svg" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/config.js"></script>
-  <link rel="stylesheet" href="/style.css" />
+  <script src="/config.js?v=c56"></script>
+  <link rel="stylesheet" href="/style.css?v=c56" />
 </head>
+
 <body class="login-body">
   <div class="cosmos" aria-hidden="true"></div>
 
@@ -35,11 +39,26 @@
         <input id="loginMode" type="hidden" value="login" />
 
         <label for="loginEmail">E-Mail</label>
-        <input id="loginEmail" type="email" inputmode="email" autocomplete="email" placeholder="deine@email.de" required />
+        <input
+          id="loginEmail"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="deine@email.de"
+          required
+        />
 
         <label for="loginPassword">Passwort</label>
         <div class="password-wrap">
-          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Mindestens 6 Zeichen" required />
+          <input
+            id="loginPassword"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Mindestens 6 Zeichen"
+            required
+          />
           <button class="password-toggle" type="button" onclick="sorayaLogin.togglePassword()" aria-label="Passwort anzeigen">👁</button>
         </div>
 
@@ -55,18 +74,22 @@
 
       <details id="connectionBox" class="login-config developer-only">
         <summary>Admin-Verbindung</summary>
-        <p>Nur sichtbar, wenn die öffentliche Verbindung in <code>config.js</code> noch fehlt.</p>
+        <p>Nur sichtbar, wenn die öffentliche Verbindung in <code>config.js</code> fehlt.</p>
+
         <label for="loginSupabaseUrl">Supabase URL</label>
         <input id="loginSupabaseUrl" placeholder="https://...supabase.co" />
+
         <label for="loginSupabaseAnonKey">Supabase anon/public key</label>
         <textarea id="loginSupabaseAnonKey" placeholder="anon/public key"></textarea>
+
         <label for="loginEngineUrl">Soraya Backend URL</label>
         <input id="loginEngineUrl" placeholder="https://...railway.app" />
+
         <button class="btn gold block" type="button" onclick="sorayaLogin.saveConfig()">Verbindung speichern</button>
       </details>
     </section>
   </main>
 
-  <script src="/login.js" defer></script>
+  <script src="/login.js?v=c56" defer></script>
 </body>
 </html>
