@@ -102,11 +102,11 @@
     }
 
     if (id === "profile") {
-      setTimeout(() => { renderAuthUi(); renderProfilePremium(); }, 120);
+      setTimeout(() => { renderAuthUi(); renderProfilePremium(); renderOnboardingState(); }, 120);
     }
 
     if (id === "home") {
-      setTimeout(() => { renderHomeSky(); renderHomeDashboardPremium(); }, 120);
+      setTimeout(() => { renderHomeSky(); renderHomeDashboardPremium(); renderOnboardingState(); }, 120);
     }
   }
 
@@ -306,6 +306,35 @@
   }
 
 
+
+  async function renderOnboardingState() {
+    const birth = readJson(KEYS.birth, null);
+    const personId = getCurrentPersonId();
+    const state = await getSessionState();
+
+    const card = $("onboardingCard");
+    const analysisGuide = $("analysisEmptyGuide");
+
+    const hasProfile = !!(personId || (birth && birth.name && birth.day && birth.month && birth.year && birth.birthplace));
+
+    const loginStep = $("stepLogin");
+    const profileStep = $("stepProfile");
+    const analysisStep = $("stepAnalysis");
+
+    if (loginStep) loginStep.classList.toggle("done", !!state.ok);
+    if (profileStep) profileStep.classList.toggle("done", !!hasProfile);
+    if (analysisStep) analysisStep.classList.toggle("done", !!hasProfile);
+
+    if (card) {
+      card.style.display = state.ok && hasProfile ? "none" : "";
+    }
+
+    if (analysisGuide) {
+      analysisGuide.style.display = hasProfile ? "none" : "";
+    }
+  }
+
+
   async function renderAuthUi() {
     closeLogin();
 
@@ -404,6 +433,7 @@
     bindSynastryPremiumEvents();
       renderHomeSky();
       renderHomeDashboardPremium();
+      renderOnboardingState();
       loadRealChartData(true);
       status("personResult", "✅ Person gespeichert.\nName: " + (row.name || person.name) + "\nID: " + row.id, "ok");
       toast("Profil gespeichert.");
