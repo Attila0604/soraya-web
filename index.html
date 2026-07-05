@@ -60,6 +60,18 @@
           </div>
         </div>
 
+        <div class="card glow c49-onboarding-card" id="onboardingCard">
+          <div class="card-title">
+            <h4>Erste Schritte</h4>
+            <span class="badge">Start</span>
+          </div>
+          <div class="c49-steps">
+            <div id="stepLogin"><b>1</b><span>Einloggen oder registrieren</span><button class="btn" onclick="openLogin()">Login</button></div>
+            <div id="stepProfile"><b>2</b><span>Geburtsdaten speichern</span><button class="btn" onclick="showSection('profile')">Profil</button></div>
+            <div id="stepAnalysis"><b>3</b><span>Birth Chart öffnen</span><button class="btn gold" onclick="showSection('analysis')">Analyse</button></div>
+          </div>
+        </div>
+
         <div class="card premium c46-daily-focus">
           <div class="card-title">
             <h4>Dein Tagesfokus</h4>
@@ -151,6 +163,16 @@
           <span class="eyebrow">Radix · Seele · Muster</span>
           <h2>Birth Chart<br><span class="gold">Explorer</span></h2>
           <p>Dein echtes Geburtshoroskop mit Planeten, Häusern, Aspekten und intuitivem Tiefen-Reading.</p>
+        </div>
+
+        <div class="card c49-empty-guide" id="analysisEmptyGuide">
+          <div class="c49-empty-orb">✷</div>
+          <div>
+            <span class="eyebrow">Analyse vorbereiten</span>
+            <h4>Dein Chart braucht dein Profil</h4>
+            <p>Speichere Name, Geburtsdatum und Geburtsort. Danach kann Soraya dein echtes Birth Chart berechnen.</p>
+            <button class="btn gold" onclick="showSection('profile')">Profil vervollständigen</button>
+          </div>
         </div>
 
         <div class="card glow c4-chart-card">
