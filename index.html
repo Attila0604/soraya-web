@@ -730,6 +730,8 @@
       </div>
 
       <div id="configStatus" class="status" aria-live="polite">Noch nicht gespeichert.</div>
+      <button class="btn block c413-health-btn" onclick="checkSorayaConnection()">Verbindung testen</button>
+      <div id="connectionHealthStatus" class="status c413-health-status" aria-live="polite">Noch nicht getestet.</div>
     </div>
   </div>
 
@@ -738,6 +740,14 @@
       <span>✦</span>
       <p>Soraya liest den Himmel…</p>
     </div>
+  </div>
+
+  <div class="c413-error-panel" id="globalErrorPanel" aria-live="polite">
+    <div>
+      <b>✦</b>
+      <span id="globalErrorText">Soraya Hinweis</span>
+    </div>
+    <button class="round" onclick="hideGlobalError()" aria-label="Hinweis schließen">×</button>
   </div>
 
   <div class="toast" id="toast"></div>
