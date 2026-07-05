@@ -88,6 +88,7 @@
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+    renderAppStatus();
 
     if (id === "analysis") {
       setTimeout(() => loadRealChartData(false), 120);
@@ -434,6 +435,7 @@
       renderHomeSky();
       renderHomeDashboardPremium();
       renderOnboardingState();
+      renderAppStatus();
       loadRealChartData(true);
       status("personResult", "✅ Person gespeichert.\nName: " + (row.name || person.name) + "\nID: " + row.id, "ok");
       toast("Profil gespeichert.");
@@ -1309,6 +1311,33 @@
     return box;
   }
 
+
+
+
+  function setAppStatus(text, type = "") {
+    const pill = $("appStatusPill");
+    if (!pill) return;
+    pill.textContent = text;
+    pill.classList.remove("ok", "warn");
+    if (type) pill.classList.add(type);
+  }
+
+  async function renderAppStatus() {
+    const birth = readJson(KEYS.birth, null);
+    const state = await getSessionState();
+
+    if (!state.ok) {
+      setAppStatus("Login offen", "warn");
+      return;
+    }
+
+    if (!birth || !birth.name) {
+      setAppStatus("Profil offen", "warn");
+      return;
+    }
+
+    setAppStatus("Soraya · aktiv", "ok");
+  }
 
 
   function setText(id, value) {
