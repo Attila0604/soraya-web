@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Soraya — Astro Guide</title>
+  <title>Soraya — Luxury Astro Guide</title>
 
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#070817" />
@@ -29,7 +29,7 @@
       <div class="brand" onclick="showSection('home')" role="button" tabindex="0" aria-label="Zur Startseite">
         <div class="sigil">✵</div>
         <h1>SORAYA</h1>
-        <div class="sub">Astro Guide</div>
+        <div class="sub">Luxury Astro Guide</div>
       </div>
 
       <button class="round" onclick="openSettings()" aria-label="Einstellungen">⚙</button>
@@ -40,17 +40,22 @@
       <!-- HOME -->
       <section id="home" class="section active">
         <div class="page-title c4-hero-title c46-home-title">
-          <span class="eyebrow">Dein Kosmos</span>
+          <span class="eyebrow">Dein Kosmos · Dein Weg</span>
           <h2 id="greetLine">Willkommen,<br><span class="gold" id="heroName">du</span>.</h2>
-          <p>Birth Chart, Horoskop, Transite, Chat und Synastrie — klar, ruhig und mobil optimiert.</p>
+          <p>Ein mystischer, persönlicher Astro-Begleiter für Birth Chart, Horoskop, Transite, Chat und Synastrie — schön, klar und mobil flüssig.</p>
+          <div class="c54-hero-ribbon" aria-label="Soraya Highlights">
+            <span>✦ Persönlich</span>
+            <span>☾ Echt berechnet</span>
+            <span>♡ Mobile smooth</span>
+          </div>
         </div>
 
         <div class="card glow hero-card c4-hero-card c46-hero-dashboard">
           <div class="zodiac-art"><span id="sunGlyph">✦</span></div>
           <div class="zodiac-info">
             <div class="card-title c4-card-title">
-              <span class="eyebrow">Dein Profil</span>
-              <button class="btn" onclick="showSection('profile')">Profil öffnen</button>
+              <span class="eyebrow">Dein kosmischer Kern</span>
+              <button class="btn" onclick="showSection('profile')">Profil ›</button>
             </div>
             <h3 id="sunSign">Noch kein Profil</h3>
             <p id="sunRange">Hinterlege deine Geburtsdaten.</p>
@@ -64,8 +69,8 @@
 
         <div class="card glow c49-onboarding-card" id="onboardingCard">
           <div class="card-title">
-            <h4>Start</h4>
-            <span class="badge">3 Schritte</span>
+            <h4>Erste Schritte</h4>
+            <span class="badge">Start</span>
           </div>
           <div class="c49-steps">
             <div id="stepLogin"><b>1</b><span>Einloggen</span><button class="btn" onclick="openLogin()">Login</button></div>
@@ -76,7 +81,7 @@
 
         <div class="card premium c46-daily-focus">
           <div class="card-title">
-            <h4>Tagesfokus</h4>
+            <h4>Dein Tagesfokus</h4>
             <span class="badge">Heute</span>
           </div>
           <div class="c46-focus-layout">
@@ -131,14 +136,30 @@
 
         <div class="card c4-tools-card c46-tools-card">
           <div class="card-title">
-            <h4>Schnellzugriff</h4>
+            <h4>Kosmische Wege</h4>
             <span class="badge">App</span>
           </div>
           <div class="shortcut-grid c46-shortcut-grid">
-            <button class="tile" onclick="showSection('analysis')"><b>✷</b><span>Analyse</span></button>
+            <button class="tile" onclick="showSection('analysis')"><b>✷</b><span>Birth Chart</span></button>
             <button class="tile" onclick="showSection('horoscope')"><b>☾</b><span>Horoskop</span></button>
-            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Chat</span></button>
+            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Soraya Chat</span></button>
             <button class="tile" onclick="showSection('synastry')"><b>♡</b><span>Synastrie</span></button>
+          </div>
+        </div>
+
+        <div class="c54-insight-grid">
+          <div class="card glow c54-insight-card">
+            <span class="eyebrow">Dein Tag</span>
+            <h3>Sprich mit Soraya</h3>
+            <p>Frag nach deiner heutigen Energie. Soraya verbindet dein Profil mit aktuellen Transiten.</p>
+            <button class="btn gold block" onclick="showSection('chat')">Mit Soraya sprechen</button>
+          </div>
+
+          <div class="card c54-insight-card">
+            <span class="eyebrow">Kosmischer Impuls</span>
+            <h3>Horoskop öffnen</h3>
+            <p>Ein kurzer, schöner Impuls für Fokus, Liebe und Richtung — ohne schwere Effekte.</p>
+            <button class="btn block" onclick="showSection('horoscope')">Impuls anzeigen</button>
           </div>
         </div>
       </section>
@@ -146,9 +167,9 @@
       <!-- ANALYSE -->
       <section id="analysis" class="section">
         <div class="page-title">
-          <span class="eyebrow">Radix</span>
-          <h2>Birth Chart<br><span class="gold">Analyse</span></h2>
-          <p>Dein echtes Geburtshoroskop mit Planeten, Häusern und Aspekten.</p>
+          <span class="eyebrow">Radix · Seele · Muster</span>
+          <h2>Birth Chart<br><span class="gold">Explorer</span></h2>
+          <p>Dein echtes Geburtshoroskop mit Planeten, Häusern, Aspekten und einem klaren Tiefen-Reading.</p>
         </div>
 
         <div class="card c49-empty-guide" id="analysisEmptyGuide">
@@ -226,9 +247,9 @@
       <!-- HOROSKOP -->
       <section id="horoscope" class="section">
         <div class="page-title">
-          <span class="eyebrow">Tag · Woche · Monat</span>
+          <span class="eyebrow">Täglich · Wöchentlich · Monatlich</span>
           <h2>Dein<br><span class="gold">Horoskop</span></h2>
-          <p>Ein klarer Impuls für deinen Fokus, dein Herz und deinen nächsten Schritt.</p>
+          <p>Ein astrologischer Impuls für dein Herz, deinen Fokus und deinen nächsten Schritt.</p>
         </div>
 
         <div class="card glow c4-horoscope-card c42-horoscope-hero">
@@ -455,9 +476,9 @@
           <div class="profile-hero">
             <div class="profile-avatar" id="profileInitial">S</div>
             <div>
-              <span class="eyebrow">Soraya Profil</span>
+              <span class="eyebrow">Soraya Mitglied</span>
               <h3 id="profileTitle">Dein Profil</h3>
-              <p id="profileSub">Noch keine Geburtsdaten gespeichert.</p>
+              <p id="profileSub">Seelenlicht-Sucher · Soraya Mitglied</p>
             </div>
           </div>
 
@@ -513,10 +534,10 @@
 
         <div class="card c45-settings-card">
           <div class="card-title">
-            <h4>App-Verbindung</h4>
+            <h4>Einstellungen</h4>
             <span class="badge">Frontend</span>
           </div>
-          <p>Supabase und Railway-Backend bleiben hier lokal im Browser gespeichert.</p>
+          <p>Verbindung und Abmeldung. Weitere Einstellungen kommen später.</p>
           <button class="btn block" onclick="openSettings()">Verbindung öffnen</button>
           <button id="logoutButton" class="btn block c4-logout-btn c45-logout-btn" onclick="signOut()">Abmelden</button>
         </div>
@@ -525,16 +546,16 @@
       <!-- PREMIUM: nur Status, keine Zahlung -->
       <section id="premium" class="section">
         <div class="page-title c48-premium-title">
-          <span class="eyebrow">Später</span>
+          <span class="eyebrow">Status · Später</span>
           <h2>Soraya<br><span class="gold">Premium</span></h2>
-          <p>Premium bleibt vorbereitet. Zahlung kommt später nur über Google Play Billing.</p>
+          <p>Premium bleibt nur als späterer Status vorbereitet. Zahlung kommt später ausschließlich über Google Play Billing.</p>
         </div>
 
         <div class="card glow c48-premium-hero">
           <div class="c48-crown-orb">✦</div>
           <div>
             <span class="eyebrow">Noch keine Zahlung</span>
-            <h3>Aktuell testen wir Stabilität</h3>
+            <h3>Aktuell bauen wir Stabilität und App-Gefühl</h3>
             <p id="premiumStatusText">Keine Stripe-Zahlung, keine Kreditkartenzahlung und kein echter Kauf im Frontend.</p>
           </div>
         </div>
