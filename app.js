@@ -482,6 +482,7 @@
       const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
       localStorage.setItem(KEYS.analyses, String(count));
       renderIdentity();
+      bumpUsage("analysis");
       hideLoadingVeil();
       toast("Analyse geladen.");
     } catch (error) {
