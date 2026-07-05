@@ -1,12 +1,13 @@
 /*
-  Soraya — C.5.4 Visual Restore Lite
+  Soraya — C.5.5 App Polish + Universal Login
   Datei: app.js
   Ziel:
   - alle sichtbaren Buttons haben eine Funktion
   - C.5.3 Stabilität bleibt erhalten
-  - Visual Restore im Frontend
+  - beeindruckende Optik bleibt erhalten
+  - Login/Registrierung robuster für neue Geräte
+  - technische Bereiche werden für normale User versteckt
   - keine Backend-Änderung
-  - mobile Performance bleibt ruhig
 */
 
 (function () {
@@ -26,6 +27,8 @@
   const LOGIN_PATH = "/login";
   let sb = null;
   let homeSkyTimer = null;
+
+  const PUBLIC_CONFIG = normalizeConfig(window.SORAYA_PUBLIC_CONFIG || {});
 
   const $ = (id) => document.getElementById(id);
   const isMobile = () => window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
@@ -103,6 +106,57 @@
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+
+  function normalizeConfig(config) {
+    const c = config || {};
+    return {
+      supabaseUrl: safe(c.supabaseUrl).trim(),
+      supabaseAnonKey: safe(c.supabaseAnonKey).trim(),
+      engineUrl: safe(c.engineUrl).trim().replace(/\/$/, "")
+    };
+  }
+
+  function hasCompleteConfig(config) {
+    const c = normalizeConfig(config);
+    return !!(c.supabaseUrl && c.supabaseAnonKey && c.engineUrl);
+  }
+
+  function getStoredConfig() {
+    return normalizeConfig(readJson(KEYS.config, null));
+  }
+
+  function getAvailableConfig() {
+    const stored = getStoredConfig();
+    if (hasCompleteConfig(stored)) return stored;
+    if (hasCompleteConfig(PUBLIC_CONFIG)) return PUBLIC_CONFIG;
+    return null;
+  }
+
+  function isDeveloperMode() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("dev") === "1" || localStorage.getItem("soraya_dev") === "1";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function renderDeveloperTools() {
+    const show = isDeveloperMode() || !hasCompleteConfig(PUBLIC_CONFIG);
+    document.body.classList.toggle("soraya-dev-visible", show);
+    document.querySelectorAll(".developer-only").forEach((node) => {
+      if (node.id === "settingsModal") {
+        if (!node.classList.contains("open")) {
+          node.style.display = "none";
+          node.setAttribute("aria-hidden", "true");
+        }
+        return;
+      }
+      node.style.display = show ? "" : "none";
+      node.setAttribute("aria-hidden", show ? "false" : "true");
+    });
+  }
+
   function setText(id, value) {
     const node = $(id);
     if (node) node.textContent = value;
@@ -156,15 +210,24 @@
 
   function openLogin() {
     try {
-      localStorage.setItem("soraya_after_login_path", window.location.pathname + window.location.search + window.location.hash);
+      const active = document.querySelector(".section.active");
+      const sectionId = active && active.id ? active.id : "home";
+      localStorage.setItem("soraya_after_login_section", sectionId);
+      localStorage.setItem("soraya_after_login_path", "/?section=" + encodeURIComponent(sectionId));
     } catch (error) {}
     window.location.href = LOGIN_PATH;
   }
 
   function openSettings() {
+    renderDeveloperTools();
+    if (!isDeveloperMode() && hasCompleteConfig(PUBLIC_CONFIG)) {
+      toast("App-Verbindung ist aktiv.");
+      return;
+    }
     const modal = $("settingsModal");
     if (!modal) return;
     loadConfig(false);
+    modal.style.display = "";
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
   }
@@ -174,6 +237,7 @@
     if (!modal) return;
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
+    renderDeveloperTools();
   }
 
   function initSupabase(config) {
@@ -225,9 +289,10 @@
   }
 
   function loadConfig(showMessage = false) {
-    const config = readJson(KEYS.config, null);
+    const config = getAvailableConfig();
     if (!config) {
-      if (showMessage) status("configStatus", "Noch keine Verbindung gespeichert.", "bad");
+      if (showMessage) status("configStatus", "App-Verbindung fehlt. Bitte einmal einrichten.", "bad");
+      renderDeveloperTools();
       return false;
     }
 
@@ -237,17 +302,19 @@
 
     try {
       initSupabase(config);
-      if (showMessage) status("configStatus", "Verbindung geladen.", "ok");
+      if (showMessage) status("configStatus", "Verbindung aktiv.", "ok");
+      renderDeveloperTools();
       return true;
     } catch (error) {
       if (showMessage) status("configStatus", friendlyError(error, "Verbindung konnte nicht geladen werden."), "bad");
+      renderDeveloperTools();
       return false;
     }
   }
 
   function getConfig() {
-    const config = readJson(KEYS.config, null);
-    if (!config) throw new Error("Bitte zuerst Verbindung speichern.");
+    const config = getAvailableConfig();
+    if (!config) throw new Error("App-Verbindung fehlt.");
     return config;
   }
 
@@ -259,10 +326,8 @@
     try {
       const ok = saveConfig() || loadConfig(true);
       if (!ok) return false;
-      const config = getConfig();
-      const state = await getSessionState();
-      const loginText = state.ok ? "Login aktiv" : "Login offen";
-      status("connectionHealthStatus", "✅ Frontend-Verbindung gespeichert. Backend: " + config.engineUrl + " · " + loginText, "ok");
+      await getSessionState();
+      status("connectionHealthStatus", "✅ Verbindung ist aktiv.", "ok");
       return true;
     } catch (error) {
       status("connectionHealthStatus", friendlyError(error, "Verbindung konnte nicht geprüft werden."), "bad");
@@ -361,7 +426,7 @@
       }
 
       if (logoutButton) logoutButton.style.display = "block";
-      if (loginText) loginText.textContent = "Eingeloggt als " + email + ".";
+      if (loginText) loginText.textContent = "Dein Konto ist aktiv.";
       if (loginBadge) loginBadge.textContent = "Aktiv";
       if (loginCard) loginCard.classList.add("ok");
       return true;
@@ -381,7 +446,7 @@
     }
 
     if (logoutButton) logoutButton.style.display = "none";
-    if (loginText) loginText.textContent = "Du bist abgemeldet. Bitte einloggen, um Daten zu speichern.";
+    if (loginText) loginText.textContent = "Melde dich an, damit Soraya deine Daten speichern kann.";
     if (loginBadge) loginBadge.textContent = "Offen";
     if (loginCard) loginCard.classList.remove("ok");
     return false;
@@ -1479,6 +1544,15 @@
     loadPeopleFromSupabase(false);
     renderOnboardingState();
     renderAppStatus();
+    renderDeveloperTools();
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const requestedSection = params.get("section") || localStorage.getItem("soraya_after_login_section");
+      if (requestedSection && $(requestedSection)) {
+        window.setTimeout(() => showSection(requestedSection), 120);
+      }
+    } catch (error) {}
 
     window.setTimeout(auditButtons, 500);
   }
