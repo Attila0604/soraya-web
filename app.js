@@ -88,6 +88,7 @@
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+    pulseLoading("Soraya öffnet " + id + "…", 360);
     renderAppStatus();
 
     if (id === "analysis") {
@@ -431,6 +432,7 @@
 
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
       renderIdentity();
+    bindLuxuryInteractions();
     bindSynastryPremiumEvents();
       renderHomeSky();
       renderHomeDashboardPremium();
@@ -475,6 +477,7 @@
       const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
       localStorage.setItem(KEYS.analyses, String(count));
       renderIdentity();
+      hideLoadingVeil();
       toast("Analyse geladen.");
     } catch (error) {
       if ($("analysisReading")) $("analysisReading").textContent = "Fehler: " + error.message;
@@ -543,6 +546,7 @@
 
       renderHoroscopePremium(data);
 
+      hideLoadingVeil();
       toast("Horoskop geladen.");
     } catch (error) {
       if ($("horoMood")) $("horoMood").textContent = "Fehler";
@@ -1312,6 +1316,41 @@
   }
 
 
+
+
+
+  function showLoadingVeil(text = "Soraya liest den Himmel…") {
+    const veil = $("loadingVeil");
+    if (!veil) return;
+    const p = veil.querySelector("p");
+    if (p) p.textContent = text;
+    veil.classList.add("show");
+    veil.setAttribute("aria-hidden", "false");
+  }
+
+  function hideLoadingVeil() {
+    const veil = $("loadingVeil");
+    if (!veil) return;
+    veil.classList.remove("show");
+    veil.setAttribute("aria-hidden", "true");
+  }
+
+  function pulseLoading(text, ms = 650) {
+    showLoadingVeil(text);
+    window.setTimeout(hideLoadingVeil, ms);
+  }
+
+  function bindLuxuryInteractions() {
+    if (document.body.dataset.c411Bound) return;
+    document.body.dataset.c411Bound = "1";
+
+    document.addEventListener("click", (event) => {
+      const interactive = event.target.closest("button, .tile, .card[onclick], .row");
+      if (!interactive) return;
+      interactive.classList.add("c411-tapped");
+      window.setTimeout(() => interactive.classList.remove("c411-tapped"), 260);
+    }, { passive: true });
+  }
 
 
   function setAppStatus(text, type = "") {
