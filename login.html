@@ -1,95 +1,292 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Soraya — Login</title>
+/*
+  Soraya — C.5.7 Universal Login
+  Ziel:
+  - Login/Registrierung auf neuen Geräten über config.js
+  - Handy-sicher, klare Fehlermeldungen
+  - Passwort anzeigen, Passwort zurücksetzen
+*/
+(function () {
+  "use strict";
 
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#070817" />
-  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/icon.svg" />
+  var LOGIN_KEYS = {
+    config: "soraya_config",
+    name: "soraya_person_name",
+    afterPath: "soraya_after_login_path",
+    afterSection: "soraya_after_login_section"
+  };
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  var loginClient = null;
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/config.js?v=c56"></script>
-  <link rel="stylesheet" href="/style.css?v=c56" />
-</head>
+  function el(id) {
+    return document.getElementById(id);
+  }
 
-<body class="login-body">
-  <div class="cosmos" aria-hidden="true"></div>
+  function text(value) {
+    return value === undefined || value === null ? "" : String(value);
+  }
 
-  <main class="login-app">
-    <section class="login-shell card glow">
-      <div class="login-logo">
-        <div class="sigil">✵</div>
-        <h1>SORAYA</h1>
-        <p>Dein persönlicher Sternenraum</p>
-      </div>
+  function normalizeConfig(config) {
+    var c = config || {};
+    return {
+      supabaseUrl: text(c.supabaseUrl).trim(),
+      supabaseAnonKey: text(c.supabaseAnonKey).trim(),
+      engineUrl: text(c.engineUrl).trim().replace(/\/$/, "")
+    };
+  }
 
-      <div class="login-tabs" role="tablist" aria-label="Login Modus">
-        <button id="loginTabButton" class="active" type="button" onclick="sorayaLogin.setMode('login')">Einloggen</button>
-        <button id="registerTabButton" type="button" onclick="sorayaLogin.setMode('register')">Registrieren</button>
-      </div>
+  function hasConfig(config) {
+    var c = normalizeConfig(config);
+    return !!(c.supabaseUrl && c.supabaseAnonKey && c.engineUrl);
+  }
 
-      <form id="loginForm" novalidate>
-        <input id="loginMode" type="hidden" value="login" />
+  function readStoredConfig() {
+    try {
+      var raw = localStorage.getItem(LOGIN_KEYS.config);
+      return raw ? normalizeConfig(JSON.parse(raw)) : null;
+    } catch (error) {
+      return null;
+    }
+  }
 
-        <label for="loginEmail">E-Mail</label>
-        <input
-          id="loginEmail"
-          type="email"
-          inputmode="email"
-          autocomplete="email"
-          autocapitalize="none"
-          spellcheck="false"
-          placeholder="deine@email.de"
-          required
-        />
+  function getPublicConfig() {
+    return normalizeConfig(window.SORAYA_PUBLIC_CONFIG || {});
+  }
 
-        <label for="loginPassword">Passwort</label>
-        <div class="password-wrap">
-          <input
-            id="loginPassword"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Mindestens 6 Zeichen"
-            required
-          />
-          <button class="password-toggle" type="button" onclick="sorayaLogin.togglePassword()" aria-label="Passwort anzeigen">👁</button>
-        </div>
+  function getAvailableConfig() {
+    var stored = readStoredConfig();
+    if (hasConfig(stored)) return stored;
+    var publicConfig = getPublicConfig();
+    if (hasConfig(publicConfig)) return publicConfig;
+    return null;
+  }
 
-        <button id="loginSubmitButton" class="btn gold block" type="submit">Einloggen</button>
-      </form>
+  function isDeveloperMode() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      return params.get("dev") === "1" || localStorage.getItem("soraya_dev") === "1";
+    } catch (error) {
+      return false;
+    }
+  }
 
-      <div class="login-mini-actions">
-        <button class="btn" type="button" onclick="sorayaLogin.resetPassword()">Passwort vergessen</button>
-        <a class="btn" href="/">Zur App</a>
-      </div>
+  function setLoginStatus(message, type) {
+    var node = el("loginStatus");
+    if (!node) return;
+    node.classList.remove("ok", "bad");
+    if (type) node.classList.add(type);
+    node.textContent = message;
+  }
 
-      <div id="loginStatus" class="status login-status" aria-live="polite">Bereit.</div>
+  function friendlyError(error, fallback) {
+    var msg = error && error.message ? error.message : text(error || fallback);
+    if (/invalid login|invalid credentials|email not confirmed/i.test(msg)) return "E-Mail oder Passwort stimmt nicht, oder die E-Mail ist noch nicht bestätigt.";
+    if (/password/i.test(msg) && /short|weak|6/i.test(msg)) return "Bitte ein Passwort mit mindestens 6 Zeichen verwenden.";
+    if (/Failed to fetch|NetworkError|Load failed|fetch/i.test(msg)) return "Verbindung nicht erreichbar. Bitte Internet prüfen und später erneut versuchen.";
+    if (/rate limit|too many/i.test(msg)) return "Zu viele Versuche. Bitte kurz warten und erneut versuchen.";
+    return msg || fallback;
+  }
 
-      <details id="connectionBox" class="login-config developer-only">
-        <summary>Admin-Verbindung</summary>
-        <p>Nur sichtbar, wenn die öffentliche Verbindung in <code>config.js</code> fehlt.</p>
+  function fillConfigForm(config) {
+    var c = normalizeConfig(config);
+    if (el("loginSupabaseUrl")) el("loginSupabaseUrl").value = c.supabaseUrl || "";
+    if (el("loginSupabaseAnonKey")) el("loginSupabaseAnonKey").value = c.supabaseAnonKey || "";
+    if (el("loginEngineUrl")) el("loginEngineUrl").value = c.engineUrl || "";
+  }
 
-        <label for="loginSupabaseUrl">Supabase URL</label>
-        <input id="loginSupabaseUrl" placeholder="https://...supabase.co" />
+  function renderConnectionBox() {
+    var box = el("connectionBox");
+    if (!box) return;
+    var show = isDeveloperMode() || !hasConfig(getPublicConfig());
+    box.style.display = show ? "" : "none";
+    box.open = show && !hasConfig(getAvailableConfig());
+  }
 
-        <label for="loginSupabaseAnonKey">Supabase anon/public key</label>
-        <textarea id="loginSupabaseAnonKey" placeholder="anon/public key"></textarea>
+  function initLoginClient(config) {
+    var c = normalizeConfig(config || getAvailableConfig());
+    if (!window.supabase) throw new Error("Supabase wurde nicht geladen.");
+    if (!hasConfig(c)) throw new Error("App-Verbindung fehlt.");
+    loginClient = window.supabase.createClient(c.supabaseUrl, c.supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+    return loginClient;
+  }
 
-        <label for="loginEngineUrl">Soraya Backend URL</label>
-        <input id="loginEngineUrl" placeholder="https://...railway.app" />
+  function getLoginClient() {
+    return loginClient || initLoginClient();
+  }
 
-        <button class="btn gold block" type="button" onclick="sorayaLogin.saveConfig()">Verbindung speichern</button>
-      </details>
-    </section>
-  </main>
+  function getEmail() {
+    return el("loginEmail") ? el("loginEmail").value.trim() : "";
+  }
 
-  <script src="/login.js?v=c56" defer></script>
-</body>
-</html>
+  function getPassword() {
+    return el("loginPassword") ? el("loginPassword").value : "";
+  }
+
+  function validateLoginFields(requirePassword) {
+    var email = getEmail();
+    var password = getPassword();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error("Bitte eine gültige E-Mail eingeben.");
+    if (requirePassword && (!password || password.length < 6)) throw new Error("Bitte ein Passwort mit mindestens 6 Zeichen eingeben.");
+    return { email: email, password: password };
+  }
+
+  function returnToApp() {
+    var target = "/";
+    try {
+      target = localStorage.getItem(LOGIN_KEYS.afterPath) || "/";
+      if (!target || target.indexOf("/login") === 0) target = "/";
+    } catch (error) {}
+    window.location.href = target;
+  }
+
+  function setMode(mode) {
+    mode = mode === "register" ? "register" : "login";
+    if (el("loginMode")) el("loginMode").value = mode;
+    if (el("loginTabButton")) el("loginTabButton").classList.toggle("active", mode === "login");
+    if (el("registerTabButton")) el("registerTabButton").classList.toggle("active", mode === "register");
+    if (el("loginSubmitButton")) el("loginSubmitButton").textContent = mode === "register" ? "Registrieren" : "Einloggen";
+    if (el("loginPassword")) el("loginPassword").autocomplete = mode === "register" ? "new-password" : "current-password";
+    setLoginStatus(mode === "register" ? "Bereit zum Registrieren." : "Bereit zum Einloggen.");
+  }
+
+  function togglePassword() {
+    var input = el("loginPassword");
+    if (!input) return;
+    input.type = input.type === "password" ? "text" : "password";
+    var button = document.querySelector(".password-toggle");
+    if (button) button.setAttribute("aria-label", input.type === "password" ? "Passwort anzeigen" : "Passwort verstecken");
+  }
+
+  async function checkLoginSession() {
+    try {
+      var config = getAvailableConfig();
+      fillConfigForm(config);
+      renderConnectionBox();
+      if (!config) {
+        setLoginStatus("App-Verbindung fehlt. Bitte Admin-Verbindung prüfen.", "bad");
+        return false;
+      }
+      var client = getLoginClient();
+      var result = await client.auth.getSession();
+      if (result.error) throw result.error;
+      if (result.data && result.data.session && result.data.session.user) {
+        var email = result.data.session.user.email || "";
+        if (email && !localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, email.split("@")[0]);
+        setLoginStatus("✅ Du bist eingeloggt.", "ok");
+        return true;
+      }
+      setLoginStatus("Bereit zum Einloggen.");
+      return false;
+    } catch (error) {
+      renderConnectionBox();
+      setLoginStatus(friendlyError(error, "Login konnte nicht geprüft werden."), "bad");
+      return false;
+    }
+  }
+
+  async function signIn() {
+    try {
+      var fields = validateLoginFields(true);
+      setLoginStatus("Login läuft ...");
+      var client = getLoginClient();
+      var result = await client.auth.signInWithPassword({ email: fields.email, password: fields.password });
+      if (result.error) throw result.error;
+      var userEmail = result.data && result.data.user && result.data.user.email ? result.data.user.email : fields.email;
+      if (!localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, userEmail.split("@")[0]);
+      setLoginStatus("✅ Login erfolgreich. Soraya öffnet die App ...", "ok");
+      window.setTimeout(returnToApp, 450);
+    } catch (error) {
+      setLoginStatus("Login fehlgeschlagen: " + friendlyError(error, "Bitte Daten prüfen."), "bad");
+    }
+  }
+
+  async function signUp() {
+    try {
+      var fields = validateLoginFields(true);
+      setLoginStatus("Registrierung läuft ...");
+      var client = getLoginClient();
+      var redirectTo = window.location.origin + "/login";
+      var result = await client.auth.signUp({
+        email: fields.email,
+        password: fields.password,
+        options: { emailRedirectTo: redirectTo }
+      });
+      if (result.error) throw result.error;
+      setLoginStatus("✅ Registrierung erfolgreich. Bitte E-Mail bestätigen, falls Soraya danach fragt.", "ok");
+    } catch (error) {
+      setLoginStatus("Registrierung fehlgeschlagen: " + friendlyError(error, "Bitte Daten prüfen."), "bad");
+    }
+  }
+
+  async function resetPassword() {
+    try {
+      var fields = validateLoginFields(false);
+      setLoginStatus("Passwort-E-Mail wird gesendet ...");
+      var client = getLoginClient();
+      var result = await client.auth.resetPasswordForEmail(fields.email, {
+        redirectTo: window.location.origin + "/login"
+      });
+      if (result.error) throw result.error;
+      setLoginStatus("✅ E-Mail zum Zurücksetzen wurde gesendet.", "ok");
+    } catch (error) {
+      setLoginStatus("Passwort zurücksetzen fehlgeschlagen: " + friendlyError(error, "Bitte E-Mail prüfen."), "bad");
+    }
+  }
+
+  function saveConfig() {
+    try {
+      var config = {
+        supabaseUrl: el("loginSupabaseUrl") ? el("loginSupabaseUrl").value.trim() : "",
+        supabaseAnonKey: el("loginSupabaseAnonKey") ? el("loginSupabaseAnonKey").value.trim() : "",
+        engineUrl: el("loginEngineUrl") ? el("loginEngineUrl").value.trim().replace(/\/$/, "") : ""
+      };
+      if (!hasConfig(config)) throw new Error("Bitte alle Verbindungsfelder ausfüllen.");
+      if (!/^https:\/\//i.test(config.supabaseUrl) || !/^https:\/\//i.test(config.engineUrl)) throw new Error("Bitte gültige HTTPS-URLs verwenden.");
+      localStorage.setItem(LOGIN_KEYS.config, JSON.stringify(config));
+      loginClient = null;
+      initLoginClient(config);
+      renderConnectionBox();
+      setLoginStatus("✅ Verbindung gespeichert. Du kannst dich jetzt einloggen.", "ok");
+    } catch (error) {
+      setLoginStatus("Verbindung konnte nicht gespeichert werden: " + friendlyError(error, "Bitte prüfen."), "bad");
+    }
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    var mode = el("loginMode") ? el("loginMode").value : "login";
+    if (mode === "register") signUp();
+    else signIn();
+  }
+
+  function boot() {
+    document.body.classList.add("soraya-c57-login");
+    fillConfigForm(getAvailableConfig());
+    renderConnectionBox();
+    setMode((new URLSearchParams(window.location.search)).get("mode") === "register" ? "register" : "login");
+    checkLoginSession();
+    var form = el("loginForm");
+    if (form) form.addEventListener("submit", handleSubmit);
+  }
+
+  window.sorayaLogin = {
+    setMode: setMode,
+    togglePassword: togglePassword,
+    signIn: signIn,
+    signUp: signUp,
+    resetPassword: resetPassword,
+    saveConfig: saveConfig,
+    checkLoginSession: checkLoginSession
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot, { once: true });
+  } else {
+    boot();
+  }
+})();
