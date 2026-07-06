@@ -17,6 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/c58-mobile-layout.css" />
 </head>
 
 <body>
@@ -41,9 +42,9 @@
       <!-- HOME -->
       <section id="home" class="section active">
         <div class="page-title c4-hero-title c46-home-title">
-          <span class="eyebrow">Dein Kosmos · Dein Weg</span>
+          <span class="eyebrow">Dein Kosmos</span>
           <h2 id="greetLine">Willkommen,<br><span class="gold" id="heroName">du</span>.</h2>
-          <p>Dein persönlicher Sternenraum für Birth Chart, Horoskop, Transite, Chat und Synastrie.</p>
+          <p>Birth Chart, Horoskop, Chat und Synastrie — klar, schön und persönlich.</p>
           <div class="c54-hero-ribbon" aria-label="Soraya Highlights">
             <span>✦ Birth Chart</span>
             <span>☾ Transite</span>
@@ -55,8 +56,8 @@
           <div class="zodiac-art"><span id="sunGlyph">✦</span></div>
           <div class="zodiac-info">
             <div class="card-title c4-card-title">
-              <span class="eyebrow">Dein kosmischer Kern</span>
-              <button class="btn" onclick="showSection('profile')">Profil ›</button>
+              <span class="eyebrow">Dein Kern</span>
+              <button class="btn" onclick="showSection('profile')">Profil</button>
             </div>
             <h3 id="sunSign">Noch kein Profil</h3>
             <p id="sunRange">Speichere dein Profil und öffne deinen Kosmos.</p>
@@ -89,7 +90,7 @@
             <div class="c46-focus-orb">✦</div>
             <div>
               <h3 id="dailyFocusTitle">Innere Klarheit</h3>
-              <p id="dailyFocusText">Soraya nutzt dein Profil und die aktuellen Transite für deinen Tagesimpuls.</p>
+              <p id="dailyFocusText">Soraya nutzt dein Profil und aktuelle Transite für deinen Tagesimpuls.</p>
             </div>
           </div>
         </div>
@@ -143,24 +144,8 @@
           <div class="shortcut-grid c46-shortcut-grid">
             <button class="tile" onclick="showSection('analysis')"><b>✷</b><span>Birth Chart</span></button>
             <button class="tile" onclick="showSection('horoscope')"><b>☾</b><span>Horoskop</span></button>
-            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Soraya Chat</span></button>
+            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Chat</span></button>
             <button class="tile" onclick="showSection('synastry')"><b>♡</b><span>Synastrie</span></button>
-          </div>
-        </div>
-
-        <div class="c54-insight-grid">
-          <div class="card glow c54-insight-card">
-            <span class="eyebrow">Dein Tag</span>
-            <h3>Sprich mit Soraya</h3>
-            <p>Frag nach deiner heutigen Energie. Soraya verbindet dein Profil mit aktuellen Transiten.</p>
-            <button class="btn gold block" onclick="showSection('chat')">Mit Soraya sprechen</button>
-          </div>
-
-          <div class="card c54-insight-card">
-            <span class="eyebrow">Kosmischer Impuls</span>
-            <h3>Horoskop öffnen</h3>
-            <p>Ein kurzer, schöner Impuls für Fokus, Liebe und Richtung — ohne schwere Effekte.</p>
-            <button class="btn block" onclick="showSection('horoscope')">Impuls anzeigen</button>
           </div>
         </div>
       </section>
@@ -168,9 +153,9 @@
       <!-- ANALYSE -->
       <section id="analysis" class="section">
         <div class="page-title">
-          <span class="eyebrow">Radix · Seele · Muster</span>
-          <h2>Birth Chart<br><span class="gold">Explorer</span></h2>
-          <p>Dein echtes Geburtshoroskop mit Planeten, Häusern, Aspekten und einem klaren Tiefen-Reading.</p>
+          <span class="eyebrow">Birth Chart</span>
+          <h2>Dein<br><span class="gold">Radix</span></h2>
+          <p>Planeten, Häuser, Aspekte und ein klares Reading.</p>
         </div>
 
         <div class="card c49-empty-guide" id="analysisEmptyGuide">
@@ -178,8 +163,8 @@
           <div>
             <span class="eyebrow">Profil nötig</span>
             <h4>Speichere zuerst deine Geburtsdaten</h4>
-            <p>Danach kann Soraya dein echtes Birth Chart berechnen.</p>
-            <button class="btn gold" onclick="showSection('profile')">Profil vervollständigen</button>
+            <p>Danach kann Soraya dein Chart berechnen.</p>
+            <button class="btn gold" onclick="showSection('profile')">Profil öffnen</button>
           </div>
         </div>
 
@@ -192,51 +177,23 @@
         </div>
 
         <div class="c4-big-three-grid" id="bigThreeGrid">
-          <div class="card c4-mini-card c41-big-card">
-            <span class="eyebrow">Sonne</span>
-            <b id="bigSunGlyph">☉</b>
-            <strong id="bigSunSign">–</strong>
-            <p id="bigSunText">Identität · Ausdruck · Lebenslicht</p>
-          </div>
-          <div class="card c4-mini-card c41-big-card">
-            <span class="eyebrow">Mond</span>
-            <b id="bigMoonGlyph">☾</b>
-            <strong id="bigMoonSign">–</strong>
-            <p id="bigMoonText">Gefühl · Bedürfnis · innere Welt</p>
-          </div>
-          <div class="card c4-mini-card c41-big-card">
-            <span class="eyebrow">Aszendent</span>
-            <b id="bigAscGlyph">AC</b>
-            <strong id="bigAscSign">–</strong>
-            <p id="bigAscText">Auftreten · Weg · Wirkung</p>
-          </div>
+          <div class="card c4-mini-card c41-big-card"><span class="eyebrow">Sonne</span><b id="bigSunGlyph">☉</b><strong id="bigSunSign">–</strong><p id="bigSunText">Identität · Ausdruck · Lebenslicht</p></div>
+          <div class="card c4-mini-card c41-big-card"><span class="eyebrow">Mond</span><b id="bigMoonGlyph">☾</b><strong id="bigMoonSign">–</strong><p id="bigMoonText">Gefühl · Bedürfnis · innere Welt</p></div>
+          <div class="card c4-mini-card c41-big-card"><span class="eyebrow">Aszendent</span><b id="bigAscGlyph">AC</b><strong id="bigAscSign">–</strong><p id="bigAscText">Auftreten · Weg · Wirkung</p></div>
         </div>
 
         <div class="card c41-analysis-panel">
-          <div class="card-title">
-            <h4>Planeten & Häuser</h4>
-            <span class="badge">Live</span>
-          </div>
-          <div id="planetList" class="c41-planet-list">
-            <div class="c41-empty">Speichere dein Profil und öffne die Analyse.</div>
-          </div>
+          <div class="card-title"><h4>Planeten & Häuser</h4><span class="badge">Live</span></div>
+          <div id="planetList" class="c41-planet-list"><div class="c41-empty">Speichere dein Profil und öffne die Analyse.</div></div>
         </div>
 
         <div class="card c41-analysis-panel">
-          <div class="card-title">
-            <h4>Aspekte & Balance</h4>
-            <span class="badge">Übersicht</span>
-          </div>
-          <div id="aspectSummary" class="c41-aspect-summary">
-            <div class="c41-empty">Aspekte werden mit deinem Chart geladen.</div>
-          </div>
+          <div class="card-title"><h4>Aspekte & Balance</h4><span class="badge">Übersicht</span></div>
+          <div id="aspectSummary" class="c41-aspect-summary"><div class="c41-empty">Aspekte werden mit deinem Chart geladen.</div></div>
         </div>
 
         <div class="card c4-reading-card">
-          <div class="card-title">
-            <h4>Reading</h4>
-            <span id="analysisSource" class="badge">bereit</span>
-          </div>
+          <div class="card-title"><h4>Reading</h4><span id="analysisSource" class="badge">bereit</span></div>
           <div class="c4-action-row">
             <button class="btn gold" onclick="loadAnalysis(false)">Analyse öffnen</button>
             <button class="btn" onclick="loadAnalysis(true)">Neu erzeugen</button>
@@ -248,17 +205,13 @@
       <!-- HOROSKOP -->
       <section id="horoscope" class="section">
         <div class="page-title">
-          <span class="eyebrow">Täglich · Wöchentlich · Monatlich</span>
-          <h2>Dein<br><span class="gold">Horoskop</span></h2>
-          <p>Ein astrologischer Impuls für dein Herz, deinen Fokus und deinen nächsten Schritt.</p>
+          <span class="eyebrow">Horoskop</span>
+          <h2>Dein<br><span class="gold">Impuls</span></h2>
+          <p>Kurze Hinweise für Fokus, Liebe und Richtung.</p>
         </div>
 
         <div class="card glow c4-horoscope-card c42-horoscope-hero">
-          <div class="card-title">
-            <h4>Kosmische Botschaft</h4>
-            <span class="badge">Soraya</span>
-          </div>
-
+          <div class="card-title"><h4>Kosmische Botschaft</h4><span class="badge">Soraya</span></div>
           <div class="segmented c4-period-picker">
             <select id="period" aria-label="Zeitraum wählen">
               <option value="daily">Tag</option>
@@ -267,56 +220,28 @@
             </select>
             <button class="btn gold" onclick="loadHoroscope()">Horoskop laden</button>
           </div>
-
           <div class="horo-layout c42-horo-layout">
             <div class="horo-moon c42-horo-orb"></div>
             <div>
               <span class="eyebrow">Stimmung</span>
               <h4 id="horoMood">Dein Horoskop</h4>
-              <p id="horoBody">Wähle einen Zeitraum und tippe auf „Horoskop laden“.</p>
+              <p id="horoBody">Wähle einen Zeitraum und lade dein Horoskop.</p>
               <span id="horoTip" class="badge">✦ Dein Tipp erscheint hier</span>
             </div>
           </div>
         </div>
 
         <div class="c42-guidance-grid">
-          <div class="card c42-guidance-card">
-            <span class="eyebrow">Fokus</span>
-            <b>✦</b>
-            <h4 id="horoFocusTitle">Innere Klarheit</h4>
-            <p id="horoFocusText">Dein Fokus erscheint nach dem Laden.</p>
-          </div>
-
-          <div class="card c42-guidance-card">
-            <span class="eyebrow">Liebe</span>
-            <b>♡</b>
-            <h4 id="horoLoveTitle">Herz & Nähe</h4>
-            <p id="horoLoveText">Beziehungsimpulse erscheinen nach dem Laden.</p>
-          </div>
-
-          <div class="card c42-guidance-card">
-            <span class="eyebrow">Beruf</span>
-            <b>◇</b>
-            <h4 id="horoWorkTitle">Richtung & Kraft</h4>
-            <p id="horoWorkText">Berufliche Hinweise erscheinen nach dem Laden.</p>
-          </div>
+          <div class="card c42-guidance-card"><span class="eyebrow">Fokus</span><b>✦</b><h4 id="horoFocusTitle">Innere Klarheit</h4><p id="horoFocusText">Dein Fokus erscheint nach dem Laden.</p></div>
+          <div class="card c42-guidance-card"><span class="eyebrow">Liebe</span><b>♡</b><h4 id="horoLoveTitle">Herz & Nähe</h4><p id="horoLoveText">Beziehungsimpulse erscheinen nach dem Laden.</p></div>
+          <div class="card c42-guidance-card"><span class="eyebrow">Beruf</span><b>◇</b><h4 id="horoWorkTitle">Richtung & Kraft</h4><p id="horoWorkText">Berufliche Hinweise erscheinen nach dem Laden.</p></div>
         </div>
 
         <div class="card premium c42-ritual-card">
-          <div class="card-title">
-            <h4>Ritual & Affirmation</h4>
-            <span class="badge">Heute</span>
-          </div>
+          <div class="card-title"><h4>Ritual & Affirmation</h4><span class="badge">Heute</span></div>
           <div class="c42-ritual-layout">
-            <div>
-              <span class="eyebrow">Ritual</span>
-              <h4 id="horoRitualTitle">Atem & Erdung</h4>
-              <p id="horoRitualText">Ein kleines Ritual erscheint nach dem Laden.</p>
-            </div>
-            <div>
-              <span class="eyebrow">Affirmation</span>
-              <p id="horoAffirmation" class="c42-affirmation">„Ich vertraue meinem Weg.“</p>
-            </div>
+            <div><span class="eyebrow">Ritual</span><h4 id="horoRitualTitle">Atem & Erdung</h4><p id="horoRitualText">Ein kleines Ritual erscheint nach dem Laden.</p></div>
+            <div><span class="eyebrow">Affirmation</span><p id="horoAffirmation" class="c42-affirmation">„Ich vertraue meinem Weg.“</p></div>
           </div>
         </div>
       </section>
@@ -324,47 +249,30 @@
       <!-- CHAT -->
       <section id="chat" class="section">
         <div class="page-title">
-          <span class="eyebrow">Astrologische Begleiterin</span>
+          <span class="eyebrow">Soraya Chat</span>
           <h2>Soraya</h2>
           <p>Stelle eine Frage oder nutze einen Vorschlag.</p>
         </div>
 
         <div class="c43-prompt-grid">
-          <button class="card c43-prompt" onclick="quickChat('Was sagt mein Geburtshoroskop über meine aktuelle Lebensphase?')">
-            <b>☉</b><span>Lebensphase</span>
-          </button>
-          <button class="card c43-prompt" onclick="quickChat('Welche Energie begleitet mich heute in Liebe und Beziehungen?')">
-            <b>♡</b><span>Liebe</span>
-          </button>
-          <button class="card c43-prompt" onclick="quickChat('Worauf soll ich beruflich oder finanziell aktuell achten?')">
-            <b>◇</b><span>Beruf</span>
-          </button>
-          <button class="card c43-prompt" onclick="quickChat('Welche Blockade darf ich gerade loslassen?')">
-            <b>☾</b><span>Blockade</span>
-          </button>
+          <button class="card c43-prompt" onclick="quickChat('Was sagt mein Geburtshoroskop über meine aktuelle Lebensphase?')"><b>☉</b><span>Lebensphase</span></button>
+          <button class="card c43-prompt" onclick="quickChat('Welche Energie begleitet mich heute in Liebe und Beziehungen?')"><b>♡</b><span>Liebe</span></button>
+          <button class="card c43-prompt" onclick="quickChat('Worauf soll ich beruflich oder finanziell aktuell achten?')"><b>◇</b><span>Beruf</span></button>
+          <button class="card c43-prompt" onclick="quickChat('Welche Blockade darf ich gerade loslassen?')"><b>☾</b><span>Blockade</span></button>
         </div>
 
         <div class="card chat-card c4-chat-card c43-chat-card">
           <div class="chat-head">
             <div class="avatar">✦</div>
-            <div>
-              <h4>Chat mit Soraya</h4>
-              <p>Birth Chart · Transite · persönliche Antwort</p>
-            </div>
+            <div><h4>Chat mit Soraya</h4><p>Birth Chart · Transite · persönliche Antwort</p></div>
           </div>
-
           <input id="conversationId" type="hidden" />
-
-          <div class="chat-window" id="chatWindow">
-            <div class="bubble assistant">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div>
-          </div>
-
+          <div class="chat-window" id="chatWindow"><div class="bubble assistant">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div></div>
           <label for="chatMessage">Deine Nachricht</label>
           <div class="composer c43-composer">
             <textarea id="chatMessage" placeholder="Nachricht an Soraya…"></textarea>
             <button class="round" onclick="sendChat()" title="Senden" aria-label="Nachricht senden">➤</button>
           </div>
-
           <div class="c43-chat-footer">
             <button class="btn" onclick="clearChatView()">Chat leeren</button>
             <button class="btn" onclick="quickChat('Gib mir bitte eine kurze, klare Tagesbotschaft.')">Tagesbotschaft</button>
@@ -375,91 +283,51 @@
       <!-- SYNASTRY -->
       <section id="synastry" class="section">
         <div class="page-title">
-          <span class="eyebrow">Verbindungen verstehen</span>
-          <h2>Synastrie</h2>
+          <span class="eyebrow">Synastrie</span>
+          <h2>Verbindung<br><span class="gold">verstehen</span></h2>
           <p>Analysiere die Dynamik zwischen zwei gespeicherten Personen.</p>
         </div>
 
         <div class="card glow syn-wrap c4-synastry-card c44-synastry-hero">
           <span class="eyebrow">Partnerschaftsanalyse</span>
-
           <div class="c44-connection-visual">
             <div class="c44-person-orb"><span id="synAInitial">Du</span><small id="synAName">Dein Chart</small></div>
             <div class="c44-link-symbol">♡</div>
             <div class="c44-person-orb"><span id="synBInitial">?</span><small id="synBName">Zweite Person</small></div>
           </div>
-
-          <div class="compat" id="compatRing" style="--score:0%">
-            <div><strong id="compatScore">–</strong></div>
-          </div>
-
+          <div class="compat" id="compatRing" style="--score:0%"><div><strong id="compatScore">–</strong></div></div>
           <label for="synPersonSelect">Zweite Person</label>
           <select id="synPersonSelect"><option value="">Person wählen…</option></select>
-
           <div class="c44-button-row">
             <button class="btn" onclick="loadPeopleFromSupabase()">Personen aktualisieren</button>
             <button class="btn gold" onclick="saveSynastry()">Verbindung berechnen</button>
           </div>
-
           <input id="personBId" type="hidden" />
           <div id="synastryText" class="status" aria-live="polite">Noch nicht berechnet.</div>
         </div>
 
         <div class="c44-synastry-grid">
-          <div class="card c44-syn-card">
-            <span class="eyebrow">Harmonie</span>
-            <b>✦</b>
-            <h4 id="synHarmonyTitle">Seelische Resonanz</h4>
-            <p id="synHarmonyText">Nach der Berechnung zeigt Soraya, wo eure Verbindung leicht fließt.</p>
-          </div>
-
-          <div class="card c44-syn-card">
-            <span class="eyebrow">Spannung</span>
-            <b>◇</b>
-            <h4 id="synChallengeTitle">Lernfelder</h4>
-            <p id="synChallengeText">Hier erscheinen eure Wachstumsthemen.</p>
-          </div>
-
-          <div class="card c44-syn-card">
-            <span class="eyebrow">Magnetismus</span>
-            <b>♡</b>
-            <h4 id="synMagnetTitle">Anziehung</h4>
-            <p id="synMagnetText">Soraya zeigt, was euch verbindet.</p>
-          </div>
+          <div class="card c44-syn-card"><span class="eyebrow">Harmonie</span><b>✦</b><h4 id="synHarmonyTitle">Seelische Resonanz</h4><p id="synHarmonyText">Nach der Berechnung zeigt Soraya, wo eure Verbindung leicht fließt.</p></div>
+          <div class="card c44-syn-card"><span class="eyebrow">Spannung</span><b>◇</b><h4 id="synChallengeTitle">Lernfelder</h4><p id="synChallengeText">Hier erscheinen eure Wachstumsthemen.</p></div>
+          <div class="card c44-syn-card"><span class="eyebrow">Magnetismus</span><b>♡</b><h4 id="synMagnetTitle">Anziehung</h4><p id="synMagnetText">Soraya zeigt, was euch verbindet.</p></div>
         </div>
 
         <div class="card phaseb3-partner-card" id="synastryPersonCreateCard">
-          <div class="card-title">
-            <h4>Zweite Person anlegen</h4>
-            <span class="badge">Synastrie</span>
-          </div>
+          <div class="card-title"><h4>Zweite Person anlegen</h4><span class="badge">Synastrie</span></div>
           <p class="synastry-hint">Speichere eine zweite Person. Danach erscheint sie oben in der Liste.</p>
-
-          <label for="partnerName">Name</label>
-          <input id="partnerName" placeholder="Name der zweiten Person" />
-
+          <label for="partnerName">Name</label><input id="partnerName" placeholder="Name der zweiten Person" />
           <div class="partner-form-grid">
             <div><label for="partnerDay">Tag</label><input id="partnerDay" inputmode="numeric" placeholder="14" /></div>
             <div><label for="partnerMonth">Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="9" /></div>
             <div><label for="partnerYear">Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="1988" /></div>
           </div>
-
           <div class="partner-form-grid two">
             <div><label for="partnerHour">Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="18" /></div>
             <div><label for="partnerMinute">Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="30" /></div>
           </div>
-
-          <label for="partnerBirthplace">Geburtsort</label>
-          <input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
-
+          <label for="partnerBirthplace">Geburtsort</label><input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
           <label for="partnerRelation">Beziehung</label>
-          <select id="partnerRelation">
-            <option value="partner">Partner/in</option>
-            <option value="friend">Freund/in</option>
-            <option value="family">Familie</option>
-            <option value="other">Andere</option>
-          </select>
-
+          <select id="partnerRelation"><option value="partner">Partner/in</option><option value="friend">Freund/in</option><option value="family">Familie</option><option value="other">Andere</option></select>
           <button class="btn gold block" onclick="createSynastryPerson()">Zweite Person speichern</button>
           <div id="partnerCreateStatus" class="status">Noch keine zweite Person gespeichert.</div>
         </div>
@@ -476,13 +344,8 @@
         <div class="card glow c4-profile-card c45-profile-hero">
           <div class="profile-hero">
             <div class="profile-avatar" id="profileInitial">S</div>
-            <div>
-              <span class="eyebrow">Soraya Mitglied</span>
-              <h3 id="profileTitle">Dein Profil</h3>
-              <p id="profileSub">Seelenlicht-Sucher · Soraya Mitglied</p>
-            </div>
+            <div><span class="eyebrow">Soraya Mitglied</span><h3 id="profileTitle">Dein Profil</h3><p id="profileSub">Seelenlicht-Sucher · Soraya Mitglied</p></div>
           </div>
-
           <div class="stats c45-stats">
             <div class="stat"><b id="daysStat">1</b><span>Tag dabei</span></div>
             <div class="stat"><b id="analysisStat">0</b><span>Analysen</span></div>
@@ -491,53 +354,35 @@
         </div>
 
         <div class="card c4-login-session c45-login-card" id="loginSessionCard">
-          <div class="card-title">
-            <h4>Login</h4>
-            <span class="badge" id="loginBadge">Status</span>
-          </div>
+          <div class="card-title"><h4>Login</h4><span class="badge" id="loginBadge">Status</span></div>
           <p id="loginSessionText">Session wird geprüft…</p>
           <button id="profileAuthButton" class="btn gold block" onclick="openLogin()">Einloggen</button>
         </div>
 
         <div class="card c4-birth-form-card c45-birth-card">
-          <div class="card-title">
-            <h4>Geburtsdaten</h4>
-            <span class="badge">Radix</span>
-          </div>
-
+          <div class="card-title"><h4>Geburtsdaten</h4><span class="badge">Radix</span></div>
           <input id="personId" type="hidden" />
-
-          <label for="pName">Name</label>
-          <input id="pName" placeholder="Dein Name" oninput="window._sorayaPreview&&window._sorayaPreview()" />
-
+          <label for="pName">Name</label><input id="pName" placeholder="Dein Name" oninput="window._sorayaPreview&&window._sorayaPreview()" />
           <div class="form-row-3">
             <div><label for="pDay">Tag</label><input id="pDay" inputmode="numeric" placeholder="4" oninput="window._sorayaPreview&&window._sorayaPreview()" /></div>
             <div><label for="pMonth">Monat</label><input id="pMonth" inputmode="numeric" placeholder="6" oninput="window._sorayaPreview&&window._sorayaPreview()" /></div>
             <div><label for="pYear">Jahr</label><input id="pYear" inputmode="numeric" placeholder="1986" /></div>
           </div>
-
           <div class="form-row">
             <div><label for="pHour">Stunde optional</label><input id="pHour" inputmode="numeric" placeholder="14" /></div>
             <div><label for="pMinute">Minute optional</label><input id="pMinute" inputmode="numeric" placeholder="00" /></div>
           </div>
-
-          <label for="pBirthplace">Geburtsort</label>
-          <input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
-
+          <label for="pBirthplace">Geburtsort</label><input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
           <div class="c45-birth-preview">
             <div><b>☉</b><span>Sonne wird nach dem Speichern berechnet.</span></div>
             <div><b>☾</b><span>Mond & Aszendent erscheinen in der Analyse.</span></div>
           </div>
-
           <button class="btn gold block" onclick="createPerson()">Profil speichern</button>
           <div id="personResult" class="status" aria-live="polite">Noch nicht gespeichert.</div>
         </div>
 
         <div class="card c45-settings-card developer-only" id="technicalSettingsCard">
-          <div class="card-title">
-            <h4>Technische Verbindung</h4>
-            <span class="badge">Admin</span>
-          </div>
+          <div class="card-title"><h4>Technische Verbindung</h4><span class="badge">Admin</span></div>
           <p>Nur sichtbar, wenn die öffentliche App-Verbindung fehlt oder der Developer-Modus aktiv ist.</p>
           <button class="btn block" onclick="openSettings()">Verbindung öffnen</button>
         </div>
@@ -559,44 +404,21 @@
     <div class="modal" role="dialog" aria-modal="true" aria-label="Verbindung">
       <div class="card-title"><h4>Verbindung</h4><button class="round" onclick="closeSettings()" aria-label="Schließen">×</button></div>
       <p class="c4-muted">Admin-Bereich: Hier nur öffentliche Supabase anon/public Daten eintragen. Keine geheimen Keys.</p>
-
-      <label for="supabaseUrl">Supabase URL</label>
-      <input id="supabaseUrl" placeholder="https://...supabase.co" />
-
-      <label for="supabaseAnonKey">Supabase anon/public key</label>
-      <textarea id="supabaseAnonKey" placeholder="anon/public key"></textarea>
-
-      <label for="engineUrl">Soraya Backend URL</label>
-      <input id="engineUrl" placeholder="https://...railway.app" />
-
-      <div class="c4-action-row">
-        <button class="btn gold" onclick="saveConfig()">Speichern</button>
-        <button class="btn" onclick="loadConfig(true)">Laden</button>
-      </div>
-
+      <label for="supabaseUrl">Supabase URL</label><input id="supabaseUrl" placeholder="https://...supabase.co" />
+      <label for="supabaseAnonKey">Supabase anon/public key</label><textarea id="supabaseAnonKey" placeholder="anon/public key"></textarea>
+      <label for="engineUrl">Soraya Backend URL</label><input id="engineUrl" placeholder="https://...railway.app" />
+      <div class="c4-action-row"><button class="btn gold" onclick="saveConfig()">Speichern</button><button class="btn" onclick="loadConfig(true)">Laden</button></div>
       <button class="btn block c413-health-btn" onclick="checkSorayaConnection()">Verbindung prüfen</button>
       <div id="configStatus" class="status" aria-live="polite">Noch nicht gespeichert.</div>
       <div id="connectionHealthStatus" class="status c413-health-status" aria-live="polite">Noch nicht geprüft.</div>
     </div>
   </div>
 
-  <div class="c411-loading-veil" id="loadingVeil" aria-hidden="true">
-    <div class="c411-loader">
-      <span>✦</span>
-      <p>Soraya lädt…</p>
-    </div>
-  </div>
-
-  <div class="c413-error-panel" id="globalErrorPanel" aria-live="polite">
-    <div>
-      <b>✦</b>
-      <span id="globalErrorText">Soraya Hinweis</span>
-    </div>
-    <button class="round" onclick="hideGlobalError()" aria-label="Hinweis schließen">×</button>
-  </div>
-
+  <div class="c411-loading-veil" id="loadingVeil" aria-hidden="true"><div class="c411-loader"><span>✦</span><p>Soraya lädt…</p></div></div>
+  <div class="c413-error-panel" id="globalErrorPanel" aria-live="polite"><div><b>✦</b><span id="globalErrorText">Soraya Hinweis</span></div><button class="round" onclick="hideGlobalError()" aria-label="Hinweis schließen">×</button></div>
   <div class="toast" id="toast"></div>
 
   <script src="/app.js" defer></script>
+  <script src="/c58-mobile-layout.js" defer></script>
 </body>
 </html>
