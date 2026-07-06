@@ -16,7 +16,7 @@ window.SORAYA_PUBLIC_CONFIG = {
 (function loadSorayaC57Assets() {
   "use strict";
 
-  var VERSION = "5.8.0";
+  var VERSION = "5.8.1";
 
   function addCss() {
     if (document.querySelector('link[data-soraya-c57="css"]')) return;
@@ -27,8 +27,18 @@ window.SORAYA_PUBLIC_CONFIG = {
     document.head.appendChild(link);
   }
 
+  function addJs() {
+    if (document.querySelector('script[data-soraya-c57="js"]')) return;
+    var script = document.createElement("script");
+    script.src = "/c57-mobile-ux.js?v=" + VERSION;
+    script.defer = true;
+    script.setAttribute("data-soraya-c57", "js");
+    document.body.appendChild(script);
+  }
+
   function boot() {
     addCss();
+    addJs();
   }
 
   if (document.readyState === "loading") {
