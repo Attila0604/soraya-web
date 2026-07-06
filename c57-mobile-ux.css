@@ -1,400 +1,72 @@
 /*
-  Soraya — C.5.7 Mobile UX + Visual Performance
-  Ziel:
-  - App am Handy schöner, klarer und schneller wirken lassen
-  - Buttons größer, eindeutiger und hochwertiger machen
-  - unnötige User-Infos visuell reduzieren
-  - keine schweren Animationen, keine neuen externen Assets
+  Soraya — C.5.8 Mobile Layout Guard
+  Kleine UX-Korrekturen. Keine Backend-Änderung.
 */
+(function () {
+  "use strict";
 
-:root {
-  --c57-gold-glow: rgba(255, 226, 155, .22);
-  --c57-violet-glow: rgba(181, 107, 255, .18);
-  --c57-card-line: rgba(255, 226, 155, .26);
-  --c57-press: translateY(1px) scale(.985);
-}
-
-body.soraya-c57 {
-  text-rendering: optimizeLegibility;
-}
-
-body.soraya-c57 .app {
-  width: min(100%, 520px);
-}
-
-body.soraya-c57 .topbar {
-  isolation: isolate;
-}
-
-body.soraya-c57 .brand h1,
-body.soraya-c57 .login-logo h1 {
-  text-shadow: 0 0 18px rgba(255, 226, 155, .16);
-}
-
-body.soraya-c57 .card {
-  border-color: var(--c57-card-line);
-  background:
-    linear-gradient(180deg, rgba(38, 26, 76, .78), rgba(8, 10, 28, .84)),
-    radial-gradient(420px 160px at 15% -4%, rgba(255, 226, 155, .08), transparent 62%),
-    radial-gradient(360px 160px at 100% 0%, rgba(181, 107, 255, .12), transparent 66%);
-  box-shadow:
-    0 18px 58px rgba(0, 0, 0, .44),
-    inset 0 1px 0 rgba(255, 255, 255, .08);
-}
-
-body.soraya-c57 .card.glow,
-body.soraya-c57 .hero-card,
-body.soraya-c57 .login-shell {
-  border-color: rgba(255, 226, 155, .38);
-  box-shadow:
-    0 20px 64px rgba(0, 0, 0, .48),
-    0 0 28px rgba(255, 226, 155, .08),
-    inset 0 1px 0 rgba(255, 255, 255, .10);
-}
-
-body.soraya-c57 .btn,
-body.soraya-c57 .tile,
-body.soraya-c57 .tabbar button,
-body.soraya-c57 .login-tabs button,
-body.soraya-c57 .password-toggle {
-  min-height: 48px;
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-body.soraya-c57 .btn,
-body.soraya-c57 .login-tabs button {
-  position: relative;
-  overflow: hidden;
-  border-color: rgba(255, 226, 155, .38);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .035)),
-    radial-gradient(160px 52px at 50% 0%, rgba(255, 226, 155, .12), transparent 70%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .08),
-    0 10px 24px rgba(0, 0, 0, .18);
-}
-
-body.soraya-c57 .btn.gold,
-body.soraya-c57 .login-tabs button.active,
-body.soraya-c57 .tabbar button.active {
-  background:
-    linear-gradient(180deg, #fff0b7 0%, #e4b856 48%, #9b641d 100%);
-  color: #170e16;
-  border-color: rgba(255, 246, 201, .82);
-  box-shadow:
-    0 12px 30px rgba(217, 168, 75, .20),
-    inset 0 1px 0 rgba(255, 255, 255, .36);
-}
-
-body.soraya-c57 .tile {
-  border-color: rgba(255, 226, 155, .24);
-  background:
-    radial-gradient(150px 80px at 50% 0%, rgba(255, 226, 155, .08), transparent 68%),
-    rgba(255, 255, 255, .045);
-}
-
-body.soraya-c57 .tile b,
-body.soraya-c57 .c43-prompt b,
-body.soraya-c57 .zodiac-art,
-body.soraya-c57 .c46-focus-orb {
-  filter: drop-shadow(0 0 14px rgba(255, 226, 155, .24));
-}
-
-body.soraya-c57 .btn:active,
-body.soraya-c57 .round:active,
-body.soraya-c57 .tile:active,
-body.soraya-c57 .tabbar button:active,
-body.soraya-c57 .login-tabs button:active,
-body.soraya-c57 .password-toggle:active {
-  transform: var(--c57-press);
-}
-
-body.soraya-c57 .btn:focus-visible,
-body.soraya-c57 .round:focus-visible,
-body.soraya-c57 .tile:focus-visible,
-body.soraya-c57 .tabbar button:focus-visible,
-body.soraya-c57 input:focus-visible,
-body.soraya-c57 textarea:focus-visible,
-body.soraya-c57 select:focus-visible {
-  outline: 2px solid rgba(255, 226, 155, .84);
-  outline-offset: 3px;
-}
-
-body.soraya-c57 .tabbar {
-  border-color: rgba(255, 226, 155, .20);
-  box-shadow: 0 -18px 46px rgba(0, 0, 0, .45);
-}
-
-body.soraya-c57 .tabbar button span {
-  font-weight: 800;
-}
-
-body.soraya-c57 .status,
-body.soraya-c57 .reading,
-body.soraya-c57 .bubble {
-  line-height: 1.58;
-}
-
-body.soraya-c57 .developer-only:not(.open) {
-  display: none !important;
-}
-
-body.soraya-c57 .c57-disabled-button {
-  display: none !important;
-}
-
-body.soraya-c57 .c57-compact-text {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-body.soraya-c57 .c57-mobile-hidden-info {
-  display: none !important;
-}
-
-@media (max-width: 768px) {
-  body.soraya-c57 {
-    background:
-      radial-gradient(520px 360px at 50% -8%, rgba(255, 226, 155, .10), transparent 62%),
-      radial-gradient(620px 420px at 12% 3%, rgba(111, 53, 207, .22), transparent 60%),
-      linear-gradient(180deg, #050615 0%, #070817 48%, #02030a 100%);
+  function isMobile() {
+    return window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
   }
 
-  body.soraya-c57 .cosmos::before,
-  body.soraya-c57 .cosmos::after {
-    opacity: .46;
+  function shortenMobileText() {
+    if (!isMobile()) return;
+
+    const replacements = new Map([
+      ["Profil vervollständigen", "Profil öffnen"],
+      ["Personen aktualisieren", "Aktualisieren"],
+      ["Verbindung berechnen", "Berechnen"],
+      ["Zweite Person speichern", "Speichern"],
+      ["Tagesbotschaft", "Botschaft"],
+      ["Horoskop laden", "Laden"],
+      ["Analyse öffnen", "Öffnen"],
+      ["Neu erzeugen", "Neu"]
+    ]);
+
+    document.querySelectorAll("button, .btn").forEach((button) => {
+      const text = (button.textContent || "").trim();
+      if (replacements.has(text)) button.textContent = replacements.get(text);
+    });
   }
 
-  body.soraya-c57 .app {
-    padding-left: 14px;
-    padding-right: 14px;
-    padding-bottom: calc(102px + env(safe-area-inset-bottom));
+  function protectBottomNav() {
+    const nav = document.querySelector(".tabbar");
+    if (!nav) return;
+    document.documentElement.style.setProperty("--soraya-bottom-nav-height", nav.offsetHeight + "px");
   }
 
-  body.soraya-c57 .topbar {
-    padding-top: 14px;
-    padding-bottom: 10px;
-    backdrop-filter: blur(10px);
+  function markLoaded() {
+    document.body.classList.add("soraya-c58-loaded");
   }
 
-  body.soraya-c57 .brand h1 {
-    font-size: clamp(27px, 8vw, 34px);
-    letter-spacing: .18em;
-    padding-left: .18em;
+  function bindSafeButtons() {
+    document.querySelectorAll("button").forEach((button) => {
+      if (button.dataset.c58SafeBound) return;
+      button.dataset.c58SafeBound = "1";
+      button.addEventListener("click", () => {
+        button.classList.add("c58-tap");
+        window.setTimeout(() => button.classList.remove("c58-tap"), 140);
+      }, { passive: true });
+    });
   }
 
-  body.soraya-c57 .brand .sub {
-    display: none;
+  function init() {
+    markLoaded();
+    shortenMobileText();
+    protectBottomNav();
+    bindSafeButtons();
+    window.setTimeout(() => {
+      shortenMobileText();
+      protectBottomNav();
+      bindSafeButtons();
+    }, 700);
   }
 
-  body.soraya-c57 .round {
-    min-width: 46px;
-    width: 46px;
-    height: 46px;
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
   }
 
-  body.soraya-c57 .c410-app-status {
-    display: none;
-  }
-
-  body.soraya-c57 .page-title {
-    margin: 24px 0 16px;
-  }
-
-  body.soraya-c57 .page-title h2 {
-    font-size: clamp(37px, 11vw, 50px);
-  }
-
-  body.soraya-c57 .page-title p,
-  body.soraya-c57 .card > p:not(.reading),
-  body.soraya-c57 .zodiac-info p,
-  body.soraya-c57 .c54-insight-card p,
-  body.soraya-c57 .c43-chat-intro p,
-  body.soraya-c57 .c44-syn-card p,
-  body.soraya-c57 .c42-guidance-card p,
-  body.soraya-c57 .c45-profile-hero p {
-    font-size: 14px;
-    line-height: 1.48;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  body.soraya-c57 .card {
-    margin: 12px 0;
-    padding: 17px;
-    border-radius: 24px;
-    backdrop-filter: blur(10px) saturate(108%);
-  }
-
-  body.soraya-c57 .card-title {
-    margin-bottom: 11px;
-  }
-
-  body.soraya-c57 .card-title .badge {
-    min-height: 24px;
-    padding: 4px 8px;
-    font-size: 10px;
-    opacity: .78;
-  }
-
-  body.soraya-c57 .c54-hero-ribbon {
-    gap: 7px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-
-  body.soraya-c57 .c54-hero-ribbon::-webkit-scrollbar {
-    display: none;
-  }
-
-  body.soraya-c57 .c54-hero-ribbon span {
-    white-space: nowrap;
-    font-size: 11px;
-    padding: 7px 10px;
-  }
-
-  body.soraya-c57 .shortcut-grid,
-  body.soraya-c57 .c46-shortcut-grid,
-  body.soraya-c57 .c43-prompt-grid {
-    gap: 10px;
-  }
-
-  body.soraya-c57 .tile,
-  body.soraya-c57 .c43-prompt {
-    min-height: 92px;
-    padding: 14px 10px;
-    border-radius: 22px;
-  }
-
-  body.soraya-c57 .tile b,
-  body.soraya-c57 .c43-prompt b {
-    font-size: 27px;
-  }
-
-  body.soraya-c57 .btn {
-    min-height: 50px;
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-
-  body.soraya-c57 .c4-action-row,
-  body.soraya-c57 .c44-button-row,
-  body.soraya-c57 .login-mini-actions,
-  body.soraya-c57 .c43-chat-footer {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  body.soraya-c57 .c4-action-row .btn,
-  body.soraya-c57 .c44-button-row .btn,
-  body.soraya-c57 .c43-chat-footer .btn {
-    width: 100%;
-  }
-
-  body.soraya-c57 input,
-  body.soraya-c57 textarea,
-  body.soraya-c57 select {
-    min-height: 50px;
-    font-size: 16px;
-    border-radius: 15px;
-  }
-
-  body.soraya-c57 .composer textarea {
-    min-height: 58px;
-    max-height: 150px;
-  }
-
-  body.soraya-c57 .chat-window {
-    max-height: min(54vh, 460px);
-  }
-
-  body.soraya-c57 .tabbar {
-    left: 10px;
-    right: 10px;
-    bottom: calc(10px + env(safe-area-inset-bottom));
-    padding: 8px;
-    border-radius: 26px;
-  }
-
-  body.soraya-c57 .tabbar button {
-    min-height: 58px;
-    border-radius: 20px;
-  }
-
-  body.soraya-c57 .tabbar button b {
-    font-size: 18px;
-  }
-
-  body.soraya-c57 .tabbar button span {
-    font-size: 10px;
-  }
-
-  body.soraya-c57 .c49-steps > div {
-    gap: 10px;
-  }
-
-  body.soraya-c57 .c49-steps .btn {
-    min-width: 86px;
-    width: auto;
-  }
-
-  body.soraya-c57 #chartWheel {
-    max-height: 340px;
-  }
-
-  body.soraya-c57 .reading {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 390px) {
-  body.soraya-c57 .app {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  body.soraya-c57 .brand h1 {
-    font-size: 26px;
-  }
-
-  body.soraya-c57 .round {
-    min-width: 43px;
-    width: 43px;
-    height: 43px;
-  }
-
-  body.soraya-c57 .card {
-    padding: 15px;
-    border-radius: 22px;
-  }
-
-  body.soraya-c57 .page-title h2 {
-    font-size: 36px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce), (max-width: 768px) {
-  body.soraya-c57 *,
-  body.soraya-c57 *::before,
-  body.soraya-c57 *::after {
-    animation-duration: .001ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
-
-  body.soraya-c57 .card,
-  body.soraya-c57 .btn,
-  body.soraya-c57 .tile,
-  body.soraya-c57 .round,
-  body.soraya-c57 .tabbar button {
-    transition: transform .08s ease, border-color .12s ease, background .12s ease;
-  }
-}
+  window.addEventListener("resize", protectBottomNav, { passive: true });
+})();
