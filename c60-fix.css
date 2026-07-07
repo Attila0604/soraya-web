@@ -1,0 +1,118 @@
+/*
+  Soraya — C.6.0 Handy-Stabilität & Aufräumen
+  Rein optisch/additiv. Lädt NACH c57 & c59 -> gewinnt (mit !important).
+  Behebt: überlappende/überdimensionierte Tab-Leiste, Admin-Infos, grüne Status-Meldungen,
+  Lesbarkeit. Keine Logik-Änderung.
+*/
+
+/* ============ TAB-LEISTE: eine saubere, stabile Definition ============ */
+.tabbar,
+.c410-tabbar {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+  width: min(100%, 520px) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom)) !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(255, 220, 140, .16) !important;
+  border-radius: 22px 22px 0 0 !important;
+  background: #080a18 !important;            /* solide -> nichts scheint mehr durch */
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, .6) !important;
+  backdrop-filter: none !important;
+  z-index: 300 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 2px !important;
+  align-items: stretch !important;
+}
+
+.tabbar button,
+.c410-tabbar button {
+  height: 56px !important;
+  min-height: 56px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 4px 1px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  color: rgba(226, 214, 248, .62) !important;
+}
+
+.tabbar button b,
+.c410-tabbar button b {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.tabbar button span,
+.c410-tabbar button span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Aktiver Tab: dezente, klare Markierung – KEIN riesiger Gold-Klotz mehr */
+.tabbar button.active,
+.c410-tabbar button.active {
+  background: rgba(255, 220, 140, .12) !important;
+  color: var(--gold2) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 220, 140, .30), 0 0 16px rgba(255, 214, 120, .14) !important;
+  transform: none !important;
+}
+.tabbar button.active b,
+.tabbar button.active span,
+.c410-tabbar button.active b,
+.c410-tabbar button.active span {
+  color: var(--gold2) !important;
+}
+
+/* Inhalt: genug Platz über der Leiste, damit nichts verdeckt wird */
+.app {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+}
+
+/* ============ ADMIN / ENTWICKLER-BEREICH komplett ausblenden ============ */
+.developer-only,
+#technicalSettingsCard,
+#settingsModal {
+  display: none !important;
+}
+
+/* ============ KEINE grünen Status-Infos -> auf Gold umstellen ============ */
+.status.ok,
+.c410-app-status.ok,
+.status.success {
+  color: var(--gold2) !important;
+  border-color: rgba(255, 220, 140, .30) !important;
+  background: rgba(255, 220, 140, .06) !important;
+}
+
+/* ============ LESBARKEIT: gedämpfter Text heller, Zeilen luftiger ============ */
+:root {
+  --muted2: #b6aad4;
+}
+.muted, .c4-muted {
+  color: #cec2e8 !important;
+}
+.section-head p, .page-title p, .card p, .zodiac .range {
+  line-height: 1.6 !important;
+}
