@@ -1,0 +1,42 @@
+/*
+  Soraya — C.6.1 Bild-Assets
+  Echter Nebel-Hintergrund. Additiv, lädt zuletzt. Keine Logik-Änderung.
+*/
+
+/* Echtes Hintergrundbild auf die (fixe) Kosmos-Ebene legen.
+   Dunkler Verlauf oben/unten schützt die Lesbarkeit von Kopf & Tab-Leiste. */
+.cosmos {
+  background-image:
+    linear-gradient(180deg,
+      rgba(5, 7, 19, .60) 0%,
+      rgba(5, 7, 19, .38) 30%,
+      rgba(5, 7, 19, .42) 60%,
+      rgba(5, 7, 19, .74) 100%),
+    url("/bg-nebula.jpg") !important;
+  background-size: cover, cover !important;
+  background-position: center center, center top !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-color: #05060f !important;
+}
+
+/* Die gemalte Gold/Violett-Aura zurücknehmen – das echte Bild trägt jetzt
+   die Atmosphäre (verhindert doppeltes, überladenes Leuchten). */
+.app::before {
+  animation: none !important;
+  opacity: .32 !important;
+}
+
+/* Login-Seite: die Willkommens-Illustration (Figur oben sichtbar,
+   unten abgedunkelt für die Lesbarkeit des Formulars). */
+.login-body .cosmos {
+  background-image:
+    linear-gradient(180deg,
+      rgba(5, 6, 15, .22) 0%,
+      rgba(5, 6, 15, .34) 42%,
+      rgba(5, 6, 15, .84) 100%),
+    url("/bg-welcome.jpg") !important;
+  background-size: cover, cover !important;
+  background-position: center top, center top !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-color: #05060f !important;
+}
