@@ -1,321 +1,273 @@
 /*
-  Soraya — C.6.3 Visual Boost
-  Datei: c63-visual-boost.css
-
-  Zweck:
-  - Mond stärker sichtbar machen
-  - Hintergrundbild sichtbarer machen
-  - Horoskop-Rad sichtbarer einsetzen
-  - Sternzeichen-Grafik sichtbarer einsetzen
-  - keine Backend-Änderung
-
-  Verwendete Bilder:
-  - bg-soraya-nebula.png
-  - moon-soraya.png
-  - horoscope-wheel-gold.png
-  - zodiac-symbolsgold.png
+  Soraya C63 Clean Visual Boost
+  File: c63-visual-boost.css
+  Purpose: remove bad image overlays and keep a clean luxury UI.
 */
 
-/* =========================================================
-   1) App-Hintergrund stärker sichtbar
-========================================================= */
+/* Remove decorative PNG overlays that created grey boxes */
+.c4-hero-card::after,
+.c46-hero-dashboard::after,
+.c4-chart-card::before,
+.c42-horoscope-hero::after,
+#horoscope .page-title::after,
+.section .page-title::before,
+.card-title::after {
+  content: none !important;
+  display: none !important;
+  background-image: none !important;
+}
 
+/* Main background: visible but calm */
 body:not(.login-body) .cosmos {
   background-image:
-    linear-gradient(
-      180deg,
-      rgba(5, 7, 19, 0.22) 0%,
-      rgba(5, 7, 19, 0.20) 30%,
-      rgba(5, 7, 19, 0.34) 62%,
-      rgba(5, 7, 19, 0.66) 100%
-    ),
+    linear-gradient(180deg, rgba(4,5,16,.58) 0%, rgba(4,5,16,.42) 28%, rgba(4,5,16,.58) 62%, rgba(4,5,16,.86) 100%),
+    radial-gradient(circle at 50% 0%, rgba(255,226,155,.10), transparent 34%),
+    radial-gradient(circle at 18% 22%, rgba(111,53,207,.16), transparent 42%),
     url("/bg-soraya-nebula.png") !important;
-  background-size: cover, cover !important;
-  background-position: center center, center top !important;
-  background-repeat: no-repeat, no-repeat !important;
+  background-size: cover, cover, cover, cover !important;
+  background-position: center center, center top, center center, center top !important;
+  background-repeat: no-repeat !important;
   background-color: #05060f !important;
 }
 
-body:not(.login-body) .cosmos::before {
-  opacity: 0.36 !important;
+body:not(.login-body) .cosmos::before { opacity: .28 !important; }
+body:not(.login-body) .cosmos::after { opacity: .08 !important; }
+
+/* Header */
+.topbar {
+  background: linear-gradient(180deg, rgba(3,4,13,.98) 0%, rgba(3,4,13,.86) 68%, rgba(3,4,13,.24) 100%) !important;
+  border-bottom: 1px solid rgba(255,226,155,.08) !important;
 }
 
-body:not(.login-body) .cosmos::after {
-  opacity: 0.16 !important;
+.brand h1 {
+  text-shadow: 0 0 18px rgba(255,226,155,.16), 0 8px 28px rgba(0,0,0,.42) !important;
 }
 
-/* =========================================================
-   2) Mond stärker und hochwertiger
-========================================================= */
-
-.moon-visual {
-  width: 112px !important;
-  height: 112px !important;
-  margin: 8px auto 14px !important;
-  border-radius: 50% !important;
-
-  background-image: url("/moon-soraya.png") !important;
-  background-size: 116% 116% !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-color: transparent !important;
-
-  border: 1px solid rgba(255, 226, 155, 0.22) !important;
-
+/* Cards */
+.card {
+  border-color: rgba(255,222,150,.22) !important;
+  background:
+    linear-gradient(180deg, rgba(42,26,78,.72), rgba(8,10,28,.88)),
+    radial-gradient(520px 180px at 18% -6%, rgba(255,226,155,.08), transparent 62%),
+    radial-gradient(420px 220px at 100% 8%, rgba(181,107,255,.12), transparent 66%) !important;
   box-shadow:
-    0 0 26px rgba(255, 226, 155, 0.34),
-    0 0 58px rgba(217, 168, 75, 0.20),
-    0 0 82px rgba(111, 53, 207, 0.20) !important;
-
-  filter:
-    saturate(1.18)
-    contrast(1.08)
-    brightness(1.08);
+    0 18px 56px rgba(0,0,0,.46),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 0 46px rgba(181,107,255,.045) !important;
 }
 
-.horo-moon,
-.c42-horo-orb {
-  width: 92px !important;
-  height: 92px !important;
-  border-radius: 50% !important;
-
-  background-image: url("/moon-soraya.png") !important;
-  background-size: 116% 116% !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-color: transparent !important;
-
-  border: 1px solid rgba(255, 226, 155, 0.26) !important;
-
+.card.glow,
+.card.premium {
   box-shadow:
-    0 0 24px rgba(255, 226, 155, 0.28),
-    0 0 54px rgba(111, 53, 207, 0.20) !important;
-
-  filter:
-    saturate(1.16)
-    contrast(1.06)
-    brightness(1.08);
+    0 20px 66px rgba(0,0,0,.52),
+    0 0 34px rgba(111,53,207,.12),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 0 42px rgba(255,226,155,.035) !important;
 }
 
-/* Mond-Karte etwas edler */
-.c4-moon-card,
-.c46-moon-card {
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.c4-moon-card::before,
-.c46-moon-card::before {
-  content: "";
-  position: absolute;
-  inset: -70px -80px auto auto;
-  width: 190px;
-  height: 190px;
-  background: radial-gradient(circle, rgba(255, 226, 155, 0.16), transparent 62%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.c4-moon-card > *,
-.c46-moon-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* =========================================================
-   3) Horoskop-Rad sichtbar auf Home und Analyse
-========================================================= */
-
+/* Clean CSS ornament on main home card */
 .c4-hero-card,
 .c46-hero-dashboard,
-.c4-chart-card {
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.c4-hero-card::after,
-.c46-hero-dashboard::after {
-  content: "";
-  position: absolute;
-  right: -72px;
-  top: -76px;
-  width: 235px;
-  height: 235px;
-
-  background-image: url("/horoscope-wheel-gold.png");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-
-  opacity: 0.18;
-  pointer-events: none;
-  z-index: 0;
-
-  filter:
-    drop-shadow(0 0 20px rgba(255, 226, 155, 0.24))
-    drop-shadow(0 0 48px rgba(217, 168, 75, 0.12));
-}
-
-.c4-chart-card::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-
-  background-image: url("/horoscope-wheel-gold.png") !important;
-  background-size: contain !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-
-  opacity: 0.24 !important;
-  pointer-events: none;
-  z-index: 0;
-
-  filter:
-    drop-shadow(0 0 24px rgba(255, 226, 155, 0.26))
-    drop-shadow(0 0 56px rgba(217, 168, 75, 0.14));
-}
-
-.c4-hero-card > *,
-.c46-hero-dashboard > *,
-.c4-chart-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-#chartWheel {
-  position: relative !important;
-  z-index: 1 !important;
-}
-
-/* =========================================================
-   4) Sternzeichen-Grafik im Horoskop stärker sichtbar
-========================================================= */
-
-#horoscope .page-title {
-  position: relative !important;
-}
-
-#horoscope .page-title::after {
-  content: "";
-  display: block;
-
-  width: min(100%, 390px);
-  height: 126px;
-  margin: 16px auto 0;
-
-  background-image: url("/zodiac-symbolsgold.png") !important;
-  background-size: contain !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-
-  opacity: 0.44 !important;
-  pointer-events: none;
-
-  filter:
-    drop-shadow(0 0 18px rgba(255, 226, 155, 0.28))
-    drop-shadow(0 0 40px rgba(217, 168, 75, 0.16));
-}
-
+.c4-chart-card,
 .c42-horoscope-hero {
   position: relative !important;
   overflow: hidden !important;
 }
 
-.c42-horoscope-hero::after {
-  content: "";
+.c4-hero-card::before,
+.c46-hero-dashboard::before {
+  content: "" !important;
+  display: block !important;
   position: absolute;
+  right: -64px;
+  top: -68px;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,226,155,.16);
+  background:
+    radial-gradient(circle at center, rgba(255,226,155,.08), transparent 58%),
+    repeating-conic-gradient(from 0deg, rgba(255,226,155,.10) 0deg 1deg, transparent 1deg 30deg);
+  opacity: .38;
+  z-index: 0;
+}
 
-  right: -62px;
-  bottom: -58px;
-  width: 255px;
-  height: 255px;
+.c4-hero-card > *,
+.c46-hero-dashboard > *,
+.c4-chart-card > *,
+.c42-horoscope-hero > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
 
-  background-image: url("/zodiac-symbolsgold.png") !important;
-  background-size: contain !important;
+.zodiac-art,
+.profile-avatar,
+.avatar,
+.c46-focus-orb,
+.c49-empty-orb,
+.c48-crown-orb {
+  background:
+    radial-gradient(circle at 35% 24%, rgba(255,226,155,.30), transparent 38%),
+    radial-gradient(circle at 50% 50%, rgba(111,53,207,.46), rgba(9,10,29,.92) 72%) !important;
+  box-shadow: 0 0 24px rgba(255,226,155,.14), inset 0 0 24px rgba(255,226,155,.08) !important;
+}
+
+/* Moon */
+.moon-visual {
+  width: 108px !important;
+  height: 108px !important;
+  margin: 8px auto 14px !important;
+  border-radius: 50% !important;
+  background-image: url("/moon-soraya.png") !important;
+  background-size: 112% 112% !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(255,226,155,.28) !important;
+  box-shadow: 0 0 22px rgba(255,226,155,.26), 0 0 48px rgba(217,168,75,.16), 0 0 70px rgba(111,53,207,.16) !important;
+  filter: saturate(1.12) contrast(1.06) brightness(1.06);
+}
 
-  opacity: 0.18 !important;
-  pointer-events: none;
+.horo-moon,
+.c42-horo-orb {
+  width: 84px !important;
+  height: 84px !important;
+  border-radius: 50% !important;
+  background-image: url("/moon-soraya.png") !important;
+  background-size: 112% 112% !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(255,226,155,.24) !important;
+  box-shadow: 0 0 20px rgba(255,226,155,.22), 0 0 44px rgba(111,53,207,.16) !important;
+  filter: saturate(1.10) contrast(1.04) brightness(1.05);
+}
+
+.c4-moon-card,
+.c46-moon-card { position: relative !important; overflow: hidden !important; }
+
+.c4-moon-card::before,
+.c46-moon-card::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  inset: -70px -70px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,226,155,.13), transparent 64%);
   z-index: 0;
-
-  filter:
-    drop-shadow(0 0 20px rgba(255, 226, 155, 0.20))
-    drop-shadow(0 0 42px rgba(217, 168, 75, 0.10));
 }
 
-.c42-horoscope-hero > * {
-  position: relative;
-  z-index: 1;
+.c4-moon-card > *,
+.c46-moon-card > * { position: relative !important; z-index: 1 !important; }
+
+/* Chart area without external image */
+.c4-chart-card {
+  background:
+    linear-gradient(180deg, rgba(35,23,72,.74), rgba(8,10,28,.88)),
+    radial-gradient(circle at 50% 50%, rgba(255,226,155,.08), transparent 54%),
+    radial-gradient(circle at 50% 8%, rgba(111,53,207,.14), transparent 58%) !important;
 }
 
-/* =========================================================
-   5) Kleine goldene Deko auf Karten
-========================================================= */
+#chartWheel {
+  position: relative !important;
+  z-index: 1 !important;
+  filter: drop-shadow(0 0 12px rgba(255,226,155,.10)) drop-shadow(0 0 28px rgba(111,53,207,.10));
+}
 
+/* Horoscope clean ornament */
+#horoscope .page-title h2::after {
+  content: "✦";
+  display: inline-block;
+  margin-left: 10px;
+  color: rgba(255,226,155,.70);
+  font-size: .36em;
+  vertical-align: top;
+  text-shadow: 0 0 18px rgba(255,226,155,.35);
+}
+
+.c42-horoscope-hero::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  right: -58px;
+  bottom: -58px;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,226,155,.12);
+  background:
+    radial-gradient(circle at center, rgba(255,226,155,.08), transparent 60%),
+    repeating-conic-gradient(from 12deg, rgba(255,226,155,.08) 0deg 1deg, transparent 1deg 45deg);
+  opacity: .42;
+  z-index: 0;
+}
+
+/* Small clean stars */
 .c46-daily-focus,
 .c42-guidance-card,
 .c43-prompt,
-.c44-syn-card {
-  position: relative !important;
-  overflow: hidden !important;
-}
+.c44-syn-card,
+.c4-reading-card { position: relative !important; overflow: hidden !important; }
 
 .c46-daily-focus::after,
 .c42-guidance-card::after,
 .c43-prompt::after,
-.c44-syn-card::after {
-  content: "✦";
+.c44-syn-card::after,
+.c4-reading-card::after {
+  content: "✦" !important;
+  display: block !important;
   position: absolute;
   right: 18px;
   top: 14px;
-
-  color: rgba(255, 226, 155, 0.28);
-  font-size: 20px;
+  color: rgba(255,226,155,.24);
+  font-size: 18px;
   line-height: 1;
-
-  text-shadow:
-    0 0 14px rgba(255, 226, 155, 0.22),
-    0 0 30px rgba(217, 168, 75, 0.16);
-
-  pointer-events: none;
+  text-shadow: 0 0 14px rgba(255,226,155,.20), 0 0 30px rgba(217,168,75,.12);
+  z-index: 0;
 }
 
-/* =========================================================
-   6) Mobile Feinabstimmung
-========================================================= */
+/* Bottom navigation */
+.tabbar,
+.c410-tabbar {
+  background: rgba(6,8,22,.98) !important;
+  border-top-color: rgba(255,226,155,.14) !important;
+  box-shadow: 0 -14px 44px rgba(0,0,0,.64) !important;
+}
+
+.tabbar button.active,
+.c410-tabbar button.active {
+  background: linear-gradient(180deg, rgba(255,226,155,.14), rgba(255,226,155,.06)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,226,155,.26), 0 0 18px rgba(255,226,155,.08) !important;
+}
 
 @media (max-width: 430px) {
+  .c4-hero-card::before,
+  .c46-hero-dashboard::before {
+    width: 188px;
+    height: 188px;
+    right: -64px;
+    top: -62px;
+    opacity: .34;
+  }
+
   .moon-visual {
-    width: 104px !important;
-    height: 104px !important;
+    width: 98px !important;
+    height: 98px !important;
   }
 
   .horo-moon,
   .c42-horo-orb {
-    width: 84px !important;
-    height: 84px !important;
+    width: 78px !important;
+    height: 78px !important;
   }
 
-  .c4-hero-card::after,
-  .c46-hero-dashboard::after {
-    width: 205px;
-    height: 205px;
-    right: -70px;
-    top: -66px;
-    opacity: 0.16;
-  }
-
-  #horoscope .page-title::after {
-    height: 106px;
-    opacity: 0.40 !important;
-  }
-
-  .c42-horoscope-hero::after {
-    width: 220px;
-    height: 220px;
-    right: -68px;
+  .c42-horoscope-hero::before {
+    width: 178px;
+    height: 178px;
+    right: -62px;
     bottom: -62px;
-    opacity: 0.16 !important;
+    opacity: .36;
   }
 }
