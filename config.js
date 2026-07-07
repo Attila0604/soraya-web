@@ -16,7 +16,7 @@ window.SORAYA_PUBLIC_CONFIG = {
 (function loadSorayaC57Assets() {
   "use strict";
 
-  var VERSION = "6.0.0";
+  var VERSION = "6.1.1";
 
   function addCss() {
     if (document.querySelector('link[data-soraya-c57="css"]')) return;
@@ -45,6 +45,15 @@ window.SORAYA_PUBLIC_CONFIG = {
     document.head.appendChild(link);
   }
 
+  function addImages() {
+    if (document.querySelector('link[data-soraya-c61="css"]')) return;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "/c61-images.css?v=" + VERSION;
+    link.setAttribute("data-soraya-c61", "css");
+    document.head.appendChild(link);
+  }
+
   function addSwipe() {
     if (document.querySelector('script[data-soraya-c60="js"]')) return;
     var s = document.createElement("script");
@@ -67,6 +76,7 @@ window.SORAYA_PUBLIC_CONFIG = {
     addCss();
     addMystic();
     addFix();
+    addImages();
     addJs();
     addSwipe();
   }
