@@ -1,20 +1,33 @@
 /*
-  Soraya — C.5.8 Clean Mobile Layout
+  Soraya — C.5.8 Clean Mobile Layout + Visual Assets
   Datei: c58-mobile-layout.css
 
   Ziel:
-  - Ein sauberer, kontrollierter UI-Layer statt vieler übereinandergelegter Fix-Dateien.
-  - Header kleiner, Bottom-Navigation stabil, Karten kompakter, Chat weniger leer.
-  - Android-Select für Horoskop wird per c58-mobile-layout.js durch eigene Tabs ersetzt.
-  - Keine Backend-Änderung.
+  - Sauberer Mobile-UI-Layer
+  - App-Hintergrund aktivieren
+  - Mondbild aktivieren
+  - Horoskop-Rad aktivieren
+  - Sternzeichen-Deko aktivieren
+  - Goldene Trennlinie aktivieren
+  - Header kleiner
+  - Bottom-Navigation stabil
+  - Chat kompakter
+  - Keine Backend-Änderung
+
+  Verwendete Bilddateien:
+  - bg-soraya-nebula.png
+  - moon-soraya.png
+  - horoscope-wheel-gold.png
+  - zodiac-symbolsgold.png
+  - soraya-gold-divider.png
 */
 
 :root {
   --soraya-clean-bg: #050615;
-  --soraya-clean-panel: rgba(10, 11, 30, .84);
-  --soraya-clean-panel-2: rgba(38, 23, 75, .66);
-  --soraya-clean-line: rgba(255, 222, 150, .20);
-  --soraya-clean-line-strong: rgba(255, 222, 150, .34);
+  --soraya-clean-panel: rgba(10, 11, 30, 0.84);
+  --soraya-clean-panel-2: rgba(38, 23, 75, 0.66);
+  --soraya-clean-line: rgba(255, 222, 150, 0.20);
+  --soraya-clean-line-strong: rgba(255, 222, 150, 0.34);
   --soraya-clean-gold: #ffe39b;
   --soraya-clean-muted: #d6c9e8;
   --soraya-clean-muted-2: #a99cc5;
@@ -51,14 +64,20 @@ button,
   touch-action: manipulation;
 }
 
+/* =========================================================
+   APP BACKGROUND
+========================================================= */
+
 .cosmos {
   background-image:
-    linear-gradient(180deg,
-      rgba(5, 7, 19, .74) 0%,
-      rgba(5, 7, 19, .44) 28%,
-      rgba(5, 7, 19, .52) 62%,
-      rgba(5, 7, 19, .86) 100%),
-    url("/bg-nebula.jpg") !important;
+    linear-gradient(
+      180deg,
+      rgba(5, 7, 19, 0.46) 0%,
+      rgba(5, 7, 19, 0.30) 30%,
+      rgba(5, 7, 19, 0.42) 64%,
+      rgba(5, 7, 19, 0.76) 100%
+    ),
+    url("/bg-soraya-nebula.png") !important;
   background-size: cover, cover !important;
   background-position: center center, center top !important;
   background-repeat: no-repeat, no-repeat !important;
@@ -66,9 +85,13 @@ button,
 }
 
 .app::before {
-  opacity: .20 !important;
+  opacity: 0.18 !important;
   animation: none !important;
 }
+
+/* =========================================================
+   APP WRAPPER
+========================================================= */
 
 .app {
   width: min(100%, 500px) !important;
@@ -76,7 +99,10 @@ button,
   padding: 0 16px calc(var(--soraya-nav-height) + var(--soraya-safe-bottom) + 34px) !important;
 }
 
-/* Header: kleiner und ruhiger */
+/* =========================================================
+   HEADER
+========================================================= */
+
 .topbar {
   position: sticky !important;
   top: 0 !important;
@@ -85,22 +111,27 @@ button,
   padding: 10px 0 8px !important;
   gap: 10px !important;
   background:
-    linear-gradient(180deg, rgba(3, 4, 13, .98) 0%, rgba(3, 4, 13, .86) 68%, rgba(3, 4, 13, .12) 100%) !important;
+    linear-gradient(
+      180deg,
+      rgba(3, 4, 13, 0.98) 0%,
+      rgba(3, 4, 13, 0.86) 68%,
+      rgba(3, 4, 13, 0.12) 100%
+    ) !important;
   backdrop-filter: blur(14px) saturate(112%) !important;
 }
 
 .brand h1 {
   font-size: clamp(28px, 7.6vw, 36px) !important;
-  line-height: .92 !important;
-  letter-spacing: .17em !important;
-  padding-left: .17em !important;
+  line-height: 0.92 !important;
+  letter-spacing: 0.17em !important;
+  padding-left: 0.17em !important;
 }
 
 .brand .sub {
   margin-top: 4px !important;
   font-size: 8px !important;
-  letter-spacing: .30em !important;
-  padding-left: .30em !important;
+  letter-spacing: 0.30em !important;
+  padding-left: 0.30em !important;
 }
 
 .round {
@@ -109,11 +140,14 @@ button,
   height: 46px !important;
   border-radius: 999px !important;
   background:
-    radial-gradient(circle at 35% 20%, rgba(255, 226, 155, .14), transparent 54%),
-    rgba(255, 255, 255, .035) !important;
+    radial-gradient(circle at 35% 20%, rgba(255, 226, 155, 0.14), transparent 54%),
+    rgba(255, 255, 255, 0.035) !important;
 }
 
-/* Status/Admin aus öffentlicher App ausblenden */
+/* =========================================================
+   HIDE TECHNICAL / ADMIN ELEMENTS
+========================================================= */
+
 .c410-app-status,
 .developer-only,
 #technicalSettingsCard,
@@ -121,28 +155,52 @@ button,
   display: none !important;
 }
 
-/* Seitenkopf kompakter */
+/* =========================================================
+   PAGE TITLES
+========================================================= */
+
 .page-title {
   margin: 20px 0 14px !important;
 }
 
 .page-title .eyebrow,
 .eyebrow {
-  letter-spacing: .22em !important;
+  letter-spacing: 0.22em !important;
 }
 
 .page-title h2 {
   font-size: clamp(38px, 11vw, 54px) !important;
-  line-height: .92 !important;
+  line-height: 0.92 !important;
 }
 
 .page-title p {
   margin-top: 10px !important;
-  color: rgba(232, 220, 255, .84) !important;
+  color: rgba(232, 220, 255, 0.84) !important;
   line-height: 1.48 !important;
 }
 
-/* Karten: weniger aufgeblasen, besser lesbar */
+/* Goldene Deko-Linie bei Seitenüberschriften */
+.section .page-title::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 42px;
+  margin: 0 auto 12px;
+  background-image: url("/soraya-gold-divider.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.34;
+  filter:
+    drop-shadow(0 0 14px rgba(255, 226, 155, 0.22))
+    drop-shadow(0 0 28px rgba(217, 168, 75, 0.10));
+  pointer-events: none;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
 .card {
   margin: 12px 0 !important;
   padding: 17px !important;
@@ -150,20 +208,20 @@ button,
   border-color: var(--soraya-clean-line) !important;
   background:
     linear-gradient(180deg, var(--soraya-clean-panel-2), var(--soraya-clean-panel)),
-    radial-gradient(360px 140px at 16% 0%, rgba(255, 226, 155, .07), transparent 70%),
-    radial-gradient(340px 180px at 96% 8%, rgba(181, 107, 255, .10), transparent 68%) !important;
+    radial-gradient(360px 140px at 16% 0%, rgba(255, 226, 155, 0.07), transparent 70%),
+    radial-gradient(340px 180px at 96% 8%, rgba(181, 107, 255, 0.10), transparent 68%) !important;
   box-shadow:
-    0 16px 46px rgba(0, 0, 0, .42),
-    inset 0 1px 0 rgba(255, 255, 255, .07) !important;
+    0 16px 46px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
   backdrop-filter: blur(12px) saturate(112%) !important;
 }
 
 .card.glow,
 .card.premium {
   box-shadow:
-    0 18px 52px rgba(0, 0, 0, .45),
-    inset 0 0 34px rgba(111, 53, 207, .10),
-    inset 0 1px 0 rgba(255, 255, 255, .08) !important;
+    0 18px 52px rgba(0, 0, 0, 0.45),
+    inset 0 0 34px rgba(111, 53, 207, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 .card-title {
@@ -195,16 +253,20 @@ button,
 .status.ok,
 .status.success {
   color: var(--soraya-clean-gold) !important;
-  border-color: rgba(255, 222, 150, .30) !important;
-  background: rgba(255, 222, 150, .06) !important;
+  border-color: rgba(255, 222, 150, 0.30) !important;
+  background: rgba(255, 222, 150, 0.06) !important;
 }
 
 .badge {
   min-height: 26px !important;
   padding: 4px 9px !important;
   font-size: 11px !important;
-  border-color: rgba(255, 222, 150, .24) !important;
+  border-color: rgba(255, 222, 150, 0.24) !important;
 }
+
+/* =========================================================
+   BUTTONS / INPUTS
+========================================================= */
 
 .btn {
   min-height: 48px !important;
@@ -217,11 +279,11 @@ button,
   background:
     linear-gradient(180deg, #fff4c8 0%, #ffe39b 24%, #e4b763 58%, #9d641d 100%) !important;
   color: #17101a !important;
-  border-color: rgba(255, 239, 184, .76) !important;
+  border-color: rgba(255, 239, 184, 0.76) !important;
   box-shadow:
-    0 10px 26px rgba(217, 168, 75, .20),
-    inset 0 1px 0 rgba(255, 255, 255, .54),
-    inset 0 -7px 14px rgba(120, 70, 10, .28) !important;
+    0 10px 26px rgba(217, 168, 75, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.54),
+    inset 0 -7px 14px rgba(120, 70, 10, 0.28) !important;
 }
 
 input,
@@ -231,15 +293,18 @@ select {
   border-radius: 16px !important;
   font-size: 16px !important;
   margin-bottom: 12px !important;
-  background: rgba(255, 255, 255, .055) !important;
-  border-color: rgba(255, 222, 150, .22) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 222, 150, 0.22) !important;
 }
 
 textarea {
   min-height: 96px !important;
 }
 
-/* Hero/Form Layout */
+/* =========================================================
+   LAYOUT ELEMENTS
+========================================================= */
+
 .hero-card,
 .c46-hero-dashboard,
 .c46-focus-layout,
@@ -269,7 +334,6 @@ textarea {
   font-size: 36px !important;
 }
 
-/* Dashboard/Guidance Grid */
 .c4-dashboard-grid,
 .c46-dashboard-grid,
 .c42-guidance-grid,
@@ -292,7 +356,10 @@ textarea {
   gap: 14px !important;
 }
 
-/* Horoskop: eigener Luxus-Zeitraum-Selector */
+/* =========================================================
+   HOROSCOPE PERIOD TABS
+========================================================= */
+
 .c4-period-picker,
 .segmented.c4-period-picker {
   display: grid !important;
@@ -315,9 +382,9 @@ textarea {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   padding: 5px;
-  border: 1px solid rgba(255, 222, 150, .20);
+  border: 1px solid rgba(255, 222, 150, 0.20);
   border-radius: 18px;
-  background: rgba(3, 4, 13, .36);
+  background: rgba(3, 4, 13, 0.36);
 }
 
 .c58-period-tab {
@@ -325,26 +392,138 @@ textarea {
   border: 0;
   border-radius: 14px;
   background: transparent;
-  color: rgba(232, 220, 255, .76);
+  color: rgba(232, 220, 255, 0.76);
   font-weight: 800;
 }
 
 .c58-period-tab.active {
   background:
-    linear-gradient(180deg, rgba(255, 226, 155, .23), rgba(217, 168, 75, .12));
+    linear-gradient(180deg, rgba(255, 226, 155, 0.23), rgba(217, 168, 75, 0.12));
   color: var(--soraya-clean-gold);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 222, 150, .34),
-    0 8px 22px rgba(0, 0, 0, .20);
+    inset 0 0 0 1px rgba(255, 222, 150, 0.34),
+    0 8px 22px rgba(0, 0, 0, 0.20);
 }
 
-/* Chat: weniger leere Fläche, sauberer auf Handy */
+/* =========================================================
+   MOON ASSET
+========================================================= */
+
+.moon-visual,
+.horo-moon,
+.c42-horo-orb {
+  background-image: url("/moon-soraya.png") !important;
+  background-size: 124% 124% !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-color: transparent !important;
+  border-radius: 50% !important;
+  box-shadow:
+    0 0 34px rgba(255, 226, 155, 0.22),
+    0 0 70px rgba(111, 53, 207, 0.20),
+    inset 0 0 18px rgba(255, 226, 155, 0.10) !important;
+  border: 1px solid rgba(255, 226, 155, 0.34) !important;
+}
+
+.moon-visual {
+  width: 96px !important;
+  height: 96px !important;
+}
+
+.horo-moon,
+.c42-horo-orb {
+  width: 78px !important;
+  height: 78px !important;
+}
+
+/* =========================================================
+   HOROSCOPE WHEEL ASSET
+========================================================= */
+
+.c4-chart-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.c4-chart-card::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  background: url("/horoscope-wheel-gold.png") center center / contain no-repeat;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 0;
+  filter:
+    drop-shadow(0 0 16px rgba(255, 226, 155, 0.18))
+    drop-shadow(0 0 32px rgba(255, 200, 90, 0.10));
+}
+
+#chartWheel {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* =========================================================
+   ZODIAC SYMBOLS DECORATION
+========================================================= */
+
+#horoscope .page-title {
+  position: relative !important;
+}
+
+#horoscope .page-title::after {
+  content: "";
+  display: block;
+  width: min(100%, 360px);
+  height: 120px;
+  margin: 18px auto 0;
+  background-image: url("/zodiac-symbolsgold.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.34;
+  filter:
+    drop-shadow(0 0 18px rgba(255, 226, 155, 0.22))
+    drop-shadow(0 0 34px rgba(217, 168, 75, 0.12));
+  pointer-events: none;
+}
+
+.c42-horoscope-hero {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.c42-horoscope-hero::after {
+  content: "";
+  position: absolute;
+  right: -44px;
+  bottom: -42px;
+  width: 210px;
+  height: 210px;
+  background-image: url("/zodiac-symbolsgold.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.10;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.c42-horoscope-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   CHAT
+========================================================= */
+
 .chat-window {
   min-height: 172px !important;
   max-height: 42dvh !important;
   padding: 14px !important;
   border-radius: 22px !important;
-  background: rgba(0, 0, 0, .18) !important;
+  background: rgba(0, 0, 0, 0.18) !important;
 }
 
 .chat-card .avatar {
@@ -383,7 +562,10 @@ textarea {
   padding: 14px 10px !important;
 }
 
-/* Profil */
+/* =========================================================
+   PROFILE
+========================================================= */
+
 .c45-profile-hero {
   min-height: auto !important;
 }
@@ -405,7 +587,10 @@ textarea {
   font-size: 26px !important;
 }
 
-/* Bottom Navigation: eine einzige stabile Definition */
+/* =========================================================
+   BOTTOM NAVIGATION
+========================================================= */
+
 .tabbar,
 .c410-tabbar {
   position: fixed !important;
@@ -420,10 +605,10 @@ textarea {
   height: auto !important;
   padding: 7px 9px calc(7px + var(--soraya-safe-bottom)) !important;
   border: 0 !important;
-  border-top: 1px solid rgba(255, 222, 150, .16) !important;
+  border-top: 1px solid rgba(255, 222, 150, 0.16) !important;
   border-radius: 22px 22px 0 0 !important;
-  background: rgba(8, 10, 24, .98) !important;
-  box-shadow: 0 -14px 42px rgba(0, 0, 0, .62) !important;
+  background: rgba(8, 10, 24, 0.98) !important;
+  box-shadow: 0 -14px 42px rgba(0, 0, 0, 0.62) !important;
   backdrop-filter: none !important;
   display: grid !important;
   grid-template-columns: repeat(5, 1fr) !important;
@@ -448,7 +633,7 @@ textarea {
   align-items: center !important;
   justify-content: center !important;
   gap: 3px !important;
-  color: rgba(226, 214, 248, .64) !important;
+  color: rgba(226, 214, 248, 0.64) !important;
 }
 
 .tabbar button b,
@@ -470,11 +655,11 @@ textarea {
 
 .tabbar button.active,
 .c410-tabbar button.active {
-  background: rgba(255, 222, 150, .12) !important;
+  background: rgba(255, 222, 150, 0.12) !important;
   color: var(--soraya-clean-gold) !important;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 222, 150, .30),
-    0 0 16px rgba(255, 214, 120, .14) !important;
+    inset 0 0 0 1px rgba(255, 222, 150, 0.30),
+    0 0 16px rgba(255, 214, 120, 0.14) !important;
 }
 
 .tabbar button.active b,
@@ -492,7 +677,10 @@ textarea {
   bottom: calc(var(--soraya-nav-height) + 16px + var(--soraya-safe-bottom)) !important;
 }
 
-/* Kleine Geräte */
+/* =========================================================
+   SMALL SCREENS
+========================================================= */
+
 @media (max-width: 430px) {
   .app {
     padding-left: 14px !important;
@@ -506,8 +694,8 @@ textarea {
 
   .brand h1 {
     font-size: clamp(27px, 8vw, 33px) !important;
-    letter-spacing: .155em !important;
-    padding-left: .155em !important;
+    letter-spacing: 0.155em !important;
+    padding-left: 0.155em !important;
   }
 
   .brand .sub {
@@ -586,6 +774,11 @@ textarea {
   .stat span {
     font-size: 11px !important;
   }
+
+  #horoscope .page-title::after {
+    height: 96px;
+    opacity: 0.30;
+  }
 }
 
 @media (max-width: 370px) {
@@ -596,8 +789,8 @@ textarea {
 
   .brand h1 {
     font-size: 25px !important;
-    letter-spacing: .13em !important;
-    padding-left: .13em !important;
+    letter-spacing: 0.13em !important;
+    padding-left: 0.13em !important;
   }
 
   .tabbar button span,
@@ -615,9 +808,9 @@ textarea {
   *,
   *::before,
   *::after {
-    animation-duration: .001ms !important;
+    animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
-    transition-duration: .001ms !important;
+    transition-duration: 0.001ms !important;
   }
 }
