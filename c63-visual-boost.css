@@ -1,15 +1,26 @@
 /*
-  Soraya C63 Clean Visual Boost
-  File: c63-visual-boost.css
-  Purpose: remove bad image overlays and keep a clean luxury UI.
+  Soraya C63 Visual Boost
+  Datei: c63-visual-boost.css
+
+  Sauberer Premium-Layer:
+  - nutzt den schönen Nebel-Hintergrund
+  - nutzt den Mond stärker
+  - nutzt die Astro- und Zodiac-Bilder nur dezent und ohne graue Kästen
+  - keine Backend-Änderung
 */
 
-/* Remove decorative PNG overlays that created grey boxes */
-.c4-hero-card::after,
-.c46-hero-dashboard::after,
-.c4-chart-card::before,
-.c42-horoscope-hero::after,
-#horoscope .page-title::after,
+:root {
+  --soraya-bg: #05060f;
+  --soraya-gold: #f3d98b;
+  --soraya-gold-soft: rgba(243, 217, 139, 0.22);
+  --soraya-gold-line: rgba(243, 217, 139, 0.16);
+  --soraya-text: #f7f2e8;
+  --soraya-muted: #cfc7dd;
+  --soraya-card-top: rgba(72, 40, 124, 0.66);
+  --soraya-card-bottom: rgba(8, 10, 28, 0.92);
+}
+
+/* Alte schlechte Raster-Dekos sicher abschalten */
 .section .page-title::before,
 .card-title::after {
   content: none !important;
@@ -17,89 +28,215 @@
   background-image: none !important;
 }
 
-/* Main background: visible but calm */
+/* Haupt-Hintergrund */
 body:not(.login-body) .cosmos {
   background-image:
-    linear-gradient(180deg, rgba(4,5,16,.58) 0%, rgba(4,5,16,.42) 28%, rgba(4,5,16,.58) 62%, rgba(4,5,16,.86) 100%),
-    radial-gradient(circle at 50% 0%, rgba(255,226,155,.10), transparent 34%),
-    radial-gradient(circle at 18% 22%, rgba(111,53,207,.16), transparent 42%),
+    linear-gradient(180deg, rgba(5,6,15,.38) 0%, rgba(5,6,15,.48) 34%, rgba(5,6,15,.76) 100%),
+    radial-gradient(circle at 50% 0%, rgba(243,217,139,.08), transparent 30%),
     url("/bg-soraya-nebula.png") !important;
-  background-size: cover, cover, cover, cover !important;
-  background-position: center center, center top, center center, center top !important;
+  background-size: cover, cover, cover !important;
+  background-position: center center, center top, center top !important;
   background-repeat: no-repeat !important;
-  background-color: #05060f !important;
+  background-color: var(--soraya-bg) !important;
 }
 
-body:not(.login-body) .cosmos::before { opacity: .28 !important; }
-body:not(.login-body) .cosmos::after { opacity: .08 !important; }
+body:not(.login-body) .cosmos::before { opacity: .14 !important; }
+body:not(.login-body) .cosmos::after { opacity: .06 !important; }
 
-/* Header */
+/* Login-Hintergrund */
+.login-body .cosmos,
+body.login-body {
+  background-image:
+    linear-gradient(180deg, rgba(5,6,15,.48) 0%, rgba(5,6,15,.58) 40%, rgba(5,6,15,.84) 100%),
+    url("/bg-soraya-login.png") !important;
+  background-size: cover, cover !important;
+  background-position: center top, center top !important;
+  background-repeat: no-repeat !important;
+  background-color: var(--soraya-bg) !important;
+}
+
+/* Header ruhiger */
 .topbar {
-  background: linear-gradient(180deg, rgba(3,4,13,.98) 0%, rgba(3,4,13,.86) 68%, rgba(3,4,13,.24) 100%) !important;
-  border-bottom: 1px solid rgba(255,226,155,.08) !important;
+  background: linear-gradient(180deg, rgba(4,5,14,.96) 0%, rgba(4,5,14,.86) 68%, rgba(4,5,14,.20) 100%) !important;
+  border-bottom: 1px solid rgba(243,217,139,.08) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,.22) !important;
 }
 
 .brand h1 {
-  text-shadow: 0 0 18px rgba(255,226,155,.16), 0 8px 28px rgba(0,0,0,.42) !important;
+  color: var(--soraya-gold) !important;
+  text-shadow: 0 0 18px rgba(243,217,139,.18), 0 8px 26px rgba(0,0,0,.36) !important;
 }
 
-/* Cards */
-.card {
-  border-color: rgba(255,222,150,.22) !important;
+/* Karten hochwertiger */
+.card,
+.panel,
+.login-shell,
+.chat-window,
+.modal-card {
+  border: 1px solid rgba(243,217,139,.16) !important;
   background:
-    linear-gradient(180deg, rgba(42,26,78,.72), rgba(8,10,28,.88)),
-    radial-gradient(520px 180px at 18% -6%, rgba(255,226,155,.08), transparent 62%),
-    radial-gradient(420px 220px at 100% 8%, rgba(181,107,255,.12), transparent 66%) !important;
-  box-shadow:
-    0 18px 56px rgba(0,0,0,.46),
-    inset 0 1px 0 rgba(255,255,255,.08),
-    inset 0 0 46px rgba(181,107,255,.045) !important;
+    linear-gradient(180deg, var(--soraya-card-top), var(--soraya-card-bottom)),
+    radial-gradient(circle at 18% 0%, rgba(243,217,139,.08), transparent 28%),
+    radial-gradient(circle at 100% 0%, rgba(150,78,255,.12), transparent 36%) !important;
+  box-shadow: 0 18px 48px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 40px rgba(255,255,255,.02) !important;
+  color: var(--soraya-text) !important;
 }
 
-.card.glow,
-.card.premium {
-  box-shadow:
-    0 20px 66px rgba(0,0,0,.52),
-    0 0 34px rgba(111,53,207,.12),
-    inset 0 1px 0 rgba(255,255,255,.08),
-    inset 0 0 42px rgba(255,226,155,.035) !important;
-}
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.panel h1,
+.panel h2,
+.panel h3 { color: var(--soraya-text) !important; }
+.card p,
+.panel p,
+.card small,
+.panel small { color: var(--soraya-muted) !important; }
 
-/* Clean CSS ornament on main home card */
+/* Bereiche mit Bild-Deko */
 .c4-hero-card,
 .c46-hero-dashboard,
+.c42-horoscope-hero,
 .c4-chart-card,
-.c42-horoscope-hero {
+.c46-daily-focus,
+.c4-moon-card,
+.c46-moon-card {
   position: relative !important;
   overflow: hidden !important;
-}
-
-.c4-hero-card::before,
-.c46-hero-dashboard::before {
-  content: "" !important;
-  display: block !important;
-  position: absolute;
-  right: -64px;
-  top: -68px;
-  width: 230px;
-  height: 230px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,226,155,.16);
-  background:
-    radial-gradient(circle at center, rgba(255,226,155,.08), transparent 58%),
-    repeating-conic-gradient(from 0deg, rgba(255,226,155,.10) 0deg 1deg, transparent 1deg 30deg);
-  opacity: .38;
-  z-index: 0;
+  isolation: isolate;
 }
 
 .c4-hero-card > *,
 .c46-hero-dashboard > *,
+.c42-horoscope-hero > *,
 .c4-chart-card > *,
-.c42-horoscope-hero > * {
-  position: relative !important;
-  z-index: 1 !important;
+.c46-daily-focus > *,
+.c4-moon-card > *,
+.c46-moon-card > * {
+  position: relative;
+  z-index: 1;
 }
 
+/* Home-Karte: altes Rad nur dezent, damit keine graue Fläche dominiert */
+.c4-hero-card::after,
+.c46-hero-dashboard::after {
+  content: "" !important;
+  position: absolute;
+  right: -62px;
+  top: -54px;
+  width: 220px;
+  height: 220px;
+  background-image: url("/horoscope-wheel-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: .075;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(1.2) contrast(1.1) brightness(1.05) drop-shadow(0 0 22px rgba(243,217,139,.12));
+}
+
+/* Analyse-Rad: sehr dezent hinter SVG */
+.c4-chart-card::before {
+  content: "" !important;
+  position: absolute;
+  inset: 22px;
+  background-image: url("/horoscope-wheel-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: .08;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(1.2) contrast(1.1) brightness(1.05);
+}
+
+#chartWheel {
+  position: relative !important;
+  z-index: 1 !important;
+  filter: drop-shadow(0 0 10px rgba(243,217,139,.10)) drop-shadow(0 0 24px rgba(123,64,210,.10));
+}
+
+/* Horoskop: Symbolbild dezent, nicht als grauer Block */
+#horoscope .page-title::after {
+  content: "" !important;
+  display: block;
+  width: min(100%, 390px);
+  height: 84px;
+  margin: 10px auto 0;
+  background-image: url("/zodiac-symbolsgold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: .16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  filter: saturate(1.15) contrast(1.05) brightness(1.08);
+}
+
+.c42-horoscope-hero::before {
+  content: "" !important;
+  position: absolute;
+  right: -56px;
+  bottom: -58px;
+  width: 220px;
+  height: 220px;
+  background-image: url("/zodiac-symbolsgold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: .07;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(1.15) contrast(1.05) brightness(1.08);
+}
+
+/* Mond */
+.moon-visual,
+.horo-moon,
+.c42-horo-orb {
+  background-image: url("/moon-soraya.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-size: 112% 112% !important;
+  background-color: transparent !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(243,217,139,.24) !important;
+  box-shadow: 0 0 18px rgba(243,217,139,.22), 0 0 34px rgba(123,64,210,.14) !important;
+  filter: saturate(1.10) contrast(1.05) brightness(1.05);
+}
+
+.moon-visual {
+  width: 110px !important;
+  height: 110px !important;
+  margin: 8px auto 14px !important;
+}
+
+.horo-moon,
+.c42-horo-orb {
+  width: 88px !important;
+  height: 88px !important;
+}
+
+.c4-moon-card::before,
+.c46-moon-card::before {
+  content: "" !important;
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243,217,139,.12), transparent 64%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Profile / kleine Orbs */
 .zodiac-art,
 .profile-avatar,
 .avatar,
@@ -107,149 +244,80 @@ body:not(.login-body) .cosmos::after { opacity: .08 !important; }
 .c49-empty-orb,
 .c48-crown-orb {
   background:
-    radial-gradient(circle at 35% 24%, rgba(255,226,155,.30), transparent 38%),
-    radial-gradient(circle at 50% 50%, rgba(111,53,207,.46), rgba(9,10,29,.92) 72%) !important;
-  box-shadow: 0 0 24px rgba(255,226,155,.14), inset 0 0 24px rgba(255,226,155,.08) !important;
+    radial-gradient(circle at 35% 25%, rgba(243,217,139,.18), transparent 36%),
+    radial-gradient(circle at 50% 50%, rgba(126,77,212,.62), rgba(11,12,30,.92) 74%) !important;
+  border: 1px solid rgba(243,217,139,.18) !important;
+  box-shadow: 0 0 18px rgba(243,217,139,.10), inset 0 0 18px rgba(243,217,139,.06) !important;
 }
 
-/* Moon */
-.moon-visual {
-  width: 108px !important;
-  height: 108px !important;
-  margin: 8px auto 14px !important;
-  border-radius: 50% !important;
-  background-image: url("/moon-soraya.png") !important;
-  background-size: 112% 112% !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-color: transparent !important;
-  border: 1px solid rgba(255,226,155,.28) !important;
-  box-shadow: 0 0 22px rgba(255,226,155,.26), 0 0 48px rgba(217,168,75,.16), 0 0 70px rgba(111,53,207,.16) !important;
-  filter: saturate(1.12) contrast(1.06) brightness(1.06);
-}
-
-.horo-moon,
-.c42-horo-orb {
-  width: 84px !important;
-  height: 84px !important;
-  border-radius: 50% !important;
-  background-image: url("/moon-soraya.png") !important;
-  background-size: 112% 112% !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-color: transparent !important;
-  border: 1px solid rgba(255,226,155,.24) !important;
-  box-shadow: 0 0 20px rgba(255,226,155,.22), 0 0 44px rgba(111,53,207,.16) !important;
-  filter: saturate(1.10) contrast(1.04) brightness(1.05);
-}
-
-.c4-moon-card,
-.c46-moon-card { position: relative !important; overflow: hidden !important; }
-
-.c4-moon-card::before,
-.c46-moon-card::before {
-  content: "" !important;
-  display: block !important;
-  position: absolute;
-  inset: -70px -70px auto auto;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,226,155,.13), transparent 64%);
-  z-index: 0;
-}
-
-.c4-moon-card > *,
-.c46-moon-card > * { position: relative !important; z-index: 1 !important; }
-
-/* Chart area without external image */
-.c4-chart-card {
-  background:
-    linear-gradient(180deg, rgba(35,23,72,.74), rgba(8,10,28,.88)),
-    radial-gradient(circle at 50% 50%, rgba(255,226,155,.08), transparent 54%),
-    radial-gradient(circle at 50% 8%, rgba(111,53,207,.14), transparent 58%) !important;
-}
-
-#chartWheel {
-  position: relative !important;
-  z-index: 1 !important;
-  filter: drop-shadow(0 0 12px rgba(255,226,155,.10)) drop-shadow(0 0 28px rgba(111,53,207,.10));
-}
-
-/* Horoscope clean ornament */
-#horoscope .page-title h2::after {
-  content: "✦";
-  display: inline-block;
-  margin-left: 10px;
-  color: rgba(255,226,155,.70);
-  font-size: .36em;
-  vertical-align: top;
-  text-shadow: 0 0 18px rgba(255,226,155,.35);
-}
-
-.c42-horoscope-hero::before {
-  content: "" !important;
-  display: block !important;
-  position: absolute;
-  right: -58px;
-  bottom: -58px;
-  width: 210px;
-  height: 210px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,226,155,.12);
-  background:
-    radial-gradient(circle at center, rgba(255,226,155,.08), transparent 60%),
-    repeating-conic-gradient(from 12deg, rgba(255,226,155,.08) 0deg 1deg, transparent 1deg 45deg);
-  opacity: .42;
-  z-index: 0;
-}
-
-/* Small clean stars */
-.c46-daily-focus,
-.c42-guidance-card,
-.c43-prompt,
-.c44-syn-card,
-.c4-reading-card { position: relative !important; overflow: hidden !important; }
-
+/* Goldene kleine Sterne */
 .c46-daily-focus::after,
 .c42-guidance-card::after,
 .c43-prompt::after,
 .c44-syn-card::after,
 .c4-reading-card::after {
   content: "✦" !important;
-  display: block !important;
   position: absolute;
-  right: 18px;
   top: 14px;
-  color: rgba(255,226,155,.24);
+  right: 18px;
+  color: rgba(243,217,139,.28);
   font-size: 18px;
   line-height: 1;
-  text-shadow: 0 0 14px rgba(255,226,155,.20), 0 0 30px rgba(217,168,75,.12);
+  text-shadow: 0 0 14px rgba(243,217,139,.24), 0 0 26px rgba(243,217,139,.12);
   z-index: 0;
+  pointer-events: none;
 }
 
-/* Bottom navigation */
+/* Buttons */
+.btn.gold,
+.btn-primary,
+button.gold {
+  background: linear-gradient(180deg, #f6e4a9 0%, #e7c86f 56%, #c89635 100%) !important;
+  color: #25180a !important;
+  box-shadow: 0 10px 22px rgba(201,150,53,.22), inset 0 1px 0 rgba(255,255,255,.42) !important;
+}
+
+/* Tabbar */
 .tabbar,
 .c410-tabbar {
-  background: rgba(6,8,22,.98) !important;
-  border-top-color: rgba(255,226,155,.14) !important;
-  box-shadow: 0 -14px 44px rgba(0,0,0,.64) !important;
+  background: rgba(6,8,21,.96) !important;
+  border-top: 1px solid rgba(243,217,139,.12) !important;
+  box-shadow: 0 -10px 28px rgba(0,0,0,.42) !important;
 }
 
 .tabbar button.active,
 .c410-tabbar button.active {
-  background: linear-gradient(180deg, rgba(255,226,155,.14), rgba(255,226,155,.06)) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,226,155,.26), 0 0 18px rgba(255,226,155,.08) !important;
+  background: linear-gradient(180deg, rgba(243,217,139,.13), rgba(243,217,139,.04)) !important;
+  border-radius: 18px !important;
+  box-shadow: inset 0 0 0 1px rgba(243,217,139,.22), 0 0 14px rgba(243,217,139,.08) !important;
 }
 
 @media (max-width: 430px) {
-  .c4-hero-card::before,
-  .c46-hero-dashboard::before {
-    width: 188px;
-    height: 188px;
-    right: -64px;
-    top: -62px;
-    opacity: .34;
+  .c4-hero-card::after,
+  .c46-hero-dashboard::after {
+    width: 190px;
+    height: 190px;
+    right: -54px;
+    top: -44px;
+    opacity: .07;
+  }
+
+  .c4-chart-card::before {
+    inset: 16px;
+    opacity: .075;
+  }
+
+  #horoscope .page-title::after {
+    height: 76px;
+    opacity: .14;
+  }
+
+  .c42-horoscope-hero::before {
+    width: 182px;
+    height: 182px;
+    right: -48px;
+    bottom: -52px;
+    opacity: .06;
   }
 
   .moon-visual {
@@ -261,13 +329,5 @@ body:not(.login-body) .cosmos::after { opacity: .08 !important; }
   .c42-horo-orb {
     width: 78px !important;
     height: 78px !important;
-  }
-
-  .c42-horoscope-hero::before {
-    width: 178px;
-    height: 178px;
-    right: -62px;
-    bottom: -62px;
-    opacity: .36;
   }
 }
