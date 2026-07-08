@@ -27,7 +27,8 @@ try {
   var files = [
     "/c63-visual-boost.css?v=2.0.3",
     "/c64-final-clean-ui.css?v=1.0.2",
-    "/c67-stability-polish.css?v=1.0.0"
+    "/c67-stability-polish.css?v=1.0.0",
+    "/c68-mobile-fit-fix.css?v=1.0.0"
   ];
 
   files.forEach(function (file) {
@@ -47,7 +48,8 @@ try {
 (function loadSorayaRuntimeFixes() {
   var files = [
     "/c66-profile-storage-fix.js?v=1.0.1",
-    "/c67-stability-polish.js?v=1.0.0"
+    "/c67-stability-polish.js?v=1.0.0",
+    "/c68-mobile-fit-fix.js?v=1.0.0"
   ];
 
   files.forEach(function (file) {
