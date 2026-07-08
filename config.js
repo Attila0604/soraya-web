@@ -35,7 +35,7 @@ window.SORAYA_PUBLIC_CONFIG = {
 })();
 
 (function loadSorayaProfileStorageFix() {
-  var file = "/c66-profile-storage-fix.js?v=1.0.0";
+  var file = "/c66-profile-storage-fix.js?v=1.0.1";
   var cleanName = file.split("?")[0].replace("/", "");
 
   if (document.querySelector('script[src*="' + cleanName + '"]')) {
