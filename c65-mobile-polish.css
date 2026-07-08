@@ -1,0 +1,369 @@
+/*
+  Soraya C65 Mobile Polish
+  Datei: c65-mobile-polish.css
+
+  Zweck:
+  - mehr Abstand unten gegen verdeckte Inhalte
+  - Home-Karte kompakter auf kleinen Handys
+  - Horoskop-Mond besser positionieren
+  - Radix/Analyse kompakter und lesbarer
+  - Chat/Formulare stabiler
+  - Hintergrund minimal lebendiger, ohne graue Bildfehler
+*/
+
+:root {
+  --c65-nav-space: 128px;
+  --c65-gold: #f3d98b;
+  --c65-muted: #d0c8df;
+  --c65-line: rgba(243, 217, 139, 0.15);
+  --c65-card-radius: 24px;
+}
+
+/* =========================================================
+   1) Unten genug Platz für die Navigation
+========================================================= */
+
+html,
+body {
+  min-height: 100%;
+}
+
+.app,
+main.app,
+#app,
+.cosmos .app {
+  padding-bottom: calc(var(--c65-nav-space) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.section,
+.page,
+.view,
+.screen,
+[data-section],
+[data-page] {
+  padding-bottom: 24px !important;
+}
+
+.card:last-child,
+.panel:last-child,
+section:last-child,
+.c42-guidance-card:last-child,
+.c43-chat-card:last-child,
+.c45-profile-card:last-child {
+  margin-bottom: calc(var(--c65-nav-space) + 16px) !important;
+}
+
+/* =========================================================
+   2) Hintergrund etwas lebendiger, aber nicht unruhig
+========================================================= */
+
+body:not(.login-body) .cosmos {
+  background-image:
+    linear-gradient(180deg, rgba(5, 6, 15, 0.42) 0%, rgba(5, 6, 15, 0.52) 42%, rgba(5, 6, 15, 0.86) 100%),
+    radial-gradient(circle at 50% 6%, rgba(243, 217, 139, 0.08), transparent 30%),
+    radial-gradient(circle at 24% 20%, rgba(126, 77, 212, 0.12), transparent 38%),
+    url("/bg-soraya-nebula.png") !important;
+  background-size: cover, cover, cover, cover !important;
+  background-position: center center, center top, left top, center top !important;
+  background-repeat: no-repeat !important;
+}
+
+/* =========================================================
+   3) Karten-Spacing und Textlesbarkeit
+========================================================= */
+
+.card,
+.panel {
+  border-radius: var(--c65-card-radius) !important;
+}
+
+.card p,
+.panel p,
+.reading,
+.status,
+.bubble {
+  line-height: 1.42 !important;
+}
+
+.page-title p {
+  max-width: 96% !important;
+}
+
+/* =========================================================
+   4) Home: Kern-Karte auf Mobile nicht abschneiden
+========================================================= */
+
+.c4-hero-card,
+.c46-hero-dashboard,
+.profile-hero {
+  overflow: hidden !important;
+}
+
+.c4-big-three-grid,
+.c46-big-three-grid,
+.stats,
+.c45-stats {
+  gap: 10px !important;
+}
+
+.c4-big-three-grid > *,
+.c46-big-three-grid > *,
+.stats > *,
+.c45-stats > * {
+  min-width: 0 !important;
+}
+
+.c4-big-three-grid .stat,
+.c46-big-three-grid .stat,
+.stats .stat,
+.c45-stats .stat {
+  padding: 12px 10px !important;
+}
+
+.stat b,
+.c4-big-three-grid b,
+.c46-big-three-grid b {
+  font-size: clamp(20px, 6.2vw, 28px) !important;
+  line-height: 1.05 !important;
+}
+
+.stat span,
+.c4-big-three-grid span,
+.c46-big-three-grid span {
+  font-size: clamp(11px, 3.3vw, 14px) !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Die rechte Profil-Pille darf nicht aus der Karte laufen */
+.c4-hero-card .badge,
+.c46-hero-dashboard .badge,
+.profile-hero .badge {
+  max-width: 118px !important;
+  white-space: nowrap !important;
+}
+
+/* =========================================================
+   5) Horoskop: Mond sauberer und kleiner
+========================================================= */
+
+#horoscope .moon-visual,
+#horoscope .horo-moon,
+#horoscope .c42-horo-orb {
+  width: 78px !important;
+  height: 78px !important;
+  margin: 18px 0 18px 0 !important;
+}
+
+#horoscope .c42-horoscope-hero .moon-visual,
+#horoscope .c42-horoscope-hero .horo-moon,
+#horoscope .c42-horoscope-hero .c42-horo-orb {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+#horoscope .card,
+#horoscope .panel {
+  scroll-margin-bottom: var(--c65-nav-space) !important;
+}
+
+/* =========================================================
+   6) Analyse / Radix kompakter
+========================================================= */
+
+.c4-chart-card,
+#analysis .c4-chart-card,
+#analyse .c4-chart-card {
+  padding-bottom: 22px !important;
+}
+
+#chartWheel,
+.chart-wheel,
+.radix-wheel {
+  max-width: min(100%, 420px) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.c4-chart-card svg,
+#chartWheel svg,
+.chart-wheel svg,
+.radix-wheel svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.c4-chart-card .reading,
+.c4-chart-card .status,
+.c4-chart-card pre,
+.c4-chart-card .result,
+.c4-chart-card .output {
+  max-height: 42dvh !important;
+  overflow: auto !important;
+  padding-bottom: 18px !important;
+}
+
+/* =========================================================
+   7) Transit-Listen und lange Karten unten lesbarer
+========================================================= */
+
+.c46-transit-list,
+.transit-list,
+.c4-transit-list {
+  padding-bottom: 18px !important;
+}
+
+.c46-transit-list > *,
+.transit-list > *,
+.c4-transit-list > * {
+  min-height: auto !important;
+}
+
+/* =========================================================
+   8) Chat stabiler
+========================================================= */
+
+#chat .chat-window,
+.chat-window {
+  max-height: 40dvh !important;
+  min-height: 180px !important;
+}
+
+#chat .composer,
+#chat .c43-composer,
+.composer,
+.c43-composer {
+  margin-bottom: 10px !important;
+}
+
+#chat textarea,
+.c43-composer textarea,
+.composer textarea {
+  max-height: 120px !important;
+}
+
+.c43-prompt-grid {
+  gap: 12px !important;
+}
+
+/* =========================================================
+   9) Profil-Formulare unten sicher sichtbar
+========================================================= */
+
+#profile input,
+#profile textarea,
+#profile select,
+.profile input,
+.profile textarea,
+.profile select {
+  font-size: 16px !important;
+}
+
+#profile .card:last-child,
+.profile .card:last-child {
+  margin-bottom: calc(var(--c65-nav-space) + 24px) !important;
+}
+
+/* =========================================================
+   10) Bottom-Navigation nicht zu hoch und etwas transparenter
+========================================================= */
+
+.tabbar,
+.c410-tabbar {
+  min-height: 76px !important;
+  padding-top: 7px !important;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  background: rgba(6, 8, 21, 0.955) !important;
+  backdrop-filter: blur(14px) saturate(115%) !important;
+}
+
+.tabbar button,
+.c410-tabbar button {
+  min-height: 56px !important;
+}
+
+/* =========================================================
+   11) Mobile Spezialkorrekturen
+========================================================= */
+
+@media (max-width: 430px) {
+  :root {
+    --c65-nav-space: 142px;
+  }
+
+  .app,
+  main.app,
+  #app,
+  .cosmos .app {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-bottom: calc(var(--c65-nav-space) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .page-title {
+    margin-bottom: 18px !important;
+  }
+
+  .page-title h2 {
+    max-width: 100% !important;
+  }
+
+  .card,
+  .panel {
+    border-radius: 23px !important;
+  }
+
+  .c4-big-three-grid,
+  .c46-big-three-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .c4-big-three-grid .stat,
+  .c46-big-three-grid .stat {
+    min-height: 74px !important;
+    padding: 10px 8px !important;
+  }
+
+  #chartWheel,
+  .chart-wheel,
+  .radix-wheel {
+    max-width: min(100%, 360px) !important;
+  }
+
+  .c4-chart-card .reading,
+  .c4-chart-card .status,
+  .c4-chart-card pre,
+  .c4-chart-card .result,
+  .c4-chart-card .output {
+    max-height: 36dvh !important;
+  }
+
+  #chat .chat-window,
+  .chat-window {
+    max-height: 36dvh !important;
+  }
+
+  .moon-visual {
+    width: 88px !important;
+    height: 88px !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .c4-big-three-grid,
+  .c46-big-three-grid,
+  .stats,
+  .c45-stats {
+    gap: 8px !important;
+  }
+
+  .stat,
+  .c4-big-three-grid .stat,
+  .c46-big-three-grid .stat {
+    padding: 9px 6px !important;
+  }
+
+  .tabbar button span,
+  .c410-tabbar button span {
+    font-size: 9px !important;
+  }
+}
