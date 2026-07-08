@@ -1,9 +1,13 @@
 /*
-  Soraya — C.5.7 Universal Login
+  Soraya — C.6.7 Stable Login
+  Datei: login.js
+
   Ziel:
-  - Login/Registrierung auf neuen Geräten über config.js
-  - Handy-sicher, klare Fehlermeldungen
-  - Passwort anzeigen, Passwort zurücksetzen
+  - Login/Registrierung auf neuen Geräten und im Inkognito-Modus stabiler machen
+  - öffentliche config.js automatisch in localStorage spiegeln
+  - Supabase-Session zuverlässig erkennen
+  - doppelte Klicks verhindern
+  - klare, sichere Fehlermeldungen anzeigen
 */
 (function () {
   "use strict";
@@ -12,10 +16,12 @@
     config: "soraya_config",
     name: "soraya_person_name",
     afterPath: "soraya_after_login_path",
-    afterSection: "soraya_after_login_section"
+    afterSection: "soraya_after_login_section",
+    lastEmail: "soraya_last_login_email"
   };
 
   var loginClient = null;
+  var busy = false;
 
   function el(id) {
     return document.getElementById(id);
@@ -39,6 +45,10 @@
     return !!(c.supabaseUrl && c.supabaseAnonKey && c.engineUrl);
   }
 
+  function getPublicConfig() {
+    return normalizeConfig(window.SORAYA_PUBLIC_CONFIG || {});
+  }
+
   function readStoredConfig() {
     try {
       var raw = localStorage.getItem(LOGIN_KEYS.config);
@@ -48,15 +58,21 @@
     }
   }
 
-  function getPublicConfig() {
-    return normalizeConfig(window.SORAYA_PUBLIC_CONFIG || {});
+  function writeStoredConfig(config) {
+    try {
+      localStorage.setItem(LOGIN_KEYS.config, JSON.stringify(normalizeConfig(config)));
+    } catch (error) {}
   }
 
   function getAvailableConfig() {
+    var publicConfig = getPublicConfig();
+    if (hasConfig(publicConfig)) {
+      writeStoredConfig(publicConfig);
+      return publicConfig;
+    }
+
     var stored = readStoredConfig();
     if (hasConfig(stored)) return stored;
-    var publicConfig = getPublicConfig();
-    if (hasConfig(publicConfig)) return publicConfig;
     return null;
   }
 
@@ -77,12 +93,24 @@
     node.textContent = message;
   }
 
+  function setBusy(nextBusy) {
+    busy = !!nextBusy;
+    ["loginSubmitButton", "loginTabButton", "registerTabButton"].forEach(function (id) {
+      var node = el(id);
+      if (node) node.disabled = busy;
+    });
+  }
+
   function friendlyError(error, fallback) {
     var msg = error && error.message ? error.message : text(error || fallback);
-    if (/invalid login|invalid credentials|email not confirmed/i.test(msg)) return "E-Mail oder Passwort stimmt nicht, oder die E-Mail ist noch nicht bestätigt.";
+
+    if (/invalid login|invalid credentials/i.test(msg)) return "E-Mail oder Passwort stimmt nicht.";
+    if (/email not confirmed|not confirmed|confirm/i.test(msg)) return "Bitte bestätige zuerst deine E-Mail und versuche es danach erneut.";
     if (/password/i.test(msg) && /short|weak|6/i.test(msg)) return "Bitte ein Passwort mit mindestens 6 Zeichen verwenden.";
-    if (/Failed to fetch|NetworkError|Load failed|fetch/i.test(msg)) return "Verbindung nicht erreichbar. Bitte Internet prüfen und später erneut versuchen.";
+    if (/Failed to fetch|NetworkError|Load failed|fetch|timeout|timed out/i.test(msg)) return "Verbindung nicht erreichbar. Bitte Internet prüfen und später erneut versuchen.";
     if (/rate limit|too many/i.test(msg)) return "Zu viele Versuche. Bitte kurz warten und erneut versuchen.";
+    if (/storage|quota|localStorage/i.test(msg)) return "Der Browser-Speicher ist blockiert. Bitte Inkognito-Speicher erlauben oder normalen Browser verwenden.";
+
     return msg || fallback;
   }
 
@@ -105,13 +133,19 @@
     var c = normalizeConfig(config || getAvailableConfig());
     if (!window.supabase) throw new Error("Supabase wurde nicht geladen.");
     if (!hasConfig(c)) throw new Error("App-Verbindung fehlt.");
+
+    writeStoredConfig(c);
+
     loginClient = window.supabase.createClient(c.supabaseUrl, c.supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        flowType: "pkce"
       }
     });
+
+    window.sb = window.sb || loginClient;
     return loginClient;
   }
 
@@ -120,7 +154,7 @@
   }
 
   function getEmail() {
-    return el("loginEmail") ? el("loginEmail").value.trim() : "";
+    return el("loginEmail") ? el("loginEmail").value.trim().toLowerCase() : "";
   }
 
   function getPassword() {
@@ -135,13 +169,40 @@
     return { email: email, password: password };
   }
 
-  function returnToApp() {
-    var target = "/";
+  function safeSetAfterPath() {
     try {
-      target = localStorage.getItem(LOGIN_KEYS.afterPath) || "/";
-      if (!target || target.indexOf("/login") === 0) target = "/";
+      if (!localStorage.getItem(LOGIN_KEYS.afterPath)) {
+        localStorage.setItem(LOGIN_KEYS.afterPath, "/?section=profile");
+      }
     } catch (error) {}
-    window.location.href = target;
+  }
+
+  function returnToApp(delay) {
+    var target = "/?section=profile";
+    try {
+      target = localStorage.getItem(LOGIN_KEYS.afterPath) || "/?section=profile";
+      if (!target || target.indexOf("/login") === 0) target = "/?section=profile";
+      localStorage.removeItem(LOGIN_KEYS.afterPath);
+    } catch (error) {}
+
+    window.setTimeout(function () {
+      window.location.href = target;
+    }, delay || 500);
+  }
+
+  function shouldReturnAfterSession() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      return !!(
+        params.get("code") ||
+        params.get("access_token") ||
+        params.get("refresh_token") ||
+        params.get("return") === "1" ||
+        localStorage.getItem(LOGIN_KEYS.afterPath)
+      );
+    } catch (error) {
+      return false;
+    }
   }
 
   function setMode(mode) {
@@ -162,24 +223,66 @@
     if (button) button.setAttribute("aria-label", input.type === "password" ? "Passwort anzeigen" : "Passwort verstecken");
   }
 
+  async function withTimeout(promise, ms, label) {
+    var timer;
+    var timeout = new Promise(function (_, reject) {
+      timer = window.setTimeout(function () {
+        reject(new Error(label || "timeout"));
+      }, ms || 12000);
+    });
+
+    try {
+      return await Promise.race([promise, timeout]);
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  async function verifyBackendSession(session) {
+    try {
+      var config = getAvailableConfig();
+      if (!session || !session.access_token || !config || !config.engineUrl) return false;
+
+      var response = await withTimeout(fetch(config.engineUrl.replace(/\/$/, "") + "/auth/me", {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + session.access_token,
+          "Content-Type": "application/json"
+        }
+      }), 8000, "Backend-Prüfung dauerte zu lange.");
+
+      return response && response.ok;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async function checkLoginSession() {
     try {
       var config = getAvailableConfig();
       fillConfigForm(config);
       renderConnectionBox();
+
       if (!config) {
         setLoginStatus("App-Verbindung fehlt. Bitte Admin-Verbindung prüfen.", "bad");
         return false;
       }
+
       var client = getLoginClient();
-      var result = await client.auth.getSession();
+      var result = await withTimeout(client.auth.getSession(), 12000, "Session-Prüfung dauerte zu lange.");
       if (result.error) throw result.error;
+
       if (result.data && result.data.session && result.data.session.user) {
         var email = result.data.session.user.email || "";
         if (email && !localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, email.split("@")[0]);
-        setLoginStatus("✅ Du bist eingeloggt.", "ok");
+
+        var backendOk = await verifyBackendSession(result.data.session);
+        setLoginStatus(backendOk ? "✅ Du bist eingeloggt. Verbindung ist aktiv." : "✅ Login aktiv. Backend wird in der App erneut geprüft.", "ok");
+
+        if (shouldReturnAfterSession()) returnToApp(650);
         return true;
       }
+
       setLoginStatus("Bereit zum Einloggen.");
       return false;
     } catch (error) {
@@ -190,51 +293,90 @@
   }
 
   async function signIn() {
+    if (busy) return;
+
     try {
+      setBusy(true);
       var fields = validateLoginFields(true);
+      safeSetAfterPath();
+      localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
+
       setLoginStatus("Login läuft ...");
       var client = getLoginClient();
-      var result = await client.auth.signInWithPassword({ email: fields.email, password: fields.password });
+      var result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: fields.password }), 15000, "Login dauerte zu lange.");
       if (result.error) throw result.error;
+
+      var sessionResult = await withTimeout(client.auth.getSession(), 12000, "Session konnte nicht bestätigt werden.");
+      if (sessionResult.error) throw sessionResult.error;
+      if (!sessionResult.data || !sessionResult.data.session) throw new Error("Login wurde nicht gespeichert. Bitte erneut versuchen.");
+
       var userEmail = result.data && result.data.user && result.data.user.email ? result.data.user.email : fields.email;
       if (!localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, userEmail.split("@")[0]);
-      setLoginStatus("✅ Login erfolgreich. Soraya öffnet die App ...", "ok");
-      window.setTimeout(returnToApp, 450);
+
+      var backendOk = await verifyBackendSession(sessionResult.data.session);
+      setLoginStatus(backendOk ? "✅ Login erfolgreich. Soraya öffnet die App ..." : "✅ Login erfolgreich. Soraya öffnet die App und prüft Backend erneut ...", "ok");
+      returnToApp(500);
     } catch (error) {
       setLoginStatus("Login fehlgeschlagen: " + friendlyError(error, "Bitte Daten prüfen."), "bad");
+    } finally {
+      setBusy(false);
     }
   }
 
   async function signUp() {
+    if (busy) return;
+
     try {
+      setBusy(true);
       var fields = validateLoginFields(true);
+      safeSetAfterPath();
+      localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
+
       setLoginStatus("Registrierung läuft ...");
       var client = getLoginClient();
-      var redirectTo = window.location.origin + "/login";
-      var result = await client.auth.signUp({
+      var redirectTo = window.location.origin + "/login?return=1";
+      var result = await withTimeout(client.auth.signUp({
         email: fields.email,
         password: fields.password,
         options: { emailRedirectTo: redirectTo }
-      });
+      }), 15000, "Registrierung dauerte zu lange.");
+
       if (result.error) throw result.error;
-      setLoginStatus("✅ Registrierung erfolgreich. Bitte E-Mail bestätigen, falls Soraya danach fragt.", "ok");
+
+      if (result.data && result.data.session) {
+        setLoginStatus("✅ Registrierung erfolgreich. Soraya öffnet die App ...", "ok");
+        returnToApp(650);
+        return;
+      }
+
+      setLoginStatus("✅ Registrierung erfolgreich. Bitte E-Mail bestätigen und danach einloggen.", "ok");
     } catch (error) {
       setLoginStatus("Registrierung fehlgeschlagen: " + friendlyError(error, "Bitte Daten prüfen."), "bad");
+    } finally {
+      setBusy(false);
     }
   }
 
   async function resetPassword() {
+    if (busy) return;
+
     try {
+      setBusy(true);
       var fields = validateLoginFields(false);
+      localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
       setLoginStatus("Passwort-E-Mail wird gesendet ...");
+
       var client = getLoginClient();
-      var result = await client.auth.resetPasswordForEmail(fields.email, {
-        redirectTo: window.location.origin + "/login"
-      });
+      var result = await withTimeout(client.auth.resetPasswordForEmail(fields.email, {
+        redirectTo: window.location.origin + "/login?return=1"
+      }), 15000, "Passwort-E-Mail dauerte zu lange.");
+
       if (result.error) throw result.error;
       setLoginStatus("✅ E-Mail zum Zurücksetzen wurde gesendet.", "ok");
     } catch (error) {
       setLoginStatus("Passwort zurücksetzen fehlgeschlagen: " + friendlyError(error, "Bitte E-Mail prüfen."), "bad");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -247,7 +389,7 @@
       };
       if (!hasConfig(config)) throw new Error("Bitte alle Verbindungsfelder ausfüllen.");
       if (!/^https:\/\//i.test(config.supabaseUrl) || !/^https:\/\//i.test(config.engineUrl)) throw new Error("Bitte gültige HTTPS-URLs verwenden.");
-      localStorage.setItem(LOGIN_KEYS.config, JSON.stringify(config));
+      writeStoredConfig(config);
       loginClient = null;
       initLoginClient(config);
       renderConnectionBox();
@@ -265,13 +407,24 @@
   }
 
   function boot() {
-    document.body.classList.add("soraya-c57-login");
-    fillConfigForm(getAvailableConfig());
+    document.body.classList.add("soraya-c67-login");
+    var config = getAvailableConfig();
+    fillConfigForm(config);
     renderConnectionBox();
+
+    try {
+      var lastEmail = localStorage.getItem(LOGIN_KEYS.lastEmail);
+      if (lastEmail && el("loginEmail") && !el("loginEmail").value) el("loginEmail").value = lastEmail;
+    } catch (error) {}
+
     setMode((new URLSearchParams(window.location.search)).get("mode") === "register" ? "register" : "login");
     checkLoginSession();
+
     var form = el("loginForm");
-    if (form) form.addEventListener("submit", handleSubmit);
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = "1";
+      form.addEventListener("submit", handleSubmit);
+    }
   }
 
   window.sorayaLogin = {
