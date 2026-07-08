@@ -4,7 +4,6 @@
 
   function $(id) { return document.getElementById(id); }
   function txt(v) { return v === undefined || v === null ? "" : String(v); }
-  function setText(id, value) { var n = $(id); if (n) n.textContent = value; }
 
   function compact(value, limit) {
     var s = txt(value).replace(/\s+/g, " ").trim();
@@ -41,6 +40,34 @@
     props.style.gridTemplateColumns = "repeat(3, minmax(0, 1fr))";
   }
 
+  function recoverScroll() {
+    document.documentElement.style.overflowY = "auto";
+    document.documentElement.style.height = "auto";
+    document.body.style.overflowY = "auto";
+    document.body.style.height = "auto";
+    document.body.style.minHeight = "100%";
+
+    var app = document.querySelector(".app");
+    if (app) {
+      app.style.overflow = "visible";
+      app.style.height = "auto";
+    }
+
+    var main = $("mainContent");
+    if (main) {
+      main.style.overflow = "visible";
+      main.style.height = "auto";
+    }
+
+    document.querySelectorAll(".section.active").forEach(function (section) {
+      section.style.overflow = "visible";
+      section.style.height = "auto";
+    });
+
+    var veil = $("loadingVeil");
+    if (veil && !veil.classList.contains("show")) veil.style.pointerEvents = "none";
+  }
+
   function patchLoadHoroscope() {
     if (window.__sorayaC68HoroPatched || typeof window.loadHoroscope !== "function") return;
     window.__sorayaC68HoroPatched = true;
@@ -49,6 +76,7 @@
       var result = await original.apply(this, arguments);
       window.setTimeout(compactHoroscope, 80);
       window.setTimeout(compactHoroscope, 450);
+      window.setTimeout(recoverScroll, 90);
       return result;
     };
   }
@@ -57,9 +85,10 @@
     if (window.__sorayaC68SectionPatched || typeof window.showSection !== "function") return;
     window.__sorayaC68SectionPatched = true;
     var original = window.showSection;
-    window.showSection = function (id) {
+    window.showSection = function () {
       var result = original.apply(this, arguments);
       window.setTimeout(run, 80);
+      window.setTimeout(recoverScroll, 160);
       return result;
     };
   }
@@ -68,6 +97,7 @@
     compactHoroscope();
     normalizeChatCards();
     fixHomeWidths();
+    recoverScroll();
     patchLoadHoroscope();
     patchShowSection();
   }
@@ -83,4 +113,7 @@
     window.setTimeout(run, 600);
     window.setTimeout(run, 1800);
   });
+
+  window.addEventListener("touchstart", recoverScroll, { passive: true });
+  window.addEventListener("touchmove", recoverScroll, { passive: true });
 })();
