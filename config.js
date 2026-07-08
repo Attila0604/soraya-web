@@ -5,7 +5,7 @@
   Wichtig:
   - Supabase anon/public key ist für Browser-Apps gedacht.
   - Keine service_role keys, keine geheimen Keys hier eintragen.
-  - Diese Datei lädt die sauberen visuellen Zusatz-Layer.
+  - Diese Datei lädt die sauberen visuellen Zusatz-Layer und Profil-Speicher-Fix.
 */
 
 window.SORAYA_PUBLIC_CONFIG = {
@@ -16,12 +16,14 @@ window.SORAYA_PUBLIC_CONFIG = {
 
 (function loadSorayaVisualLayers() {
   var files = [
-    "/c63-visual-boost.css?v=2.0.1",
-    "/c64-final-clean-ui.css?v=1.0.0"
+    "/c63-visual-boost.css?v=2.0.3",
+    "/c64-final-clean-ui.css?v=1.0.2"
   ];
 
   files.forEach(function (file) {
-    if (document.querySelector('link[href*="' + file.split("?")[0].replace("/", "") + '"]')) {
+    var cleanName = file.split("?")[0].replace("/", "");
+
+    if (document.querySelector('link[href*="' + cleanName + '"]')) {
       return;
     }
 
@@ -30,4 +32,18 @@ window.SORAYA_PUBLIC_CONFIG = {
     link.href = file;
     document.head.appendChild(link);
   });
+})();
+
+(function loadSorayaProfileStorageFix() {
+  var file = "/c66-profile-storage-fix.js?v=1.0.0";
+  var cleanName = file.split("?")[0].replace("/", "");
+
+  if (document.querySelector('script[src*="' + cleanName + '"]')) {
+    return;
+  }
+
+  var script = document.createElement("script");
+  script.src = file;
+  script.defer = true;
+  document.head.appendChild(script);
 })();
