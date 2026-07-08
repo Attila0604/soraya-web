@@ -1,10 +1,11 @@
 /*
-  Soraya C66 Profile Storage Fix
+  Soraya C66.1 Profile Storage Fix
   Datei: c66-profile-storage-fix.js
 
   Ziel:
   - öffentliche config.js zuverlässig in localStorage spiegeln
   - Profil nach Login aus Backend laden, wenn localStorage leer ist
+  - bei mehreren gespeicherten Self-Profilen immer das neueste nehmen
   - falsche Profil-Daten bei Benutzerwechsel vermeiden
   - bestehende App-Funktionen nicht ersetzen, nur absichern
 */
@@ -68,10 +69,7 @@
     var publicConfig = getPublicConfig();
     if (!hasConfig(publicConfig)) return null;
 
-    /*
-      Wichtig: Die öffentliche App-Konfiguration ist die stabile Quelle.
-      Dadurch werden alte, falsche oder manuell gespeicherte Verbindungsdaten repariert.
-    */
+    /* Die öffentliche App-Konfiguration ist die stabile Quelle. */
     writeJson(KEYS.config, publicConfig);
     return publicConfig;
   }
@@ -133,20 +131,12 @@
 
     var iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
     if (iso) {
-      return {
-        year: Number(iso[1]),
-        month: Number(iso[2]),
-        day: Number(iso[3])
-      };
+      return { year: Number(iso[1]), month: Number(iso[2]), day: Number(iso[3]) };
     }
 
     var de = raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
     if (de) {
-      return {
-        year: Number(de[3]),
-        month: Number(de[2]),
-        day: Number(de[1])
-      };
+      return { year: Number(de[3]), month: Number(de[2]), day: Number(de[1]) };
     }
 
     return {};
@@ -157,10 +147,7 @@
     if (!raw) return {};
     var match = raw.match(/(\d{1,2}):(\d{1,2})/);
     if (!match) return {};
-    return {
-      hour: Number(match[1]),
-      minute: Number(match[2])
-    };
+    return { hour: Number(match[1]), minute: Number(match[2]) };
   }
 
   function normalizeBirthFromPerson(row) {
@@ -219,25 +206,50 @@
     try { if (window.renderIdentity) window.renderIdentity(); } catch (error) {}
     try { if (window.renderProfilePreview) window.renderProfilePreview(); } catch (error) {}
     try { if (window.loadRealChartData) window.loadRealChartData(false); } catch (error) {}
+    try { if (window.renderAppStatus) window.renderAppStatus(); } catch (error) {}
+  }
 
-    try {
-      var active = document.querySelector(".section.active");
-      if (active && active.id === "home" && window.showSection) window.showSection("home");
-    } catch (error) {}
+  function dateScore(row) {
+    var value = row && row.created_at ? Date.parse(row.created_at) : 0;
+    return Number.isFinite(value) ? value : 0;
   }
 
   function findSelfPerson(people) {
-    if (!Array.isArray(people)) return null;
-    return people.find(function (p) { return p && p.is_self === true; }) ||
-      people.find(function (p) { return p && String(p.relation || "").toLowerCase() === "self"; }) ||
-      people[0] ||
-      null;
+    if (!Array.isArray(people) || !people.length) return null;
+
+    var selfRows = people.filter(function (p) {
+      return p && (p.is_self === true || String(p.relation || "").toLowerCase() === "self");
+    });
+
+    var candidates = selfRows.length ? selfRows : people.filter(Boolean);
+
+    candidates.sort(function (a, b) {
+      return dateScore(b) - dateScore(a);
+    });
+
+    return candidates[0] || null;
+  }
+
+  function cachePeople(people) {
+    if (!Array.isArray(people)) return;
+    var clean = [];
+    var seen = {};
+
+    people.forEach(function (person) {
+      if (!person || !person.id || seen[person.id]) return;
+      seen[person.id] = true;
+      clean.push(person);
+    });
+
+    writeJson(KEYS.people, clean);
   }
 
   async function fetchPeople() {
     if (typeof window.callSoraya === "function") {
       var viaApp = await window.callSoraya("/mobile/people/list", null, "GET");
-      return viaApp && viaApp.data && Array.isArray(viaApp.data.people) ? viaApp.data.people : [];
+      var peopleFromApp = viaApp && viaApp.data && Array.isArray(viaApp.data.people) ? viaApp.data.people : [];
+      cachePeople(peopleFromApp);
+      return peopleFromApp;
     }
 
     var session = await getSession();
@@ -252,8 +264,11 @@
       }
     });
 
+    if (!response.ok) return [];
     var json = await response.json();
-    return json && json.data && Array.isArray(json.data.people) ? json.data.people : [];
+    var people = json && json.data && Array.isArray(json.data.people) ? json.data.people : [];
+    cachePeople(people);
+    return people;
   }
 
   async function restoreProfileFromBackend(force) {
@@ -319,7 +334,7 @@
       var originalCreatePerson = window.createPerson;
       window.createPerson = async function () {
         var result = await originalCreatePerson.apply(this, arguments);
-        window.setTimeout(function () { restoreProfileFromBackend(true); }, 450);
+        window.setTimeout(function () { restoreProfileFromBackend(true); }, 650);
         return result;
       };
     }
@@ -328,7 +343,7 @@
       var originalLoadPeople = window.loadPeopleFromSupabase;
       window.loadPeopleFromSupabase = async function () {
         var result = await originalLoadPeople.apply(this, arguments);
-        window.setTimeout(function () { restoreProfileFromBackend(true); }, 250);
+        window.setTimeout(function () { restoreProfileFromBackend(true); }, 300);
         return result;
       };
     }
@@ -362,7 +377,7 @@
   var timer = window.setInterval(function () {
     tries += 1;
     install();
-    if (tries >= 24 || window.__sorayaC66Patched) window.clearInterval(timer);
+    if (tries >= 32 || window.__sorayaC66Patched) window.clearInterval(timer);
   }, 250);
 
   if (document.readyState === "loading") {
@@ -373,6 +388,7 @@
 
   window.addEventListener("load", function () {
     window.setTimeout(install, 350);
-    window.setTimeout(function () { restoreProfileFromBackend(false); }, 1200);
+    window.setTimeout(function () { restoreProfileFromBackend(false); }, 1300);
+    window.setTimeout(function () { restoreProfileFromBackend(false); }, 2800);
   });
 })();
