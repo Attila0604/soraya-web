@@ -14,10 +14,20 @@ window.SORAYA_PUBLIC_CONFIG = {
   engineUrl: "https://astro-engine-production-7b18.up.railway.app/"
 };
 
+/* Alte lokale Verbindung überschreiben, damit keine falsche Backend-URL im Browser hängen bleibt. */
+try {
+  localStorage.setItem("soraya_config", JSON.stringify({
+    supabaseUrl: window.SORAYA_PUBLIC_CONFIG.supabaseUrl,
+    supabaseAnonKey: window.SORAYA_PUBLIC_CONFIG.supabaseAnonKey,
+    engineUrl: window.SORAYA_PUBLIC_CONFIG.engineUrl.replace(/\/$/, "")
+  }));
+} catch (error) {}
+
 (function loadSorayaVisualLayers() {
   var files = [
     "/c63-visual-boost.css?v=2.0.3",
-    "/c64-final-clean-ui.css?v=1.0.2"
+    "/c64-final-clean-ui.css?v=1.0.2",
+    "/c67-stability-polish.css?v=1.0.0"
   ];
 
   files.forEach(function (file) {
@@ -34,16 +44,22 @@ window.SORAYA_PUBLIC_CONFIG = {
   });
 })();
 
-(function loadSorayaProfileStorageFix() {
-  var file = "/c66-profile-storage-fix.js?v=1.0.1";
-  var cleanName = file.split("?")[0].replace("/", "");
+(function loadSorayaRuntimeFixes() {
+  var files = [
+    "/c66-profile-storage-fix.js?v=1.0.1",
+    "/c67-stability-polish.js?v=1.0.0"
+  ];
 
-  if (document.querySelector('script[src*="' + cleanName + '"]')) {
-    return;
-  }
+  files.forEach(function (file) {
+    var cleanName = file.split("?")[0].replace("/", "");
 
-  var script = document.createElement("script");
-  script.src = file;
-  script.defer = true;
-  document.head.appendChild(script);
+    if (document.querySelector('script[src*="' + cleanName + '"]')) {
+      return;
+    }
+
+    var script = document.createElement("script");
+    script.src = file;
+    script.defer = true;
+    document.head.appendChild(script);
+  });
 })();
