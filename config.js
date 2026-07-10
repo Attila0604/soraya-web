@@ -23,28 +23,6 @@ try {
   }));
 } catch (error) {}
 
-(function loadSorayaVisualLayers() {
-  var files = [
-    "/c63-visual-boost.css?v=2.0.3",
-    "/c64-final-clean-ui.css?v=1.0.2",
-    "/c67-stability-polish.css?v=1.0.0",
-    "/c68-mobile-fit-fix.css?v=1.0.0"
-  ];
-
-  files.forEach(function (file) {
-    var cleanName = file.split("?")[0].replace("/", "");
-
-    if (document.querySelector('link[href*="' + cleanName + '"]')) {
-      return;
-    }
-
-    var link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = file;
-    document.head.appendChild(link);
-  });
-})();
-
 (function loadSorayaRuntimeFixes() {
   var files = [
     "/c66-profile-storage-fix.js?v=1.0.1",
