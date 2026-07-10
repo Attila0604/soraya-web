@@ -1,0 +1,386 @@
+/* ============================================================
+   soraya.css  ·  Die EINE Stylesheet
+   Mystisch · elegant · zurückhaltend · symbolgetrieben
+   Ersetzt: style.css, c58, c63, c64, c65, c67, c68 (nur CSS)
+   Fonts (Cinzel, Cormorant Garamond, Inter) lädt index.html.
+   ============================================================ */
+
+:root{
+  /* ---- Farben ---- */
+  --void:#0b0713; --void-2:#140b22;
+  --gold:#c9a86a; --gold-soft:#e6cf9c; --gold-deep:#a9863f;
+  --gold-dim:rgba(201,168,106,.42);
+  --mist:#c3b7da; --mist-dim:#8a7ea6; --mist-faint:#5c5175;
+  --panel:rgba(26,17,44,.44); --panel-2:rgba(32,21,54,.62);
+  --line:rgba(201,168,106,.20); --line-soft:rgba(195,183,218,.12);
+  --line-violet:rgba(168,107,255,.18);
+  --danger:#e0857a;
+  /* ---- EINE Abstands-Skala ---- */
+  --s1:6px; --s2:10px; --s3:16px; --s4:24px; --s5:38px; --s6:56px;
+  /* ---- Radien ---- */
+  --r-card:20px; --r-sm:14px; --r-pill:999px;
+  /* ---- Schrift ---- */
+  --display:"Cormorant Garamond",Georgia,serif;
+  --wordmark:"Cinzel",serif;
+  --ui:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; font-family:var(--ui); color:var(--mist);
+  background:var(--void); line-height:1.6; -webkit-font-smoothing:antialiased;
+  letter-spacing:.01em;
+}
+::selection{background:rgba(201,168,106,.28); color:#fff}
+a{color:var(--gold-soft); text-decoration:none}
+img,svg{max-width:100%}
+
+/* ---- Sternenfeld-Hintergrund (ersetzt die 2-MB-PNGs) ---- */
+.cosmos{
+  position:fixed; inset:0; z-index:-5; pointer-events:none;
+  background:radial-gradient(125% 70% at 50% -6%, #241a4e 0%, #120c2b 44%, #070510 82%);
+}
+.cosmos::before{
+  content:""; position:absolute; inset:0; opacity:.8;
+  background-image:
+    radial-gradient(1.3px 1.3px at 12% 10%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1.2px 1.2px at 68% 6%, rgba(230,207,156,.7), transparent),
+    radial-gradient(1px 1px at 82% 18%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1.3px 1.3px at 33% 24%, rgba(210,190,255,.6), transparent),
+    radial-gradient(1px 1px at 52% 14%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.1px 1.1px at 88% 34%, rgba(255,255,255,.45), transparent),
+    radial-gradient(1px 1px at 8% 40%, rgba(255,255,255,.4), transparent),
+    radial-gradient(1px 1px at 44% 62%, rgba(195,183,218,.4), transparent),
+    radial-gradient(1px 1px at 74% 78%, rgba(255,255,255,.35), transparent),
+    radial-gradient(1px 1px at 22% 84%, rgba(230,207,156,.4), transparent);
+}
+.cosmos::after{
+  content:""; position:absolute; left:50%; top:-10%; width:420px; height:420px;
+  transform:translateX(-50%); border-radius:50%;
+  background:radial-gradient(circle, rgba(201,168,106,.10), rgba(168,107,255,.05) 55%, transparent 72%);
+}
+
+/* ---- App-Rahmen ---- */
+.app{max-width:520px; margin:0 auto; padding:0 var(--s4)}
+#mainContent{padding-bottom:130px}
+
+/* ---- Skip-Link ---- */
+.c412-skip-link{position:absolute; left:-999px}
+.c412-skip-link:focus{left:var(--s4); top:var(--s3); z-index:50; background:var(--panel-2);
+  color:var(--gold-soft); padding:8px 14px; border-radius:var(--r-sm); border:1px solid var(--line)}
+
+/* ============ HEADER ============ */
+.topbar{
+  display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap;
+  padding:var(--s5) 0 var(--s4);
+}
+.brand{flex:1; text-align:center; cursor:pointer; line-height:1}
+.brand .sigil{font-size:15px; color:var(--gold); opacity:.8; margin-bottom:6px}
+.brand h1{
+  font-family:var(--wordmark); font-weight:600; font-size:21px; margin:0;
+  letter-spacing:.36em; color:var(--gold-soft); text-indent:.36em;
+}
+.brand .sub{
+  font-size:9px; letter-spacing:.36em; text-transform:uppercase;
+  color:var(--mist-faint); margin-top:7px;
+}
+.c410-app-status{
+  order:9; flex-basis:100%; text-align:center; font-size:9px;
+  letter-spacing:.28em; text-transform:uppercase; color:var(--mist-faint); margin-top:var(--s3);
+}
+
+/* ---- Runder Icon-Button ---- */
+.round{
+  width:44px; height:44px; border-radius:50%; flex:none; cursor:pointer;
+  display:grid; place-items:center; font-size:19px; line-height:1;
+  background:var(--panel); border:1px solid var(--line); color:var(--gold-soft);
+  transition:border-color .25s, color .25s, background .25s;
+}
+.round:hover{border-color:var(--gold-dim); color:var(--gold-soft); background:var(--panel-2)}
+
+/* ============ SECTIONS ============ */
+.section{display:none}
+.section.active{display:block; animation:rise .5s ease both}
+@keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+
+/* ============ TYPOGRAFIE / PAGE TITLE ============ */
+.eyebrow{
+  display:inline-block; font-family:var(--wordmark); font-size:10.5px; font-weight:500;
+  letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:var(--s2);
+}
+.page-title{margin:var(--s3) 0 var(--s5)}
+.page-title h2{
+  font-family:var(--display); font-weight:600; font-size:38px; line-height:1.08;
+  margin:0 0 var(--s3); color:var(--mist);
+}
+.page-title h2 .gold, .gold{color:var(--gold-soft)}
+.page-title p{color:var(--mist-dim); font-size:14px; max-width:34ch; margin:0}
+
+h3{font-family:var(--display); font-weight:600; color:var(--mist); margin:0}
+h4{font-family:var(--display); font-weight:600; color:var(--mist); margin:0; font-size:19px}
+
+/* ============ CARDS ============ */
+.card{
+  background:var(--panel); border:1px solid var(--line-violet); border-radius:var(--r-card);
+  padding:var(--s4); margin-bottom:var(--s3); backdrop-filter:blur(8px);
+}
+.card.glow{position:relative; overflow:hidden; border-color:var(--line)}
+.card.glow::before{
+  content:""; position:absolute; right:-30px; top:-30px; width:150px; height:150px;
+  background:radial-gradient(circle, rgba(201,168,106,.12), transparent 70%); pointer-events:none;
+}
+.card.premium{border-color:var(--line); background:linear-gradient(160deg, var(--panel-2), var(--panel))}
+.card-title{display:flex; align-items:center; justify-content:space-between; gap:var(--s3); margin-bottom:var(--s3)}
+.card-title h4{font-size:18px}
+.card p{color:var(--mist-dim); font-size:13.5px; margin:6px 0 0}
+.card h3{font-size:23px; margin:2px 0}
+
+/* ---- Badge / Eyebrow im Card ---- */
+.badge{
+  font-family:var(--ui); font-size:9.5px; font-weight:500; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--gold-soft); padding:5px 11px; border-radius:var(--r-pill);
+  background:rgba(201,168,106,.10); border:1px solid var(--line); white-space:nowrap;
+}
+
+/* ---- Glyphen in Karten (die dicken <b> Symbole) ---- */
+.card b, .tile b{color:var(--gold-soft); font-weight:400}
+.zodiac-art, .c46-focus-orb, .c49-empty-orb, .c42-horo-orb, .horo-moon, .c44-link-symbol, .avatar{
+  color:var(--gold-soft); font-size:30px; line-height:1;
+}
+.c46-focus-orb, .c49-empty-orb{
+  width:56px; height:56px; border-radius:50%; display:grid; place-items:center; flex:none;
+  background:var(--panel-2); border:1px solid var(--line); font-size:24px;
+}
+
+/* ============ BUTTONS ============ */
+.btn{
+  font-family:var(--ui); font-weight:500; font-size:13.5px; letter-spacing:.02em;
+  padding:11px 18px; border-radius:var(--r-pill); cursor:pointer;
+  background:transparent; color:var(--mist); border:1px solid var(--line);
+  transition:border-color .2s, color .2s, background .2s;
+}
+.btn:hover{border-color:var(--gold-dim); color:var(--gold-soft)}
+.btn.gold{
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep));
+  color:#2a1c05; border:none; font-weight:600;
+}
+.btn.gold:hover{filter:brightness(1.06); color:#2a1c05}
+.btn.block{display:block; width:100%; padding:15px; margin-top:var(--s3)}
+
+/* ============ TILES / SHORTCUTS ============ */
+.shortcut-grid, .c46-shortcut-grid, .c43-prompt-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:var(--s3);
+}
+.tile, .c43-prompt{
+  display:flex; flex-direction:column; align-items:flex-start; gap:var(--s2);
+  padding:var(--s4) var(--s3); border-radius:var(--r-card); cursor:pointer; text-align:left;
+  background:var(--panel); border:1px solid var(--line-violet); color:var(--mist);
+  transition:border-color .25s, transform .25s;
+}
+.tile:hover, .c43-prompt:hover{border-color:var(--line); transform:translateY(-3px)}
+.tile b, .c43-prompt b{font-size:26px; color:var(--gold-soft)}
+.tile span, .c43-prompt span{font-family:var(--display); font-size:17px; color:var(--mist)}
+
+/* ============ FORMS ============ */
+label{display:block; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--mist-dim); margin:var(--s3) 0 8px}
+input, select, textarea{
+  width:100%; font-family:var(--ui); font-size:15px; color:var(--mist);
+  background:rgba(10,7,20,.5); border:1px solid var(--line-soft); border-radius:var(--r-sm);
+  padding:13px 15px; outline:none; transition:border-color .2s;
+}
+input::placeholder, textarea::placeholder{color:var(--mist-faint)}
+input:focus, select:focus, textarea:focus{border-color:var(--gold-dim)}
+select{appearance:none; -webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 20px, calc(100% - 12px) 20px; background-size:6px 6px,6px 6px; background-repeat:no-repeat}
+textarea{resize:vertical; min-height:64px; line-height:1.5}
+.form-row, .form-row-3, .partner-form-grid{display:grid; gap:var(--s3)}
+.form-row, .partner-form-grid.two{grid-template-columns:1fr 1fr}
+.form-row-3, .partner-form-grid{grid-template-columns:1fr 1fr 1fr}
+.form-row label, .form-row-3 label, .partner-form-grid label{margin-top:0}
+.segmented, .c4-period-picker{display:grid; grid-template-columns:1fr auto; gap:var(--s2); align-items:center}
+
+/* ---- Status-Zeile ---- */
+.status{
+  font-size:12.5px; color:var(--mist-dim); margin-top:var(--s3);
+  padding:11px 14px; border-radius:var(--r-sm);
+  background:rgba(10,7,20,.4); border:1px solid var(--line-soft);
+}
+
+/* ============ GRIDS (Dashboard, Big-Three, Guidance, Synastrie) ============ */
+.c4-dashboard-grid, .c46-dashboard-grid, .c42-guidance-grid, .c44-synastry-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:var(--s3); margin-bottom:var(--s3);
+}
+.c4-big-three-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-bottom:var(--s3)}
+.c4-big-three-grid .card{padding:var(--s3) var(--s2); text-align:center; margin:0}
+.c4-big-three-grid b{display:block; font-size:24px; margin:var(--s2) 0 4px}
+.c4-big-three-grid strong{font-family:var(--display); color:var(--gold-soft); font-size:16px; display:block}
+.c4-big-three-grid p{font-size:10.5px}
+.c42-guidance-card, .c44-syn-card{text-align:center}
+.c42-guidance-card b, .c44-syn-card b{display:block; font-size:24px; margin:var(--s2) 0}
+
+/* ---- Zeilen-Listen (Transite, Planeten) ---- */
+.transit-list .row, .c41-planet-list > *{
+  display:flex; align-items:center; gap:var(--s3); padding:13px 0; border-top:1px solid var(--line-soft);
+}
+.transit-list .row:first-child{border-top:none}
+.transit-list .left{display:flex; align-items:center; gap:var(--s3)}
+.orb-sm{color:var(--gold-soft); font-size:18px}
+.c41-empty{color:var(--mist-faint); font-size:13px; padding:var(--s3) 0}
+
+/* ============ ENERGIE-RING / KOMPATIBILITÄT (conic) ============ */
+.energy-ring, .compat{
+  width:130px; height:130px; margin:var(--s3) auto; border-radius:50%;
+  display:grid; place-items:center; position:relative;
+  background:conic-gradient(var(--gold) var(--energy,0%), rgba(195,183,218,.10) 0);
+}
+.compat{background:conic-gradient(var(--gold) var(--score,0%), rgba(195,183,218,.10) 0)}
+.energy-ring::before, .compat::before{
+  content:""; position:absolute; inset:9px; border-radius:50%; background:var(--void-2);
+  border:1px solid var(--line-soft);
+}
+.energy-ring > *, .compat > *{position:relative; text-align:center}
+.energy-ring strong, .compat strong{font-family:var(--display); font-size:26px; color:var(--gold-soft)}
+.energy-ring small{font-size:9.5px; color:var(--mist-dim); letter-spacing:.08em}
+.c4-center-title{text-align:center; margin-top:var(--s3); font-size:16px}
+.c4-center-muted{text-align:center; color:var(--mist-dim); font-size:12px}
+
+/* ---- Mondphase ---- */
+.moon-visual{
+  width:92px; height:92px; margin:var(--s3) auto; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff6e0, #d9c49a 45%, #2a2044 78%);
+  box-shadow:inset -12px -6px 24px rgba(7,5,16,.7);
+}
+
+/* ============ PROFIL ============ */
+.profile-hero{display:flex; align-items:center; gap:var(--s3); margin-bottom:var(--s4)}
+.profile-avatar{
+  width:60px; height:60px; border-radius:50%; flex:none; display:grid; place-items:center;
+  font-family:var(--display); font-size:24px; color:#2a1c05;
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold-deep));
+}
+.stats, .c45-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); text-align:center}
+.stat b{font-family:var(--display); font-size:26px; color:var(--gold-soft); display:block}
+.stat span{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--mist-dim)}
+.c45-birth-preview{display:grid; gap:var(--s2); margin:var(--s3) 0; padding:var(--s3);
+  border-radius:var(--r-sm); background:rgba(10,7,20,.3); border:1px solid var(--line-soft)}
+.c45-birth-preview > div{display:flex; align-items:center; gap:var(--s3); font-size:12.5px; color:var(--mist-dim)}
+.c45-birth-preview b{color:var(--gold-soft); font-size:16px}
+
+/* ============ CHAT ============ */
+.chat-head{display:flex; align-items:center; gap:var(--s3); margin-bottom:var(--s3)}
+.chat-head .avatar{width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--line); font-size:22px; flex:none}
+.chat-window{
+  display:flex; flex-direction:column; gap:var(--s3); padding:var(--s3) 0;
+  max-height:44vh; overflow-y:auto;
+}
+.bubble{max-width:84%; font-size:14px; line-height:1.55; padding:13px 16px; border-radius:18px}
+.bubble.assistant{
+  align-self:flex-start; font-family:var(--display); font-style:italic; font-size:17px;
+  color:var(--mist); background:transparent; border-left:1px solid var(--line); border-radius:0; padding-left:var(--s3);
+}
+.bubble.user{align-self:flex-end; background:var(--panel-2); border:1px solid var(--line-soft);
+  border-radius:18px 18px 4px 18px; color:var(--mist)}
+.composer, .c43-composer{display:flex; align-items:flex-end; gap:var(--s2);
+  background:var(--panel); border:1px solid var(--line); border-radius:24px; padding:8px 8px 8px 16px; margin-top:var(--s3)}
+.composer textarea{border:none; background:none; min-height:24px; padding:6px 0; flex:1}
+.composer textarea:focus{border:none}
+.composer .round{width:40px; height:40px; font-size:16px; flex:none;
+  background:linear-gradient(180deg,var(--gold-soft),var(--gold)); color:#2a1c05; border:none}
+.c43-chat-footer{display:flex; gap:var(--s2); margin-top:var(--s3)}
+
+/* ============ CHART WHEEL ============ */
+.c4-chart-card svg#chartWheel{display:block; width:100%; max-width:340px; margin:0 auto}
+
+/* ============ TABBAR (schwebende Pille) ============ */
+.tabbar{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:calc(18px + env(safe-area-inset-bottom));
+  z-index:40; width:min(460px, calc(100% - 32px));
+  display:flex; justify-content:space-between; padding:10px 12px;
+  background:rgba(13,9,26,.82); border:1px solid var(--line); border-radius:var(--r-pill);
+  backdrop-filter:blur(16px); box-shadow:0 18px 44px rgba(0,0,0,.5);
+}
+.tabbar button{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;
+  background:none; border:none; cursor:pointer; padding:6px 4px; position:relative;
+  color:var(--mist-faint); transition:color .25s;
+}
+.tabbar button b{font-size:19px; font-weight:400; line-height:1}
+.tabbar button span{font-size:9px; letter-spacing:.06em}
+.tabbar button:hover{color:var(--mist-dim)}
+.tabbar button.active{color:var(--gold-soft)}
+.tabbar button.active::after{content:""; width:4px; height:4px; border-radius:50%;
+  background:var(--gold-soft); position:absolute; bottom:-4px; box-shadow:0 0 7px var(--gold)}
+
+/* ============ MODAL ============ */
+.developer-only{display:none}
+.soraya-dev-visible .developer-only{display:block}
+.modal-backdrop{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center;
+  padding:var(--s4); background:rgba(3,2,10,.72); backdrop-filter:blur(6px)}
+.modal-backdrop.open, .soraya-dev-visible .modal-backdrop.developer-only.open{display:flex}
+.soraya-dev-visible .modal-backdrop.developer-only:not(.open){display:none}
+.modal{max-width:440px; width:100%; background:linear-gradient(180deg,var(--void-2),var(--void));
+  border:1px solid var(--line); border-radius:var(--r-card); padding:var(--s4)}
+.c4-action-row, .c44-button-row{display:flex; gap:var(--s2); margin-top:var(--s3)}
+.c4-action-row .btn, .c44-button-row .btn{flex:1}
+.c4-muted{color:var(--mist-dim); font-size:12.5px}
+
+/* ============ LOADING / ERROR / TOAST ============ */
+.c411-loading-veil{position:fixed; inset:0; z-index:80; display:none; place-items:center;
+  background:rgba(7,5,16,.85); backdrop-filter:blur(4px)}
+.c411-loading-veil.open{display:grid}
+.c411-loader{text-align:center; color:var(--gold-soft); font-family:var(--display)}
+.c411-loader span{font-size:34px; display:block; animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4} 50%{opacity:1}}
+.c413-error-panel{position:fixed; left:50%; bottom:100px; transform:translateX(-50%); z-index:70;
+  display:none; align-items:center; gap:var(--s3); width:min(440px,calc(100% - 32px));
+  padding:13px 16px; border-radius:var(--r-sm);
+  background:var(--void-2); border:1px solid rgba(224,133,122,.4); color:var(--mist)}
+.c413-error-panel.open{display:flex}
+.c413-error-panel b{color:var(--danger); font-size:18px}
+.c413-error-panel span{flex:1; font-size:13px}
+.toast{position:fixed; left:50%; bottom:110px; transform:translateX(-50%) translateY(20px); z-index:75;
+  opacity:0; pointer-events:none; padding:11px 18px; border-radius:var(--r-pill);
+  background:var(--void-2); border:1px solid var(--line); color:var(--gold-soft); font-size:13px; transition:.3s}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+/* ---- Hero-Ribbon ---- */
+.c54-hero-ribbon{display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s4)}
+.c54-hero-ribbon span{font-size:11px; letter-spacing:.06em; color:var(--mist-dim);
+  padding:6px 12px; border-radius:var(--r-pill); background:var(--panel); border:1px solid var(--line-soft)}
+
+/* ---- Steps (Onboarding) ---- */
+.c49-steps > div{display:flex; align-items:center; gap:var(--s3); padding:12px 0; border-top:1px solid var(--line-soft)}
+.c49-steps > div:first-child{border-top:none}
+.c49-steps b{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; flex:none;
+  font-family:var(--display); color:var(--gold-soft); background:var(--panel-2); border:1px solid var(--line); font-size:13px}
+.c49-steps span{flex:1; font-size:13.5px}
+
+/* ---- Props (Element/Qualität/Herrscher) ---- */
+.props{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-top:var(--s3)}
+.props > div{text-align:center; padding:var(--s2); border-radius:var(--r-sm); background:rgba(10,7,20,.3)}
+.props b{display:block; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--mist-faint)}
+.props span{font-family:var(--display); color:var(--gold-soft); font-size:15px}
+
+/* ---- Reading-Text ---- */
+.reading{font-family:var(--display); font-size:16px; line-height:1.7; color:var(--mist); white-space:pre-wrap}
+
+/* ---- Delete-Button dezenter ---- */
+#deleteAccountBtn{color:var(--mist-faint) !important; letter-spacing:.04em}
+#deleteAccountBtn:hover{color:var(--danger) !important}
+
+/* ---- Footer ---- */
+main footer a{color:var(--gold-soft) !important}
+
+/* ============ Accessibility ============ */
+@media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
+:focus-visible{outline:2px solid var(--gold-dim); outline-offset:2px}
+
+/* ============ Responsive ============ */
+@media (max-width:380px){
+  .page-title h2{font-size:32px}
+  .shortcut-grid, .c46-shortcut-grid, .c43-prompt-grid{gap:var(--s2)}
+}
