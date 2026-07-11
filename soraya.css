@@ -98,6 +98,7 @@ img,svg{max-width:100%}
   transition:border-color .25s, color .25s, background .25s;
 }
 .round:hover{border-color:var(--gold-dim); color:var(--gold-soft); background:var(--panel-2)}
+.round svg{width:22px; height:22px}
 
 /* ============ SECTIONS ============ */
 .section{display:none}
@@ -180,6 +181,7 @@ h4{font-family:var(--display); font-weight:600; color:var(--mist); margin:0; fon
 }
 .tile:hover, .c43-prompt:hover{border-color:var(--line); transform:translateY(-3px)}
 .tile b, .c43-prompt b{font-size:26px; color:var(--gold-soft)}
+.tile svg{width:28px; height:28px; color:var(--gold-soft)}
 .tile span, .c43-prompt span{font-family:var(--display); font-size:17px; color:var(--mist)}
 
 /* ============ FORMS ============ */
@@ -309,6 +311,7 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
   color:var(--mist-faint); transition:color .25s;
 }
 .tabbar button b{font-size:19px; font-weight:400; line-height:1}
+.tabbar button svg{width:23px; height:23px}
 .tabbar button span{font-size:9px; letter-spacing:.06em}
 .tabbar button:hover{color:var(--mist-dim)}
 .tabbar button.active{color:var(--gold-soft)}

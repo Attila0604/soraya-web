@@ -23,9 +23,30 @@
   <a class="c412-skip-link" href="#mainContent">Zum Inhalt springen</a>
   <div class="cosmos" aria-hidden="true"></div>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4"/><line x1="12" y1="3.5" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="20.5"/><line x1="3.5" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="20.5" y2="12"/><line x1="5.5" y1="5.5" x2="7.2" y2="7.2"/><line x1="16.8" y1="16.8" x2="18.5" y2="18.5"/><line x1="18.5" y1="5.5" x2="16.8" y2="7.2"/><line x1="7.2" y1="16.8" x2="5.5" y2="18.5"/>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+      <path d="M19 13.5A8 8 0 1 1 10.5 5a6.3 6.3 0 0 0 8.5 8.5z"/><circle cx="16" cy="7" r=".6" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><path d="M12 5.5l1.7 4.8L18.5 12l-4.8 1.7L12 18.5l-1.7-4.8L5.5 12l4.8-1.7z" fill="currentColor" fill-opacity=".18"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><line x1="12" y1="3" x2="12" y2="8.6"/><line x1="12" y1="15.4" x2="12" y2="21"/><line x1="3" y1="12" x2="8.6" y2="12"/><line x1="15.4" y1="12" x2="21" y2="12"/>
+    </symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+      <path d="M12 3.5c.5 4.2 1.6 5.3 5.8 5.8-4.2.5-5.3 1.6-5.8 5.8-.5-4.2-1.6-5.3-5.8-5.8C10.4 8.8 11.5 7.7 12 3.5z"/>
+    </symbol>
+    <symbol id="i-synastry" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35">
+      <circle cx="9" cy="12" r="5.4"/><circle cx="15" cy="12" r="5.4"/>
+    </symbol>
+  </defs></svg>
+
   <div class="app">
     <header class="topbar">
-      <button id="authTopButton" class="round" onclick="openLogin()" aria-label="Einloggen">☾</button>
+      <button id="authTopButton" class="round" onclick="openLogin()" aria-label="Einloggen"><svg><use href="#i-moon"/></svg></button>
 
       <div class="brand" onclick="showSection('home')" role="button" tabindex="0" aria-label="Zur Startseite">
         <div class="sigil">✵</div>
@@ -33,7 +54,7 @@
         <div class="sub">Luxury Astro Guide</div>
       </div>
 
-      <button id="profileTopButton" class="round" onclick="showSection('profile')" aria-label="Profil öffnen">☉</button>
+      <button id="profileTopButton" class="round" onclick="showSection('profile')" aria-label="Profil öffnen"><svg><use href="#i-sun"/></svg></button>
       <div class="c410-app-status" id="appStatusPill">Soraya · bereit</div>
     </header>
 
@@ -141,10 +162,10 @@
             <span class="badge">Start</span>
           </div>
           <div class="shortcut-grid c46-shortcut-grid">
-            <button class="tile" onclick="showSection('analysis')"><b>✷</b><span>Birth Chart</span></button>
-            <button class="tile" onclick="showSection('horoscope')"><b>☾</b><span>Horoskop</span></button>
-            <button class="tile" onclick="showSection('chat')"><b>✦</b><span>Chat</span></button>
-            <button class="tile" onclick="showSection('synastry')"><b>♡</b><span>Synastrie</span></button>
+            <button class="tile" onclick="showSection('analysis')"><svg><use href="#i-chart"/></svg><span>Birth Chart</span></button>
+            <button class="tile" onclick="showSection('horoscope')"><svg><use href="#i-moon"/></svg><span>Horoskop</span></button>
+            <button class="tile" onclick="showSection('chat')"><svg><use href="#i-sparkle"/></svg><span>Chat</span></button>
+            <button class="tile" onclick="showSection('synastry')"><svg><use href="#i-synastry"/></svg><span>Synastrie</span></button>
           </div>
         </div>
       </section>
@@ -399,11 +420,11 @@
   </div>
 
   <nav class="tabbar c410-tabbar" aria-label="Soraya Navigation">
-    <button class="active" data-nav="home" onclick="showSection('home')" aria-label="Home"><b>⌂</b><span>Home</span></button>
-    <button data-nav="analysis" onclick="showSection('analysis')" aria-label="Analyse"><b>✷</b><span>Analyse</span></button>
-    <button data-nav="horoscope" onclick="showSection('horoscope')" aria-label="Horoskop"><b>☾</b><span>Horoskop</span></button>
-    <button data-nav="chat" onclick="showSection('chat')" aria-label="Chat"><b>✦</b><span>Chat</span></button>
-    <button data-nav="profile" onclick="showSection('profile')" aria-label="Profil"><b>☉</b><span>Profil</span></button>
+    <button class="active" data-nav="home" onclick="showSection('home')" aria-label="Home"><svg><use href="#i-compass"/></svg><span>Home</span></button>
+    <button data-nav="analysis" onclick="showSection('analysis')" aria-label="Analyse"><svg><use href="#i-chart"/></svg><span>Analyse</span></button>
+    <button data-nav="horoscope" onclick="showSection('horoscope')" aria-label="Horoskop"><svg><use href="#i-moon"/></svg><span>Horoskop</span></button>
+    <button data-nav="chat" onclick="showSection('chat')" aria-label="Chat"><svg><use href="#i-sparkle"/></svg><span>Chat</span></button>
+    <button data-nav="profile" onclick="showSection('profile')" aria-label="Profil"><svg><use href="#i-sun"/></svg><span>Profil</span></button>
   </nav>
 
   <div class="modal-backdrop developer-only" id="settingsModal" aria-hidden="true">
