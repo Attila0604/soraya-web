@@ -144,7 +144,11 @@
     function go(direction) {
       var next = currentIndex() + direction;
       if (next < 0 || next >= order.length) return;
+      document.documentElement.setAttribute("data-swipe-dir", direction < 0 ? "prev" : "next");
       if (typeof window.showSection === "function") window.showSection(order[next]);
+      window.setTimeout(function () {
+        document.documentElement.removeAttribute("data-swipe-dir");
+      }, 440);
     }
 
     document.addEventListener("touchstart", function (event) {
