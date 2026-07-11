@@ -28,7 +28,8 @@ try {
     "/c66-profile-storage-fix.js?v=1.0.1",
     "/c67-stability-polish.js?v=1.0.0",
     "/c68-mobile-fit-fix.js?v=1.0.0",
-    "/c70-account-deletion.js?v=1.0.0"
+    "/c70-account-deletion.js?v=1.0.0",
+    "/c71-swipe-nav.js?v=1.0.0"
   ];
 
   files.forEach(function (file) {
