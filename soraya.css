@@ -553,3 +553,37 @@ html, body{overflow-x:hidden}
 .reading h3, .reading h4{color:var(--gold-soft); margin:var(--s4) 0 6px}
 .reading strong{color:var(--gold-soft)}
 .reading em{color:var(--mist)}
+
+/* ============================================================
+   Analyse: Aspekte & Balance (war zusammengequetscht)
+   ============================================================ */
+/* drei Zähler: Harmonisch / Spannung / Neutral */
+.c41-aspect-cards{display:flex; gap:var(--s2); margin-bottom:var(--s4)}
+.c41-aspect-cards > div{
+  flex:1; text-align:center; padding:var(--s3) var(--s2);
+  background:var(--panel-2); border:1px solid var(--line-soft); border-radius:var(--r-sm);
+}
+.c41-aspect-cards b{display:block; font-family:var(--display); font-size:26px; color:var(--gold-soft); line-height:1}
+.c41-aspect-cards span{
+  display:block; margin-top:6px; font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--mist-dim);
+}
+/* Elemente-Balance: Label · Balken · Zahl */
+.c41-balance{display:flex; flex-direction:column; gap:11px}
+.c41-balance-row{display:flex; align-items:center; gap:var(--s3)}
+.c41-balance-row > span{flex:0 0 58px; font-size:13.5px; color:var(--mist)}
+.c41-balance-row > i{flex:1; height:7px; border-radius:99px; background:rgba(255,255,255,.06); overflow:hidden; display:block}
+.c41-balance-row > i > em{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--gold-soft),var(--gold))}
+.c41-balance-row > b{flex:0 0 auto; min-width:20px; text-align:right; font-family:var(--display); color:var(--gold-soft); font-size:15px}
+
+/* ============================================================
+   Horoskop: Tipp-Badge lief rechts aus dem Rand
+   ============================================================ */
+#horoTip{
+  display:block; white-space:normal; text-transform:none; text-align:left;
+  line-height:1.55; font-size:12.5px; letter-spacing:.02em;
+  padding:11px 15px; border-radius:14px; margin-top:var(--s3);
+}
+
+/* Guidance-Karten (Fokus/Liebe …) an Inhalt anpassen, keine leeren Lücken */
+.c42-guidance-grid{align-items:start}
