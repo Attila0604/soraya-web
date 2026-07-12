@@ -131,6 +131,7 @@
     var order = ["home", "analysis", "horoscope", "chat", "profile"];
     var x0 = null;
     var y0 = null;
+    var axis = null;
     var blocked = false;
 
     function currentIndex() {
@@ -160,25 +161,40 @@
       var touch = event.touches[0];
       x0 = touch.clientX;
       y0 = touch.clientY;
+      axis = null;
       blocked = isInteractiveTarget(event.target);
-      // Rand-Wische ignorieren (kollidieren mit Browser zurück/vor)
-      if (touch.clientX < 28 || touch.clientX > window.innerWidth - 28) blocked = true;
+      // nur der LINKE Rand gehört dem Browser (Zurück-Geste);
+      // rechts darf gewischt werden, sonst geht rechts-nach-links nie
+      if (touch.clientX < 24) blocked = true;
+    }, { passive: true });
+
+    document.addEventListener("touchmove", function (event) {
+      if (x0 === null || blocked || axis) return;
+      var touch = event.touches && event.touches[0];
+      if (!touch) return;
+      var adx = Math.abs(touch.clientX - x0);
+      var ady = Math.abs(touch.clientY - y0);
+      // Achse früh festlegen: wohin bewegt sich der Finger zuerst?
+      if (adx > 12 || ady > 12) {
+        axis = adx > ady ? "h" : "v";
+      }
     }, { passive: true });
 
     document.addEventListener("touchend", function (event) {
       if (x0 === null || blocked) {
         x0 = null;
+        axis = null;
         return;
       }
 
       var touch = event.changedTouches && event.changedTouches[0];
-      if (!touch) return;
-
-      var dx = touch.clientX - x0;
-      var dy = touch.clientY - y0;
+      var dx = touch ? touch.clientX - x0 : 0;
+      var wasHorizontal = axis === "h";
       x0 = null;
+      axis = null;
 
-      if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
+      if (!touch || !wasHorizontal) return;
+      if (Math.abs(dx) < 42) return;
       go(dx < 0 ? 1 : -1);
     }, { passive: true });
   }
