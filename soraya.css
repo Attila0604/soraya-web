@@ -122,7 +122,10 @@ img,svg{max-width:100%}
 
 /* ============ SECTIONS ============ */
 .section{display:none}
-.section.active{display:block; animation:rise .5s ease both}
+.section.active{display:block}
+/* Eintritts-Animation NUR bei Wisch-Navigation (kein Blinken bei Tabs) */
+[data-swipe-dir="next"] .section.active{animation:soraya-swipe-r .28s ease both}
+[data-swipe-dir="prev"] .section.active{animation:soraya-swipe-l .28s ease both}
 @keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
 
 /* ============ TYPOGRAFIE / PAGE TITLE ============ */
@@ -453,10 +456,11 @@ main footer a{color:var(--gold-soft) !important}
    Swipe-Navigation: richtungsabhängiges Hereingleiten
    (c71-swipe-nav.js setzt data-swipe-dir auf <html>)
    ============================================================ */
-[data-swipe-dir="next"] .section.active{animation:soraya-swipe-r .34s ease both}
-[data-swipe-dir="prev"] .section.active{animation:soraya-swipe-l .34s ease both}
-@keyframes soraya-swipe-r{from{opacity:0; transform:translateX(26px)} to{opacity:1; transform:none}}
-@keyframes soraya-swipe-l{from{opacity:0; transform:translateX(-26px)} to{opacity:1; transform:none}}
+/* ============================================================
+   Swipe-Navigation: sanftes Hereingleiten (ohne Opacity-Blink)
+   ============================================================ */
+@keyframes soraya-swipe-r{from{transform:translateX(18px)} to{transform:none}}
+@keyframes soraya-swipe-l{from{transform:translateX(-18px)} to{transform:none}}
 
 /* ============================================================
    Portierte Zustands-Regeln (aus den alten Layern)
