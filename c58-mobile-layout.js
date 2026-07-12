@@ -146,10 +146,12 @@
     function go(direction) {
       var next = currentIndex() + direction;
       if (next < 0 || next >= order.length) return;
-      document.documentElement.setAttribute("data-swipe-dir", direction < 0 ? "prev" : "next");
+      var root = document.documentElement;
+      root.setAttribute("data-swipe-dir", direction < 0 ? "prev" : "next");
+      if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
       if (typeof window.showSection === "function") window.showSection(order[next]);
       window.setTimeout(function () {
-        document.documentElement.removeAttribute("data-swipe-dir");
+        root.removeAttribute("data-swipe-dir");
       }, 440);
     }
 
