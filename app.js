@@ -583,11 +583,11 @@
     const tip = pickText(h, ["tipp", "tip", "hinweis", "advice"], pickText(root, ["tipp", "tip"], "Vertraue deinem inneren Kompass."));
     const lower = (body + " " + mood + " " + tip).toLowerCase();
 
-    const focus = pickText(h, ["fokus", "focus"], lower.includes("klar") ? "Klarheit entsteht, wenn du heute bewusst langsamer wirst." : "Richte deine Energie auf eine Sache, die wirklich wichtig ist.");
-    const love = pickText(h, ["liebe", "love", "beziehung"], lower.includes("herz") || lower.includes("liebe") ? "Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören." : "Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen.");
-    const work = pickText(h, ["beruf", "work", "career"], lower.includes("geduld") ? "Geduld bringt heute mehr als Druck." : "Struktur hilft dir, deine Kraft sinnvoll einzusetzen.");
-    const ritual = pickText(h, ["ritual", "ritual_text"], "Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention.");
-    const affirmation = pickText(h, ["affirmation", "mantra"], "Ich vertraue meinem Weg und bewege mich mit Klarheit.");
+    const focus = pickText(h, ["fokus", "focus"], pickText(root, ["fokus", "focus"], lower.includes("klar") ? "Klarheit entsteht, wenn du heute bewusst langsamer wirst." : "Richte deine Energie auf eine Sache, die wirklich wichtig ist."));
+    const love = pickText(h, ["liebe", "love", "beziehung"], pickText(root, ["liebe", "love"], lower.includes("herz") || lower.includes("liebe") ? "Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören." : "Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen."));
+    const work = pickText(h, ["beruf", "work", "career"], pickText(root, ["beruf", "work"], lower.includes("geduld") ? "Geduld bringt heute mehr als Druck." : "Struktur hilft dir, deine Kraft sinnvoll einzusetzen."));
+    const ritual = pickText(h, ["ritual", "ritual_text"], pickText(root, ["ritual"], "Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention."));
+    const affirmation = pickText(h, ["affirmation", "mantra"], pickText(root, ["affirmation"], "Ich vertraue meinem Weg und bewege mich mit Klarheit."));
 
     setText("horoFocusTitle", "Dein Fokus");
     setText("horoFocusText", focus);
@@ -856,6 +856,7 @@
     const value = syn.score_value || score.value || score.score || 0;
     const label = score.label || summary.label || "Kosmische Verbindung";
     const text =
+      payload.text ||
       summary.text ||
       summary.short ||
       syn.summary ||
@@ -870,7 +871,10 @@
     if (Array.isArray(aspects) && aspects.length) {
       html += "\n\nWichtige Aspekte:\n";
       aspects.slice(0, 5).forEach((aspect) => {
-        html += "• " + safe(aspect.text || aspect.name || aspect.type_de || JSON.stringify(aspect)) + "\n";
+        const line = aspect.text || aspect.name ||
+          [aspect.p1_de || aspect.p1, aspect.type_de || aspect.type, aspect.p2_de || aspect.p2]
+            .filter(Boolean).join(" ");
+        html += "• " + safe(line || "Aspekt") + "\n";
       });
     }
 
@@ -917,17 +921,25 @@
 
     const lower = text.toLowerCase();
 
-    const harmony = lower.includes("harmonie") || lower.includes("trigon") || lower.includes("sextil")
-      ? "Zwischen euch gibt es Bereiche, die leicht und unterstützend fließen."
-      : "Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt.";
+    const harmony = pickText(root, ["harmonie", "harmony"],
+      lower.includes("harmonie") || lower.includes("trigon") || lower.includes("sextil")
+        ? "Zwischen euch gibt es Bereiche, die leicht und unterstützend fließen."
+        : "Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt.");
 
-    const challenge = lower.includes("spannung") || lower.includes("quadrat") || lower.includes("opposition")
-      ? "Spannungen zeigen Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel."
-      : "Unterschiede können euch reifen lassen, wenn ihr sie bewusst anschaut.";
+    const challenge = pickText(root, ["spannung", "challenge"],
+      lower.includes("spannung") || lower.includes("quadrat") || lower.includes("opposition")
+        ? "Spannungen zeigen Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel."
+        : "Unterschiede können euch reifen lassen, wenn ihr sie bewusst anschaut.");
 
-    const magnet = lower.includes("venus") || lower.includes("mars") || lower.includes("mond")
-      ? "Eure Anziehung wirkt besonders über Gefühl, Nähe und persönliche Resonanz."
-      : "Eure Verbindung kann durch ehrliche Aufmerksamkeit stärker werden.";
+    const magnet = pickText(root, ["anziehung", "magnet"],
+      lower.includes("venus") || lower.includes("mars") || lower.includes("mond")
+        ? "Eure Anziehung wirkt besonders über Gefühl, Nähe und persönliche Resonanz."
+        : "Eure Verbindung kann durch ehrliche Aufmerksamkeit stärker werden.");
+
+    const comm = pickText(root, ["kommunikation", "communication"],
+      lower.includes("merkur") || lower.includes("kommunikation") || lower.includes("gespräch")
+        ? "Eure Gespräche tragen viel: Worte öffnen zwischen euch Türen, die Gesten allein nicht erreichen."
+        : "Hört einander zu Ende zu — euer Verständnis wächst über echtes Zuhören.");
 
     setText("synHarmonyTitle", "Seelische Resonanz");
     setText("synHarmonyText", harmony);
@@ -935,6 +947,8 @@
     setText("synChallengeText", challenge);
     setText("synMagnetTitle", "Anziehung");
     setText("synMagnetText", magnet);
+    setText("synCommTitle", "Kommunikation");
+    setText("synCommText", comm);
   }
 
   async function saveSynastry() {
@@ -963,7 +977,8 @@
         synastry: syn,
         score: scoreObj,
         summary: data.data && data.data.summary,
-        aspects: data.data && data.data.aspects
+        aspects: data.data && data.data.aspects,
+        text: data.data && data.data.text
       });
       renderSynastryPremium(data);
       toast("Synastrie berechnet.");
