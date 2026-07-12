@@ -66,12 +66,14 @@ img,svg{max-width:100%}
     radial-gradient(1px 1px at 22% 84%, rgba(230,207,156,.4), transparent);
 }
 .cosmos::after{
-  content:""; position:absolute; left:50%; top:-6%; width:130vw; height:92vh;
-  transform:translateX(-50%); border-radius:50%; filter:blur(26px); opacity:.55;
+  content:""; position:absolute; left:50%; top:-12%; width:150vw; height:110vh;
+  transform:translateX(-50%); opacity:.6; will-change:transform;
   background:
-    radial-gradient(closest-side, rgba(168,107,255,.16), transparent 70%),
-    radial-gradient(closest-side at 32% 58%, rgba(201,168,106,.10), transparent 66%);
-  animation:soraya-drift 46s ease-in-out infinite alternate;
+    radial-gradient(46% 30% at 62% 26%, rgba(168,107,255,.14), transparent 72%),
+    radial-gradient(38% 26% at 30% 52%, rgba(201,168,106,.09), transparent 70%),
+    radial-gradient(52% 34% at 48% 76%, rgba(74,110,224,.10), transparent 74%),
+    conic-gradient(from 220deg at 50% 0%, transparent 42%, rgba(140,74,206,.07) 50%, transparent 58%);
+  animation:soraya-drift 52s ease-in-out infinite alternate;
 }
 @keyframes soraya-twinkle{0%{opacity:.5} 100%{opacity:.95}}
 @keyframes soraya-drift{
@@ -142,7 +144,7 @@ h4{font-family:var(--display); font-weight:600; color:var(--mist); margin:0; fon
 /* ============ CARDS ============ */
 .card{
   background:var(--panel); border:1px solid var(--line-violet); border-radius:var(--r-card);
-  padding:var(--s4); margin-bottom:var(--s3); backdrop-filter:blur(8px);
+  padding:var(--s4); margin-bottom:var(--s3);
   box-shadow:inset 0 1px 0 rgba(255,243,206,.05), 0 10px 32px rgba(3,2,10,.32);
 }
 .card.glow{position:relative; overflow:hidden; border-color:var(--line)}
@@ -587,3 +589,29 @@ html, body{overflow-x:hidden}
 
 /* Guidance-Karten (Fokus/Liebe …) an Inhalt anpassen, keine leeren Lücken */
 .c42-guidance-grid{align-items:start}
+
+/* ============================================================
+   Formular-Fix: keine grauen/hellen System-Felder mehr
+   ============================================================ */
+/* sagt dem System: diese App ist dunkel -> native Dropdown-Listen,
+   Datumsfelder & Scrollbars rendern dunkel statt grau/weiss */
+:root{color-scheme:dark}
+
+/* Chrome/Android Autofill übermalt Felder hell -> zurück in Soraya-Optik */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill{
+  -webkit-box-shadow:0 0 0 1000px #171128 inset;
+  -webkit-text-fill-color:#e6ddf4;
+  caret-color:#c9a86a;
+  transition:background-color 999999s ease-in-out 0s;
+}
+
+/* Optionen der nativen Auswahl-Listen (Person wählen ...) */
+select option{background-color:#171128; color:#e6ddf4}
+select:disabled, input:disabled, textarea:disabled{opacity:.55}
+
+/* Datums-/Zeit-Symbole in Feldern golden statt grau */
+input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(420%) hue-rotate(357deg)}
