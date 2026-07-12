@@ -21,9 +21,10 @@
   function isInteractiveTarget(el) {
     while (el && el.nodeType === 1 && el !== document.body) {
       var tag = el.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || tag === "BUTTON" || tag === "A") return true;
+      // Nur echte Eingabefelder blockieren — Buttons/Links NICHT,
+      // sonst ist fast die ganze Oberfläche wisch-tot (Karten/Kacheln).
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
       if (el.classList && (
-        el.classList.contains("chat-window") ||
         el.classList.contains("modal") ||
         el.classList.contains("c58-period-tabs")
       )) return true;
