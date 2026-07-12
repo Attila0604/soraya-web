@@ -160,6 +160,8 @@
       x0 = touch.clientX;
       y0 = touch.clientY;
       blocked = isInteractiveTarget(event.target);
+      // Rand-Wische ignorieren (kollidieren mit Browser zurück/vor)
+      if (touch.clientX < 28 || touch.clientX > window.innerWidth - 28) blocked = true;
     }, { passive: true });
 
     document.addEventListener("touchend", function (event) {
@@ -175,7 +177,7 @@
       var dy = touch.clientY - y0;
       x0 = null;
 
-      if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.65) return;
+      if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
       go(dx < 0 ? 1 : -1);
     }, { passive: true });
   }
