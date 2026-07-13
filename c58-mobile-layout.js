@@ -207,7 +207,9 @@
     protectBottomNav();
     smoothSectionTop();
     bindTapFeedback();
-    initSwipeNavigation();
+    // Wisch-Navigation entfernt — die Tab-Leiste ist die alleinige Navigation.
+    // (initSwipeNavigation bleibt ungenutzt im Code, falls je wieder gewünscht.)
+    // initSwipeNavigation();
 
     window.setTimeout(function () {
       buildPeriodTabs();
