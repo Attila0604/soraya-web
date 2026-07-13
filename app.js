@@ -748,14 +748,63 @@
     });
   }
 
+  // Nach Login: Geburtsdaten aus dem Server-Profil in localStorage spiegeln,
+  // damit das Birth-Chart auch auf einem frisch eingeloggten Gerät lädt.
+  function hydrateBirthFromPeople(people) {
+    try {
+      const existing = readJson(KEYS.birth, null);
+      if (existing && existing.day && existing.month && existing.year && existing.birthplace) return;
+
+      const selfId = getCurrentPersonId();
+      const self =
+        (Array.isArray(people) &&
+          (people.find((p) => p && (p.id === selfId || p.is_self)) || null)) || null;
+      if (!self || !self.birth_date) return;
+
+      const parts = String(self.birth_date).split("-");
+      if (parts.length < 3) return;
+      const year = Number(parts[0]);
+      const month = Number(parts[1]);
+      const day = Number(parts[2]);
+      if (!year || !month || !day) return;
+
+      let hour = null;
+      let minute = null;
+      if (self.birth_time && /^\d{1,2}:\d{2}/.test(self.birth_time)) {
+        const t = self.birth_time.split(":");
+        hour = Number(t[0]);
+        minute = Number(t[1]);
+      }
+
+      writeJson(KEYS.birth, {
+        name: self.name || localStorage.getItem(KEYS.name) || "Ich",
+        year, month, day, hour, minute,
+        birthplace: self.birthplace || ""
+      });
+      if (self.name) localStorage.setItem(KEYS.name, self.name);
+    } catch (e) { /* still: Chart zeigt dann den Profil-Hinweis */ }
+  }
+
   async function loadPeopleFromSupabase(showToast = true) {
     try {
       const data = await callSoraya("/mobile/people/list", null, "GET");
       const people = data.data && Array.isArray(data.data.people) ? data.data.people : [];
 
       people.forEach((person) => addPersonToCache(person));
+      const hadBirth = !!readJson(KEYS.birth, null);
+      hydrateBirthFromPeople(people);
+      const hasBirthNow = !!readJson(KEYS.birth, null);
       cacheSelfFromStorage();
       refreshSynastryPeople();
+
+      // Wenn gerade erst Geburtsdaten reingespiegelt wurden und die Analyse
+      // offen ist, Chart automatisch nachladen (sonst bleibt es beim Hinweis).
+      if (!hadBirth && hasBirthNow) {
+        const analysis = $("analysis");
+        if (analysis && analysis.classList.contains("active") && typeof loadRealChartData === "function") {
+          loadRealChartData(false);
+        }
+      }
 
       if (showToast) toast("Personen geladen.");
       return people;
