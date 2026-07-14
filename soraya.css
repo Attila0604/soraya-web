@@ -210,12 +210,13 @@ h4{font-family:var(--display); font-weight:600; color:var(--mist); margin:0; fon
 label{display:block; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
   color:var(--mist-dim); margin:var(--s3) 0 8px}
 input, select, textarea{
-  width:100%; font-family:var(--ui); font-size:15px; color:var(--mist);
-  background:rgba(10,7,20,.5); border:1px solid var(--line-soft); border-radius:var(--r-sm);
+  width:100%; font-family:var(--ui); font-size:16px; color:var(--mist);
+  background:#171128; border:1px solid var(--line-soft); border-radius:var(--r-sm);
   padding:13px 15px; outline:none; transition:border-color .2s;
+  -webkit-text-fill-color:var(--mist);
 }
-input::placeholder, textarea::placeholder{color:var(--mist-faint)}
-input:focus, select:focus, textarea:focus{border-color:var(--gold-dim)}
+input::placeholder, textarea::placeholder{color:var(--mist-faint); -webkit-text-fill-color:var(--mist-faint)}
+input:focus, select:focus, textarea:focus{border-color:var(--gold-dim); background:#171128; color:var(--mist)}
 select{appearance:none; -webkit-appearance:none;
   background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
   background-position:calc(100% - 18px) 20px, calc(100% - 12px) 20px; background-size:6px 6px,6px 6px; background-repeat:no-repeat}
@@ -606,3 +607,21 @@ select:disabled, input:disabled, textarea:disabled{opacity:.55}
 
 /* Datums-/Zeit-Symbole in Feldern golden statt grau */
 input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(420%) hue-rotate(357deg)}
+
+/* ============================================================
+   Ausklappbare Listen (Transite) + lesbarere Big-Three-Texte
+   ============================================================ */
+.transit-more{display:none}
+.transit-more.is-open{display:block}
+.collapse-toggle{
+  width:100%; margin-top:var(--s3); padding:11px; cursor:pointer;
+  background:rgba(201,168,106,.08); border:1px solid var(--line-soft); border-radius:var(--r-pill);
+  color:var(--gold-soft); font-family:var(--ui); font-size:12.5px; letter-spacing:.08em;
+  text-transform:uppercase; transition:background .2s;
+}
+.collapse-toggle:hover{background:rgba(201,168,106,.14)}
+
+/* Big-Three: Bedeutungstext größer & nicht abgeschnitten */
+.c4-big-three-grid p{font-size:11.5px; line-height:1.45; color:var(--mist-dim); margin-top:6px; overflow-wrap:break-word}
+.c4-big-three-grid strong{font-size:15px}
+.c4-big-three-grid .card{padding:var(--s3) 10px}
