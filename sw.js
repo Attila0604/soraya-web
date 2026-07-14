@@ -1,0 +1,627 @@
+/* ============================================================
+   soraya.css  ·  Die EINE Stylesheet
+   Mystisch · elegant · zurückhaltend · symbolgetrieben
+   Ersetzt: style.css, c58, c63, c64, c65, c67, c68 (nur CSS)
+   Fonts (Cinzel, Cormorant Garamond, Inter) lädt index.html.
+   ============================================================ */
+
+:root{
+  /* ---- Farben ---- */
+  --void:#0b0713; --void-2:#140b22;
+  --gold:#c9a86a; --gold-soft:#e6cf9c; --gold-deep:#a9863f;
+  --gold-dim:rgba(201,168,106,.42);
+  --mist:#c3b7da; --mist-dim:#8a7ea6; --mist-faint:#5c5175;
+  --panel:rgba(26,17,44,.44); --panel-2:rgba(32,21,54,.62);
+  --line:rgba(201,168,106,.20); --line-soft:rgba(195,183,218,.12);
+  --line-violet:rgba(168,107,255,.18);
+  --danger:#e0857a;
+  /* ---- EINE Abstands-Skala ---- */
+  --s1:6px; --s2:10px; --s3:16px; --s4:24px; --s5:38px; --s6:56px;
+  /* ---- Radien ---- */
+  --r-card:20px; --r-sm:14px; --r-pill:999px;
+  /* ---- Schrift ---- */
+  --display:"Cormorant Garamond",Georgia,serif;
+  --wordmark:"Cinzel",serif;
+  --ui:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+/* dezentes Eindrücken beim Tippen statt hässlichem Flash */
+.c58-tap{transform:scale(.92)}
+.tabbar button{transition:color .25s, transform .12s ease}
+button, a, .tile, .card{-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; font-family:var(--ui); color:var(--mist);
+  background:var(--void); line-height:1.6; -webkit-font-smoothing:antialiased;
+  letter-spacing:.01em;
+}
+::selection{background:rgba(201,168,106,.28); color:#fff}
+a{color:var(--gold-soft); text-decoration:none}
+img,svg{max-width:100%}
+
+/* ---- Sternenfeld-Hintergrund (ersetzt die 2-MB-PNGs) ---- */
+.cosmos{
+  position:fixed; inset:0; z-index:-5; pointer-events:none; overflow:hidden;
+  background:
+    radial-gradient(68% 45% at 80% 12%, rgba(140,74,206,.30), transparent 60%),
+    radial-gradient(62% 44% at 14% 26%, rgba(58,50,168,.28), transparent 60%),
+    radial-gradient(95% 55% at 50% -10%, rgba(74,44,120,.55), transparent 62%),
+    radial-gradient(80% 50% at 50% 114%, rgba(184,142,72,.10), transparent 60%),
+    linear-gradient(180deg, #0e0a22 0%, #0a0618 52%, #060410 100%);
+}
+.cosmos::before{
+  content:""; position:absolute; inset:-10%;
+  animation:soraya-twinkle 7s ease-in-out infinite alternate;
+  background-image:
+    radial-gradient(1.3px 1.3px at 12% 10%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1.2px 1.2px at 68% 6%, rgba(230,207,156,.7), transparent),
+    radial-gradient(1px 1px at 82% 18%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1.3px 1.3px at 33% 24%, rgba(210,190,255,.6), transparent),
+    radial-gradient(1px 1px at 52% 14%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.1px 1.1px at 88% 34%, rgba(255,255,255,.45), transparent),
+    radial-gradient(1px 1px at 8% 40%, rgba(255,255,255,.4), transparent),
+    radial-gradient(1px 1px at 44% 62%, rgba(195,183,218,.4), transparent),
+    radial-gradient(1px 1px at 74% 78%, rgba(255,255,255,.35), transparent),
+    radial-gradient(1px 1px at 22% 84%, rgba(230,207,156,.4), transparent);
+}
+.cosmos::after{
+  content:""; position:absolute; left:50%; top:-12%; width:150vw; height:110vh;
+  transform:translateX(-50%); opacity:.6; will-change:transform;
+  background:
+    radial-gradient(46% 30% at 62% 26%, rgba(168,107,255,.14), transparent 72%),
+    radial-gradient(38% 26% at 30% 52%, rgba(201,168,106,.09), transparent 70%),
+    radial-gradient(52% 34% at 48% 76%, rgba(74,110,224,.10), transparent 74%),
+    conic-gradient(from 220deg at 50% 0%, transparent 42%, rgba(140,74,206,.07) 50%, transparent 58%);
+  animation:soraya-drift 52s ease-in-out infinite alternate;
+}
+@keyframes soraya-twinkle{0%{opacity:.5} 100%{opacity:.95}}
+@keyframes soraya-drift{
+  0%{transform:translateX(-52%) translateY(0) scale(1)}
+  100%{transform:translateX(-47%) translateY(16px) scale(1.07)}
+}
+
+/* ---- App-Rahmen ---- */
+.app{max-width:520px; margin:0 auto; padding:0 var(--s4)}
+#mainContent{padding-bottom:130px}
+
+/* ---- Skip-Link ---- */
+.c412-skip-link{position:absolute; left:-999px}
+.c412-skip-link:focus{left:var(--s4); top:var(--s3); z-index:50; background:var(--panel-2);
+  color:var(--gold-soft); padding:8px 14px; border-radius:var(--r-sm); border:1px solid var(--line)}
+
+/* ============ HEADER ============ */
+.topbar{
+  display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap;
+  padding:var(--s5) 0 var(--s4);
+}
+.brand{flex:1; text-align:center; cursor:pointer; line-height:1}
+.brand .sigil{font-size:15px; color:var(--gold); opacity:.8; margin-bottom:6px}
+.brand h1{
+  font-family:var(--wordmark); font-weight:600; font-size:21px; margin:0;
+  letter-spacing:.36em; color:var(--gold-soft); text-indent:.36em;
+}
+.brand .sub{
+  font-size:9px; letter-spacing:.36em; text-transform:uppercase;
+  color:var(--mist-faint); margin-top:7px;
+}
+.c410-app-status{
+  order:9; flex-basis:100%; text-align:center; font-size:9px;
+  letter-spacing:.28em; text-transform:uppercase; color:var(--mist-faint); margin-top:var(--s3);
+}
+
+/* ---- Runder Icon-Button ---- */
+.round{
+  width:44px; height:44px; border-radius:50%; flex:none; cursor:pointer;
+  display:grid; place-items:center; font-size:19px; line-height:1;
+  background:var(--panel); border:1px solid var(--line); color:var(--gold-soft);
+  transition:border-color .25s, color .25s, background .25s;
+}
+.round:hover{border-color:var(--gold-dim); color:var(--gold-soft); background:var(--panel-2)}
+.round svg{width:22px; height:22px}
+
+/* ============ SECTIONS ============ */
+.section{display:none}
+.section.active{display:block}
+@keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+
+/* ============ TYPOGRAFIE / PAGE TITLE ============ */
+.eyebrow{
+  display:inline-block; font-family:var(--wordmark); font-size:10.5px; font-weight:500;
+  letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:var(--s2);
+}
+.page-title{margin:var(--s3) 0 var(--s5)}
+.page-title h2{
+  font-family:var(--display); font-weight:600; font-size:38px; line-height:1.08;
+  margin:0 0 var(--s3); color:var(--mist);
+}
+.page-title h2 .gold, .gold{color:var(--gold-soft)}
+.page-title p{color:var(--mist-dim); font-size:14px; max-width:34ch; margin:0}
+
+h3{font-family:var(--display); font-weight:600; color:var(--mist); margin:0}
+h4{font-family:var(--display); font-weight:600; color:var(--mist); margin:0; font-size:19px}
+
+/* ============ CARDS ============ */
+.card{
+  background:var(--panel); border:1px solid var(--line-violet); border-radius:var(--r-card);
+  padding:var(--s4); margin-bottom:var(--s3);
+  box-shadow:inset 0 1px 0 rgba(255,243,206,.05), 0 10px 32px rgba(3,2,10,.32);
+}
+.card.glow{position:relative; overflow:hidden; border-color:var(--line)}
+.card.glow::before{
+  content:""; position:absolute; right:-30px; top:-30px; width:150px; height:150px;
+  background:radial-gradient(circle, rgba(201,168,106,.12), transparent 70%); pointer-events:none;
+}
+.card.premium{border-color:var(--line); background:linear-gradient(160deg, var(--panel-2), var(--panel))}
+.card-title{display:flex; align-items:center; justify-content:space-between; gap:var(--s3); margin-bottom:var(--s3)}
+.card-title h4{font-size:18px}
+.card p{color:var(--mist-dim); font-size:13.5px; margin:6px 0 0}
+.card h3{font-size:23px; margin:2px 0}
+
+/* ---- Badge / Eyebrow im Card ---- */
+.badge{
+  font-family:var(--ui); font-size:9.5px; font-weight:500; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--gold-soft); padding:5px 11px; border-radius:var(--r-pill);
+  background:rgba(201,168,106,.10); border:1px solid var(--line); white-space:nowrap;
+}
+
+/* ---- Glyphen in Karten (die dicken <b> Symbole) ---- */
+.card b, .tile b{color:var(--gold-soft); font-weight:400}
+.zodiac-art, .c46-focus-orb, .c49-empty-orb, .c42-horo-orb, .horo-moon, .c44-link-symbol, .avatar{
+  color:var(--gold-soft); font-size:30px; line-height:1;
+}
+.c46-focus-orb, .c49-empty-orb{
+  width:56px; height:56px; border-radius:50%; display:grid; place-items:center; flex:none;
+  background:var(--panel-2); border:1px solid var(--line); font-size:24px;
+}
+
+/* ============ BUTTONS ============ */
+.btn{
+  font-family:var(--ui); font-weight:500; font-size:13.5px; letter-spacing:.02em;
+  padding:11px 18px; border-radius:var(--r-pill); cursor:pointer;
+  background:transparent; color:var(--mist); border:1px solid var(--line);
+  transition:border-color .2s, color .2s, background .2s;
+}
+.btn:hover{border-color:var(--gold-dim); color:var(--gold-soft)}
+.btn.gold{
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep));
+  color:#2a1c05; border:none; font-weight:600;
+}
+.btn.gold:hover{filter:brightness(1.06); color:#2a1c05}
+.btn.block{display:block; width:100%; padding:15px; margin-top:var(--s3)}
+
+/* ============ TILES / SHORTCUTS ============ */
+.shortcut-grid, .c46-shortcut-grid, .c43-prompt-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:var(--s3);
+}
+.tile, .c43-prompt{
+  display:flex; flex-direction:column; align-items:flex-start; gap:var(--s2);
+  padding:var(--s4) var(--s3); border-radius:var(--r-card); cursor:pointer; text-align:left;
+  background:var(--panel); border:1px solid var(--line-violet); color:var(--mist);
+  transition:border-color .25s, transform .25s;
+}
+.tile:hover, .c43-prompt:hover{border-color:var(--line); transform:translateY(-3px)}
+.c43-prompt{margin-bottom:0}
+.tile b, .c43-prompt b{font-size:26px; color:var(--gold-soft)}
+.tile svg{width:28px; height:28px; color:var(--gold-soft)}
+.tile span, .c43-prompt span{font-family:var(--display); font-size:17px; color:var(--mist)}
+
+/* ============ FORMS ============ */
+label{display:block; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--mist-dim); margin:var(--s3) 0 8px}
+input, select, textarea{
+  width:100%; font-family:var(--ui); font-size:16px; color:var(--mist);
+  background:#171128; border:1px solid var(--line-soft); border-radius:var(--r-sm);
+  padding:13px 15px; outline:none; transition:border-color .2s;
+  -webkit-text-fill-color:var(--mist);
+}
+input::placeholder, textarea::placeholder{color:var(--mist-faint); -webkit-text-fill-color:var(--mist-faint)}
+input:focus, select:focus, textarea:focus{border-color:var(--gold-dim); background:#171128; color:var(--mist)}
+select{appearance:none; -webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 20px, calc(100% - 12px) 20px; background-size:6px 6px,6px 6px; background-repeat:no-repeat}
+textarea{resize:vertical; min-height:64px; line-height:1.5}
+.form-row, .form-row-3, .partner-form-grid{display:grid; gap:var(--s3)}
+.form-row, .partner-form-grid.two{grid-template-columns:1fr 1fr}
+.form-row-3, .partner-form-grid{grid-template-columns:1fr 1fr 1fr}
+.form-row label, .form-row-3 label, .partner-form-grid label{margin-top:0}
+.segmented, .c4-period-picker{display:grid; grid-template-columns:1fr auto; gap:var(--s2); align-items:center}
+
+/* ---- Status-Zeile ---- */
+.status{
+  font-size:12.5px; color:var(--mist-dim); margin-top:var(--s3);
+  padding:11px 14px; border-radius:var(--r-sm);
+  background:rgba(10,7,20,.4); border:1px solid var(--line-soft);
+}
+
+/* ============ GRIDS (Dashboard, Big-Three, Guidance, Synastrie) ============ */
+.c4-dashboard-grid, .c46-dashboard-grid, .c42-guidance-grid, .c44-synastry-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:var(--s3); margin-bottom:var(--s3);
+}
+.c4-big-three-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-bottom:var(--s3)}
+.c4-big-three-grid .card{padding:var(--s3) var(--s2); text-align:center; margin:0}
+.c4-big-three-grid b{display:block; font-size:24px; margin:var(--s2) 0 4px}
+.c4-big-three-grid strong{font-family:var(--display); color:var(--gold-soft); font-size:16px; display:block}
+.c4-big-three-grid p{font-size:10.5px}
+.c42-guidance-card, .c44-syn-card{text-align:center}
+.c42-guidance-card b, .c44-syn-card b{display:block; font-size:24px; margin:var(--s2) 0}
+
+/* ---- Zeilen-Listen (Transite, Planeten) ---- */
+.transit-list .row, .c41-planet-list > *{
+  display:flex; align-items:center; gap:var(--s3); padding:13px 0; border-top:1px solid var(--line-soft);
+}
+.transit-list .row:first-child{border-top:none}
+.transit-list .left{display:flex; align-items:center; gap:var(--s3)}
+.orb-sm{color:var(--gold-soft); font-size:18px}
+.c41-empty{color:var(--mist-faint); font-size:13px; padding:var(--s3) 0}
+
+/* ============ ENERGIE-RING / KOMPATIBILITÄT (conic) ============ */
+.energy-ring, .compat{
+  width:112px; height:112px; margin:var(--s3) auto; border-radius:50%;
+  display:grid; place-items:center; position:relative;
+  background:conic-gradient(var(--gold) var(--energy,0%), rgba(195,183,218,.10) 0);
+}
+.compat{background:conic-gradient(var(--gold) var(--score,0%), rgba(195,183,218,.10) 0)}
+.energy-ring::before, .compat::before{
+  content:""; position:absolute; inset:9px; border-radius:50%; background:var(--void-2);
+  border:1px solid var(--line-soft);
+}
+.energy-ring > *, .compat > *{position:relative; text-align:center}
+.energy-ring strong, .compat strong{font-family:var(--display); font-size:26px; color:var(--gold-soft)}
+.energy-ring small{font-size:9.5px; color:var(--mist-dim); letter-spacing:.08em}
+.c4-center-title{text-align:center; margin-top:var(--s3); font-size:16px}
+.c4-center-muted{text-align:center; color:var(--mist-dim); font-size:12px}
+
+/* ---- Mondphase ---- */
+.moon-visual{
+  width:96px; height:96px; margin:var(--s3) auto; border-radius:50%;
+  background:radial-gradient(circle at 34% 30%, #fffbe8 0%, #ffe9b0 32%, #d9a84b 58%, #4a2c67 78%, #17102b 100%);
+  box-shadow:
+    inset calc(var(--shadow-scale, .5) * 26px) 0 24px rgba(4,3,12,.66),
+    0 0 26px rgba(255,226,155,.12);
+}
+
+/* ============ PROFIL ============ */
+.profile-hero{display:flex; align-items:center; gap:var(--s3); margin-bottom:var(--s4)}
+.profile-avatar{
+  width:60px; height:60px; border-radius:50%; flex:none; display:grid; place-items:center;
+  font-family:var(--display); font-size:24px; color:#2a1c05;
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold-deep));
+}
+.stats, .c45-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); text-align:center}
+.stat b{font-family:var(--display); font-size:26px; color:var(--gold-soft); display:block}
+.stat span{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--mist-dim)}
+.c45-birth-preview{display:grid; gap:var(--s2); margin:var(--s3) 0; padding:var(--s3);
+  border-radius:var(--r-sm); background:rgba(10,7,20,.3); border:1px solid var(--line-soft)}
+.c45-birth-preview > div{display:flex; align-items:center; gap:var(--s3); font-size:12.5px; color:var(--mist-dim)}
+.c45-birth-preview b{color:var(--gold-soft); font-size:16px}
+
+/* ============ CHAT ============ */
+.chat-head{display:flex; align-items:center; gap:var(--s3); margin-bottom:var(--s3)}
+.chat-head .avatar{width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--line); font-size:22px; flex:none}
+/* Chat: der Verlauf füllt den verfügbaren Raum, Composer bleibt unten */
+#chat.section.active{display:flex; flex-direction:column; min-height:calc(100dvh - 150px)}
+#chat .page-title{margin:var(--s3) 0 var(--s4)}
+#chat .page-title h2{font-size:28px}
+#chat .c43-chat-card{flex:1; display:flex; flex-direction:column}
+.chat-window{
+  display:flex; flex-direction:column; gap:var(--s4); padding:var(--s3) 0;
+  flex:1 1 auto; min-height:300px; max-height:60vh; overflow-y:auto;
+}
+.bubble{max-width:84%; font-size:14px; line-height:1.55; padding:13px 16px; border-radius:18px}
+.bubble.assistant{
+  align-self:flex-start; font-family:var(--display); font-style:italic; font-size:17px;
+  color:var(--mist); background:transparent; border-left:1px solid var(--line); border-radius:0; padding-left:var(--s3);
+}
+.bubble.user{align-self:flex-end; background:var(--panel-2); border:1px solid var(--line-soft);
+  border-radius:18px 18px 4px 18px; color:var(--mist)}
+.composer, .c43-composer{display:flex; align-items:flex-end; gap:var(--s2);
+  background:var(--panel); border:1px solid var(--line); border-radius:24px; padding:8px 8px 8px 16px; margin-top:var(--s3)}
+.composer textarea{border:none; background:none; min-height:24px; padding:6px 0; flex:1; resize:none}
+.composer textarea:focus{border:none}
+.composer .round{width:40px; height:40px; font-size:16px; flex:none;
+  background:linear-gradient(180deg,var(--gold-soft),var(--gold)); color:#2a1c05; border:none}
+.c43-chat-footer{display:flex; gap:var(--s2); margin-top:var(--s3)}
+
+/* ============ CHART WHEEL ============ */
+.c4-chart-card svg#chartWheel{display:block; width:100%; max-width:340px; margin:0 auto}
+
+/* ============ TABBAR (schwebende Pille) ============ */
+.tabbar{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:calc(18px + env(safe-area-inset-bottom));
+  z-index:40; width:min(460px, calc(100% - 32px));
+  display:flex; justify-content:space-between; padding:10px 12px;
+  background:rgba(13,9,26,.82); border:1px solid var(--line); border-radius:var(--r-pill);
+  backdrop-filter:blur(16px); box-shadow:0 18px 44px rgba(0,0,0,.5);
+}
+.tabbar button{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;
+  background:none; border:none; cursor:pointer; padding:6px 4px; position:relative;
+  color:var(--mist-faint); transition:color .25s;
+}
+.tabbar button b{font-size:19px; font-weight:400; line-height:1}
+.tabbar button svg{width:23px; height:23px}
+.tabbar button span{font-size:9px; letter-spacing:.06em}
+.tabbar button:hover{color:var(--mist-dim)}
+.tabbar button.active{color:var(--gold-soft)}
+.tabbar button.active::after{content:""; width:4px; height:4px; border-radius:50%;
+  background:var(--gold-soft); position:absolute; bottom:-4px; box-shadow:0 0 7px var(--gold)}
+
+/* ============ MODAL ============ */
+.developer-only{display:none}
+.soraya-dev-visible .developer-only{display:block}
+.modal-backdrop{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center;
+  padding:var(--s4); background:rgba(3,2,10,.72); backdrop-filter:blur(6px)}
+.modal-backdrop.open, .soraya-dev-visible .modal-backdrop.developer-only.open{display:flex}
+.soraya-dev-visible .modal-backdrop.developer-only:not(.open){display:none}
+.modal{max-width:440px; width:100%; background:linear-gradient(180deg,var(--void-2),var(--void));
+  border:1px solid var(--line); border-radius:var(--r-card); padding:var(--s4)}
+.c4-action-row, .c44-button-row{display:flex; gap:var(--s2); margin-top:var(--s3)}
+.c4-action-row .btn, .c44-button-row .btn{flex:1}
+.c4-muted{color:var(--mist-dim); font-size:12.5px}
+
+/* ============ LOADING / ERROR / TOAST ============ */
+.c411-loading-veil{position:fixed; inset:0; z-index:80; display:none; place-items:center;
+  background:rgba(7,5,16,.85); backdrop-filter:blur(4px)}
+.c411-loading-veil.open{display:grid}
+.c411-loader{text-align:center; color:var(--gold-soft); font-family:var(--display)}
+.c411-loader span{font-size:34px; display:block; animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4} 50%{opacity:1}}
+.c413-error-panel{position:fixed; left:50%; bottom:100px; transform:translateX(-50%); z-index:70;
+  display:none; align-items:center; gap:var(--s3); width:min(440px,calc(100% - 32px));
+  padding:13px 16px; border-radius:var(--r-sm);
+  background:var(--void-2); border:1px solid rgba(224,133,122,.4); color:var(--mist)}
+.c413-error-panel.open{display:flex}
+.c413-error-panel b{color:var(--danger); font-size:18px}
+.c413-error-panel span{flex:1; font-size:13px}
+.toast{position:fixed; left:50%; bottom:110px; transform:translateX(-50%) translateY(20px); z-index:75;
+  opacity:0; pointer-events:none; padding:11px 18px; border-radius:var(--r-pill);
+  background:var(--void-2); border:1px solid var(--line); color:var(--gold-soft); font-size:13px; transition:.3s}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+/* ---- Hero-Ribbon ---- */
+.c54-hero-ribbon{display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s4)}
+.c54-hero-ribbon span{font-size:11px; letter-spacing:.06em; color:var(--mist-dim);
+  padding:6px 12px; border-radius:var(--r-pill); background:var(--panel); border:1px solid var(--line-soft)}
+
+/* ---- Steps (Onboarding) ---- */
+.c49-steps > div{display:flex; align-items:center; gap:var(--s3); padding:12px 0; border-top:1px solid var(--line-soft)}
+.c49-steps > div:first-child{border-top:none}
+.c49-steps b{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; flex:none;
+  font-family:var(--display); color:var(--gold-soft); background:var(--panel-2); border:1px solid var(--line); font-size:13px}
+.c49-steps span{flex:1; font-size:13.5px}
+
+/* ---- Props (Element/Qualität/Herrscher) ---- */
+.props{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-top:var(--s3)}
+.props > div{text-align:center; padding:var(--s2); border-radius:var(--r-sm); background:rgba(10,7,20,.3)}
+.props b{display:block; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--mist-faint)}
+.props span{font-family:var(--display); color:var(--gold-soft); font-size:15px}
+
+/* ---- Reading-Text ---- */
+.reading{font-family:var(--display); font-size:16px; line-height:1.7; color:var(--mist); white-space:pre-wrap}
+
+/* ---- Delete-Button dezenter ---- */
+#deleteAccountBtn{color:var(--mist-faint) !important; letter-spacing:.04em}
+#deleteAccountBtn:hover{color:var(--danger) !important}
+
+/* ---- Footer ---- */
+main footer a{color:var(--gold-soft) !important}
+
+/* ============ Accessibility ============ */
+@media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
+:focus-visible{outline:2px solid var(--gold-dim); outline-offset:2px}
+
+/* ============ Responsive ============ */
+@media (max-width:380px){
+  .page-title h2{font-size:32px}
+  .shortcut-grid, .c46-shortcut-grid, .c43-prompt-grid{gap:var(--s2)}
+}
+
+/* ============================================================
+   Fix: Zeitraum-Picker (Tag/Woche/Monat)
+   c58-mobile-layout.js baut .c58-period-tabs und versteckt
+   den Select via .soraya-native-hidden — beide brauchen Regeln.
+   ============================================================ */
+.soraya-native-hidden{
+  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+.c4-period-picker{display:flex; flex-direction:column; gap:var(--s3)}
+.c58-period-tabs{
+  display:flex; gap:4px; padding:4px; border-radius:var(--r-pill);
+  background:rgba(10,7,20,.5); border:1px solid var(--line-soft);
+}
+.c58-period-tab{
+  flex:1; padding:9px 10px; border:none; background:transparent; cursor:pointer;
+  font-family:var(--ui); font-size:12.5px; letter-spacing:.02em;
+  color:var(--mist-dim); border-radius:var(--r-pill); transition:color .2s, background .2s;
+}
+.c58-period-tab:hover{color:var(--mist)}
+.c58-period-tab.active{
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+  color:#2a1c05; font-weight:600;
+}
+
+/* c67.js Backend-Soft-Fail-Hinweis im Chart-Bereich */
+.c67-soft-status{
+  display:block; margin-top:var(--s3); padding:11px 14px; border-radius:var(--r-sm);
+  background:rgba(10,7,20,.4); border:1px solid var(--line-soft);
+  color:var(--mist-dim); font-size:12.5px; line-height:1.55; white-space:pre-line;
+}
+
+/* ============================================================
+   Portierte Zustands-Regeln (aus den alten Layern)
+   ============================================================ */
+/* Onboarding-Hinweis im Analyse-Bereich ausblenden, wenn Profil existiert */
+body.soraya-has-profile #analysisEmptyGuide{display:none}
+/* Backend nicht erreichbar: Transit-Zeilen dezent gedämpft */
+body.soraya-backend-soft-fail #homeTransits .row h4,
+body.soraya-backend-soft-fail #homeTransits .row p{color:var(--mist-faint)}
+
+/* ============================================================
+   Mobile-Fixes: Überlauf, Synastrie-Visual, Login-Seite
+   ============================================================ */
+
+/* --- Überlauf verhindern (Home-Dashboard war rechts abgeschnitten) --- */
+html, body{overflow-x:hidden}
+.card{min-width:0}
+.c4-dashboard-grid .card, .c46-dashboard-grid .card{padding:var(--s3)}
+.c4-dashboard-grid, .c46-dashboard-grid, .c42-guidance-grid, .c44-synastry-grid,
+.shortcut-grid, .c46-shortcut-grid, .c43-prompt-grid{min-width:0}
+.c4-center-title, .c4-center-muted{overflow-wrap:break-word}
+
+/* --- Synastrie: Verbindungs-Visual (zwei Personen + Herz) --- */
+.c44-connection-visual{
+  display:flex; align-items:center; justify-content:center; gap:var(--s4);
+  flex-wrap:wrap; margin-bottom:var(--s3);
+}
+.c44-person-orb{display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center}
+.c44-person-orb span{
+  width:54px; height:54px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--line);
+  font-family:var(--display); font-size:19px; color:var(--gold-soft);
+}
+.c44-person-orb small{font-size:10px; color:var(--mist-dim); max-width:84px; line-height:1.3}
+.c44-link-symbol{color:var(--gold-soft); font-size:20px}
+
+/* ============================================================
+   LOGIN-SEITE  (login.html nutzt jetzt soraya.css)
+   ============================================================ */
+.login-body{overflow-x:hidden}
+.login-app{
+  min-height:100dvh; display:flex; flex-direction:column; justify-content:center;
+  max-width:440px; margin:0 auto; padding:var(--s4);
+}
+.login-shell{width:100%; margin:0}
+.login-logo{text-align:center; margin-bottom:var(--s5)}
+.login-logo .sigil{font-size:26px; color:var(--gold); opacity:.85; display:block; margin-bottom:var(--s2)}
+.login-logo h1{
+  font-family:var(--wordmark); font-weight:600; font-size:26px;
+  letter-spacing:.34em; text-indent:.34em; color:var(--gold-soft); margin:0;
+}
+.login-logo p{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--mist-faint); margin-top:var(--s2)}
+.login-tabs{
+  display:flex; gap:4px; padding:4px; margin-bottom:var(--s4);
+  background:rgba(10,7,20,.5); border:1px solid var(--line-soft); border-radius:var(--r-pill);
+}
+.login-tabs button{
+  flex:1; padding:11px; border:none; background:transparent; cursor:pointer;
+  font-family:var(--ui); font-size:13px; color:var(--mist-dim); border-radius:var(--r-pill); transition:.2s;
+}
+.login-tabs button:hover{color:var(--mist)}
+.login-tabs button.active{background:linear-gradient(180deg,var(--gold-soft),var(--gold)); color:#2a1c05; font-weight:600}
+.password-wrap{position:relative}
+.password-wrap input{padding-right:48px}
+.password-toggle{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  width:34px; height:34px; border:none; background:transparent; cursor:pointer;
+  font-size:15px; color:var(--mist-dim); display:grid; place-items:center;
+}
+.login-mini-actions{display:flex; gap:var(--s2); margin-top:var(--s3)}
+.login-mini-actions .btn{flex:1; text-align:center}
+.login-config{margin-top:var(--s4); padding-top:var(--s3); border-top:1px solid var(--line-soft)}
+.login-config summary{cursor:pointer; color:var(--mist-dim); font-size:12px; letter-spacing:.1em; text-transform:uppercase}
+.login-config p{font-size:12px; color:var(--mist-faint)}
+.login-config code{color:var(--gold-soft); background:rgba(10,7,20,.5); padding:1px 5px; border-radius:5px; font-size:12px}
+
+/* ============================================================
+   Lesbarkeit: Horoskop-Text & Analyse-Reading
+   (waren als winzige, gedämpfte .card p gerendert)
+   ============================================================ */
+.horo-layout, .c42-horo-layout{display:block}
+.horo-moon, .c42-horo-orb{
+  width:60px; height:60px; border-radius:50%; margin:0 0 var(--s3); font-size:0;
+  background:radial-gradient(circle at 35% 30%, #fffbe8, #d9a84b 55%, #2a2044 78%);
+  box-shadow:0 0 20px rgba(255,226,155,.12);
+}
+#horoMood{font-size:22px; margin:var(--s2) 0}
+#horoBody{
+  font-family:var(--display); font-size:16.5px; line-height:1.8; color:var(--mist);
+  white-space:pre-wrap; margin-top:var(--s2);
+}
+#horoTip{display:inline-block; margin-top:var(--s3)}
+
+.reading{font-family:var(--display); font-size:16px; line-height:1.8; color:var(--mist)}
+.reading p, .reading li{font-size:16px; line-height:1.8; color:var(--mist); margin:0 0 14px}
+.reading h3, .reading h4{color:var(--gold-soft); margin:var(--s4) 0 6px}
+.reading strong{color:var(--gold-soft)}
+.reading em{color:var(--mist)}
+
+/* ============================================================
+   Analyse: Aspekte & Balance (war zusammengequetscht)
+   ============================================================ */
+/* drei Zähler: Harmonisch / Spannung / Neutral */
+.c41-aspect-cards{display:flex; gap:var(--s2); margin-bottom:var(--s4)}
+.c41-aspect-cards > div{
+  flex:1; text-align:center; padding:var(--s3) var(--s2);
+  background:var(--panel-2); border:1px solid var(--line-soft); border-radius:var(--r-sm);
+}
+.c41-aspect-cards b{display:block; font-family:var(--display); font-size:26px; color:var(--gold-soft); line-height:1}
+.c41-aspect-cards span{
+  display:block; margin-top:6px; font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--mist-dim);
+}
+/* Elemente-Balance: Label · Balken · Zahl */
+.c41-balance{display:flex; flex-direction:column; gap:11px}
+.c41-balance-row{display:flex; align-items:center; gap:var(--s3)}
+.c41-balance-row > span{flex:0 0 58px; font-size:13.5px; color:var(--mist)}
+.c41-balance-row > i{flex:1; height:7px; border-radius:99px; background:rgba(255,255,255,.06); overflow:hidden; display:block}
+.c41-balance-row > i > em{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--gold-soft),var(--gold))}
+.c41-balance-row > b{flex:0 0 auto; min-width:20px; text-align:right; font-family:var(--display); color:var(--gold-soft); font-size:15px}
+
+/* ============================================================
+   Horoskop: Tipp-Badge lief rechts aus dem Rand
+   ============================================================ */
+#horoTip{
+  display:block; white-space:normal; text-transform:none; text-align:left;
+  line-height:1.55; font-size:12.5px; letter-spacing:.02em;
+  padding:11px 15px; border-radius:14px; margin-top:var(--s3);
+}
+
+/* Guidance-Karten (Fokus/Liebe …) an Inhalt anpassen, keine leeren Lücken */
+.c42-guidance-grid{align-items:start}
+
+/* ============================================================
+   Formular-Fix: keine grauen/hellen System-Felder mehr
+   ============================================================ */
+/* sagt dem System: diese App ist dunkel -> native Dropdown-Listen,
+   Datumsfelder & Scrollbars rendern dunkel statt grau/weiss */
+:root{color-scheme:dark}
+
+/* Chrome/Android Autofill übermalt Felder hell -> zurück in Soraya-Optik */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill{
+  -webkit-box-shadow:0 0 0 1000px #171128 inset;
+  -webkit-text-fill-color:#e6ddf4;
+  caret-color:#c9a86a;
+  transition:background-color 999999s ease-in-out 0s;
+}
+
+/* Optionen der nativen Auswahl-Listen (Person wählen ...) */
+select option{background-color:#171128; color:#e6ddf4}
+select:disabled, input:disabled, textarea:disabled{opacity:.55}
+
+/* Datums-/Zeit-Symbole in Feldern golden statt grau */
+input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(420%) hue-rotate(357deg)}
+
+/* ============================================================
+   Ausklappbare Listen (Transite) + lesbarere Big-Three-Texte
+   ============================================================ */
+.transit-more{display:none}
+.transit-more.is-open{display:block}
+.collapse-toggle{
+  width:100%; margin-top:var(--s3); padding:11px; cursor:pointer;
+  background:rgba(201,168,106,.08); border:1px solid var(--line-soft); border-radius:var(--r-pill);
+  color:var(--gold-soft); font-family:var(--ui); font-size:12.5px; letter-spacing:.08em;
+  text-transform:uppercase; transition:background .2s;
+}
+.collapse-toggle:hover{background:rgba(201,168,106,.14)}
+
+/* Big-Three: Bedeutungstext größer & nicht abgeschnitten */
+.c4-big-three-grid p{font-size:11.5px; line-height:1.45; color:var(--mist-dim); margin-top:6px; overflow-wrap:break-word}
+.c4-big-three-grid strong{font-size:15px}
+.c4-big-three-grid .card{padding:var(--s3) 10px}
