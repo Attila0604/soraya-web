@@ -327,7 +327,7 @@
       const ok = saveConfig() || loadConfig(true);
       if (!ok) return false;
       await getSessionState();
-      status("connectionHealthStatus", "✅ Verbindung ist aktiv.", "ok");
+      status("connectionHealthStatus", "◈ Verbindung ist aktiv.", "ok");
       return true;
     } catch (error) {
       status("connectionHealthStatus", friendlyError(error, "Verbindung konnte nicht geprüft werden."), "bad");
@@ -514,7 +514,7 @@
       renderOnboardingState();
       renderAppStatus();
       loadRealChartData(true);
-      status("personResult", "✅ Profil gespeichert.\nName: " + (row.name || person.name), "ok");
+      status("personResult", "◈ Profil gespeichert.\nName: " + (row.name || person.name), "ok");
       toast("Profil gespeichert.");
     } catch (error) {
       const msg = friendlyError(error, "Profil konnte nicht gespeichert werden.");
@@ -895,7 +895,7 @@
       if ($("personBId")) $("personBId").value = row.id;
       updateSynastryNames();
 
-      status("partnerCreateStatus", "✅ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
+      status("partnerCreateStatus", "◈ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
       toast("Zweite Person gespeichert.");
     } catch (error) {
       const msg = friendlyError(error, "Person konnte nicht gespeichert werden.");
@@ -925,7 +925,7 @@
       "Eure Verbindung wurde berechnet. Achtet darauf, wo Harmonie entsteht und wo bewusste Kommunikation wichtig ist.";
 
     let html = "";
-    html += "✅ Synastrie gespeichert.\n";
+    html += "◈ Synastrie gespeichert.\n";
     html += "Kompatibilität: " + value + "%\n\n";
     html += label + "\n";
     html += text;
@@ -1416,7 +1416,7 @@
       const houseSystem = meta.house_system ? "Häusersystem: " + meta.house_system : "";
       const timeKnown = meta.time_known === false ? "Geburtszeit unbekannt: Soraya nutzt 12:00 als Näherung." : "";
       if (details) {
-        details.textContent = ["✅ Echtes Birth Chart geladen.", "Sonne: " + sun, "Mond: " + moon, "Aszendent: " + asc, houseSystem, timeKnown, "", planetLine].filter((line) => line !== "").join("\n");
+        details.textContent = ["◈ Echtes Birth Chart geladen.", "Sonne: " + sun, "Mond: " + moon, "Aszendent: " + asc, houseSystem, timeKnown, "", planetLine].filter((line) => line !== "").join("\n");
       }
       return json;
     } catch (error) {
@@ -1480,12 +1480,20 @@
         return;
       }
 
-      const rows = aspects.map((aspect) => {
+      const VISIBLE = 4;
+      const rowHtml = aspects.map((aspect) => {
         const movement = aspect.movement === "Applying" ? "im Kommen" : aspect.movement === "Separating" ? "klingt ab" : "aktiv";
         const title = [aspect.transit_de, aspect.type_de, aspect.natal_de].filter(Boolean).join(" ");
         const right = aspect.orb != null ? Number(aspect.orb).toFixed(1) + "°" : "";
         return transitRow(planetGlyph(aspect.transit_de), title || "Transit", movement, right);
-      }).join("");
+      });
+
+      let rows = rowHtml.slice(0, VISIBLE).join("");
+      if (rowHtml.length > VISIBLE) {
+        rows += '<div class="transit-more" id="transitMore">' + rowHtml.slice(VISIBLE).join("") + "</div>";
+        rows += '<button type="button" class="collapse-toggle" data-collapse="transitMore">' +
+          "Weitere " + (rowHtml.length - VISIBLE) + " Transite anzeigen</button>";
+      }
 
       setHomeTransits(rows);
 
@@ -1559,6 +1567,25 @@
   }
 
   function bindUiEvents() {
+    // Ausklappbare Listen (z. B. weitere Transite)
+    if (!document.body.dataset.collapseBound) {
+      document.body.dataset.collapseBound = "1";
+      document.addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-collapse]");
+        if (!btn) return;
+        const target = document.getElementById(btn.getAttribute("data-collapse"));
+        if (!target) return;
+        const open = target.classList.toggle("is-open");
+        btn.classList.toggle("is-open", open);
+        if (open) {
+          btn.textContent = "Weniger anzeigen";
+        } else {
+          const count = target.children.length;
+          btn.textContent = "Weitere " + count + " Transite anzeigen";
+        }
+      });
+    }
+
     const brand = document.querySelector(".brand");
     if (brand && !brand.dataset.bound) {
       brand.dataset.bound = "1";
@@ -1596,7 +1623,7 @@
 
     if (broken.length) {
       console.warn("Soraya Button Audit: Buttons ohne Funktion", broken);
-      setAppStatus("Button prüfen", "warn");
+      // bewusst kein user-sichtbarer Status mehr (war Entwickler-Hinweis)
     }
   }
 
