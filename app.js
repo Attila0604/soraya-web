@@ -758,8 +758,18 @@
       const selfId = getCurrentPersonId();
       const self =
         (Array.isArray(people) &&
-          (people.find((p) => p && (p.id === selfId || p.is_self)) || null)) || null;
+          (people.find((p) => p && (p.id === selfId || p.is_self)) ||
+            people.find((p) => p && p.birth_date) ||  // Fallback: erste Person mit Geburtsdatum
+            null)) || null;
       if (!self || !self.birth_date) return;
+
+      // Self-ID auch lokal sichern, falls nach Login nicht gesetzt
+      // (loadRealChartData/needPerson brauchen eine Personen-ID)
+      if (self.id) {
+        if (!localStorage.getItem(KEYS.person)) localStorage.setItem(KEYS.person, self.id);
+        var personIdField = $("personId");
+        if (personIdField && !personIdField.value) personIdField.value = self.id;
+      }
 
       const parts = String(self.birth_date).split("-");
       if (parts.length < 3) return;
@@ -792,14 +802,17 @@
 
       people.forEach((person) => addPersonToCache(person));
       const hadBirth = !!readJson(KEYS.birth, null);
+      const hadPerson = !!getCurrentPersonId();
       hydrateBirthFromPeople(people);
       const hasBirthNow = !!readJson(KEYS.birth, null);
+      const hasPersonNow = !!getCurrentPersonId();
       cacheSelfFromStorage();
       refreshSynastryPeople();
 
-      // Wenn gerade erst Geburtsdaten reingespiegelt wurden und die Analyse
-      // offen ist, Chart automatisch nachladen (sonst bleibt es beim Hinweis).
-      if (!hadBirth && hasBirthNow) {
+      // Wenn gerade erst Geburtsdaten/Person reingespiegelt wurden und die
+      // Analyse offen ist, Chart automatisch nachladen (sonst bleibt der Hinweis).
+      const newlyReady = (!hadBirth && hasBirthNow) || (!hadPerson && hasPersonNow);
+      if (newlyReady) {
         const analysis = $("analysis");
         if (analysis && analysis.classList.contains("active") && typeof loadRealChartData === "function") {
           loadRealChartData(false);
