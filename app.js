@@ -1651,10 +1651,14 @@
     renderDeveloperTools();
 
     try {
-      const params = new URLSearchParams(window.location.search);
-      const requestedSection = params.get("section") || localStorage.getItem("soraya_after_login_section");
-      if (requestedSection && $(requestedSection)) {
-        window.setTimeout(() => showSection(requestedSection), 120);
+      // Nur direkt nach einem Login zur gemerkten Seite springen.
+      // Normaler App-Start (auch als installierte App) landet immer auf Home.
+      const afterLogin = localStorage.getItem("soraya_after_login_section");
+      if (afterLogin && $(afterLogin)) {
+        localStorage.removeItem("soraya_after_login_section");
+        window.setTimeout(() => showSection(afterLogin), 120);
+      } else {
+        showSection("home");
       }
     } catch (error) {}
 
