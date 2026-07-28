@@ -192,11 +192,18 @@
     scanAll();
     var win = document.getElementById("chatWindow");
     if (win && window.MutationObserver) {
-      var obs = new MutationObserver(function () { scanAll(); });
+      // reagiert nur auf echte neue Nachrichten – kein Dauer-Polling
+      var obs = new MutationObserver(function () { ensureHeaderButton(); scanAll(); });
       obs.observe(win, { childList: true });
     }
-    // Sicherheitsnetz: falls Chat erst später erscheint
-    window.setInterval(function () { ensureHeaderButton(); scanAll(); }, 2500);
+    // Sicherheitsnetz nur ein paar Mal am Anfang (kein Dauer-Intervall -> kein Ruckeln beim Scrollen)
+    var tries = 0;
+    var timer = window.setInterval(function () {
+      ensureHeaderButton(); scanAll();
+      if (++tries >= 5 || document.querySelector("#chat .c73-report-head")) {
+        window.clearInterval(timer);
+      }
+    }, 1000);
   }
 
   if (document.readyState === "loading") {
