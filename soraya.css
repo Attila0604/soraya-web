@@ -217,7 +217,9 @@ input, select, textarea{
   -webkit-text-fill-color:var(--mist);
 }
 input::placeholder, textarea::placeholder{color:var(--mist-faint); -webkit-text-fill-color:var(--mist-faint)}
-input:focus, select:focus, textarea:focus{border-color:var(--gold-dim); background:#171128; color:var(--mist)}
+input:focus, select:focus, textarea:focus{border-color:var(--gold-dim); background:#171128; color:var(--mist); box-shadow:none}
+/* System-Rahmen (Android) auf Feldern unterdrücken */
+input, select, textarea{box-shadow:none}
 select{appearance:none; -webkit-appearance:none;
   background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
   background-position:calc(100% - 18px) 20px, calc(100% - 12px) 20px; background-size:6px 6px,6px 6px; background-repeat:no-repeat}
@@ -418,6 +420,8 @@ main footer a{color:var(--gold-soft) !important}
 /* ============ Accessibility ============ */
 @media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
 :focus-visible{outline:2px solid var(--gold-dim); outline-offset:2px}
+/* Formularfelder zeigen den Fokus über den Gold-Border -> kein zusätzlicher heller Outline */
+input:focus-visible, select:focus-visible, textarea:focus-visible{outline:none}
 
 /* ============ Responsive ============ */
 @media (max-width:380px){
