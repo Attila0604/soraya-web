@@ -8,15 +8,16 @@
   Bei jeder Aenderung die CACHE_VERSION erhoehen, dann raeumt der SW alte Caches auf.
 */
 
-const CACHE_VERSION = "soraya-v3";
-const OFFLINE_URL = "/offline.html";
+const CACHE_VERSION = "soraya-v4";
+const OFFLINE_URL = "/offline";
 
-// App-Schale, die vorab gecacht wird (nur robuste, immer vorhandene Dateien)
+// App-Schale, die vorab gecacht wird.
+// WICHTIG: vercel.json hat cleanUrls:true -> .html-URLs leiten um,
+// deshalb hier die sauberen Pfade (sonst Redirect-Probleme beim Offline-Fallback).
 const PRECACHE = [
   "/",
-  "/index.html",
-  "/login.html",
-  "/offline.html",
+  "/login",
+  "/offline",
   "/soraya.css",
   "/app.js",
   "/config.js",
