@@ -661,3 +661,49 @@ html, body{overscroll-behavior-y:contain}
   .c4-big-three-grid p{font-size:10.5px}
   .energy-ring, .compat{width:100px; height:100px}
 }
+
+/* ============================================================
+   c73: „Inhalt melden" im Chat (Google-KI-Pflicht)
+   ============================================================ */
+.c73-report-link{
+  display:inline-block; margin-top:10px; padding:0; border:none; background:none;
+  cursor:pointer; font-family:var(--ui); font-size:11px; letter-spacing:.06em;
+  color:var(--mist-faint); opacity:.7; transition:color .2s, opacity .2s;
+}
+.c73-report-link:hover{color:var(--gold-soft); opacity:1}
+
+.c73-report-backdrop{
+  position:fixed; inset:0; z-index:120; display:none; align-items:center; justify-content:center;
+  padding:24px; background:rgba(6,4,14,.72); backdrop-filter:blur(4px);
+}
+.c73-report-backdrop.open{display:flex}
+.c73-report-modal{
+  width:100%; max-width:420px; background:var(--void-2, #140b22);
+  border:1px solid var(--line); border-radius:20px; padding:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.c73-report-modal h3{font-family:var(--display); color:var(--gold-soft); font-size:20px; margin-bottom:6px}
+.c73-report-modal > p{font-size:13.5px; color:var(--mist-dim); margin-bottom:14px}
+.c73-report-reasons{display:flex; flex-direction:column; gap:7px; margin-bottom:14px}
+.c73-reason{
+  text-align:left; padding:11px 14px; border-radius:12px; cursor:pointer;
+  background:rgba(10,7,20,.5); border:1px solid var(--line-soft);
+  color:var(--mist); font-family:var(--ui); font-size:14px; transition:.15s;
+}
+.c73-reason:hover{border-color:var(--gold-dim)}
+.c73-reason.active{border-color:var(--gold); color:var(--gold-soft); background:rgba(201,168,106,.1)}
+.c73-report-note{
+  width:100%; min-height:70px; resize:none; margin-bottom:16px;
+  background:#171128; border:1px solid var(--line-soft); border-radius:12px;
+  padding:12px 14px; color:var(--mist); font-family:var(--ui); font-size:14px;
+}
+.c73-report-actions{display:flex; gap:10px}
+.c73-report-cancel, .c73-report-send{
+  flex:1; padding:13px; border-radius:var(--r-pill); cursor:pointer;
+  font-family:var(--ui); font-size:14px; font-weight:600; border:1px solid var(--line);
+}
+.c73-report-cancel{background:transparent; color:var(--mist)}
+.c73-report-send{background:linear-gradient(180deg,var(--gold-soft),var(--gold)); color:#2a1c05; border:none}
+.c73-report-done{
+  text-align:center; padding:14px; font-size:14px; color:var(--ok, #65f0bc);
+}
