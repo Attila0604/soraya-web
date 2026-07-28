@@ -174,9 +174,19 @@ async function run(){
   /* SICHERHEIT */
   const cfg = await text("/config.js");
   if(cfg){
-    const hasServiceKey = /service_role|SUPABASE_SERVICE/i.test(cfg);
-    add("Sicherheit", hasServiceKey?"bad":"ok","Keine geheimen Keys im Frontend",
-      hasServiceKey?"service_role-Key gefunden!":"nur \u00f6ffentlicher anon-Key", hasServiceKey?"PFLICHT":null);
+    // Nur ein ECHTER service_role-JWT ist gefährlich, nicht das Wort im Kommentar.
+    // Supabase service-Keys sind JWTs mit "role":"service_role" (base64 -> "service_role" im Token).
+    const jwtLike = /eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}/g;
+    const tokens = cfg.match(jwtLike) || [];
+    let leaked = false;
+    for(const tk of tokens){
+      try{
+        const payload = JSON.parse(atob(tk.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+        if(payload.role === "service_role") leaked = true;
+      }catch(e){}
+    }
+    add("Sicherheit", leaked?"bad":"ok","Keine geheimen Keys im Frontend",
+      leaked?"ECHTER service_role-Key gefunden!":"nur \u00f6ffentlicher anon-Key (korrekt)", leaked?"PFLICHT":null);
   }
 
   /* ASSETLINKS */
