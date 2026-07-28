@@ -753,7 +753,6 @@
   function hydrateBirthFromPeople(people) {
     try {
       const existing = readJson(KEYS.birth, null);
-      if (existing && existing.day && existing.month && existing.year && existing.birthplace) return;
 
       const selfId = getCurrentPersonId();
       const self =
@@ -764,7 +763,6 @@
       if (!self || !self.birth_date) return;
 
       // Self-ID auch lokal sichern, falls nach Login nicht gesetzt
-      // (loadRealChartData/needPerson brauchen eine Personen-ID)
       if (self.id) {
         if (!localStorage.getItem(KEYS.person)) localStorage.setItem(KEYS.person, self.id);
         var personIdField = $("personId");
@@ -786,12 +784,33 @@
         minute = Number(t[1]);
       }
 
-      writeJson(KEYS.birth, {
+      const fresh = {
         name: self.name || localStorage.getItem(KEYS.name) || "Ich",
         year, month, day, hour, minute,
         birthplace: self.birthplace || ""
-      });
-      if (self.name) localStorage.setItem(KEYS.name, self.name);
+      };
+
+      // Server ist die Wahrheit: nur schreiben, wenn sich etwas geändert hat
+      // (so gleichen sich Geräte ab, statt an alten lokalen Daten zu kleben).
+      const changed = !existing ||
+        existing.year !== fresh.year || existing.month !== fresh.month ||
+        existing.day !== fresh.day || existing.hour !== fresh.hour ||
+        existing.minute !== fresh.minute || existing.birthplace !== fresh.birthplace;
+
+      if (changed) {
+        writeJson(KEYS.birth, fresh);
+        if (self.name) localStorage.setItem(KEYS.name, self.name);
+        // Anzeige aktualisieren, falls Profil/Analyse gerade offen sind
+        try { if (typeof renderProfilePreview === "function") renderProfilePreview(); } catch (e) {}
+        try {
+          const an = $("analysis");
+          if (an && an.classList.contains("active") && typeof loadRealChartData === "function") {
+            loadRealChartData(false);
+          }
+        } catch (e) {}
+      } else if (self.name) {
+        localStorage.setItem(KEYS.name, self.name);
+      }
     } catch (e) { /* still: Chart zeigt dann den Profil-Hinweis */ }
   }
 
