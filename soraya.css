@@ -238,13 +238,19 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
 .c4-dashboard-grid, .c46-dashboard-grid, .c42-guidance-grid, .c44-synastry-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:var(--s3); margin-bottom:var(--s3);
 }
-.c4-big-three-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-bottom:var(--s3)}
-.c4-big-three-grid .card{padding:var(--s3) var(--s2); text-align:center; margin:0}
-.c4-big-three-grid b{display:block; font-size:24px; margin:var(--s2) 0 4px}
-.c4-big-three-grid strong{font-family:var(--display); color:var(--gold-soft); font-size:16px; display:block}
-.c4-big-three-grid p{font-size:10.5px}
-.c42-guidance-card, .c44-syn-card{text-align:center}
-.c42-guidance-card b, .c44-syn-card b{display:block; font-size:24px; margin:var(--s2) 0}
+.c4-big-three-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-bottom:var(--s3); align-items:stretch}
+.c4-big-three-grid .card{
+  padding:var(--s3) var(--s2); text-align:center; margin:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:4px;
+}
+.c4-big-three-grid .eyebrow{min-height:14px}
+.c4-big-three-grid b{display:block; font-size:24px; margin:6px 0 2px}
+.c4-big-three-grid strong{font-family:var(--display); color:var(--gold-soft); font-size:15px; display:block; min-height:20px}
+.c4-big-three-grid p{font-size:10.5px; margin-top:auto; padding-top:6px}
+.c42-guidance-card, .c44-syn-card{
+  text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:4px;
+}
+.c42-guidance-card b, .c44-syn-card b{display:block; font-size:24px; margin:var(--s2) 0 4px}
 
 /* ---- Zeilen-Listen (Transite, Planeten) ---- */
 .transit-list .row, .c41-planet-list > *{
@@ -579,7 +585,7 @@ html, body{overflow-x:hidden}
 }
 
 /* Guidance-Karten (Fokus/Liebe …) an Inhalt anpassen, keine leeren Lücken */
-.c42-guidance-grid{align-items:start}
+.c42-guidance-grid, .c44-synastry-grid{align-items:stretch}
 
 /* ============================================================
    Formular-Fix: keine grauen/hellen System-Felder mehr
