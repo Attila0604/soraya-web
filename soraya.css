@@ -29,7 +29,8 @@
 /* dezentes Eindrücken beim Tippen statt hässlichem Flash */
 .c58-tap{transform:scale(.92)}
 button, a, .tile, .card{-webkit-tap-highlight-color:transparent}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%; height:auto}
+html, body{overflow-y:auto !important; height:auto !important; position:static !important}
 body{
   margin:0; font-family:var(--ui); color:var(--mist);
   background:var(--void); line-height:1.6; -webkit-font-smoothing:antialiased;
@@ -651,7 +652,7 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
    Mobile-Feinschliff: nativeres Gefühl
    ============================================================ */
 /* kein Gummiband-Überziehen hinter dem Kosmos (wirkt nativer in der App) */
-html, body{overscroll-behavior-y:contain}
+/* overscroll-contain entfernt: blockierte auf manchen Geräten das Scrollen */
 /* sanftes Momentum-Scrollen im Chat (ältere iOS-Geräte) */
 .chat-window{-webkit-overflow-scrolling:touch}
 /* sehr schmale Handys: Big-Three kompakter, damit nichts umbricht */
