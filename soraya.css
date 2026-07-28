@@ -30,7 +30,7 @@
 .c58-tap{transform:scale(.92)}
 button, a, .tile, .card{-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%; height:auto}
-html, body{overflow-y:auto !important; height:auto !important; position:static !important}
+html, body{overflow-y:auto; height:auto; overflow-x:hidden}
 body{
   margin:0; font-family:var(--ui); color:var(--mist);
   background:var(--void); line-height:1.6; -webkit-font-smoothing:antialiased;
@@ -194,6 +194,7 @@ h4{font-family:var(--display); font-weight:600; color:var(--mist); margin:0; fon
 .shortcut-grid, .c46-shortcut-grid, .c43-prompt-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:var(--s3);
 }
+#chat .c43-prompt-grid{margin-bottom:var(--s4)}
 .tile, .c43-prompt{
   display:flex; flex-direction:column; align-items:flex-start; gap:var(--s2);
   padding:var(--s4) var(--s3); border-radius:var(--r-card); cursor:pointer; text-align:left;
