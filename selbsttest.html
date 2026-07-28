@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Soraya · Selbsttest</title>
+<title>Soraya · Play-Store-Check</title>
 <style>
   :root{
     --void:#0b0713; --gold:#c9a86a; --gold-soft:#e6cf9c; --mist:#c3b7da;
@@ -25,30 +25,37 @@
   }
   button:active{transform:scale(.98)}
   button.ghost{background:transparent; color:var(--gold-soft); border:1px solid var(--line)}
-  .summary{
-    display:flex; gap:10px; margin:18px 0; font-size:13px; font-weight:600;
-  }
+  .verdict{display:none; margin:18px 0; padding:18px; border-radius:16px; text-align:center; border:1px solid var(--line)}
+  .verdict h2{font-size:19px; margin-bottom:6px}
+  .verdict p{font-size:13px; color:var(--mist-dim); line-height:1.5}
+  .v-ready{background:rgba(101,240,188,.08)} .v-ready h2{color:var(--ok)}
+  .v-block{background:rgba(255,154,176,.08)} .v-block h2{color:var(--bad)}
+  .v-warn{background:rgba(230,207,156,.08)} .v-warn h2{color:var(--warn)}
+  .summary{display:flex; gap:10px; margin:14px 0; font-size:13px; font-weight:600}
   .summary span{flex:1; text-align:center; padding:10px; border-radius:12px; border:1px solid var(--line)}
   .s-ok{color:var(--ok)} .s-bad{color:var(--bad)} .s-warn{color:var(--warn)}
-  .group{margin:18px 0 6px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); opacity:.8}
+  .group{margin:20px 0 6px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); opacity:.85}
   .row{
     display:flex; align-items:flex-start; gap:11px; padding:12px 14px; margin-bottom:7px;
     background:rgba(26,17,44,.4); border:1px solid var(--line); border-radius:12px; font-size:14px;
   }
-  .row .icon{font-size:16px; line-height:1.4; flex:none}
+  .row .icon{font-size:16px; line-height:1.4; flex:none; width:16px}
   .row .txt{flex:1}
-  .row .txt small{display:block; color:var(--mist-dim); font-size:12px; margin-top:2px; line-height:1.4}
-  .ok .icon{color:var(--ok)} .bad .icon{color:var(--bad)} .warn .icon{color:var(--warn)} .pending .icon{color:var(--mist-dim)}
+  .row .txt small{display:block; color:var(--mist-dim); font-size:12px; margin-top:3px; line-height:1.45}
+  .row .tag{font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border-radius:20px; border:1px solid var(--line); color:var(--mist-dim); flex:none; margin-top:1px}
+  .ok .icon{color:var(--ok)} .bad .icon{color:var(--bad)} .warn .icon{color:var(--warn)} .info .icon{color:var(--mist-dim)}
   iframe{position:absolute; width:390px; height:780px; left:-9999px; border:0}
-  .hint{font-size:12px; color:var(--mist-dim); margin-top:18px; line-height:1.6; padding:12px; border-left:2px solid var(--line)}
+  .hint{font-size:12px; color:var(--mist-dim); margin-top:20px; line-height:1.6; padding:12px; border-left:2px solid var(--line)}
 </style>
 </head>
 <body>
-  <h1>✦ Soraya · Selbsttest</h1>
-  <p class="sub">Prüft deine Live-App direkt hier auf dem Gerät. Kein Login nötig — testet Struktur, Offline-Fähigkeit, Fehler und Ladezeit. Mach danach einen Screenshot der Liste für Claude.</p>
+  <h1>✦ Soraya · Play-Store-Check</h1>
+  <p class="sub">Prüft deine Live-App gegen die Google-Play-Anforderungen. PFLICHT = Ablehnungsgrund, UX = empfohlen. Danach Screenshot der Liste für Claude.</p>
 
-  <button id="run">Test starten</button>
+  <button id="run">Vollständigen Check starten</button>
   <button class="ghost" id="openApp">App in neuem Tab öffnen</button>
+
+  <div class="verdict" id="verdict"></div>
 
   <div class="summary" id="summary" style="display:none">
     <span class="s-ok" id="cOk">✓ 0</span>
@@ -60,30 +67,32 @@
   <iframe id="frame"></iframe>
 
   <div class="hint">
-    Hinweis: Der Offline-Test schaltet nichts ab — er prüft nur, ob der Service Worker registriert ist und die Offline-Seite ausliefert. Den echten Flugmodus-Test machst du zusätzlich von Hand.
+    Rot mit PFLICHT = muss vor dem Store-Upload behoben werden. Gelb = solltest du beheben, blockiert aber nicht zwingend. Den echten Flugmodus-Test und die visuelle Optik prüfst du zusätzlich selbst am Gerät.
   </div>
 
 <script>
-const ORIGIN = location.origin;
 const results = document.getElementById("results");
 let counts = {ok:0, warn:0, bad:0};
+let blockers = 0;
 
-function add(group, status, title, detail){
+function add(group, status, title, detail, tag){
   if(!document.getElementById("g-"+group)){
     const g = document.createElement("div");
     g.className = "group"; g.id = "g-"+group; g.textContent = group;
     results.appendChild(g);
   }
   counts[status] = (counts[status]||0)+1;
-  const icon = status==="ok" ? "✓" : status==="warn" ? "!" : "✕";
+  if(status==="bad" && tag==="PFLICHT") blockers++;
+  const icon = status==="ok" ? "\u2713" : status==="warn" ? "!" : status==="info" ? "\u2022" : "\u2715";
   const row = document.createElement("div");
   row.className = "row "+status;
   row.innerHTML = '<span class="icon">'+icon+'</span><span class="txt">'+title+
-    (detail ? '<small>'+detail+'</small>' : '')+'</span>';
+    (detail ? '<small>'+detail+'</small>' : '')+'</span>'+
+    (tag ? '<span class="tag">'+tag+'</span>' : '');
   results.appendChild(row);
-  document.getElementById("cOk").textContent = "✓ "+counts.ok;
+  document.getElementById("cOk").textContent = "\u2713 "+(counts.ok||0);
   document.getElementById("cWarn").textContent = "! "+(counts.warn||0);
-  document.getElementById("cBad").textContent = "✕ "+(counts.bad||0);
+  document.getElementById("cBad").textContent = "\u2715 "+(counts.bad||0);
 }
 
 async function head(path){
@@ -96,110 +105,146 @@ async function text(path){
 }
 
 async function run(){
-  results.innerHTML = ""; counts = {ok:0,warn:0,bad:0};
+  results.innerHTML = ""; counts = {ok:0,warn:0,bad:0}; blockers = 0;
   document.getElementById("summary").style.display = "flex";
+  document.getElementById("verdict").style.display = "none";
 
-  /* ---- 1. Ressourcen & Store-Pflicht ---- */
+  /* PWA / TWA-BASIS */
+  add("PWA-Basis", location.protocol==="https:"?"ok":"bad", "HTTPS aktiv",
+    location.protocol, location.protocol==="https:"?null:"PFLICHT");
+
   const t0 = performance.now();
   const idx = await text("/");
   const loadMs = Math.round(performance.now() - t0);
-  add("Store-Pflicht", idx?"ok":"bad", "App-Start (/) lädt", idx? loadMs+" ms" : "keine Antwort");
-  if(loadMs > 4000) add("Store-Pflicht","warn","Ladezeit hoch", loadMs+" ms – für Store besser <3s");
+  add("PWA-Basis", idx?"ok":"bad", "App-Start l\u00e4dt", loadMs+" ms", idx?null:"PFLICHT");
+  if(idx && loadMs > 5000) add("PWA-Basis","warn","Ladezeit hoch", loadMs+" ms","UX");
 
-  for(const [p,name] of [["/offline","Offline-Seite"],["/datenschutz","Datenschutz"],["/impressum","Impressum"],["/manifest.webmanifest","Manifest"],["/sw.js","Service-Worker-Datei"]]){
-    const s = await head(p);
-    add("Store-Pflicht", s===200?"ok":"bad", name+" erreichbar", "HTTP "+s);
-  }
-
-  /* Manifest-Icons */
   const man = await text("/manifest.webmanifest");
-  if(man){
+  if(!man){ add("PWA-Basis","bad","Manifest fehlt","kein manifest.webmanifest","PFLICHT"); }
+  else{
     try{
       const j = JSON.parse(man);
-      add("Store-Pflicht", (j.name&&j.icons&&j.icons.length>=2)?"ok":"warn",
-        "Manifest vollständig", (j.icons?j.icons.length:0)+" Icons, display:"+(j.display||"?"));
-      for(const ic of (j.icons||[])){
-        const s = await head(ic.src);
-        if(s!==200){ add("Store-Pflicht","bad","Icon fehlt: "+ic.src,"HTTP "+s); }
-      }
-    }catch(e){ add("Store-Pflicht","bad","Manifest ist kein gültiges JSON",""); }
+      const req = ["name","short_name","start_url","display","icons"];
+      const missing = req.filter(k=>!j[k]);
+      add("PWA-Basis", missing.length?"bad":"ok", "Manifest Pflichtfelder",
+        missing.length? "fehlt: "+missing.join(", ") : "name, start_url, display, icons \u2713", missing.length?"PFLICHT":null);
+      add("PWA-Basis", j.display==="standalone"||j.display==="fullscreen"?"ok":"warn",
+        "display: standalone", j.display||"?", j.display==="standalone"?null:"PFLICHT");
+      const has192 = (j.icons||[]).some(i=>/192/.test(i.sizes));
+      const has512 = (j.icons||[]).some(i=>/512/.test(i.sizes));
+      const hasMask = (j.icons||[]).some(i=>i.purpose&&i.purpose.includes("maskable"));
+      add("PWA-Basis", (has192&&has512)?"ok":"bad", "Icons 192px + 512px",
+        (has192?"192 \u2713 ":"192 fehlt ")+(has512?"512 \u2713":"512 fehlt"), (has192&&has512)?null:"PFLICHT");
+      add("PWA-Basis", hasMask?"ok":"warn", "Maskable Icon (Android)",
+        hasMask?"vorhanden":"empfohlen f\u00fcr runde Android-Icons", hasMask?null:"UX");
+      let iconFail=0;
+      for(const ic of (j.icons||[])){ if(await head(ic.src)!==200) iconFail++; }
+      add("PWA-Basis", iconFail?"bad":"ok", "Alle Icons erreichbar",
+        iconFail? iconFail+" Icon(s) fehlen (404)" : "alle geladen", iconFail?"PFLICHT":null);
+      add("PWA-Basis", j.theme_color?"ok":"warn","theme_color gesetzt", j.theme_color||"fehlt","UX");
+    }catch(e){ add("PWA-Basis","bad","Manifest ung\u00fcltig","kein g\u00fcltiges JSON","PFLICHT"); }
   }
 
-  /* sw.js Inhalt korrekt? (nicht versehentlich CSS) */
+  /* OFFLINE / SERVICE WORKER */
   const sw = await text("/sw.js");
-  if(sw){
-    if(sw.includes("Soraya Service Worker") && /addEventListener\(.(install|fetch)/.test(sw))
-      add("Store-Pflicht","ok","Service Worker ist gültig", (sw.match(/soraya-v\d+/)||["?"])[0]);
-    else
-      add("Store-Pflicht","bad","sw.js enthält falschen Inhalt","evtl. mit CSS vertauscht!");
+  if(!sw){ add("Offline", "bad","Service-Worker-Datei fehlt","/sw.js nicht erreichbar","PFLICHT"); }
+  else if(sw.includes("Soraya Service Worker") && /addEventListener\(.(install|fetch)/.test(sw)){
+    add("Offline","ok","Service Worker g\u00fcltig", (sw.match(/soraya-v\d+/)||["?"])[0]);
+  } else {
+    add("Offline","bad","sw.js enth\u00e4lt falschen Inhalt","evtl. mit anderer Datei vertauscht","PFLICHT");
+  }
+  add("Offline", (await head("/offline"))===200?"ok":"bad","Offline-Seite erreichbar","keine Browser-Fehlerseite offline","PFLICHT");
+  if("serviceWorker" in navigator){
+    const reg = await navigator.serviceWorker.getRegistration();
+    add("Offline", reg?"ok":"warn","Service Worker registriert", reg?"aktiv auf Ger\u00e4t":"App einmal normal \u00f6ffnen","UX");
   }
 
-  /* Rechtstexte: noch Platzhalter offen? */
+  /* RECHTLICHES */
+  add("Rechtliches", (await head("/datenschutz"))===200?"ok":"bad","Datenschutz erreichbar","in Play Console verlinken","PFLICHT");
+  add("Rechtliches", (await head("/impressum"))===200?"ok":"bad","Impressum erreichbar","","PFLICHT");
   for(const [p,name] of [["/datenschutz","Datenschutz"],["/impressum","Impressum"]]){
     const c = await text(p);
     if(c){
-      const ph = (c.match(/\[(Vor- und Nachname|Straße|PLZ|deine@|TT\.MM)/g)||[]).length;
-      add("Rechtstexte", ph>0?"warn":"ok", name+": Platzhalter", ph>0? ph+" offene Felder – vor Store ausfüllen!" : "keine offenen Pflichtfelder");
+      const ph = (c.match(/\[(Vor- und Nachname|Stra\u00dfe|PLZ|deine@|TT\.MM|Platzhalter)/g)||[]).length;
+      add("Rechtliches", ph>0?"bad":"ok", name+": ausgef\u00fcllt",
+        ph>0? ph+" offene Platzhalter \u2013 Google lehnt ab!" : "keine offenen Pflichtfelder", ph>0?"PFLICHT":null);
     }
   }
 
-  /* ---- 2. Struktur & Layout (via iframe) ---- */
+  /* SICHERHEIT */
+  const cfg = await text("/config.js");
+  if(cfg){
+    const hasServiceKey = /service_role|SUPABASE_SERVICE/i.test(cfg);
+    add("Sicherheit", hasServiceKey?"bad":"ok","Keine geheimen Keys im Frontend",
+      hasServiceKey?"service_role-Key gefunden!":"nur \u00f6ffentlicher anon-Key", hasServiceKey?"PFLICHT":null);
+  }
+
+  /* ASSETLINKS */
+  const al = await head("/.well-known/assetlinks.json");
+  add("TWA-Build", al===200?"ok":"info","assetlinks.json",
+    al===200?"vorhanden":"kommt erst NACH dem Keystore/Bubblewrap-Build","INFO");
+
+  /* STRUKTUR & LAYOUT via iframe */
   await new Promise(res=>{
     const f = document.getElementById("frame");
     let done=false;
-    f.onload = ()=>{ if(done) return; done=true; setTimeout(()=>checkFrame(f).then(res), 1500); };
+    f.onload = ()=>{ if(done) return; done=true; setTimeout(()=>checkFrame(f).then(res), 1600); };
     f.src = "/?selftest=1";
-    setTimeout(()=>{ if(!done){done=true; add("Struktur","bad","App im Frame nicht geladen","Timeout"); res();} }, 8000);
+    setTimeout(()=>{ if(!done){done=true; add("Struktur","bad","App im Frame nicht geladen","Timeout"); res();} }, 9000);
   });
 
-  /* ---- 3. Service Worker aktiv? ---- */
-  if("serviceWorker" in navigator){
-    try{
-      const reg = await navigator.serviceWorker.getRegistration();
-      add("Offline", reg?"ok":"warn", "Service Worker registriert",
-        reg? "aktiv" : "noch nicht – App einmal normal öffnen");
-      const off = await head("/offline");
-      add("Offline", off===200?"ok":"bad", "Offline-Seite ausliefertbar","HTTP "+off);
-    }catch(e){ add("Offline","warn","SW-Status unklar", e.message); }
-  } else {
-    add("Offline","bad","Service Worker nicht unterstützt","Browser zu alt?");
-  }
-
-  add("Fertig","ok","Test abgeschlossen","Screenshot dieser Liste an Claude schicken");
+  showVerdict();
+  add("Fertig","ok","Check abgeschlossen","Screenshot dieser Liste an Claude schicken");
 }
 
 async function checkFrame(f){
   let doc;
   try{ doc = f.contentDocument; }catch(e){ doc=null; }
-  if(!doc){ add("Struktur","warn","Frame nicht lesbar","Cross-Origin? Test einzeln im Tab"); return; }
+  if(!doc){ add("Struktur","warn","Frame nicht lesbar","Cross-Origin \u2013 im Tab pr\u00fcfen","UX"); return; }
 
   for(const id of ["home","analysis","horoscope","chat","profile","synastry"]){
-    add("Struktur", doc.getElementById(id)?"ok":"bad", "Sektion #"+id, doc.getElementById(id)?"vorhanden":"FEHLT");
+    add("Struktur", doc.getElementById(id)?"ok":"bad", "Sektion #"+id, doc.getElementById(id)?"vorhanden":"FEHLT", doc.getElementById(id)?null:"UX");
   }
   const tabs = doc.querySelectorAll("[data-nav]");
-  add("Struktur", tabs.length>=5?"ok":"bad", "Tab-Leiste", tabs.length+" Tabs");
+  add("Struktur", tabs.length>=5?"ok":"bad", "Tab-Leiste", tabs.length+" Tabs", tabs.length>=5?null:"UX");
 
-  /* dunkle Felder / color-scheme */
+  const chat = doc.getElementById("chat");
+  const reportBtn = chat && /melden|report|flag|missbrauch/i.test(chat.innerHTML);
+  add("KI-Pflicht", reportBtn?"ok":"bad","Inhalt melden im Chat",
+    reportBtn?"Meldefunktion vorhanden":"Google verlangt sie bei generativer KI!", reportBtn?null:"PFLICHT");
+
   const cs = doc.documentElement && getComputedStyle(doc.documentElement).colorScheme;
-  add("Layout", (cs&&cs.includes("dark"))?"ok":"warn", "color-scheme: dark", cs||"nicht gesetzt – graue Felder möglich");
+  add("Layout", (cs&&cs.includes("dark"))?"ok":"warn", "color-scheme: dark", cs||"nicht gesetzt", (cs&&cs.includes("dark"))?null:"UX");
 
   const inp = doc.querySelector("input");
   if(inp){
     const bg = getComputedStyle(inp).backgroundColor;
-    const dark = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(bg);
-    const isDark = dark && (Number(dark[1])+Number(dark[2])+Number(dark[3]) < 180);
-    add("Layout", isDark?"ok":"warn", "Eingabefeld dunkel", bg);
+    const m = /(\d+),\s*(\d+),\s*(\d+)/.exec(bg);
+    const isDark = m && (Number(m[1])+Number(m[2])+Number(m[3]) < 200);
+    add("Layout", isDark?"ok":"warn", "Eingabefelder dunkel", bg, isDark?null:"UX");
   }
-
-  /* horizontaler Overflow? */
   const overflow = doc.body.scrollWidth > doc.documentElement.clientWidth + 2;
-  add("Layout", overflow?"bad":"ok", "Kein horizontaler Überlauf", overflow? "Seite ragt seitlich raus ("+doc.body.scrollWidth+"px)" : "passt");
+  add("Layout", overflow?"bad":"ok", "Kein horizontaler \u00dcberlauf", overflow? "ragt seitlich raus" : "passt", overflow?"UX":null);
 
-  /* JS-Fehler im Frame? */
   try{
     const errs = f.contentWindow.__sorayaErrors || [];
-    add("Fehler", errs.length? "bad":"ok", "JavaScript-Fehler beim Laden", errs.length? errs.slice(0,2).join(" | ") : "keine");
-  }catch(e){ add("Fehler","warn","Fehler-Prüfung nicht möglich",""); }
+    add("Fehler", errs.length? "bad":"ok", "Keine JS-Fehler beim Laden", errs.length? errs.slice(0,2).join(" | ") : "sauber", errs.length?"UX":null);
+  }catch(e){}
+}
+
+function showVerdict(){
+  const v = document.getElementById("verdict");
+  v.style.display = "block";
+  if(blockers > 0){
+    v.className = "verdict v-block";
+    v.innerHTML = "<h2>\u2715 Noch nicht Store-bereit</h2><p>"+blockers+" Pflicht-Punkt(e) offen (rot mit PFLICHT). Diese f\u00fchren zur Ablehnung und m\u00fcssen vorher behoben werden.</p>";
+  } else if((counts.warn||0) > 0){
+    v.className = "verdict v-warn";
+    v.innerHTML = "<h2>! Fast bereit</h2><p>Keine harten Blocker \u2013 aber "+(counts.warn)+" Empfehlung(en) offen. Store-Upload m\u00f6glich.</p>";
+  } else {
+    v.className = "verdict v-ready";
+    v.innerHTML = "<h2>\u2713 Store-bereit</h2><p>Alle gepr\u00fcften Anforderungen erf\u00fcllt. N\u00e4chster Schritt: Bubblewrap-Build (.aab).</p>";
+  }
 }
 
 document.getElementById("run").onclick = run;
