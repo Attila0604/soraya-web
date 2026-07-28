@@ -82,7 +82,7 @@ img,svg{max-width:100%}
 
 /* ---- App-Rahmen ---- */
 .app{max-width:520px; margin:0 auto; padding:0 var(--s4)}
-#mainContent{padding-bottom:130px}
+#mainContent{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
 
 /* ---- Skip-Link ---- */
 .c412-skip-link{position:absolute; left:-999px}
@@ -646,3 +646,18 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
 /* Dein-Kern-Karte: ruhiger Innenaufbau */
 .zodiac-info h3{margin:var(--s2) 0 4px}
 .zodiac-info > p{color:var(--mist-dim)}
+
+/* ============================================================
+   Mobile-Feinschliff: nativeres Gefühl
+   ============================================================ */
+/* kein Gummiband-Überziehen hinter dem Kosmos (wirkt nativer in der App) */
+html, body{overscroll-behavior-y:contain}
+/* sanftes Momentum-Scrollen im Chat (ältere iOS-Geräte) */
+.chat-window{-webkit-overflow-scrolling:touch}
+/* sehr schmale Handys: Big-Three kompakter, damit nichts umbricht */
+@media (max-width:380px){
+  .c4-big-three-grid strong{font-size:13px}
+  .c4-big-three-grid b{font-size:20px}
+  .c4-big-three-grid p{font-size:10.5px}
+  .energy-ring, .compat{width:100px; height:100px}
+}
