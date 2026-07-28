@@ -166,8 +166,29 @@
     } catch (e) { /* Fallback localStorage reicht */ }
   }
 
+  /* ---------- Fester Melde-Hinweis im Chat-Kopf (immer sichtbar) ---------- */
+  function ensureHeaderButton() {
+    var head = document.querySelector("#chat .chat-head");
+    if (!head || head.dataset.reportHead === "1") return;
+    head.dataset.reportHead = "1";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "c73-report-head";
+    btn.innerHTML = "\u2691 melden";
+    btn.title = "Eine Antwort von Soraya melden";
+    btn.setAttribute("aria-label", "Unangemessene Antwort melden");
+    btn.addEventListener("click", function () {
+      // letzte Soraya-Antwort als Kontext, sonst leer
+      var bubbles = document.querySelectorAll("#chatWindow .bubble.assistant");
+      var last = bubbles.length ? bubbles[bubbles.length - 1].textContent : "";
+      openModal(last || "");
+    });
+    head.appendChild(btn);
+  }
+
   /* ---------- Chat beobachten ---------- */
   function init() {
+    ensureHeaderButton();
     scanAll();
     var win = document.getElementById("chatWindow");
     if (win && window.MutationObserver) {
@@ -175,7 +196,7 @@
       obs.observe(win, { childList: true });
     }
     // Sicherheitsnetz: falls Chat erst später erscheint
-    window.setInterval(scanAll, 2500);
+    window.setInterval(function () { ensureHeaderButton(); scanAll(); }, 2500);
   }
 
   if (document.readyState === "loading") {
