@@ -708,3 +708,14 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
 .c73-report-done{
   text-align:center; padding:14px; font-size:14px; color:var(--ok, #65f0bc);
 }
+
+/* fester Melde-Button im Chat-Kopf (immer sichtbar – KI-Pflicht) */
+#chat .chat-head{display:flex; align-items:center; gap:var(--s3)}
+#chat .chat-head > div:nth-child(2){flex:1; min-width:0}
+.c73-report-head{
+  flex:none; align-self:flex-start; padding:6px 12px; cursor:pointer;
+  background:rgba(201,168,106,.08); border:1px solid var(--line-soft); border-radius:999px;
+  color:var(--mist-dim); font-family:var(--ui); font-size:11px; letter-spacing:.06em;
+  transition:color .2s, border-color .2s;
+}
+.c73-report-head:hover{color:var(--gold-soft); border-color:var(--gold-dim)}
