@@ -730,3 +730,30 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
   transition:color .2s, border-color .2s;
 }
 .c73-report-head:hover{color:var(--gold-soft); border-color:var(--gold-dim)}
+
+/* ============================================================
+   c74: eigene dunkle Dropdowns (ersetzen schwarz-weiße System-Selects)
+   ============================================================ */
+.c74-native-hidden{position:absolute !important; width:1px; height:1px; opacity:0; pointer-events:none; overflow:hidden}
+.c74-select-wrap{position:relative; width:100%}
+.c74-select-trigger{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:var(--s2);
+  background:#171128; border:1px solid var(--line-soft); border-radius:var(--r-sm);
+  padding:13px 15px; cursor:pointer; font-family:var(--ui); font-size:16px; color:var(--mist);
+  text-align:left; transition:border-color .2s;
+}
+.c74-select-wrap.open .c74-select-trigger{border-color:var(--gold-dim)}
+.c74-select-caret{color:var(--gold-soft); font-size:12px; flex:none; transition:transform .2s}
+.c74-select-wrap.open .c74-select-caret{transform:rotate(180deg)}
+.c74-select-menu{
+  display:none; position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:60;
+  background:#1a1030; border:1px solid var(--line); border-radius:var(--r-sm);
+  box-shadow:0 18px 44px rgba(0,0,0,.55); overflow:hidden; max-height:260px; overflow-y:auto;
+}
+.c74-select-wrap.open .c74-select-menu{display:block}
+.c74-select-option{
+  width:100%; text-align:left; padding:12px 15px; cursor:pointer; border:none; background:none;
+  font-family:var(--ui); font-size:15px; color:var(--mist); transition:background .15s;
+}
+.c74-select-option:hover{background:rgba(201,168,106,.1)}
+.c74-select-option.active{color:var(--gold-soft); background:rgba(201,168,106,.08)}
