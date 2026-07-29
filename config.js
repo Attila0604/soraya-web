@@ -30,7 +30,8 @@ try {
     "/c68-mobile-fit-fix.js?v=1.0.0",
     "/c70-account-deletion.js?v=1.0.0",
     "/c72-daily-content.js?v=1.0.0",
-    "/c73-report-content.js?v=1.0.0"
+    "/c73-report-content.js?v=1.0.0",
+    "/c74-native-select.js?v=1.0.0"
   ];
 
   files.forEach(function (file) {
