@@ -800,7 +800,9 @@
       if (changed) {
         writeJson(KEYS.birth, fresh);
         if (self.name) localStorage.setItem(KEYS.name, self.name);
-        // Anzeige aktualisieren, falls Profil/Analyse gerade offen sind
+        // Anzeige komplett aktualisieren: Felder (force), Sternzeichen, Mond, Vorschau
+        try { if (typeof renderIdentity === "function") renderIdentity(true); } catch (e) {}
+        try { if (typeof renderMoon === "function") renderMoon(); } catch (e) {}
         try { if (typeof renderProfilePreview === "function") renderProfilePreview(); } catch (e) {}
         try {
           const an = $("analysis");
@@ -1145,7 +1147,7 @@
     if ($("moonVisual")) $("moonVisual").style.setProperty("--shadow-scale", Math.max(0.18, Math.min(1.25, 1 - illum / 100)));
   }
 
-  function renderIdentity() {
+  function renderIdentity(force) {
     const name = localStorage.getItem(KEYS.name) || "Dein Profil";
     const birth = readJson(KEYS.birth, null);
 
@@ -1154,13 +1156,20 @@
     renderGreeting();
 
     if (birth) {
-      if ($("pName")) $("pName").value = $("pName").value || birth.name || "";
-      if ($("pDay")) $("pDay").value = $("pDay").value || birth.day || "";
-      if ($("pMonth")) $("pMonth").value = $("pMonth").value || birth.month || "";
-      if ($("pYear")) $("pYear").value = $("pYear").value || birth.year || "";
-      if ($("pHour")) $("pHour").value = $("pHour").value || (birth.hour ?? "");
-      if ($("pMinute")) $("pMinute").value = $("pMinute").value || (birth.minute ?? "");
-      if ($("pBirthplace")) $("pBirthplace").value = $("pBirthplace").value || birth.birthplace || "";
+      // force=true (nach Server-Sync): Felder mit frischen Daten überschreiben.
+      // sonst: nur füllen, wenn leer (stört den Nutzer nicht beim Tippen).
+      const put = (id, val) => {
+        const el = $(id);
+        if (!el) return;
+        if (force || !el.value) el.value = (val ?? "");
+      };
+      put("pName", birth.name || "");
+      put("pDay", birth.day || "");
+      put("pMonth", birth.month || "");
+      put("pYear", birth.year || "");
+      put("pHour", birth.hour ?? "");
+      put("pMinute", birth.minute ?? "");
+      put("pBirthplace", birth.birthplace || "");
       renderSun(Number(birth.day), Number(birth.month));
     }
 
