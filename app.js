@@ -755,11 +755,14 @@
       const existing = readJson(KEYS.birth, null);
 
       const selfId = getCurrentPersonId();
+      // Neueste self-Person nehmen (falls durch alte Tests mehrere existieren)
+      const selfCandidates = (Array.isArray(people) ? people : [])
+        .filter((p) => p && (p.id === selfId || p.is_self))
+        .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
       const self =
-        (Array.isArray(people) &&
-          (people.find((p) => p && (p.id === selfId || p.is_self)) ||
-            people.find((p) => p && p.birth_date) ||  // Fallback: erste Person mit Geburtsdatum
-            null)) || null;
+        selfCandidates[0] ||
+        (Array.isArray(people) && people.find((p) => p && p.birth_date)) ||
+        null;
       if (!self || !self.birth_date) return;
 
       // Self-ID auch lokal sichern, falls nach Login nicht gesetzt
@@ -790,28 +793,35 @@
         birthplace: self.birthplace || ""
       };
 
-      // Server ist die Wahrheit: nur schreiben, wenn sich etwas geändert hat
-      // (so gleichen sich Geräte ab, statt an alten lokalen Daten zu kleben).
-      const changed = !existing ||
-        existing.year !== fresh.year || existing.month !== fresh.month ||
-        existing.day !== fresh.day || existing.hour !== fresh.hour ||
-        existing.minute !== fresh.minute || existing.birthplace !== fresh.birthplace;
+      // Server ist IMMER die Wahrheit. Typ-sicherer Vergleich (Zahlen/Strings/null),
+      // damit Geräte-Abgleich zuverlässig erkennt, ob sich etwas geändert hat.
+      const norm = (v) => (v === null || v === undefined || v === "") ? "" : String(v);
+      const same = existing &&
+        norm(existing.year) === norm(fresh.year) &&
+        norm(existing.month) === norm(fresh.month) &&
+        norm(existing.day) === norm(fresh.day) &&
+        norm(existing.hour) === norm(fresh.hour) &&
+        norm(existing.minute) === norm(fresh.minute) &&
+        norm(existing.birthplace) === norm(fresh.birthplace) &&
+        norm(existing.name) === norm(fresh.name);
 
-      if (changed) {
-        writeJson(KEYS.birth, fresh);
-        if (self.name) localStorage.setItem(KEYS.name, self.name);
-        // Anzeige komplett aktualisieren: Felder (force), Sternzeichen, Mond, Vorschau
+      // Serverdaten immer lokal übernehmen (auch wenn "gleich" – schadet nicht,
+      // stellt aber sicher, dass alte/kaputte lokale Werte ersetzt werden).
+      writeJson(KEYS.birth, fresh);
+      if (self.name) localStorage.setItem(KEYS.name, self.name);
+
+      if (!same) {
+        // Anzeige komplett & sofort aktualisieren
         try { if (typeof renderIdentity === "function") renderIdentity(true); } catch (e) {}
         try { if (typeof renderMoon === "function") renderMoon(); } catch (e) {}
         try { if (typeof renderProfilePreview === "function") renderProfilePreview(); } catch (e) {}
+        try { if (typeof renderHomeSkyThrottled === "function") renderHomeSkyThrottled(true); } catch (e) {}
         try {
           const an = $("analysis");
           if (an && an.classList.contains("active") && typeof loadRealChartData === "function") {
             loadRealChartData(false);
           }
         } catch (e) {}
-      } else if (self.name) {
-        localStorage.setItem(KEYS.name, self.name);
       }
     } catch (e) { /* still: Chart zeigt dann den Profil-Hinweis */ }
   }
@@ -1673,7 +1683,18 @@
     bindUiEvents();
     cacheSelfFromStorage();
     refreshSynastryPeople();
-    loadPeopleFromSupabase(false);
+    // Robuster Erst-Sync: bei fehlender Session/Netz kurz später erneut versuchen,
+    // damit nach dem Login die frischen Serverdaten sicher ankommen (kein Blinken/alte Daten).
+    (function syncWithRetry(attempt) {
+      loadPeopleFromSupabase(false).then(function (people) {
+        var ok = Array.isArray(people) && people.length > 0;
+        if (!ok && attempt < 4) {
+          window.setTimeout(function () { syncWithRetry(attempt + 1); }, 900 * (attempt + 1));
+        }
+      }).catch(function () {
+        if (attempt < 4) window.setTimeout(function () { syncWithRetry(attempt + 1); }, 900 * (attempt + 1));
+      });
+    })(0);
     renderOnboardingState();
     renderAppStatus();
     renderDeveloperTools();
