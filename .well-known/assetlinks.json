@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.sorayaluxuryastroguide.app.twa",
+    "sha256_cert_fingerprints": ["E1:0C:A4:29:0E:6A:E5:21:7E:4C:B8:54:20:3A:BE:35:A7:70:C6:31:B5:C8:EE:35:F5:E1:EC:50:2F:9D:D6:20"]
+  }
+}]
