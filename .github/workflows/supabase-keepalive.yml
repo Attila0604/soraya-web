@@ -1,0 +1,43 @@
+# Soraya — Supabase Keep-Alive
+#
+# Supabase-Gratisprojekte pausieren nach ca. 7 Tagen ohne Aktivität.
+# Dann schlägt der Login für alle Nutzer (und für Google-Play-Prüfer) fehl.
+# Dieser Workflow schickt täglich eine kleine, echte Datenbank-Abfrage an
+# Supabase und hält das Projekt so aktiv.
+#
+# Wichtig:
+# - Geplante Workflows laufen nur vom Standard-Branch (main).
+# - URL und anon key sind öffentlich (stehen auch in config.js), kein Secret.
+# - Schlägt der Ping fehl (z. B. Projekt schon pausiert), wird der Lauf rot
+#   und GitHub schickt eine E-Mail-Benachrichtigung.
+
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # täglich 06:17 UTC
+  workflow_dispatch: {} # manuell startbar über den Actions-Tab
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_URL: https://qpvniafpajeafcwsrtds.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdm5pYWZwYWplYWZjd3NydGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MDMzNzIsImV4cCI6MjA5Nzk3OTM3Mn0.ns5pRpXdRdeocvdJPTIhvQEWV4zALr8ty0WJCKH_1QY
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Supabase anpingen
+        run: |
+          status=$(curl -sS -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 10 \
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Supabase antwortet mit HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "::error::Supabase nicht erreichbar (HTTP $status) — Projekt evtl. pausiert. Im Supabase-Dashboard wiederherstellen."
+            exit 1
+          fi
