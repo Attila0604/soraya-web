@@ -307,7 +307,7 @@
     var candidates = people.filter(function (p) {
       return p && (p.is_self === true || text(p.relation).toLowerCase() === "self");
     });
-    if (!candidates.length) candidates = people.filter(Boolean);
+    // Kein eigenes Profil -> null (nicht den Partner als "ich" uebernehmen)
     candidates.sort(function (a, b) {
       var ad = Date.parse(a.created_at || "") || 0;
       var bd = Date.parse(b.created_at || "") || 0;

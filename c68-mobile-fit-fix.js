@@ -5,24 +5,16 @@
   function $(id) { return document.getElementById(id); }
   function txt(v) { return v === undefined || v === null ? "" : String(v); }
 
-  function compact(value, limit) {
-    var s = txt(value).replace(/\s+/g, " ").trim();
-    if (!s || s.length <= limit) return s;
-    var cut = s.slice(0, limit);
-    var end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
-    if (end > 70) return cut.slice(0, end + 1).trim();
-    var space = cut.lastIndexOf(" ");
-    return (space > 50 ? cut.slice(0, space) : cut).trim() + "…";
-  }
-
+  // Horoskop-Texte werden NICHT gekuerzt (vorher nur ~210 Zeichen sichtbar).
+  // Nur leere Felder bekommen einen Platzhalter.
   function compactHoroscope() {
     var mood = $("horoMood");
     var body = $("horoBody");
     var tip = $("horoTip");
 
-    if (mood) mood.textContent = compact(mood.textContent, 68) || "Dein Horoskop";
-    if (body) body.textContent = compact(body.textContent, 210) || "Wähle einen Zeitraum und lade dein Horoskop.";
-    if (tip) tip.textContent = compact(tip.textContent, 105) || "✦ Dein Tipp erscheint hier";
+    if (mood && !txt(mood.textContent).trim()) mood.textContent = "Dein Horoskop";
+    if (body && !txt(body.textContent).trim()) body.textContent = "Wähle einen Zeitraum und lade dein Horoskop.";
+    if (tip && !txt(tip.textContent).trim()) tip.textContent = "✦ Dein Tipp erscheint hier";
   }
 
   function normalizeChatCards() {
