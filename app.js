@@ -1,13 +1,11 @@
 /*
-  Soraya — C.5.5 App Polish + Universal Login
+  Soraya — App-Logik
   Datei: app.js
-  Ziel:
-  - alle sichtbaren Buttons haben eine Funktion
-  - C.5.3 Stabilität bleibt erhalten
-  - beeindruckende Optik bleibt erhalten
-  - Login/Registrierung robuster für neue Geräte
-  - technische Bereiche werden für normale User versteckt
-  - keine Backend-Änderung
+
+  Enthaelt seit Oktober 2026 auch die frueheren Fix-Schichten c66/c67/c68
+  (Profil-Wiederherstellung, Benutzerwechsel, sanfte Fallbacks, Horoskop-
+  Platzhalter). Die UI-Zusaetze c58/c70/c72/c73/c74 werden in index.html in
+  fester Reihenfolge NACH dieser Datei geladen.
 */
 
 (function () {
@@ -21,10 +19,21 @@
     birth: "soraya_birth",
     created: "soraya_created_at",
     analyses: "soraya_analysis_count",
-    people: "soraya_people_cache_v1"
+    people: "soraya_people_cache_v1",
+    authUser: "soraya_auth_user_id"
   };
 
+  // Alles, was zu einem bestimmten Nutzer gehoert (bei Benutzerwechsel loeschen)
+  const PROFILE_KEYS = [KEYS.person, KEYS.conv, KEYS.name, KEYS.birth, KEYS.created, KEYS.analyses, KEYS.people];
+
   const LOGIN_PATH = "/login";
+  const SKY_REFRESH_MS = 10 * 60 * 1000;
+  let lastHomeSkyAt = 0;
+  let lastSkyTodayAt = 0;
+  let skyToday = null;
+  let chatBusy = false;
+  const APP_VERSION = "web-2026.10.09";
+  let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
   // Personenliste der letzten erfolgreichen Server-Abfrage (fuer den Chat)
@@ -128,9 +137,10 @@
   }
 
   function getAvailableConfig() {
+    // Die oeffentliche config.js gewinnt immer gegen alte lokale Werte.
+    if (hasCompleteConfig(PUBLIC_CONFIG)) return PUBLIC_CONFIG;
     const stored = getStoredConfig();
     if (hasCompleteConfig(stored)) return stored;
-    if (hasCompleteConfig(PUBLIC_CONFIG)) return PUBLIC_CONFIG;
     return null;
   }
 
@@ -181,6 +191,14 @@
     window.scrollTo({ top: 0, behavior: isMobile() ? "auto" : "smooth" });
     renderAppStatus();
 
+    track("section_view", { id });
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("section", id);
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    } catch (error) {}
+
     if (id === "analysis") {
       window.setTimeout(() => loadRealChartData(false), 80);
     }
@@ -190,6 +208,10 @@
         updateSynastryNames();
         loadPeopleFromSupabase(false);
       }, 80);
+    }
+
+    if (id === "chat") {
+      window.setTimeout(() => renderChatSuggestions(false), 60);
     }
 
     if (id === "profile") {
@@ -202,7 +224,8 @@
 
     if (id === "home") {
       window.setTimeout(() => {
-        renderHomeSkyThrottled();
+        if (Date.now() - lastHomeSkyAt > SKY_REFRESH_MS) renderHomeSkyThrottled();
+        renderSkyToday(false);
         renderOnboardingState();
       }, 80);
     }
@@ -358,16 +381,31 @@
     return headers;
   }
 
-  async function callSoraya(path, body, method = "POST") {
+  // fetch mit Zeitlimit. Nur fuer schnelle Abfragen -- Analyse/Chat duerfen lange dauern.
+  async function fetchWithTimeout(url, options, ms) {
+    if (!ms || typeof AbortController === "undefined") return fetch(url, options);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), ms);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } catch (error) {
+      if (error && error.name === "AbortError") throw new Error("Backend dauerte zu lange (timeout).");
+      throw error;
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  async function callSoraya(path, body, method = "POST", timeoutMs = 0) {
     const token = await getToken();
-    const response = await fetch(getEngineUrl() + path, {
+    const response = await fetchWithTimeout(getEngineUrl() + path, {
       method,
       headers: {
         Authorization: "Bearer " + token,
         "Content-Type": "application/json"
       },
       body: method === "GET" ? undefined : JSON.stringify(body || {})
-    });
+    }, timeoutMs);
 
     const text = await response.text();
     let json;
@@ -389,7 +427,10 @@
       if (!sb) loadConfig(false);
       if (sb) await sb.auth.signOut();
 
-      localStorage.removeItem(KEYS.conv);
+      clearProfileStorage();
+      localStorage.removeItem(KEYS.authUser);
+      serverPeople = null;
+      chartCache = { personId: null, json: null };
       status("authStatus", "Abgemeldet.", "ok");
       toast("Abgemeldet.");
       renderAuthUi();
@@ -399,6 +440,77 @@
       showGlobalError(msg, "bad");
       toast(msg);
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Nutzungsstatistik & Fehlerprotokoll
+  // Eigene Supabase-Tabelle app_events, nur fuer eingeloggte Nutzer, keine
+  // Cookies, keine Drittanbieter, keine Inhalte (keine Chat-Texte/Geburtsdaten).
+  // Loeschung nach 180 Tagen (pg_cron). Siehe datenschutz.html, Abschnitt 3.
+  // ---------------------------------------------------------------------------
+  const TRACK_LIMIT = 40;
+  let trackedCount = 0;
+  let trackedErrors = 0;
+
+  function shortText(value, max = 200) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+  }
+
+  async function track(event, props = {}) {
+    try {
+      if (trackedCount >= TRACK_LIMIT) return;
+      if (event === "error" && ++trackedErrors > 10) return;
+      if (!sb && !loadConfig(false)) return;
+      const { data } = await sb.auth.getSession();
+      if (!data || !data.session) return;
+      trackedCount += 1;
+      await sb.from("app_events").insert({ event, props: { ...props, v: APP_VERSION } });
+    } catch (error) {}
+  }
+
+  function trackError(where, error) {
+    track("error", { where, msg: shortText(error && error.message ? error.message : error) });
+  }
+
+  function isStandalone() {
+    try {
+      return window.matchMedia("(display-mode: standalone)").matches || document.referrer.startsWith("android-app://");
+    } catch (error) {
+      return false;
+    }
+  }
+
+  window.addEventListener("error", (event) => {
+    const file = shortText(event && event.filename, 300).split("/").pop();
+    track("error", { where: "js", msg: shortText(event && event.message), file, line: event && event.lineno });
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = event && event.reason;
+    track("error", { where: "promise", msg: shortText(reason && reason.message ? reason.message : reason) });
+  });
+
+  function clearProfileStorage() {
+    PROFILE_KEYS.forEach((key) => {
+      try { localStorage.removeItem(key); } catch (error) {}
+    });
+    if ($("personId")) $("personId").value = "";
+    if ($("conversationId")) $("conversationId").value = "";
+  }
+
+  // Meldet sich auf demselben Geraet ein anderer Nutzer an, duerfen dessen
+  // Profil-Daten nicht beim neuen Nutzer auftauchen (frueher c66).
+  async function ensureSameUser() {
+    const state = await getSessionState();
+    const userId = state.session && state.session.user ? state.session.user.id : "";
+    if (!userId) return state;
+    const previous = localStorage.getItem(KEYS.authUser) || "";
+    if (previous && previous !== userId) {
+      clearProfileStorage();
+      serverPeople = null;
+      chartCache = { personId: null, json: null };
+    }
+    localStorage.setItem(KEYS.authUser, userId);
+    return state;
   }
 
   async function getSessionState() {
@@ -519,6 +631,8 @@
       if (!localStorage.getItem(KEYS.created)) localStorage.setItem(KEYS.created, new Date().toISOString());
 
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
+      chartCache = { personId: null, json: null };
+      loadPeopleFromSupabase(false);
       renderIdentity();
       renderProfilePreview();
       renderHomeSkyThrottled(true);
@@ -526,9 +640,11 @@
       renderAppStatus();
       loadRealChartData(true);
       status("personResult", "◈ Profil gespeichert.\nName: " + (row.name || person.name), "ok");
+      track("profile_saved", { time_known: person.hour !== null });
       toast("Profil gespeichert.");
     } catch (error) {
       const msg = friendlyError(error, "Profil konnte nicht gespeichert werden.");
+      trackError("profile", error);
       status("personResult", msg, "bad");
       toast(msg);
     } finally {
@@ -567,9 +683,11 @@
       const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
       localStorage.setItem(KEYS.analyses, String(count));
       renderIdentity();
+      track("analysis_loaded", { source: data.data.source || "", force: !!forceNew });
       toast("Analyse geladen.");
     } catch (error) {
       const msg = friendlyError(error, "Analyse konnte nicht geladen werden.");
+      trackError("analysis", error);
       if ($("analysisReading")) $("analysisReading").textContent = msg;
       toast(msg);
     } finally {
@@ -633,9 +751,11 @@
       setText("horoBody", body);
       setText("horoTip", "✦ " + tip);
       renderHoroscopePremium(data);
+      track("horoscope_loaded", { period: ($("period") && $("period").value) || "daily", source: data.data.source || "" });
       toast("Horoskop geladen.");
     } catch (error) {
       const msg = friendlyError(error, "Horoskop konnte nicht geladen werden.");
+      trackError("horoscope", error);
       setText("horoMood", "Fehler");
       setText("horoBody", msg);
       toast(msg);
@@ -673,11 +793,55 @@
       input.focus();
     }
     showSection("chat");
+    if (chatBusy) return;
     window.setTimeout(() => sendChat(), 90);
+  }
+
+  function showTyping() {
+    const windowNode = $("chatWindow");
+    if (!windowNode) return null;
+    const bubble = document.createElement("div");
+    bubble.className = "bubble assistant typing";
+    bubble.setAttribute("aria-label", "Soraya schreibt");
+    bubble.innerHTML = "<i></i><i></i><i></i>";
+    windowNode.appendChild(bubble);
+    windowNode.scrollTop = windowNode.scrollHeight;
+    return bubble;
+  }
+
+  function setChatBusy(busy) {
+    chatBusy = busy;
+    const button = $("chatSendButton");
+    if (button) button.disabled = busy;
+  }
+
+  // Vorschlagsfragen: persoenlich (gespeicherte Personen, Mond heute) und
+  // nach einer Antwort eine Vertiefung.
+  function renderChatSuggestions(afterReply = false) {
+    const box = $("chatSuggestions");
+    if (!box) return;
+    const selfId = getCurrentPersonId();
+    const others = (serverPeople || []).filter((p) => p && p.id && p.id !== selfId && !p.is_self);
+    const list = [];
+    if (afterReply) list.push("Erzähl mir mehr dazu.");
+    others.slice(0, 2).forEach((p) => list.push("Wie passe ich zu " + p.name + "?"));
+    if (skyToday && skyToday.moon && skyToday.moon.sign_de) list.push("Was bedeutet der Mond in " + skyToday.moon.sign_de + " heute für mich?");
+    list.push("Worauf soll ich diese Woche achten?");
+    list.push("Welche Stärke aus meinem Geburtshoroskop unterschätze ich?");
+
+    box.innerHTML = "";
+    list.slice(0, 3).forEach((text) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = text;
+      button.addEventListener("click", () => quickChat(text));
+      box.appendChild(button);
+    });
   }
 
   async function sendChat() {
     if (!needPerson()) return;
+    if (chatBusy) return;
 
     const field = $("chatMessage");
     const message = field ? field.value.trim() : "";
@@ -685,9 +849,17 @@
       toast("Bitte zuerst eine Nachricht schreiben.");
       return;
     }
+    if (message.length > 2000) {
+      toast("Deine Nachricht ist zu lang (maximal 2000 Zeichen).");
+      return;
+    }
 
     appendBubble("user", message);
     if (field) field.value = "";
+    setChatBusy(true);
+    const suggestions = $("chatSuggestions");
+    if (suggestions) suggestions.innerHTML = "";
+    const typing = showTyping();
 
     try {
       // Gespeicherte Personen mitschicken, damit Soraya z. B. "Wie passe ich
@@ -715,9 +887,17 @@
         reply += "\n\nHinweis: Soraya ersetzt keine professionelle Finanz-, Rechts- oder Gesundheitsberatung.";
       }
 
+      if (typing) typing.remove();
       appendBubble("assistant", reply);
+      renderChatSuggestions(true);
+      track("chat_sent", { people: peopleIds.length });
     } catch (error) {
+      if (typing) typing.remove();
+      trackError("chat", error);
       appendBubble("assistant", friendlyError(error, "Chat konnte nicht geladen werden."));
+      renderChatSuggestions(false);
+    } finally {
+      setChatBusy(false);
     }
   }
 
@@ -858,6 +1038,7 @@
       const hasPersonNow = !!getCurrentPersonId();
       cacheSelfFromStorage();
       refreshSynastryPeople();
+      renderChatSuggestions(false);
 
       // Wenn gerade erst Geburtsdaten/Person reingespiegelt wurden und die
       // Analyse offen ist, Chart automatisch nachladen (sonst bleibt der Hinweis).
@@ -965,17 +1146,14 @@
     const summary = payload.summary || syn.summary || {};
     const aspects = payload.aspects || syn.aspects || [];
 
-    const value = syn.score_value || score.value || score.score || 0;
-    const label = score.label || summary.label || "Kosmische Verbindung";
+    const value = payload.percent != null ? payload.percent : (score.value || score.score || 0);
+    const label = payload.label || score.label || summary.label || "Kosmische Verbindung";
     const text =
-      payload.text ||
-      summary.text ||
-      summary.short ||
-      syn.summary ||
+      [payload.text, summary.text, summary.short, syn.summary].find((t) => typeof t === "string" && t.trim()) ||
       "Eure Verbindung wurde berechnet. Achtet darauf, wo Harmonie entsteht und wo bewusste Kommunikation wichtig ist.";
 
     let html = "";
-    html += "◈ Synastrie gespeichert.\n";
+    html += "◈ Partner-Vergleich gespeichert.\n";
     html += "Kompatibilität: " + value + "%\n\n";
     html += label + "\n";
     html += text;
@@ -1080,22 +1258,31 @@
 
       const syn = (data.data && data.data.synastry) || {};
       const scoreObj = (data.data && data.data.score) || syn.score || {};
-      const value = syn.score_value || scoreObj.value || scoreObj.score || 0;
+      // score_percent: Backend rechnet Discepolo-Punkte in Prozent um.
+      // Alte Backends liefern nur Punkte -> grob umrechnen statt "29 %" zu zeigen.
+      const points = syn.score_value || scoreObj.value || 0;
+      const value = data.data && data.data.score_percent != null
+        ? data.data.score_percent
+        : Math.min(97, Math.round(35 + Number(points) * 1.9));
 
       if ($("compatScore")) $("compatScore").textContent = value + "%";
       if ($("compatRing")) $("compatRing").style.setProperty("--score", Math.min(100, Number(value) || 0) + "%");
 
       renderSynastryDescription({
         synastry: syn,
+        percent: value,
+        label: data.data && data.data.score_label,
         score: scoreObj,
         summary: data.data && data.data.summary,
         aspects: data.data && data.data.aspects,
         text: data.data && data.data.text
       });
       renderSynastryPremium(data);
-      toast("Synastrie berechnet.");
+      track("synastry_done", { source: (data.data && data.data.source) || "" });
+      toast("Partner-Vergleich berechnet.");
     } catch (error) {
       const msg = friendlyError(error, "Synastrie konnte nicht berechnet werden.");
+      trackError("synastry", error);
       status("synastryText", msg, "bad");
       toast(msg);
     } finally {
@@ -1252,7 +1439,8 @@
     const sign = typeof pointOrSign === "string" ? pointOrSign : pointOrSign && pointOrSign.sign;
     const signDe = typeof pointOrSign === "object" && pointOrSign ? pointOrSign.sign_de : "";
     const map = { Ari: "Widder", Tau: "Stier", Gem: "Zwillinge", Can: "Krebs", Leo: "Löwe", Vir: "Jungfrau", Lib: "Waage", Sco: "Skorpion", Sag: "Schütze", Cap: "Steinbock", Aqu: "Wassermann", Pis: "Fische" };
-    return signDe || map[sign] || sign || "–";
+    const fixed = { Loewe: "Löwe", Schuetze: "Schütze" };
+    return fixed[signDe] || signDe || map[sign] || sign || "–";
   }
 
   function signStart(sign) {
@@ -1447,15 +1635,15 @@
     }
 
     try {
-      const config = getConfig();
-      if (details) details.textContent = "Soraya berechnet dein echtes Radix…";
-      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", {
-        method: "POST",
-        headers: await engineHeaders(),
-        body: JSON.stringify(birth)
-      });
-      const json = await response.json();
-      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Chart nicht verfügbar.");
+      const personId = getCurrentPersonId();
+      let json = null;
+      if (!force && personId && chartCache.personId === personId && chartCache.json) {
+        json = chartCache.json;
+      } else {
+        if (details) details.textContent = "Soraya lädt dein Radix…";
+        json = await loadChartJson(personId, birth);
+        if (personId) chartCache = { personId, json };
+      }
       renderWheel(json);
       renderAnalysisDetails(json);
 
@@ -1483,6 +1671,45 @@
     }
   }
 
+  // Gespeichertes Radix (schnell, ohne Geocoding). Ohne Personen-ID oder bei
+  // aelterem Backend: Berechnung aus den Geburtsdaten ueber /chart.
+  async function loadChartJson(personId, birth) {
+    if (personId) {
+      try {
+        const json = await callSoraya("/mobile/chart", { person_id: personId }, "POST", 15000);
+        if (json && json.data) return json;
+      } catch (error) {
+        if (/zu lange|timeout|Tageslimit/i.test(error.message || "")) throw error;
+      }
+    }
+    return engineJson("/chart", birth);
+  }
+
+  async function loadTransitsJson(personId, birth) {
+    if (personId) {
+      try {
+        const json = await callSoraya("/mobile/transits", { person_id: personId, at: null }, "POST", 15000);
+        if (json && json.data) return json;
+      } catch (error) {
+        if (/zu lange|timeout|Tageslimit/i.test(error.message || "")) throw error;
+      }
+    }
+    return engineJson("/transits", { person: birth, at: null });
+  }
+
+  async function engineJson(path, body) {
+    const config = getConfig();
+    const response = await fetchWithTimeout(config.engineUrl.replace(/\/$/, "") + path, {
+      method: "POST",
+      headers: await engineHeaders(),
+      body: JSON.stringify(body)
+    }, 15000);
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
+    if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Keine Daten erhalten.");
+    return json;
+  }
+
   function setHomeTransits(html) {
     const box = $("homeTransits");
     if (box) box.innerHTML = html;
@@ -1506,7 +1733,7 @@
 
   async function renderHomeSky() {
     const birth = readJson(KEYS.birth, null);
-    const config = readJson(KEYS.config, null);
+    const config = getAvailableConfig();
 
     if (!config || !config.engineUrl) {
       setHomeTransits(transitRow("✦", "Verbindung fehlt", "Speichere zuerst Supabase & Backend."));
@@ -1520,15 +1747,10 @@
       return;
     }
 
+    lastHomeSkyAt = Date.now();
     try {
-      const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/transits", {
-        method: "POST",
-        headers: await engineHeaders(),
-        body: JSON.stringify({ person: birth, at: null })
-      });
-
-      const json = await response.json();
-      if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Transite nicht verfügbar.");
+      const json = await loadTransitsJson(getCurrentPersonId(), birth);
+      document.body.classList.remove("soraya-backend-soft-fail");
 
       const aspects = (json.data.aspects_to_natal || []).slice(0, 3);
       if (!aspects.length) {
@@ -1567,8 +1789,88 @@
       const label = score >= 66 ? "Harmonisch & offen" : score >= 45 ? "Ausgeglichen" : "Intensiv & fordernd";
       setEnergy(score, label);
     } catch (error) {
-      setHomeTransits(transitRow("✦", "Transite nicht ladbar", friendlyError(error, "Backend nicht erreichbar.")));
+      trackError("transits", error);
+      lastHomeSkyAt = 0;
+      document.body.classList.add("soraya-backend-soft-fail");
+      setHomeTransits(transitRow("✦", "Sanfter Tagesimpuls", "Deine Transite sind gerade kurz nicht erreichbar. Soraya versucht es gleich erneut."));
       setEnergy(null, "–");
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Der Himmel heute (fuer alle gleich, Backend /sky, stuendlich aktuell)
+  // ---------------------------------------------------------------------------
+  const WEEKDAYS = ["So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."];
+  const MONTHS_SHORT = ["Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
+
+  function formatDay(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return WEEKDAYS[d.getDay()] + ", " + d.getDate() + ". " + MONTHS_SHORT[d.getMonth()];
+  }
+
+  function daysUntil(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const days = Math.round((target - start) / 86400000);
+    if (days <= 0) return "heute";
+    if (days === 1) return "morgen";
+    return "in " + days + " Tagen";
+  }
+
+  function skyRows(sky) {
+    const rows = [];
+    const moon = sky.moon || {};
+    rows.push(transitRow("☾", "Mond in " + (moon.sign_de || "–"), (moon.phase || "Mondphase") + " · " + (moon.illumination ?? "–") + " % beleuchtet"));
+
+    const full = sky.next_full_moon;
+    const fresh = sky.next_new_moon;
+    const lunations = [
+      fresh ? { glyph: "●", title: "Neumond", when: fresh, text: "Zeit für neue Absichten" } : null,
+      full ? { glyph: "○", title: "Vollmond", when: full, text: "Höhepunkt und Loslassen" } : null
+    ].filter(Boolean).sort((a, b) => new Date(a.when) - new Date(b.when));
+    lunations.forEach((l) => rows.push(transitRow(l.glyph, l.title + " · " + formatDay(l.when), l.text, daysUntil(l.when))));
+
+    const personal = ["Merkur", "Venus", "Mars"];
+    const retro = Array.isArray(sky.retrograde) ? sky.retrograde : [];
+    retro.filter((r) => personal.includes(r.planet)).forEach((r) => {
+      rows.push(transitRow(planetGlyph(r.planet), r.planet + " rückläufig", r.until ? "bis " + formatDay(r.until) + ": Altes überdenken, nichts überstürzen" : "Altes überdenken", r.until ? daysUntil(r.until).replace("in ", "noch ") : ""));
+    });
+    const slow = retro.filter((r) => !personal.includes(r.planet)).map((r) => r.planet);
+    if (slow.length) {
+      rows.push(transitRow("℞", slow.join(", ") + " rückläufig", "Langsame Planeten: innere Themen statt äußerer Tempo-Wechsel"));
+    }
+    (Array.isArray(sky.retrograde_soon) ? sky.retrograde_soon : []).forEach((r) => {
+      rows.push(transitRow(planetGlyph(r.planet), r.planet + " wird rückläufig", "ab " + formatDay(r.from), daysUntil(r.from)));
+    });
+    return rows.join("");
+  }
+
+  async function renderSkyToday(force = false) {
+    const box = $("skyList");
+    if (!box) return;
+    if (!force && skyToday && Date.now() - lastSkyTodayAt < 60 * 60 * 1000) return;
+    try {
+      const config = getConfig();
+      const response = await fetchWithTimeout(config.engineUrl.replace(/\/$/, "") + "/sky", { method: "GET" }, 15000);
+      const json = await response.json();
+      if (!json || json.ok === false || !json.data) throw new Error("Himmel nicht verfügbar.");
+      skyToday = json.data;
+      lastSkyTodayAt = Date.now();
+      box.innerHTML = skyRows(skyToday);
+
+      const moon = skyToday.moon || {};
+      if (moon.phase) setText("moonPhase", moon.phase);
+      if (moon.illumination !== undefined) {
+        setText("moonIllum", (moon.sign_de ? "Mond in " + moon.sign_de + " · " : "") + moon.illumination + " % beleuchtet");
+        if ($("moonVisual")) $("moonVisual").style.setProperty("--shadow-scale", Math.max(0.18, Math.min(1.25, 1 - moon.illumination / 100)));
+      }
+      renderChatSuggestions();
+    } catch (error) {
+      if (!skyToday) box.innerHTML = transitRow("☾", "Himmelsereignisse", "Gerade kurz nicht erreichbar. Soraya versucht es später erneut.");
     }
   }
 
@@ -1684,8 +1986,15 @@
     }
   }
 
-  function bootstrap() {
+  let bootstrapped = false;
+
+  async function bootstrap() {
+    if (bootstrapped) return;
+    bootstrapped = true;
     loadConfig(false);
+    // Zuerst pruefen, ob noch derselbe Nutzer angemeldet ist -- sonst wuerden
+    // fremde Profil-Daten kurz angezeigt.
+    await ensureSameUser();
 
     const storedPersonId = localStorage.getItem(KEYS.person);
     if ($("personId") && storedPersonId) $("personId").value = storedPersonId;
@@ -1698,20 +2007,18 @@
     renderProfilePreview();
     renderWheel(null);
     renderHomeSkyThrottled();
+    renderSkyToday(true);
     renderAuthUi();
     bindUiEvents();
     cacheSelfFromStorage();
     refreshSynastryPeople();
-    // Robuster Erst-Sync: bei fehlender Session/Netz kurz später erneut versuchen,
-    // damit nach dem Login die frischen Serverdaten sicher ankommen (kein Blinken/alte Daten).
+    // Erst-Sync mit dem Server. Nur bei einem Fehler (Netz/Backend) erneut
+    // versuchen -- eine leere Personenliste ist bei neuen Nutzern normal.
     (function syncWithRetry(attempt) {
-      loadPeopleFromSupabase(false).then(function (people) {
-        var ok = Array.isArray(people) && people.length > 0;
-        if (!ok && attempt < 4) {
-          window.setTimeout(function () { syncWithRetry(attempt + 1); }, 900 * (attempt + 1));
+      loadPeopleFromSupabase(false).then(function () {
+        if (serverPeople === null && attempt < 3) {
+          window.setTimeout(function () { syncWithRetry(attempt + 1); }, 1500 * (attempt + 1));
         }
-      }).catch(function () {
-        if (attempt < 4) window.setTimeout(function () { syncWithRetry(attempt + 1); }, 900 * (attempt + 1));
       });
     })(0);
     renderOnboardingState();
@@ -1731,6 +2038,7 @@
     } catch (error) {}
 
     window.setTimeout(auditButtons, 500);
+    track("app_open", { standalone: isStandalone() });
   }
 
   window.toast = toast;
@@ -1779,5 +2087,18 @@
   window.sorayaRenderAuthUi = renderAuthUi;
   window.sorayaBootstrap = bootstrap;
 
-  window.addEventListener("load", bootstrap);
+  // Beim Zurueckkehren in die App: Home-Daten auffrischen, wenn sie alt sind.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) return;
+    const home = $("home");
+    if (home && home.classList.contains("active") && Date.now() - lastHomeSkyAt > SKY_REFRESH_MS) {
+      renderHomeSkyThrottled();
+    }
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
+  } else {
+    bootstrap();
+  }
 })();

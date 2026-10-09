@@ -8,7 +8,7 @@
   Bei jeder Aenderung die CACHE_VERSION erhoehen, dann raeumt der SW alte Caches auf.
 */
 
-const CACHE_VERSION = "soraya-v8";
+const CACHE_VERSION = "soraya-v9";
 const OFFLINE_URL = "/offline";
 
 // App-Schale, die vorab gecacht wird.
@@ -22,6 +22,11 @@ const PRECACHE = [
   "/app.js",
   "/config.js",
   "/c58-mobile-layout.js",
+  "/c70-account-deletion.js",
+  "/c72-daily-content.js",
+  "/c73-report-content.js",
+  "/c74-native-select.js",
+  "/vendor/supabase-js-2.117.3.js",
   "/manifest.webmanifest",
   "/icon.svg",
   "/apple-touch-icon.png",
