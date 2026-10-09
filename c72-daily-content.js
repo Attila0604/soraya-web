@@ -45,6 +45,8 @@
     var pick = IMPULSES[dayIndex()];
     var titleEl = document.getElementById("dailyFocusTitle");
     var textEl = document.getElementById("dailyFocusText");
+    // Persoenlicher Tagesfokus aus dem eigenen Horoskop hat Vorrang (app.js).
+    if (titleEl && titleEl.dataset.personal === "1") return;
     if (titleEl) titleEl.textContent = pick.t;
     if (textEl) textEl.textContent = pick.x;
   }

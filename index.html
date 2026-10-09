@@ -101,10 +101,10 @@
           </div>
         </div>
 
-        <div class="card premium c46-daily-focus">
+        <div class="card premium c46-daily-focus" id="dailyFocusCard" role="button" tabindex="0" onclick="showSection('horoscope')" aria-label="Zum Tageshoroskop">
           <div class="card-title">
             <h4>Dein Tagesfokus</h4>
-            <span class="badge">Heute</span>
+            <span class="badge" id="dailyFocusBadge">Heute</span>
           </div>
           <div class="c46-focus-layout">
             <div class="c46-focus-orb">✦</div>
@@ -223,8 +223,8 @@
         <div class="card c4-reading-card">
           <div class="card-title"><h4>Reading</h4><span id="analysisSource" class="badge">bereit</span></div>
           <div class="c4-action-row">
-            <button class="btn gold" onclick="loadAnalysis(false)">Analyse öffnen</button>
-            <button class="btn" onclick="loadAnalysis(true)">Neu erzeugen</button>
+            <button class="btn gold" id="analysisOpenButton" onclick="loadAnalysis(false)">Analyse öffnen</button>
+            <button class="btn" id="analysisRegenButton" onclick="loadAnalysis(true)" style="display:none">Neu erstellen</button>
           </div>
           <div id="analysisReading" class="reading">Noch nichts geladen.</div>
         </div>
@@ -246,7 +246,7 @@
               <option value="weekly">Woche</option>
               <option value="monthly">Monat</option>
             </select>
-            <button class="btn gold" onclick="loadHoroscope()">Horoskop laden</button>
+            <button class="btn gold" id="horoReloadButton" onclick="loadHoroscope()" style="display:none">Erneut versuchen</button>
           </div>
           <div class="horo-layout c42-horo-layout">
             <div class="horo-moon c42-horo-orb"></div>

@@ -200,7 +200,14 @@
     } catch (error) {}
 
     if (id === "analysis") {
-      window.setTimeout(() => loadRealChartData(false), 80);
+      window.setTimeout(() => {
+        loadRealChartData(false);
+        autoLoadAnalysis();
+      }, 80);
+    }
+
+    if (id === "horoscope") {
+      window.setTimeout(() => loadHoroscope({ silent: true }), 60);
     }
 
     if (id === "synastry") {
@@ -662,26 +669,67 @@
     return true;
   }
 
+  // Analyse: beim Oeffnen des Bereichs wird eine GESPEICHERTE Analyse automatisch
+  // angezeigt (only_cached -> nie ein ungefragter Claude-Aufruf). Neu erstellen
+  // nur auf Knopfdruck, mit Rueckfrage (max. 3 pro Tag).
+  let analysisShownFor = null;
+
+  function setAnalysisButtons(hasReading) {
+    const open = $("analysisOpenButton");
+    const regen = $("analysisRegenButton");
+    if (open) {
+      open.style.display = hasReading ? "none" : "";
+      open.textContent = "Analyse erstellen";
+    }
+    if (regen) regen.style.display = hasReading ? "" : "none";
+  }
+
+  function showAnalysis(data) {
+    const analysis = data.data && data.data.analysis ? data.data.analysis : {};
+    const reading = analysis.reading || data.data.reading || data.data.text || "";
+    if (!reading) return false;
+    const source = data.data.source;
+    if ($("analysisSource")) $("analysisSource").textContent = source === "created" ? "neu" : "gespeichert";
+    if ($("analysisReading")) $("analysisReading").innerHTML = markdownToHtml(reading);
+    analysisShownFor = getCurrentPersonId();
+    setAnalysisButtons(true);
+    return true;
+  }
+
+  async function autoLoadAnalysis() {
+    const personId = getCurrentPersonId();
+    if (!personId || analysisShownFor === personId) return;
+    try {
+      const data = await callSoraya("/mobile/analysis/save", { person_id: personId, only_cached: true }, "POST", 15000);
+      if (!showAnalysis(data)) {
+        setAnalysisButtons(false);
+        if ($("analysisSource")) $("analysisSource").textContent = "bereit";
+        if ($("analysisReading")) $("analysisReading").textContent = "Deine persönliche Analyse ist noch nicht erstellt. Tippe auf „Analyse erstellen“ – Soraya schreibt sie in etwa einer Minute.";
+      }
+    } catch (error) {
+      setAnalysisButtons(false);
+    }
+  }
+
   async function loadAnalysis(forceNew) {
     if (!needPerson()) return;
+    if (forceNew && !window.confirm("Eine neue Analyse ersetzt die bisherige. Du kannst bis zu 3 neue Analysen pro Tag erstellen. Jetzt neu erstellen?")) return;
 
     try {
-      if ($("analysisReading")) $("analysisReading").innerHTML = "Soraya lädt deine Analyse…";
-      showLoadingVeil("Analyse wird geladen…");
+      if ($("analysisReading")) $("analysisReading").innerHTML = "Soraya schreibt deine Analyse… das dauert etwa eine Minute.";
+      showLoadingVeil("Analyse wird erstellt…");
 
       const data = await callSoraya("/mobile/analysis/save", {
         person_id: getCurrentPersonId(),
         force_new: !!forceNew
       });
 
-      const analysis = data.data && data.data.analysis ? data.data.analysis : {};
-      const reading = analysis.reading || data.data.reading || data.data.text || "Keine Analyse gefunden.";
+      if (!showAnalysis(data) && $("analysisReading")) $("analysisReading").textContent = "Keine Analyse gefunden.";
 
-      if ($("analysisSource")) $("analysisSource").textContent = data.data.source || "geladen";
-      if ($("analysisReading")) $("analysisReading").innerHTML = markdownToHtml(reading);
-
-      const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
-      localStorage.setItem(KEYS.analyses, String(count));
+      if (data.data.source === "created") {
+        const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
+        localStorage.setItem(KEYS.analyses, String(count));
+      }
       renderIdentity();
       track("analysis_loaded", { source: data.data.source || "", force: !!forceNew });
       toast("Analyse geladen.");
@@ -729,39 +777,100 @@
     setText("horoAffirmation", "„" + affirmation.replace(/^„|“$|^"|"$/g, "") + "“");
   }
 
-  async function loadHoroscope() {
-    if (!needPerson()) return;
+  // Horoskop: laedt beim Oeffnen und beim Wechsel Tag/Woche/Monat automatisch.
+  // Der Server liefert dasselbe Horoskop pro Zeitraum aus seinem Cache, hier wird
+  // zusaetzlich im Speicher gehalten, damit Tab-Wechsel sofort reagieren.
+  const horoscopeCache = {};
+  const horoscopePending = {};
+
+  function horoscopeKey(period) {
+    return getCurrentPersonId() + "|" + period + "|" + new Date().toDateString();
+  }
+
+  function currentPeriod() {
+    return ($("period") && $("period").value) || "daily";
+  }
+
+  function fetchHoroscope(period) {
+    const key = horoscopeKey(period);
+    const hit = horoscopeCache[period];
+    if (hit && hit.key === key) return Promise.resolve(hit.data);
+    if (horoscopePending[key]) return horoscopePending[key];
+    const request = callSoraya("/mobile/horoscope/save", { person_id: getCurrentPersonId(), period, at: null })
+      .then((data) => {
+        horoscopeCache[period] = { key, data };
+        return data;
+      })
+      .finally(() => { delete horoscopePending[key]; });
+    horoscopePending[key] = request;
+    return request;
+  }
+
+  function renderHoroscope(data) {
+    const h = data.data && data.data.horoscope ? data.data.horoscope : {};
+    const mood = h.stimmung || data.data.stimmung || "Dein Horoskop";
+    const body = h.body || h.text || data.data.body || data.data.text || "Keine Horoskopdaten gefunden.";
+    const tip = h.tipp || data.data.tipp || "Vertraue deinem inneren Kompass.";
+
+    setText("horoMood", mood);
+    setText("horoBody", body);
+    setText("horoTip", "✦ " + tip);
+    renderHoroscopePremium(data);
+    document.body.classList.add("soraya-horoscope-ready");
+  }
+
+  async function loadHoroscope(options) {
+    const silent = !!(options && options.silent);
+    if (!getCurrentPersonId()) {
+      if (!silent) needPerson();
+      return;
+    }
+    const period = currentPeriod();
+    const cached = horoscopeCache[period] && horoscopeCache[period].key === horoscopeKey(period);
+    const retry = $("horoReloadButton");
+    if (retry) retry.style.display = "none";
 
     try {
-      if ($("horoMood")) $("horoMood").textContent = "Soraya berechnet…";
-      showLoadingVeil("Horoskop wird geladen…");
+      if (!cached) {
+        setText("horoMood", "Soraya liest die Sterne…");
+        setText("horoBody", "Dein " + ({ daily: "Tages", weekly: "Wochen", monthly: "Monats" }[period] || "") + "horoskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.");
+        setText("horoTip", "✦ …");
+        document.body.classList.add("soraya-horoscope-loading");
+      }
 
-      const data = await callSoraya("/mobile/horoscope/save", {
-        person_id: getCurrentPersonId(),
-        period: ($("period") && $("period").value) || "daily",
-        at: null
-      });
-
-      const h = data.data && data.data.horoscope ? data.data.horoscope : {};
-      const mood = h.stimmung || data.data.stimmung || "Dein Horoskop";
-      const body = h.body || h.text || data.data.body || data.data.text || "Keine Horoskopdaten gefunden.";
-      const tip = h.tipp || data.data.tipp || "Vertraue deinem inneren Kompass.";
-
-      setText("horoMood", mood);
-      setText("horoBody", body);
-      setText("horoTip", "✦ " + tip);
-      renderHoroscopePremium(data);
-      track("horoscope_loaded", { period: ($("period") && $("period").value) || "daily", source: data.data.source || "" });
-      toast("Horoskop geladen.");
+      const data = await fetchHoroscope(period);
+      if (period !== currentPeriod()) return; // inzwischen anderer Tab gewaehlt
+      renderHoroscope(data);
+      if (!cached) track("horoscope_loaded", { period, source: data.data.source || "" });
     } catch (error) {
       const msg = friendlyError(error, "Horoskop konnte nicht geladen werden.");
       trackError("horoscope", error);
-      setText("horoMood", "Fehler");
+      setText("horoMood", "Gerade nicht erreichbar");
       setText("horoBody", msg);
-      toast(msg);
+      if (retry) retry.style.display = "";
+      if (!silent) toast(msg);
     } finally {
-      hideLoadingVeil();
+      document.body.classList.remove("soraya-horoscope-loading");
     }
+  }
+
+  // Startseite: "Dein Tag" aus dem eigenen Tageshoroskop (statt Zufallsspruch).
+  async function loadDailyFocus() {
+    if (!getCurrentPersonId()) return;
+    try {
+      const data = await fetchHoroscope("daily");
+      const h = data.data && data.data.horoscope ? data.data.horoscope : {};
+      const mood = h.stimmung || data.data.stimmung;
+      const tip = h.tipp || data.data.tipp;
+      if (!mood || !tip) return;
+      const title = $("dailyFocusTitle");
+      if (title) title.dataset.personal = "1";
+      setText("dailyFocusTitle", mood);
+      setText("dailyFocusText", tip);
+      setText("dailyFocusBadge", "Dein Tag");
+      const card = $("dailyFocusCard");
+      if (card) card.classList.add("is-personal");
+    } catch (error) {}
   }
 
   function appendBubble(role, text) {
@@ -1084,6 +1193,8 @@
 
     if (current && people.some((person) => person.id === current)) {
       select.value = current;
+    } else if (people.length === 1) {
+      select.value = people[0].id;
     }
 
     const raw = $("personBId");
@@ -1360,7 +1471,31 @@
 
     setText("moonPhase", label);
     setText("moonIllum", illum + "% beleuchtet");
-    if ($("moonVisual")) $("moonVisual").style.setProperty("--shadow-scale", Math.max(0.18, Math.min(1.25, 1 - illum / 100)));
+    if ($("moonVisual")) $("moonVisual").innerHTML = moonSvg((age / synodic) * 360);
+  }
+
+  // Mond als SVG: beleuchteter Teil = Halbkreis auf der Lichtseite plus
+  // elliptische Schattengrenze. elong = Winkel Mond-Sonne (0 Neu, 180 Voll).
+  function moonSvg(elong) {
+    const r = 46, c = 48;
+    const e = ((elong % 360) + 360) % 360;
+    const rx = Math.abs(Math.cos((e * Math.PI) / 180)) * r;
+    const waxing = e < 180;
+    const crescent = waxing ? e < 90 : e > 270;
+    // Lichtseite: zunehmend rechts, abnehmend links (Nordhalbkugel)
+    const limb = waxing
+      ? `M ${c} ${c - r} A ${r} ${r} 0 0 1 ${c} ${c + r}`
+      : `M ${c} ${c - r} A ${r} ${r} 0 0 0 ${c} ${c + r}`;
+    const term = `A ${rx.toFixed(2)} ${r} 0 0 ${waxing ? (crescent ? 0 : 1) : (crescent ? 1 : 0)} ${c} ${c - r}`;
+    const lit = e < 1 || e > 359 ? "" : `<path d="${limb} ${term} Z" fill="url(#moonLit)"/>`;
+    return `<svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true">
+      <defs>
+        <radialGradient id="moonLit" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fffbe8"/><stop offset=".45" stop-color="#ffe9b0"/><stop offset="1" stop-color="#c9a86a"/></radialGradient>
+        <radialGradient id="moonDark" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#2a2044"/><stop offset="1" stop-color="#120c22"/></radialGradient>
+      </defs>
+      <circle cx="${c}" cy="${c}" r="${r}" fill="url(#moonDark)" stroke="rgba(201,168,106,.35)" stroke-width="1"/>
+      ${lit}
+    </svg>`;
   }
 
   function renderIdentity(force) {
@@ -1399,6 +1534,13 @@
 
     setText("analysisStat", localStorage.getItem(KEYS.analyses) || "0");
     setText("savedStat", localStorage.getItem(KEYS.person) ? "1" : "0");
+
+    const hasProfile = !!(localStorage.getItem(KEYS.person) && birth && birth.day);
+    document.body.classList.toggle("soraya-no-profile", !hasProfile);
+    const result = $("personResult");
+    if (hasProfile && result && !result.classList.contains("bad") && /Noch nicht gespeichert/.test(result.textContent)) {
+      status("personResult", "◈ Dein Profil ist gespeichert. Änderungen einfach oben eintragen und erneut speichern.", "ok");
+    }
   }
 
   function renderProfilePreview() {
@@ -1647,21 +1789,14 @@
       renderWheel(json);
       renderAnalysisDetails(json);
 
-      const data = json.data || json;
-      const big = data.big_three || {};
-      const meta = data.meta || {};
-      const points = Array.isArray(data.points) ? data.points : [];
-      const sun = big.sun ? signName(big.sun) : "–";
-      const moon = big.moon ? signName(big.moon) : "–";
-      const asc = big.ascendant ? signName(big.ascendant) : "–";
-      const planetLine = points
-        .filter((point) => ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].includes(point.name))
-        .map((point) => `${pointLabel(point)}: ${signName(point)} ${safe(point.degree)}°`)
-        .join("\n");
-      const houseSystem = meta.house_system ? "Häusersystem: " + meta.house_system : "";
-      const timeKnown = meta.time_known === false ? "Geburtszeit unbekannt: Soraya nutzt 12:00 als Näherung." : "";
+      // Kurze Info statt doppelter Textliste (Big Three + Planeten stehen darunter).
+      const meta = (json.data || json).meta || {};
+      const parts = [];
+      if (meta.house_system) parts.push("Häuser: " + meta.house_system);
+      parts.push(meta.time_known === false ? "Geburtszeit unbekannt – Soraya rechnet mit 12:00 Uhr" : "mit Geburtszeit berechnet");
       if (details) {
-        details.textContent = ["◈ Echtes Birth Chart geladen.", "Sonne: " + sun, "Mond: " + moon, "Aszendent: " + asc, houseSystem, timeKnown, "", planetLine].filter((line) => line !== "").join("\n");
+        details.textContent = parts.join(" · ");
+        details.classList.add("chart-meta-line");
       }
       return json;
     } catch (error) {
@@ -1732,6 +1867,7 @@
   }
 
   async function renderHomeSky() {
+    loadDailyFocus();
     const birth = readJson(KEYS.birth, null);
     const config = getAvailableConfig();
 
@@ -1866,7 +2002,6 @@
       if (moon.phase) setText("moonPhase", moon.phase);
       if (moon.illumination !== undefined) {
         setText("moonIllum", (moon.sign_de ? "Mond in " + moon.sign_de + " · " : "") + moon.illumination + " % beleuchtet");
-        if ($("moonVisual")) $("moonVisual").style.setProperty("--shadow-scale", Math.max(0.18, Math.min(1.25, 1 - moon.illumination / 100)));
       }
       renderChatSuggestions();
     } catch (error) {
@@ -1896,16 +2031,20 @@
     const birth = readJson(KEYS.birth, null);
     const state = await getSessionState();
 
+    const pill = $("appStatusPill");
     if (!state.ok) {
-      setAppStatus("Login offen", "warn");
+      setAppStatus("Jetzt einloggen ›", "warn");
+      if (pill) pill.dataset.action = "login";
       return;
     }
 
     if (!birth || !birth.name) {
-      setAppStatus("Profil offen", "warn");
+      setAppStatus("Profil anlegen ›", "warn");
+      if (pill) pill.dataset.action = "profile";
       return;
     }
 
+    if (pill) pill.dataset.action = "";
     setAppStatus("Soraya · aktiv", "ok");
   }
 
@@ -1953,6 +2092,21 @@
           event.preventDefault();
           showSection("home");
         }
+      });
+    }
+
+    const periodSelect = $("period");
+    if (periodSelect && !periodSelect.dataset.bound) {
+      periodSelect.dataset.bound = "1";
+      periodSelect.addEventListener("change", () => loadHoroscope({ silent: true }));
+    }
+
+    const appStatus = $("appStatusPill");
+    if (appStatus && !appStatus.dataset.bound) {
+      appStatus.dataset.bound = "1";
+      appStatus.addEventListener("click", () => {
+        if (appStatus.dataset.action === "login") openLogin();
+        if (appStatus.dataset.action === "profile") showSection("profile");
       });
     }
 
