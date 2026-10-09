@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/vendor/supabase-js-2.117.3.js"></script>
   <script src="/config.js"></script>
   <link rel="stylesheet" href="/soraya.css" />
 </head>
@@ -136,6 +136,16 @@
           </div>
         </div>
 
+        <div class="card c46-sky-card" id="skyCard">
+          <div class="card-title">
+            <h4>Der Himmel heute</h4>
+            <span class="badge">Für alle</span>
+          </div>
+          <div class="sky-list" id="skyList">
+            <div class="row"><div class="left"><span class="orb-sm">☾</span><div><h4>Himmelsereignisse</h4><p>werden geladen…</p></div></div></div>
+          </div>
+        </div>
+
         <div class="card c46-transit-preview">
           <div class="card-title">
             <h4>Transit-Vorschau</h4>
@@ -250,16 +260,16 @@
         </div>
 
         <div class="c42-guidance-grid">
-          <div class="card c42-guidance-card"><span class="eyebrow">Fokus</span><b>✦</b><h4 id="horoFocusTitle">Innere Klarheit</h4><p id="horoFocusText">Dein Fokus erscheint nach dem Laden.</p></div>
-          <div class="card c42-guidance-card"><span class="eyebrow">Liebe</span><b>♡</b><h4 id="horoLoveTitle">Herz & Nähe</h4><p id="horoLoveText">Beziehungsimpulse erscheinen nach dem Laden.</p></div>
-          <div class="card c42-guidance-card"><span class="eyebrow">Beruf</span><b>◇</b><h4 id="horoWorkTitle">Richtung & Kraft</h4><p id="horoWorkText">Berufliche Hinweise erscheinen nach dem Laden.</p></div>
+          <div class="card c42-guidance-card"><span class="eyebrow">Fokus</span><b>✦</b><h4 id="horoFocusTitle">Innere Klarheit</h4><p id="horoFocusText">Wähle heute eine klare Priorität und gehe sie ruhig Schritt für Schritt an.</p></div>
+          <div class="card c42-guidance-card"><span class="eyebrow">Liebe</span><b>♡</b><h4 id="horoLoveTitle">Herz & Nähe</h4><p id="horoLoveText">Nähe entsteht durch ehrliche Worte und kleine Zeichen von Aufmerksamkeit.</p></div>
+          <div class="card c42-guidance-card"><span class="eyebrow">Beruf</span><b>◇</b><h4 id="horoWorkTitle">Richtung & Kraft</h4><p id="horoWorkText">Ordne zuerst das Wichtigste. Weniger Druck bringt heute bessere Entscheidungen.</p></div>
         </div>
 
         <div class="card premium c42-ritual-card">
           <div class="card-title"><h4>Ritual & Affirmation</h4><span class="badge">Heute</span></div>
           <div class="c42-ritual-layout">
-            <div><span class="eyebrow">Ritual</span><h4 id="horoRitualTitle">Atem & Erdung</h4><p id="horoRitualText">Ein kleines Ritual erscheint nach dem Laden.</p></div>
-            <div><span class="eyebrow">Affirmation</span><p id="horoAffirmation" class="c42-affirmation">„Ich vertraue meinem Weg.“</p></div>
+            <div><span class="eyebrow">Ritual</span><h4 id="horoRitualTitle">Atem & Erdung</h4><p id="horoRitualText">Atme fünfmal tief ein und aus. Spüre den Boden und formuliere eine klare Intention.</p></div>
+            <div><span class="eyebrow">Affirmation</span><p id="horoAffirmation" class="c42-affirmation">„Ich gehe meinen Weg mit Ruhe und Klarheit.“</p></div>
           </div>
         </div>
       </section>
@@ -286,10 +296,11 @@
           </div>
           <input id="conversationId" type="hidden" />
           <div class="chat-window" id="chatWindow"><div class="bubble assistant">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div></div>
+          <div class="chat-suggestions" id="chatSuggestions" aria-label="Vorschläge"></div>
           <label for="chatMessage">Deine Nachricht</label>
           <div class="composer c43-composer">
             <textarea id="chatMessage" placeholder="Nachricht an Soraya…"></textarea>
-            <button class="round" onclick="sendChat()" title="Senden" aria-label="Nachricht senden">➤</button>
+            <button class="round" id="chatSendButton" onclick="sendChat()" title="Senden" aria-label="Nachricht senden">➤</button>
           </div>
           <div class="c43-chat-footer">
             <button class="btn" onclick="clearChatView()">Chat leeren</button>
@@ -444,8 +455,13 @@
   <div class="c413-error-panel" id="globalErrorPanel" aria-live="polite"><div><b>✦</b><span id="globalErrorText">Soraya Hinweis</span></div><button class="round" onclick="hideGlobalError()" aria-label="Hinweis schließen">×</button></div>
   <div class="toast" id="toast"></div>
 
+  <!-- Feste Reihenfolge: zuerst die App-Logik, danach die UI-Zusaetze. -->
   <script src="/app.js" defer></script>
   <script src="/c58-mobile-layout.js" defer></script>
+  <script src="/c70-account-deletion.js" defer></script>
+  <script src="/c72-daily-content.js" defer></script>
+  <script src="/c73-report-content.js" defer></script>
+  <script src="/c74-native-select.js" defer></script>
   <script src="/sw-register.js" defer></script>
 </body>
 </html>

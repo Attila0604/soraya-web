@@ -757,3 +757,27 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
 }
 .c74-select-option:hover{background:rgba(201,168,106,.1)}
 .c74-select-option.active{color:var(--gold-soft); background:rgba(201,168,106,.08)}
+
+/* Frueher per JS in c68 gesetzt, jetzt als CSS */
+#chat .c43-prompt{grid-row:auto; grid-column:auto; height:auto}
+#home .props{grid-template-columns:repeat(3, minmax(0, 1fr))}
+
+/* Himmel heute (Home) */
+.sky-list{display:grid; gap:10px}
+.sky-list .row{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.sky-list .row .left{display:flex; align-items:center; gap:12px; min-width:0}
+.sky-list .row h4{margin:0; font-size:.95rem}
+.sky-list .row p{margin:2px 0 0; color:var(--mist-dim); font-size:.85rem}
+.sky-list .row > span{color:var(--gold); font-size:.85rem; white-space:nowrap}
+
+/* Chat: Tipp-Anzeige und Vorschlagsfragen */
+.bubble.typing{display:inline-flex; gap:5px; align-items:center}
+.bubble.typing i{width:7px; height:7px; border-radius:50%; background:var(--gold); opacity:.35; animation:soraya-dot 1.2s infinite ease-in-out}
+.bubble.typing i:nth-child(2){animation-delay:.2s}
+.bubble.typing i:nth-child(3){animation-delay:.4s}
+@keyframes soraya-dot{0%,80%,100%{opacity:.25; transform:translateY(0)}40%{opacity:1; transform:translateY(-3px)}}
+.chat-suggestions{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 2px}
+.chat-suggestions:empty{display:none}
+.chat-suggestions button{border:1px solid var(--line); background:rgba(255,255,255,.04); color:inherit; border-radius:999px; padding:7px 12px; font:inherit; font-size:.85rem; cursor:pointer}
+.chat-suggestions button:active{transform:scale(.97)}
+.composer button.round[disabled]{opacity:.5}

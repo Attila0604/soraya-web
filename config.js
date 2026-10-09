@@ -5,7 +5,6 @@
   Wichtig:
   - Supabase anon/public key ist für Browser-Apps gedacht.
   - Keine service_role keys, keine geheimen Keys hier eintragen.
-  - Diese Datei lädt die sauberen visuellen Zusatz-Layer und Profil-Speicher-Fix.
 */
 
 window.SORAYA_PUBLIC_CONFIG = {
@@ -23,27 +22,6 @@ try {
   }));
 } catch (error) {}
 
-(function loadSorayaRuntimeFixes() {
-  var files = [
-    "/c66-profile-storage-fix.js?v=1.0.1",
-    "/c67-stability-polish.js?v=1.0.0",
-    "/c68-mobile-fit-fix.js?v=1.0.0",
-    "/c70-account-deletion.js?v=1.0.0",
-    "/c72-daily-content.js?v=1.0.0",
-    "/c73-report-content.js?v=1.0.0",
-    "/c74-native-select.js?v=1.0.0"
-  ];
-
-  files.forEach(function (file) {
-    var cleanName = file.split("?")[0].replace("/", "");
-
-    if (document.querySelector('script[src*="' + cleanName + '"]')) {
-      return;
-    }
-
-    var script = document.createElement("script");
-    script.src = file;
-    script.defer = true;
-    document.head.appendChild(script);
-  });
-})();
+/* Die UI-Zusaetze (c58, c70, c72, c73, c74) laedt index.html direkt in fester
+   Reihenfolge nach app.js. Die frueheren Fix-Schichten c66/c67/c68 sind in
+   app.js aufgegangen. */
