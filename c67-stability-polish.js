@@ -199,9 +199,13 @@
     var config = syncConfig();
     if (!hasConfig(config)) throw new Error("App-Verbindung fehlt.");
 
+    // Das Backend verlangt fuer /chart und /transits einen eingeloggten User.
+    var headers = { "Content-Type": "application/json" };
+    try { headers.Authorization = "Bearer " + (await getToken()); } catch (e) {}
+
     var response = await withTimeout(fetch(config.engineUrl + path, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify(payload || {})
     }), 14000, "Backend dauerte zu lange.");
 

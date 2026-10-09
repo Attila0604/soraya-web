@@ -349,6 +349,15 @@
     return token;
   }
 
+  // Header fuer /chart und /transits: das Backend verlangt dort einen eingeloggten User.
+  async function engineHeaders() {
+    const headers = { "Content-Type": "application/json" };
+    try {
+      headers.Authorization = "Bearer " + (await getToken());
+    } catch (error) {}
+    return headers;
+  }
+
   async function callSoraya(path, body, method = "POST") {
     const token = await getToken();
     const response = await fetch(getEngineUrl() + path, {
@@ -1442,7 +1451,7 @@
       if (details) details.textContent = "Soraya berechnet dein echtes Radix…";
       const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/chart", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await engineHeaders(),
         body: JSON.stringify(birth)
       });
       const json = await response.json();
@@ -1514,7 +1523,7 @@
     try {
       const response = await fetch(config.engineUrl.replace(/\/$/, "") + "/transits", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await engineHeaders(),
         body: JSON.stringify({ person: birth, at: null })
       });
 
