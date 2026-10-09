@@ -781,3 +781,51 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
 .chat-suggestions button{border:1px solid var(--line); background:rgba(255,255,255,.04); color:inherit; border-radius:999px; padding:7px 12px; font:inherit; font-size:.85rem; cursor:pointer}
 .chat-suggestions button:active{transform:scale(.97)}
 .composer button.round[disabled]{opacity:.5}
+
+/* ============================================================
+   Optik-Update Oktober 2026
+   ============================================================ */
+
+/* Mond: echte Phase als SVG (app.js moonSvg) */
+.moon-visual{background:none; box-shadow:0 0 26px rgba(255,226,155,.10); display:grid; place-items:center}
+.moon-visual svg{display:block; width:96px; height:96px}
+
+/* Status-Hinweis oben nur, wenn etwas zu tun ist – dann antippbar */
+.c410-app-status{display:none}
+.c410-app-status.warn{display:block; cursor:pointer; color:var(--gold-soft)}
+
+/* Persoenlicher Tagesfokus ist antippbar (fuehrt zum Horoskop) */
+#dailyFocusCard{cursor:pointer}
+#dailyFocusCard.is-personal #dailyFocusBadge{color:var(--void); background:var(--gold-soft); border-color:var(--gold-soft)}
+#dailyFocusCard.is-personal #dailyFocusText::after{content:"  Zum Horoskop ›"; color:var(--gold); white-space:nowrap}
+
+/* Horoskop: Lade-Zustand dezent pulsierend */
+body.soraya-horoscope-loading #horoMood,
+body.soraya-horoscope-loading #horoBody{animation:soraya-pulse 1.6s ease-in-out infinite}
+@keyframes soraya-pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* Analyse: kurze Chart-Info statt Textliste */
+#chartDetails.chart-meta-line{
+  font-family:var(--body, inherit); font-size:12px; letter-spacing:.04em; color:var(--mist-dim);
+  text-align:center; margin-top:10px; white-space:normal;
+}
+
+/* Neue Nutzer / ausgeloggt: leere Karten ausblenden */
+body.soraya-no-profile #home .c46-energy-card,
+body.soraya-no-profile #home .c46-transit-preview{display:none}
+body.soraya-no-profile #home .c46-dashboard-grid{grid-template-columns:1fr}
+
+@media (max-width: 600px){
+  /* Horoskop-Karten (Fokus/Liebe/Beruf) als saubere Liste statt 2+1-Raster */
+  .c42-guidance-grid{grid-template-columns:1fr; gap:var(--s2)}
+  .c42-guidance-card{
+    display:grid; grid-template-columns:40px 1fr; grid-template-areas:"icon eyebrow" "icon title" "icon text";
+    text-align:left; align-items:start; column-gap:var(--s3); row-gap:2px; padding:var(--s3);
+  }
+  .c42-guidance-card .eyebrow{grid-area:eyebrow}
+  .c42-guidance-card b{grid-area:icon; margin:4px 0 0; font-size:22px; text-align:center}
+  .c42-guidance-card h4{grid-area:title; margin:0}
+  .c42-guidance-card p{grid-area:text; margin:2px 0 0}
+  /* Dekorative Kugel ueber dem Horoskoptext nimmt am Handy nur Platz weg */
+  .horo-moon, .c42-horo-orb{display:none}
+}
