@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-2026.10.09";
+  const APP_VERSION = "web-v11";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -218,7 +218,10 @@
     }
 
     if (id === "chat") {
-      window.setTimeout(() => renderChatSuggestions(false), 60);
+      window.setTimeout(() => {
+        renderChatSuggestions(false);
+        loadChatHistory();
+      }, 60);
     }
 
     if (id === "profile") {
@@ -639,6 +642,7 @@
 
       addPersonToCache(row, { ...person, is_self: true, relation: "self" });
       chartCache = { personId: null, json: null };
+      coreLine = "";
       loadPeopleFromSupabase(false);
       renderIdentity();
       renderProfilePreview();
@@ -787,6 +791,18 @@
     return getCurrentPersonId() + "|" + period + "|" + new Date().toDateString();
   }
 
+  function horoscopeDateLabel(period) {
+    const now = new Date();
+    const long = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+    const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+    if (period === "weekly") {
+      const end = new Date(now.getTime() + 6 * 86400000);
+      return "Die nächsten 7 Tage · bis " + end.getDate() + ". " + months[end.getMonth()];
+    }
+    if (period === "monthly") return "Die kommenden Wochen · ab " + now.getDate() + ". " + months[now.getMonth()];
+    return "Heute · " + long[now.getDay()] + ", " + now.getDate() + ". " + months[now.getMonth()];
+  }
+
   function currentPeriod() {
     return ($("period") && $("period").value) || "daily";
   }
@@ -813,6 +829,7 @@
     const tip = h.tipp || data.data.tipp || "Vertraue deinem inneren Kompass.";
 
     setText("horoMood", mood);
+    setText("horoDate", horoscopeDateLabel(currentPeriod()));
     setText("horoBody", body);
     setText("horoTip", "✦ " + tip);
     renderHoroscopePremium(data);
@@ -885,10 +902,36 @@
     windowNode.scrollTop = windowNode.scrollHeight;
   }
 
+  const CHAT_GREETING = "Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?";
+  let chatHistoryLoadedFor = null;
+
+  // "Neues Gespraech": Ansicht leeren UND eine neue Unterhaltung beginnen
+  // (vorher lief die alte serverseitig weiter, obwohl der Chat leer aussah).
   function clearChatView() {
     const windowNode = $("chatWindow");
-    if (!windowNode) return;
-    windowNode.innerHTML = '<div class="bubble assistant">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div>';
+    if (windowNode) windowNode.innerHTML = '<div class="bubble assistant">' + escapeHtml(CHAT_GREETING) + "</div>";
+    if ($("conversationId")) $("conversationId").value = "";
+    try { localStorage.removeItem(KEYS.conv); } catch (error) {}
+    chatHistoryLoadedFor = "";
+    renderChatSuggestions(false);
+  }
+
+  // Bisherigen Verlauf nach einem Neustart wieder anzeigen.
+  async function loadChatHistory() {
+    const conversationId = ($("conversationId") && $("conversationId").value.trim()) || "";
+    if (!conversationId || chatHistoryLoadedFor === conversationId || chatBusy) return;
+    chatHistoryLoadedFor = conversationId;
+    try {
+      const data = await callSoraya("/mobile/chat/history?conversation_id=" + encodeURIComponent(conversationId) + "&limit=30", null, "GET", 15000);
+      const messages = data.data && Array.isArray(data.data.messages) ? data.data.messages : [];
+      const windowNode = $("chatWindow");
+      if (!messages.length || !windowNode || chatBusy) return;
+      windowNode.innerHTML = '<div class="bubble assistant">' + escapeHtml(CHAT_GREETING) + "</div>";
+      messages.forEach((m) => appendBubble(m.role === "user" ? "user" : "assistant", m.content));
+      renderChatSuggestions(true);
+    } catch (error) {
+      chatHistoryLoadedFor = null;
+    }
   }
 
   function needsSafetyNote(message) {
@@ -989,7 +1032,10 @@
       });
 
       if ($("conversationId")) $("conversationId").value = data.data.conversation_id || "";
-      if (data.data.conversation_id) localStorage.setItem(KEYS.conv, data.data.conversation_id);
+      if (data.data.conversation_id) {
+        localStorage.setItem(KEYS.conv, data.data.conversation_id);
+        chatHistoryLoadedFor = data.data.conversation_id;
+      }
 
       let reply = data.data.reply || "Keine Antwort.";
       if (needsSafetyNote(message)) {
@@ -1148,6 +1194,7 @@
       cacheSelfFromStorage();
       refreshSynastryPeople();
       renderChatSuggestions(false);
+      renderHomePeople();
 
       // Wenn gerade erst Geburtsdaten/Person reingespiegelt wurden und die
       // Analyse offen ist, Chart automatisch nachladen (sonst bleibt der Hinweis).
@@ -1164,9 +1211,52 @@
     } catch (error) {
       cacheSelfFromStorage();
       refreshSynastryPeople();
+      renderHomePeople();
       if (showToast) toast("Personen konnten nicht geladen werden.");
       return readPeopleCache();
     }
+  }
+
+  const RELATION_LABELS = { partner: "Partner/in", friend: "Freund/in", family: "Familie", other: "Person" };
+
+  function renderHomePeople() {
+    const box = $("homePeopleList");
+    if (!box) return;
+    const selfId = getCurrentPersonId();
+    const people = (serverPeople || readPeopleCache())
+      .filter((p) => p && p.id && p.id !== selfId && !p.is_self && String(p.relation || "").toLowerCase() !== "self");
+    if (!people.length) {
+      box.innerHTML = '<p class="people-empty">Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.</p>';
+      return;
+    }
+    box.innerHTML = people.slice(0, 6).map((p) =>
+      '<div class="people-row">' +
+        '<span class="people-avatar">' + escapeHtml(initials(p.name, "?")) + "</span>" +
+        '<div class="people-info"><b>' + escapeHtml(p.name || "Unbenannt") + "</b><small>" + escapeHtml(RELATION_LABELS[p.relation] || "Person") + "</small></div>" +
+        '<button type="button" class="btn people-compare" data-person="' + escapeHtml(p.id) + '">Vergleichen ›</button>' +
+      "</div>"
+    ).join("");
+  }
+
+  function openSynastryWith(personId) {
+    showSection("synastry");
+    window.setTimeout(() => {
+      const select = $("synPersonSelect");
+      if (!select) return;
+      refreshSynastryPeople();
+      select.value = personId;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }, 150);
+  }
+
+  function addPerson() {
+    showSection("synastry");
+    window.setTimeout(() => {
+      const field = $("partnerName");
+      if (!field) return;
+      field.scrollIntoView({ behavior: "smooth", block: "center" });
+      field.focus({ preventScroll: true });
+    }, 250);
   }
 
   function refreshSynastryPeople() {
@@ -1230,7 +1320,10 @@
       if (!row || !row.id) throw new Error("Person wurde gespeichert, aber keine ID erhalten.");
 
       addPersonToCache(row, { ...person, relation, is_self: false });
+      if (Array.isArray(serverPeople)) serverPeople = [...serverPeople.filter((p) => p.id !== row.id), { ...row, relation, is_self: false }];
       refreshSynastryPeople();
+      renderHomePeople();
+      renderChatSuggestions(false);
 
       const select = $("synPersonSelect");
       if (select) select.value = row.id;
@@ -1426,13 +1519,49 @@
     }) || null;
   }
 
+  // Sonne/Mond/Aszendent aus dem gespeicherten Chart fuer die Startseite.
+  let coreLine = "";
+
+  function renderCoreFromChart(json) {
+    const data = json && (json.data || json);
+    const big = data && data.big_three;
+    if (!big || !big.sun) return;
+    const timeKnown = !(data.meta && data.meta.time_known === false);
+    const sun = signName(big.sun);
+    const moon = big.moon ? signName(big.moon) : "–";
+    const asc = big.ascendant && timeKnown ? signName(big.ascendant) : null;
+    coreLine = "Mond in " + moon + " · " + (asc ? "Aszendent " + asc : "Aszendent: Geburtszeit fehlt");
+    setText("sunRange", coreLine);
+    const ribbon = $("heroRibbon");
+    if (ribbon) {
+      ribbon.innerHTML = [["☉", sun], ["☾", moon], asc ? ["AC", asc] : null]
+        .filter(Boolean)
+        .map(([glyph, sign]) => "<span><b>" + escapeHtml(glyph) + "</b> " + escapeHtml(sign) + "</span>")
+        .join("");
+      ribbon.classList.add("is-personal");
+    }
+  }
+
+  async function ensureCoreChart() {
+    const personId = getCurrentPersonId();
+    const birth = readJson(KEYS.birth, null);
+    if (!personId || !birth || !birth.day) return;
+    try {
+      if (!(chartCache.personId === personId && chartCache.json)) {
+        const json = await loadChartJson(personId, birth);
+        chartCache = { personId, json };
+      }
+      renderCoreFromChart(chartCache.json);
+    } catch (error) {}
+  }
+
   function renderSun(day, month) {
     const sign = signFor(day, month);
     if (!sign) return;
 
     setText("sunGlyph", sign.g);
     setText("sunSign", sign.s);
-    setText("sunRange", `${sign.from[1]}. ${MONTHS[sign.from[0] - 1]} – ${sign.to[1]}. ${MONTHS[sign.to[0] - 1]}`);
+    setText("sunRange", coreLine || `${sign.from[1]}. ${MONTHS[sign.from[0] - 1]} – ${sign.to[1]}. ${MONTHS[sign.to[0] - 1]}`);
     setText("sunElement", sign.el);
     setText("sunQuality", sign.q);
     setText("sunRuler", sign.r);
@@ -1613,7 +1742,10 @@
   function formatDegree(value) {
     const n = Number(value);
     if (!Number.isFinite(n)) return "–";
-    return Math.round(n * 10) / 10 + "°";
+    let deg = Math.floor(n);
+    let min = Math.round((n - deg) * 60);
+    if (min === 60) { deg += 1; min = 0; }
+    return deg + "° " + String(min).padStart(2, "0") + "′";
   }
 
   function xy(cx, cy, radius, deg) {
@@ -1713,9 +1845,16 @@
     const moon = big.moon || points.find((p) => p.name === "Moon");
     const asc = big.ascendant || points.find((p) => p.name === "Ascendant");
 
-    setText("bigSunSign", sun ? signName(sun) + " · " + formatDegree(sun.degree) : "–");
-    setText("bigMoonSign", moon ? signName(moon) + " · " + formatDegree(moon.degree) : "–");
-    setText("bigAscSign", asc ? signName(asc) + " · " + formatDegree(asc.degree) : "–");
+    const bigSign = (id, point) => {
+      const node = $(id);
+      if (!node) return;
+      node.innerHTML = point
+        ? escapeHtml(signName(point)) + '<small class="big-degree">' + escapeHtml(formatDegree(point.degree)) + "</small>"
+        : "–";
+    };
+    bigSign("bigSunSign", sun);
+    bigSign("bigMoonSign", moon);
+    bigSign("bigAscSign", asc);
     setText("bigSunText", sun && sun.house ? "Haus " + sun.house + " · Identität und Wille" : "Identität · Ausdruck · Lebenslicht");
     setText("bigMoonText", moon && moon.house ? "Haus " + moon.house + " · Gefühl und Sicherheit" : "Gefühl · Bedürfnis · innere Welt");
     setText("bigAscText", asc ? "Dein Auftreten und dein Weg" : "Auftreten · Weg · Wirkung");
@@ -1728,7 +1867,7 @@
         const name = pointLabel(p);
         const sign = signName(p);
         const degree = formatDegree(p.degree);
-        const house = p.house ? "Haus " + p.house : "Haus –";
+        const house = p.house ? "Haus " + p.house : "";
         return `<div class="c41-planet-row">
           <span class="c41-planet-glyph">${escapeHtml(glyph)}</span>
           <span class="c41-planet-name">${escapeHtml(name)}</span>
@@ -1788,6 +1927,7 @@
       }
       renderWheel(json);
       renderAnalysisDetails(json);
+      renderCoreFromChart(json);
 
       // Kurze Info statt doppelter Textliste (Big Three + Planeten stehen darunter).
       const meta = (json.data || json).meta || {};
@@ -1850,6 +1990,26 @@
     if (box) box.innerHTML = html;
   }
 
+  const PLANET_THEMES = {
+    Sonne: "Selbstausdruck", Mond: "Gefühle", Merkur: "Denken & Gespräche", Venus: "Liebe & Genuss",
+    Mars: "Energie & Mut", Jupiter: "Wachstum & Glück", Saturn: "Struktur & Verantwortung",
+    Uranus: "Veränderung", Neptun: "Intuition & Träume", Pluto: "Wandlung", Chiron: "Heilung",
+    Lilith: "Ursprünglichkeit", Aszendent: "Auftreten", "MC (Himmelsmitte)": "Beruf & Ziele",
+    "Mondknoten (Nord)": "Lebensweg"
+  };
+  const ASPECT_MEANINGS = {
+    Konjunktion: "verstärkt sich", Trigon: "fließt leicht", Sextil: "öffnet Chancen",
+    Quadrat: "fordert heraus", Opposition: "sucht Balance"
+  };
+
+  function transitMeaning(aspect) {
+    const from = PLANET_THEMES[aspect.transit_de];
+    const to = PLANET_THEMES[aspect.natal_de];
+    const how = ASPECT_MEANINGS[aspect.type_de];
+    if (!from || !to || !how) return "";
+    return from + " → " + to + " · " + how;
+  }
+
   function transitRow(glyph, title, sub, right = "") {
     return '<div class="row"><div class="left"><span class="orb-sm">' + escapeHtml(glyph) + '</span><div><h4>' +
       escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right) + '</span></div>';
@@ -1868,6 +2028,7 @@
 
   async function renderHomeSky() {
     loadDailyFocus();
+    ensureCoreChart();
     const birth = readJson(KEYS.birth, null);
     const config = getAvailableConfig();
 
@@ -1899,8 +2060,8 @@
       const rowHtml = aspects.map((aspect) => {
         const movement = aspect.movement === "Applying" ? "im Kommen" : aspect.movement === "Separating" ? "klingt ab" : "aktiv";
         const title = [aspect.transit_de, aspect.type_de, aspect.natal_de].filter(Boolean).join(" ");
-        const right = aspect.orb != null ? Number(aspect.orb).toFixed(1) + "°" : "";
-        return transitRow(planetGlyph(aspect.transit_de), title || "Transit", movement, right);
+        const meaning = transitMeaning(aspect);
+        return transitRow(planetGlyph(aspect.transit_de), title || "Transit", meaning ? meaning + " · " + movement : movement, aspect.movement === "Applying" ? "↗" : "↘");
       });
 
       let rows = rowHtml.slice(0, VISIBLE).join("");
@@ -1997,6 +2158,9 @@
       skyToday = json.data;
       lastSkyTodayAt = Date.now();
       box.innerHTML = skyRows(skyToday);
+      if (skyToday.moon && skyToday.moon.sign_de && getCurrentPersonId()) {
+        setText("heroSub", "Heute wandert der Mond durch " + skyToday.moon.sign_de + " – hier ist, was das für dich bedeutet.");
+      }
 
       const moon = skyToday.moon || {};
       if (moon.phase) setText("moonPhase", moon.phase);
@@ -2095,6 +2259,15 @@
       });
     }
 
+    const peopleBox = $("homePeopleList");
+    if (peopleBox && !peopleBox.dataset.bound) {
+      peopleBox.dataset.bound = "1";
+      peopleBox.addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-person]");
+        if (btn) openSynastryWith(btn.getAttribute("data-person"));
+      });
+    }
+
     const periodSelect = $("period");
     if (periodSelect && !periodSelect.dataset.bound) {
       periodSelect.dataset.bound = "1";
@@ -2166,6 +2339,7 @@
     bindUiEvents();
     cacheSelfFromStorage();
     refreshSynastryPeople();
+    renderHomePeople();
     // Erst-Sync mit dem Server. Nur bei einem Fehler (Netz/Backend) erneut
     // versuchen -- eine leere Personenliste ist bei neuen Nutzern normal.
     (function syncWithRetry(attempt) {
@@ -2229,6 +2403,8 @@
 
   window.loadPeopleFromSupabase = loadPeopleFromSupabase;
   window.refreshSynastryPeople = refreshSynastryPeople;
+  window.sorayaAddPerson = addPerson;
+  window.sorayaOpenSynastryWith = openSynastryWith;
   window.createSynastryPerson = createSynastryPerson;
   window.saveSynastry = saveSynastry;
   window.renderSynastryDescription = renderSynastryDescription;

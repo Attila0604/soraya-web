@@ -23,9 +23,13 @@
     }).catch(function () { /* still: App laeuft ohne SW weiter */ });
   });
 
-  // Nach SW-Wechsel einmal neu laden, damit die frische Version greift
+  // Nach SW-Wechsel einmal neu laden, damit die frische Version greift.
+  // Nur bei einem UPDATE (es gab schon einen SW) -- beim allerersten Start
+  // uebernimmt der SW die Seite ebenfalls, ein Neuladen waere dort unnoetig.
+  var hadController = !!navigator.serviceWorker.controller;
   var refreshed = false;
   navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (!hadController) return;
     if (refreshed) return;
     refreshed = true;
     window.location.reload();

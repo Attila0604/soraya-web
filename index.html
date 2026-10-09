@@ -64,8 +64,8 @@
         <div class="page-title c4-hero-title c46-home-title">
           <span class="eyebrow">Dein Kosmos</span>
           <h2 id="greetLine">Willkommen,<br><span class="gold" id="heroName">du</span>.</h2>
-          <p>Birth Chart, Horoskop, Chat und Synastrie — klar, schön und persönlich.</p>
-          <div class="c54-hero-ribbon" aria-label="Soraya Highlights">
+          <p id="heroSub">Birth Chart, Horoskop, Chat und Synastrie — klar, schön und persönlich.</p>
+          <div class="c54-hero-ribbon" id="heroRibbon" aria-label="Soraya Highlights">
             <span>✦ Birth Chart</span>
             <span>☾ Transite</span>
             <span>♡ Synastrie</span>
@@ -164,17 +164,15 @@
           </div>
         </div>
 
-        <div class="card c4-tools-card c46-tools-card">
+        <div class="card c46-people-card" id="peopleCard">
           <div class="card-title">
-            <h4>Kosmische Wege</h4>
-            <span class="badge">Start</span>
+            <h4>Deine Menschen</h4>
+            <span class="badge">Vergleich</span>
           </div>
-          <div class="shortcut-grid c46-shortcut-grid">
-            <button class="tile" onclick="showSection('analysis')"><svg><use href="#i-chart"/></svg><span>Birth Chart</span></button>
-            <button class="tile" onclick="showSection('horoscope')"><svg><use href="#i-moon"/></svg><span>Horoskop</span></button>
-            <button class="tile" onclick="showSection('chat')"><svg><use href="#i-sparkle"/></svg><span>Chat</span></button>
-            <button class="tile" onclick="showSection('synastry')"><svg><use href="#i-synastry"/></svg><span>Synastrie</span></button>
+          <div class="people-list" id="homePeopleList">
+            <p class="people-empty">Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.</p>
           </div>
+          <button class="btn people-add" onclick="sorayaAddPerson()">+ Person hinzufügen</button>
         </div>
       </section>
 
@@ -253,6 +251,7 @@
             <div>
               <span class="eyebrow">Stimmung</span>
               <h4 id="horoMood">Dein Horoskop</h4>
+              <p class="horo-date" id="horoDate"></p>
               <p id="horoBody">Wähle einen Zeitraum und lade dein Horoskop.</p>
               <span id="horoTip" class="badge">✦ Dein Tipp erscheint hier</span>
             </div>
@@ -303,7 +302,7 @@
             <button class="round" id="chatSendButton" onclick="sendChat()" title="Senden" aria-label="Nachricht senden">➤</button>
           </div>
           <div class="c43-chat-footer">
-            <button class="btn" onclick="clearChatView()">Chat leeren</button>
+            <button class="btn" onclick="clearChatView()">Neues Gespräch</button>
             <button class="btn" onclick="quickChat('Gib mir bitte eine kurze, klare Tagesbotschaft.')">Tagesbotschaft</button>
           </div>
         </div>
