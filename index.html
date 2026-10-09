@@ -72,6 +72,46 @@
           </div>
         </div>
 
+        <!-- Schnellstart ohne Login / ohne Profil -->
+        <div class="card glow quickstart-card" id="quickStartCard">
+          <div class="card-title">
+            <h4>Dein Kosmos in 10 Sekunden</h4>
+            <span class="badge">Kostenlos</span>
+          </div>
+          <div id="qsForm">
+            <p class="qs-lead">Gib dein Geburtsdatum ein – Soraya zeigt dir sofort dein Sonnen- und Mondzeichen und dein Horoskop für heute. Ganz ohne Konto.</p>
+            <div class="form-row-3">
+              <div><label for="qsDay">Tag</label><input id="qsDay" inputmode="numeric" placeholder="4" maxlength="2" /></div>
+              <div><label for="qsMonth">Monat</label><input id="qsMonth" inputmode="numeric" placeholder="6" maxlength="2" /></div>
+              <div><label for="qsYear">Jahr</label><input id="qsYear" inputmode="numeric" placeholder="1990" maxlength="4" /></div>
+            </div>
+            <div class="form-row">
+              <div><label for="qsHour">Stunde (optional)</label><input id="qsHour" inputmode="numeric" placeholder="14" maxlength="2" /></div>
+              <div><label for="qsMinute">Minute (optional)</label><input id="qsMinute" inputmode="numeric" placeholder="30" maxlength="2" /></div>
+            </div>
+            <button class="btn gold block" id="qsButton" onclick="sorayaQuickStart()">Meinen Kosmos zeigen</button>
+            <div id="qsStatus" class="status qs-status" aria-live="polite"></div>
+            <button class="qs-login-link" type="button" id="qsLoginLink" onclick="openLogin()">Schon ein Konto? Einloggen</button>
+          </div>
+          <div id="qsResult" class="qs-result">
+            <div class="qs-signs">
+              <div class="qs-sign"><b id="qsSunGlyph">☉</b><span class="eyebrow">Sonne</span><strong id="qsSun">–</strong><p id="qsSunText"></p></div>
+              <div class="qs-sign"><b>☾</b><span class="eyebrow">Mond</span><strong id="qsMoon">–</strong><p id="qsMoonText"></p></div>
+            </div>
+            <div class="qs-horo">
+              <span class="eyebrow" id="qsHoroLabel">Dein Tag</span>
+              <h4 id="qsHoroMood">Soraya liest die Sterne…</h4>
+              <p id="qsHoroText"></p>
+              <span class="badge" id="qsHoroTip"></span>
+            </div>
+            <div class="qs-cta">
+              <p id="qsCtaText">Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.</p>
+              <button class="btn gold block" id="qsCtaButton" onclick="sorayaQuickStartCta()">Kostenlos registrieren</button>
+              <button class="btn block qs-edit" type="button" onclick="sorayaQuickStartEdit()">Anderes Geburtsdatum</button>
+            </div>
+          </div>
+        </div>
+
         <div class="card glow hero-card c4-hero-card c46-hero-dashboard">
           <div class="zodiac-art"><span id="sunGlyph">✦</span></div>
           <div class="zodiac-info">

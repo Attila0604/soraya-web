@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v11";
+  const APP_VERSION = "web-v12";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -226,6 +226,7 @@
 
     if (id === "profile") {
       window.setTimeout(() => {
+        prefillProfileFromPreview();
         renderAuthUi();
         renderProfilePreview();
         renderOnboardingState();
@@ -839,7 +840,29 @@
   async function loadHoroscope(options) {
     const silent = !!(options && options.silent);
     if (!getCurrentPersonId()) {
+      const preview = readPreview();
+      const sunKey = preview && preview.result && preview.result.sun && !preview.result.sun.uncertain ? preview.result.sun.sign : null;
+      if (sunKey) {
+        setText("horoDate", "Allgemein für " + (preview.result.sun.sign_de || "") + " · heute");
+        setText("horoMood", "Soraya liest die Sterne…");
+        try {
+          const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(sunKey));
+          const d = json.data || {};
+          setText("horoMood", d.stimmung || "Dein Tag");
+          setText("horoBody", (d.text || "") + "\n\nDein persönliches Horoskop – berechnet aus deinem ganzen Geburtshoroskop – bekommst du mit deinem Profil.");
+          setText("horoTip", d.tipp ? "✦ " + d.tipp : "");
+          if (d.liebe) setText("horoLoveText", d.liebe);
+          if (d.beruf) setText("horoWorkText", d.beruf);
+        } catch (error) {
+          setText("horoMood", "Gleich verfügbar");
+        }
+        return;
+      }
       if (!silent) needPerson();
+      else {
+        setText("horoMood", "Dein Horoskop wartet");
+        setText("horoBody", "Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute.");
+      }
       return;
     }
     const period = currentPeriod();
@@ -2095,6 +2118,235 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Schnellstart OHNE Login: Geburtsdatum -> Sonne, Mond, Tageshoroskop fuers
+  // Sternzeichen. Ergebnis bleibt lokal gespeichert und wird nach Login/Profil
+  // ins Profilformular uebernommen.
+  // ---------------------------------------------------------------------------
+  const PREVIEW_KEY = "soraya_preview_v1";
+  const SIGN_KEY_BY_DE = { Widder: "Ari", Stier: "Tau", Zwillinge: "Gem", Krebs: "Can", "Löwe": "Leo", Jungfrau: "Vir", Waage: "Lib", Skorpion: "Sco", "Schütze": "Sag", Steinbock: "Cap", Wassermann: "Aqu", Fische: "Pis" };
+  const SIGN_PERSON = { Ari: "Widder", Tau: "Stier", Gem: "Zwilling", Can: "Krebs", Leo: "Löwe", Vir: "Jungfrau", Lib: "Waage", Sco: "Skorpion", Sag: "Schütze", Cap: "Steinbock", Aqu: "Wassermann", Pis: "Fisch" };
+  const SUN_TEXTS = {
+    Ari: "Mutig, direkt und voller Anfangsenergie – du gehst voran, wo andere noch zögern.",
+    Tau: "Beständig, sinnlich und verlässlich – du baust Schritt für Schritt etwas, das bleibt.",
+    Gem: "Neugierig, wortgewandt und vielseitig – dein Geist liebt Austausch und neue Ideen.",
+    Can: "Fürsorglich, gefühlvoll und schützend – Geborgenheit ist deine stille Stärke.",
+    Leo: "Warmherzig, kreativ und strahlend – du möchtest gesehen werden und andere zum Leuchten bringen.",
+    Vir: "Klar, hilfsbereit und genau – du erkennst Details und machst Dinge besser.",
+    Lib: "Charmant, fair und harmoniesuchend – Beziehungen und Schönheit sind dein Element.",
+    Sco: "Intensiv, tiefgründig und loyal – du gehst den Dingen auf den Grund.",
+    Sag: "Optimistisch, frei und sinnsuchend – Horizonte zu erweitern, treibt dich an.",
+    Cap: "Ehrgeizig, ausdauernd und verantwortungsvoll – du erreichst Gipfel mit Geduld.",
+    Aqu: "Originell, unabhängig und visionär – du denkst Zukunft und Gemeinschaft neu.",
+    Pis: "Einfühlsam, fantasievoll und intuitiv – du spürst, was zwischen den Zeilen liegt."
+  };
+  const MOON_TEXTS = {
+    Ari: "Gefühle zeigst du spontan und ehrlich – du brauchst Freiraum und Bewegung.",
+    Tau: "Ruhe, Genuss und Verlässlichkeit geben dir emotionale Sicherheit.",
+    Gem: "Du verarbeitest Gefühle im Gespräch – Austausch beruhigt dich.",
+    Can: "Du fühlst tief und brauchst ein echtes Zuhause, innen wie außen.",
+    Leo: "Wärme und Anerkennung nähren dich – du schenkst großzügig Herz.",
+    Vir: "Ordnung und sinnvolle Aufgaben geben dir innere Ruhe.",
+    Lib: "Harmonie und schöne Begegnungen bringen dich ins Gleichgewicht.",
+    Sco: "Deine Gefühle sind intensiv – Vertrauen ist für dich alles.",
+    Sag: "Du brauchst Weite, Abenteuer und etwas, an das du glauben kannst.",
+    Cap: "Du zeigst Gefühle eher leise – Beständigkeit gibt dir Halt.",
+    Aqu: "Du brauchst Freiheit und Freundschaft auf Augenhöhe.",
+    Pis: "Du spürst Stimmungen sofort – Rückzug und Kreativität laden dich auf."
+  };
+
+  function readPreview() {
+    const p = readJson(PREVIEW_KEY, null);
+    return p && p.birth && p.result ? p : null;
+  }
+
+  async function publicJson(path, body) {
+    const config = getConfig();
+    const response = await fetchWithTimeout(config.engineUrl.replace(/\/$/, "") + path, body ? {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    } : { method: "GET" }, 30000);
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
+    if (!json || json.ok === false) throw new Error((json && json.error) || "Keine Daten erhalten.");
+    return json;
+  }
+
+  // Anonymer Zaehler fuer nicht eingeloggte Nutzer (nur Ereignisart, sonst nichts).
+  function publicEvent(kind) {
+    try {
+      const config = getConfig();
+      fetch(config.engineUrl.replace(/\/$/, "") + "/public/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind }),
+        keepalive: true
+      }).catch(() => {});
+    } catch (error) {}
+  }
+
+  function signDisplay(info) {
+    if (!info) return "–";
+    if (info.uncertain && Array.isArray(info.alternatives)) return info.alternatives.join(" oder ");
+    return info.sign_de || "–";
+  }
+
+  function renderQuickStart(preview) {
+    const result = preview.result;
+    const sun = result.sun || {};
+    const moon = result.moon || {};
+    const sunKey = sun.sign || SIGN_KEY_BY_DE[sun.sign_de];
+    const moonKey = moon.sign || SIGN_KEY_BY_DE[moon.sign_de];
+    const zodiac = ZODIAC.find((z) => z.s === sun.sign_de);
+    setText("qsSunGlyph", zodiac ? zodiac.g : "☉");
+    setText("qsSun", signDisplay(sun));
+    setText("qsSunText", sun.uncertain ? "Du bist an einem Wechseltag geboren – mit deiner Geburtszeit sagt Soraya dir genau, welches Zeichen es ist." : (SUN_TEXTS[sunKey] || ""));
+    setText("qsMoon", signDisplay(moon));
+    setText("qsMoonText", moon.uncertain ? "Der Mond hat an deinem Geburtstag das Zeichen gewechselt – mit Geburtszeit wird es genau." : (MOON_TEXTS[moonKey] || ""));
+    setText("qsHoroLabel", "Dein Tag als " + (SIGN_PERSON[sunKey] || "Sternzeichen"));
+    const ribbon = $("heroRibbon");
+    if (ribbon && !getCurrentPersonId()) {
+      ribbon.innerHTML = "<span><b>☉</b> " + escapeHtml(signDisplay(sun)) + "</span><span><b>☾</b> " + escapeHtml(signDisplay(moon)) + "</span>";
+      ribbon.classList.add("is-personal");
+    }
+
+    updateQuickStartCta();
+
+    const form = $("qsForm");
+    const box = $("qsResult");
+    if (form) form.style.display = "none";
+    if (box) box.style.display = "block";
+    if (sunKey && !sun.uncertain) loadSignHoroscope(sunKey);
+    else {
+      setText("qsHoroMood", "Dein Tag");
+      setText("qsHoroText", "Gib deine Geburtszeit an, dann zeigt Soraya dir das passende Tageshoroskop.");
+      setText("qsHoroTip", "");
+    }
+  }
+
+  async function updateQuickStartCta() {
+    const state = await getSessionState();
+    const cta = $("qsCtaText");
+    if (cta) {
+      cta.innerHTML = state.ok
+        ? "Ergänze im Profil Name und Geburtsort – dann berechnet Soraya dein <b>persönliches</b> Horoskop, deinen Aszendenten und dein Birth Chart."
+        : "Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.";
+    }
+    setText("qsCtaButton", state.ok ? "Profil vervollständigen" : "Kostenlos registrieren");
+    const login = $("qsLoginLink");
+    if (login) login.style.display = state.ok ? "none" : "";
+  }
+
+  async function loadSignHoroscope(signKey) {
+    try {
+      setText("qsHoroMood", "Soraya liest die Sterne…");
+      const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(signKey));
+      const d = json.data || {};
+      setText("qsHoroMood", d.stimmung || "Dein Tag");
+      setText("qsHoroText", d.text || "");
+      setText("qsHoroTip", d.tipp ? "✦ " + d.tipp : "");
+      return d;
+    } catch (error) {
+      setText("qsHoroMood", "Gleich verfügbar");
+      setText("qsHoroText", "Das Tageshoroskop ist gerade kurz nicht erreichbar. Versuch es in einem Moment noch einmal.");
+      return null;
+    }
+  }
+
+  function quickStartValue(id) {
+    const node = $(id);
+    const raw = node ? node.value.trim() : "";
+    if (raw === "") return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  async function quickStart() {
+    const birth = {
+      day: quickStartValue("qsDay"), month: quickStartValue("qsMonth"), year: quickStartValue("qsYear"),
+      hour: quickStartValue("qsHour"), minute: quickStartValue("qsMinute")
+    };
+    if (!birth.day || !birth.month || !birth.year || [birth.day, birth.month, birth.year].some(Number.isNaN)) {
+      status("qsStatus", "Bitte Tag, Monat und Jahr eingeben.", "bad");
+      return;
+    }
+    if (birth.hour !== null && birth.minute === null) birth.minute = 0;
+    const button = $("qsButton");
+    if (button) button.disabled = true;
+    status("qsStatus", "Soraya berechnet deinen Kosmos…");
+    try {
+      const json = await publicJson("/public/preview", birth);
+      const preview = { birth, result: json.data, at: new Date().toISOString() };
+      writeJson(PREVIEW_KEY, preview);
+      status("qsStatus", "");
+      renderQuickStart(preview);
+      track("quickstart_done", { time_known: birth.hour !== null });
+    } catch (error) {
+      status("qsStatus", friendlyError(error, "Das hat nicht geklappt. Bitte Datum prüfen."), "bad");
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function quickStartEdit() {
+    const preview = readPreview();
+    const form = $("qsForm");
+    const box = $("qsResult");
+    if (preview) {
+      const b = preview.birth;
+      [["qsDay", b.day], ["qsMonth", b.month], ["qsYear", b.year], ["qsHour", b.hour], ["qsMinute", b.minute]].forEach(([id, v]) => {
+        if ($(id)) $(id).value = v === null || v === undefined ? "" : v;
+      });
+    }
+    if (box) box.style.display = "none";
+    if (form) form.style.display = "block";
+  }
+
+  async function quickStartCta() {
+    const state = await getSessionState();
+    if (state.ok) {
+      showSection("profile");
+      window.setTimeout(prefillProfileFromPreview, 120);
+      return;
+    }
+    try {
+      localStorage.setItem("soraya_after_login_section", "profile");
+      localStorage.setItem("soraya_after_login_path", "/?section=profile");
+    } catch (error) {}
+    publicEvent("register_click");
+    window.location.href = LOGIN_PATH + "?mode=register";
+  }
+
+  // Nach Login/Registrierung: Datum aus dem Schnellstart ins leere Profil uebernehmen.
+  function prefillProfileFromPreview() {
+    const preview = readPreview();
+    if (!preview || getCurrentPersonId()) return;
+    const b = preview.birth;
+    let filled = false;
+    [["pDay", b.day], ["pMonth", b.month], ["pYear", b.year], ["pHour", b.hour], ["pMinute", b.minute]].forEach(([id, v]) => {
+      const node = $(id);
+      if (node && !node.value && v !== null && v !== undefined) { node.value = v; filled = true; }
+    });
+    if (filled) {
+      status("personResult", "✦ Dein Geburtsdatum aus dem Schnellstart ist eingetragen. Ergänze Name und Geburtsort und speichere dein Profil.", "ok");
+      previewIdentityFromForm();
+    }
+  }
+
+  async function restoreQuickStart() {
+    const preview = readPreview();
+    if (preview) renderQuickStart(preview);
+    else updateQuickStartCta();
+    const state = await getSessionState();
+    let counted = false;
+    try { counted = sessionStorage.getItem("soraya_qs_open") === "1"; } catch (error) {}
+    if (!state.ok && !counted) {
+      try { sessionStorage.setItem("soraya_qs_open", "1"); } catch (error) {}
+      publicEvent("quickstart_open");
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Der Himmel heute (fuer alle gleich, Backend /sky, stuendlich aktuell)
   // ---------------------------------------------------------------------------
   const WEEKDAYS = ["So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."];
@@ -2335,6 +2587,7 @@
     renderWheel(null);
     renderHomeSkyThrottled();
     renderSkyToday(true);
+    restoreQuickStart();
     renderAuthUi();
     bindUiEvents();
     cacheSelfFromStorage();
@@ -2404,6 +2657,9 @@
   window.loadPeopleFromSupabase = loadPeopleFromSupabase;
   window.refreshSynastryPeople = refreshSynastryPeople;
   window.sorayaAddPerson = addPerson;
+  window.sorayaQuickStart = quickStart;
+  window.sorayaQuickStartEdit = quickStartEdit;
+  window.sorayaQuickStartCta = quickStartCta;
   window.sorayaOpenSynastryWith = openSynastryWith;
   window.createSynastryPerson = createSynastryPerson;
   window.saveSynastry = saveSynastry;

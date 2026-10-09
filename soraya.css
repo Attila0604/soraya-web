@@ -871,3 +871,33 @@ body.soraya-no-profile #home .c46-dashboard-grid{grid-template-columns:1fr}
 
 /* Transite: Richtungspfeil dezent */
 #homeTransits .row > span{color:var(--gold-dim); font-size:15px}
+
+/* ============================================================
+   Schnellstart ohne Login / ohne Profil
+   ============================================================ */
+#quickStartCard{display:none}
+body.soraya-no-profile #quickStartCard{display:block}
+/* Ohne Profil ersetzt der Schnellstart die leere Kern-Karte und die Schritte */
+body.soraya-no-profile #home .c46-hero-dashboard,
+body.soraya-no-profile #onboardingCard{display:none !important}
+.qs-lead{color:var(--mist); margin:0 0 var(--s3)}
+.qs-status:empty{display:none}
+.qs-login-link{display:block; margin:var(--s3) auto 0; background:none; border:none; color:var(--gold-soft); font:inherit; font-size:13px; text-decoration:underline; cursor:pointer}
+.qs-result{display:none}
+.qs-signs{display:grid; grid-template-columns:1fr 1fr; gap:var(--s2); margin-bottom:var(--s3)}
+.qs-sign{background:rgba(10,7,20,.4); border:1px solid var(--line-soft); border-radius:var(--r-sm, 14px); padding:var(--s3); text-align:center}
+.qs-sign b{display:block; font-size:26px; color:var(--gold); margin-bottom:4px}
+.qs-sign strong{display:block; font-family:var(--display); font-size:19px; color:var(--gold-soft); margin:4px 0 6px}
+.qs-sign p{font-size:12.5px; color:var(--mist-dim); margin:0; line-height:1.5}
+.qs-horo{border-top:1px solid var(--line-soft); padding-top:var(--s3); margin-bottom:var(--s3)}
+.qs-horo h4{font-size:19px; margin:6px 0}
+.qs-horo p{white-space:pre-wrap; color:var(--mist); line-height:1.7; font-family:var(--display); font-size:16px}
+.qs-horo .badge:empty{display:none}
+.qs-cta{background:linear-gradient(180deg, rgba(201,168,106,.10), rgba(201,168,106,.03)); border:1px solid var(--gold-dim); border-radius:var(--r-sm, 14px); padding:var(--s3)}
+.qs-cta p{margin:0 0 var(--s3); color:var(--mist)}
+.qs-cta b{color:var(--gold-soft)}
+.qs-edit{margin-top:var(--s2)}
+/* Ausgeloggt: Personen anlegen braucht ein Konto */
+body.soraya-logged-out #peopleCard{display:none}
+/* Tipp im Schnellstart normal lesbar statt Versalien */
+.qs-horo .badge{text-transform:none; letter-spacing:.01em; font-size:13px; white-space:normal; line-height:1.5; display:inline-block; padding:8px 12px}
