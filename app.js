@@ -27,6 +27,8 @@
   const LOGIN_PATH = "/login";
   let sb = null;
   let homeSkyTimer = null;
+  // Personenliste der letzten erfolgreichen Server-Abfrage (fuer den Chat)
+  let serverPeople = null;
 
   const PUBLIC_CONFIG = normalizeConfig(window.SORAYA_PUBLIC_CONFIG || {});
 
@@ -679,12 +681,21 @@
     if (field) field.value = "";
 
     try {
+      // Gespeicherte Personen mitschicken, damit Soraya z. B. "Wie passe ich
+      // zu Sarah?" beantworten kann. Nur IDs aus der aktuellen Server-Liste.
+      if (!serverPeople) await loadPeopleFromSupabase(false);
+      const selfId = getCurrentPersonId();
+      const peopleIds = (serverPeople || [])
+        .filter((p) => p && p.id && p.id !== selfId && !p.is_self)
+        .map((p) => p.id)
+        .slice(0, 10);
+
       const data = await callSoraya("/mobile/chat/save", {
-        person_id: getCurrentPersonId(),
+        person_id: selfId,
         message,
         conversation_id: ($("conversationId") && $("conversationId").value.trim()) || null,
         memory: null,
-        people_ids: []
+        people_ids: peopleIds
       });
 
       if ($("conversationId")) $("conversationId").value = data.data.conversation_id || "";
@@ -754,22 +765,20 @@
     try {
       const existing = readJson(KEYS.birth, null);
 
-      const selfId = getCurrentPersonId();
-      // Neueste self-Person nehmen (falls durch alte Tests mehrere existieren)
+      // Nur echte Self-Profile, neueste zuerst. Ohne eigenes Profil NICHT auf
+      // eine andere gespeicherte Person (z. B. Partner) ausweichen.
       const selfCandidates = (Array.isArray(people) ? people : [])
-        .filter((p) => p && (p.id === selfId || p.is_self))
+        .filter((p) => p && (p.is_self === true || String(p.relation || "").toLowerCase() === "self"))
         .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
-      const self =
-        selfCandidates[0] ||
-        (Array.isArray(people) && people.find((p) => p && p.birth_date)) ||
-        null;
+      const self = selfCandidates[0] || null;
       if (!self || !self.birth_date) return;
 
-      // Self-ID auch lokal sichern, falls nach Login nicht gesetzt
+      // Server ist die Wahrheit: lokale Self-ID setzen bzw. korrigieren
+      // (auch eine frueher faelschlich uebernommene Partner-ID)
       if (self.id) {
-        if (!localStorage.getItem(KEYS.person)) localStorage.setItem(KEYS.person, self.id);
+        if (localStorage.getItem(KEYS.person) !== self.id) localStorage.setItem(KEYS.person, self.id);
         var personIdField = $("personId");
-        if (personIdField && !personIdField.value) personIdField.value = self.id;
+        if (personIdField && personIdField.value !== self.id) personIdField.value = self.id;
       }
 
       const parts = String(self.birth_date).split("-");
@@ -830,6 +839,7 @@
     try {
       const data = await callSoraya("/mobile/people/list", null, "GET");
       const people = data.data && Array.isArray(data.data.people) ? data.data.people : [];
+      serverPeople = people;
 
       people.forEach((person) => addPersonToCache(person));
       const hadBirth = !!readJson(KEYS.birth, null);

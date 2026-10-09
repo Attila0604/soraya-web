@@ -221,7 +221,9 @@
       return p && (p.is_self === true || String(p.relation || "").toLowerCase() === "self");
     });
 
-    var candidates = selfRows.length ? selfRows : people.filter(Boolean);
+    // Nur echte Self-Profile: ohne eigenes Profil NICHT auf eine andere
+    // gespeicherte Person (z. B. Partner) ausweichen.
+    var candidates = selfRows;
 
     candidates.sort(function (a, b) {
       return dateScore(b) - dateScore(a);

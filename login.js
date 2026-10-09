@@ -304,6 +304,14 @@
       setLoginStatus("Login läuft ...");
       var client = getLoginClient();
       var result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: fields.password }), 15000, "Login dauerte zu lange.");
+
+      // Beim Kopieren rutschen leicht Leerzeichen ins Passwortfeld:
+      // bei falschem Passwort einmal ohne Leerzeichen am Rand versuchen.
+      var trimmed = fields.password.trim();
+      if (result.error && trimmed !== fields.password && trimmed.length >= 6 &&
+          /invalid login|invalid credentials/i.test(result.error.message || "")) {
+        result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: trimmed }), 15000, "Login dauerte zu lange.");
+      }
       if (result.error) throw result.error;
 
       var sessionResult = await withTimeout(client.auth.getSession(), 12000, "Session konnte nicht bestätigt werden.");
@@ -329,6 +337,9 @@
     try {
       setBusy(true);
       var fields = validateLoginFields(true);
+      // Leerzeichen am Rand entfernen (meist versehentlich beim Kopieren)
+      var password = fields.password.trim();
+      if (password.length < 6) throw new Error("Bitte ein Passwort mit mindestens 6 Zeichen eingeben.");
       safeSetAfterPath();
       localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
 
@@ -337,7 +348,7 @@
       var redirectTo = window.location.origin + "/login?return=1";
       var result = await withTimeout(client.auth.signUp({
         email: fields.email,
-        password: fields.password,
+        password: password,
         options: { emailRedirectTo: redirectTo }
       }), 15000, "Registrierung dauerte zu lange.");
 
