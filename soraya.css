@@ -94,6 +94,8 @@ img,svg{max-width:100%}
 .topbar{
   display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap;
   padding:var(--s5) 0 var(--s4);
+  /* iPhone (Home-Bildschirm, durchscheinende Statusleiste): unter die Uhr ruecken */
+  padding-top:calc(var(--s5) + env(safe-area-inset-top));
 }
 .brand{flex:1; text-align:center; cursor:pointer; line-height:1}
 .brand .sigil{font-size:15px; color:var(--gold); opacity:.8; margin-bottom:6px}
@@ -342,7 +344,7 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
   z-index:40; width:min(460px, calc(100% - 32px));
   display:flex; justify-content:space-between; padding:10px 12px;
   background:rgba(13,9,26,.82); border:1px solid var(--line); border-radius:var(--r-pill);
-  backdrop-filter:blur(16px); box-shadow:0 18px 44px rgba(0,0,0,.5);
+  -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); box-shadow:0 18px 44px rgba(0,0,0,.5);
 }
 .tabbar button{
   flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;
@@ -361,7 +363,7 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
 .developer-only{display:none}
 .soraya-dev-visible .developer-only{display:block}
 .modal-backdrop{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center;
-  padding:var(--s4); background:rgba(3,2,10,.72); backdrop-filter:blur(6px)}
+  padding:var(--s4); background:rgba(3,2,10,.72); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
 .modal-backdrop.open, .soraya-dev-visible .modal-backdrop.developer-only.open{display:flex}
 .soraya-dev-visible .modal-backdrop.developer-only:not(.open){display:none}
 .modal{max-width:440px; width:100%; background:linear-gradient(180deg,var(--void-2),var(--void));
@@ -372,7 +374,7 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
 
 /* ============ LOADING / ERROR / TOAST ============ */
 .c411-loading-veil{position:fixed; inset:0; z-index:80; display:none; place-items:center;
-  background:rgba(7,5,16,.85); backdrop-filter:blur(4px)}
+  background:rgba(7,5,16,.85); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
 .c411-loading-veil.open{display:grid}
 .c411-loader{text-align:center; color:var(--gold-soft); font-family:var(--display)}
 .c411-loader span{font-size:34px; display:block; animation:pulse 1.6s ease-in-out infinite}
@@ -503,6 +505,8 @@ html, body{overflow-x:hidden}
 .login-app{
   min-height:100dvh; display:flex; flex-direction:column; justify-content:center;
   max-width:440px; margin:0 auto; padding:var(--s4);
+  padding-top:calc(var(--s4) + env(safe-area-inset-top));
+  padding-bottom:calc(var(--s4) + env(safe-area-inset-bottom));
 }
 .login-shell{width:100%; margin:0}
 .login-logo{text-align:center; margin-bottom:var(--s5)}
@@ -686,7 +690,7 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
 
 .c73-report-backdrop{
   position:fixed; inset:0; z-index:120; display:none; align-items:center; justify-content:center;
-  padding:24px; background:rgba(6,4,14,.72); backdrop-filter:blur(4px);
+  padding:24px; background:rgba(6,4,14,.72); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
 }
 .c73-report-backdrop.open{display:flex}
 .c73-report-modal{
@@ -901,3 +905,18 @@ body.soraya-no-profile #onboardingCard{display:none !important}
 body.soraya-logged-out #peopleCard{display:none}
 /* Tipp im Schnellstart normal lesbar statt Versalien */
 .qs-horo .badge{text-transform:none; letter-spacing:.01em; font-size:13px; white-space:normal; line-height:1.5; display:inline-block; padding:8px 12px}
+
+/* ============================================================
+   iPhone: Hinweis "Zum Home-Bildschirm"
+   ============================================================ */
+.ios-install-card{position:relative; border-color:var(--gold-dim); background:linear-gradient(180deg, rgba(201,168,106,.10), rgba(201,168,106,.03))}
+.ios-install-card[hidden]{display:none}
+.ios-install-close{position:absolute; top:10px; right:12px; width:32px; height:32px; border-radius:50%; border:1px solid var(--line); background:transparent; color:var(--mist); font-size:18px; line-height:1; cursor:pointer}
+.ios-steps{margin:0; padding-left:20px; color:var(--mist); line-height:1.7}
+.ios-steps li{margin:4px 0}
+.ios-steps b, .ios-inapp b{color:var(--gold-soft)}
+.ios-share{display:inline-grid; place-items:center; width:26px; height:26px; vertical-align:-7px; border-radius:7px; background:rgba(255,255,255,.06); color:#5aa8ff}
+.ios-share svg{width:18px; height:18px}
+.ios-inapp{margin:0; color:var(--mist)}
+.ios-inapp[hidden], .ios-steps[hidden]{display:none}
+.ios-install-card .card-title{padding-right:40px}

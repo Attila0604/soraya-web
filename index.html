@@ -7,6 +7,10 @@
 
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#070817" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Soraya" />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
@@ -70,6 +74,18 @@
             <span>☾ Transite</span>
             <span>♡ Synastrie</span>
           </div>
+        </div>
+
+        <!-- iPhone: Hinweis "Zum Home-Bildschirm" (nur in Safari, nicht als installierte App) -->
+        <div class="card ios-install-card" id="iosInstallCard" hidden>
+          <button type="button" class="ios-install-close" onclick="sorayaDismissIosHint()" aria-label="Hinweis schließen">×</button>
+          <div class="card-title"><h4>Soraya als App auf deinem iPhone</h4></div>
+          <ol class="ios-steps" id="iosSteps">
+            <li>Tippe unten auf <span class="ios-share" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18.5 10H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span> <b>Teilen</b>.</li>
+            <li>Wähle <b>„Zum Home-Bildschirm“</b>.</li>
+            <li>Öffne Soraya über das neue Symbol – dort meldest du dich einmal an.</li>
+          </ol>
+          <p class="ios-inapp" id="iosInApp" hidden>Du bist gerade in einer anderen App (z. B. Instagram). Öffne diese Seite zuerst in <b>Safari</b>: Tippe auf <b>⋯</b> und dann <b>„In Safari öffnen“</b>.</p>
         </div>
 
         <!-- Schnellstart ohne Login / ohne Profil -->
