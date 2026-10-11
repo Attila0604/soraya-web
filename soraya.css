@@ -924,7 +924,7 @@ body.soraya-logged-out #peopleCard{display:none}
 /* Chat-Kopf: "melden" oben rechts statt Platz vom Titel zu nehmen */
 #chat .chat-head{position:relative}
 #chat .chat-head .c73-report-head{position:absolute; top:0; right:0; margin:0}
-#chat .chat-head h4{white-space:nowrap; padding-right:100px}
+#chat .chat-head h4{white-space:normal; padding-right:112px}
 
 /* ============================================================
    Partner-Einladung
