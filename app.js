@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v14";
+  const APP_VERSION = "web-v15";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -2380,6 +2380,171 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Partner-Einladung
+  // Einladende: Link teilen. Eingeladene: ?einladung=CODE -> Karte mit
+  // Geburtsdatum -> Ergebnis in Prozent -> Registrieren. Von der einladenden
+  // Person sieht man nur Vornamen und Sternzeichen (Backend).
+  // ---------------------------------------------------------------------------
+  const INVITE_KEY = "soraya_invite_code";
+  const INVITE_RE = /^[A-Za-z0-9]{8,24}$/;
+  let inviteInfo = null;
+
+  async function shareInvite() {
+    if (!getCurrentPersonId()) {
+      toast("Bitte zuerst dein Profil speichern.");
+      showSection("profile");
+      return;
+    }
+    status("inviteShareStatus", "Dein Einladungslink wird erstellt…");
+    try {
+      const json = await callSoraya("/mobile/invite/create", {}, "POST", 15000);
+      const url = json.data && json.data.url;
+      if (!url) throw new Error("Kein Link erhalten.");
+      const text = "Wie gut passen wir zusammen? ✨ Gib dein Geburtsdatum ein und sieh unser Ergebnis bei Soraya:";
+      let method = "copy";
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "Soraya – Wie gut passen wir zusammen?", text, url });
+          method = "share";
+        } catch (error) {
+          if (error && error.name === "AbortError") { status("inviteShareStatus", ""); return; }
+          method = "copy";
+        }
+      }
+      if (method === "copy") {
+        try { await navigator.clipboard.writeText(text + " " + url); toast("Link kopiert – jetzt einfügen und senden."); } catch (error) {}
+      }
+      status("inviteShareStatus", method === "share" ? "✦ Einladung geteilt." : "Dein Link: " + url, "ok");
+      track("invite_shared", { method });
+    } catch (error) {
+      status("inviteShareStatus", friendlyError(error, "Link konnte nicht erstellt werden."), "bad");
+      trackError("invite", error);
+    }
+  }
+
+  function takeInviteFromUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("einladung");
+      if (code && INVITE_RE.test(code)) localStorage.setItem(INVITE_KEY, code);
+      if (code !== null) {
+        url.searchParams.delete("einladung");
+        window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      }
+    } catch (error) {}
+  }
+
+  function inviteResultKey(code) { return "soraya_invite_result_" + code; }
+
+  async function renderInviteCard() {
+    const card = $("inviteCard");
+    if (!card) return;
+    let code = "";
+    try { code = localStorage.getItem(INVITE_KEY) || ""; } catch (error) {}
+    if (!INVITE_RE.test(code)) { card.hidden = true; document.body.classList.remove("soraya-invite"); return; }
+    try {
+      const json = await publicJson("/public/invite/" + encodeURIComponent(code));
+      inviteInfo = json.data || {};
+    } catch (error) {
+      if (/gibt es nicht/i.test(error.message || "")) {
+        try { localStorage.removeItem(INVITE_KEY); } catch (e) {}
+      }
+      card.hidden = true;
+      document.body.classList.remove("soraya-invite");
+      return;
+    }
+    const name = inviteInfo.name || "Jemand";
+    setText("inviteName", name);
+    setText("inviteLead", "Wie gut passt ihr zusammen? " + name + (inviteInfo.sun_sign_de ? " ist " + inviteInfo.sun_sign_de + "." : ".") + " Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.");
+    card.hidden = false;
+    document.body.classList.add("soraya-invite");
+    const saved = readJson(inviteResultKey(code), null);
+    if (saved) showInviteResult(saved);
+    updateInviteCta();
+  }
+
+  function showInviteResult(d) {
+    const you = d.you || {};
+    const inviter = d.inviter || {};
+    setText("ivPercent", (d.score_percent != null ? d.score_percent : "–") + " %");
+    setText("ivLabel", d.score_label || "");
+    const sun = you.sun ? signDisplay(you.sun) : "";
+    const moon = you.moon ? signDisplay(you.moon) : "";
+    const parts = [];
+    if (inviter.sun_sign_de && sun) parts.push((inviter.name || "Ihr") + " ist " + inviter.sun_sign_de + ", du bist " + sun + (moon ? " mit Mond in " + moon : "") + ".");
+    if (d.harmonious != null) parts.push("Zwischen euch gibt es " + d.harmonious + " harmonische und " + (d.challenging || 0) + " spannungsreiche Verbindungen" + (d.tone ? " – der Grundton ist " + d.tone : "") + ".");
+    setText("ivDetail", parts.join(" "));
+    setText("inviteLead", "So passt ihr laut euren Geburtshoroskopen zusammen:");
+    if ($("inviteForm")) $("inviteForm").hidden = true;
+    if ($("inviteResult")) $("inviteResult").hidden = false;
+  }
+
+  async function inviteMatch() {
+    let code = "";
+    try { code = localStorage.getItem(INVITE_KEY) || ""; } catch (error) {}
+    if (!INVITE_RE.test(code)) return;
+    const v = (id) => quickStartValue(id);
+    const birth = { day: v("ivDay"), month: v("ivMonth"), year: v("ivYear"), hour: v("ivHour"), minute: v("ivMinute") };
+    if (!birth.day || !birth.month || !birth.year || [birth.day, birth.month, birth.year].some(Number.isNaN)) {
+      status("ivStatus", "Bitte Tag, Monat und Jahr eingeben.", "bad");
+      return;
+    }
+    if (birth.hour !== null && birth.minute === null) birth.minute = 0;
+    const button = $("ivButton");
+    if (button) button.disabled = true;
+    status("ivStatus", "Soraya vergleicht eure Sterne…");
+    try {
+      const json = await publicJson("/public/invite/" + encodeURIComponent(code) + "/match", birth);
+      const d = json.data || {};
+      writeJson(inviteResultKey(code), d);
+      // Fuer spaeter: Datum in den Schnellstart/ins Profil uebernehmen
+      if (!readPreview() && d.you) writeJson(PREVIEW_KEY, { birth, result: d.you, at: new Date().toISOString() });
+      status("ivStatus", "");
+      showInviteResult(d);
+      updateInviteCta();
+    } catch (error) {
+      status("ivStatus", friendlyError(error, "Das hat nicht geklappt. Bitte Datum prüfen."), "bad");
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function updateInviteCta() {
+    const state = await getSessionState();
+    const name = (inviteInfo && inviteInfo.name) || "die Person";
+    const cta = $("ivCtaText");
+    if (state.ok && getCurrentPersonId()) {
+      if (cta) cta.innerHTML = "Für eure <b>ganze Deutung</b> lege " + escapeHtml(name) + " bei „Deine Menschen“ an und starte den Partner-Vergleich.";
+      setText("ivCtaButton", name + " hinzufügen");
+    } else if (state.ok) {
+      if (cta) cta.innerHTML = "Speichere dein Profil – dann bekommst du eure <b>ganze Deutung</b> und dein persönliches Horoskop.";
+      setText("ivCtaButton", "Profil vervollständigen");
+    } else {
+      if (cta) cta.innerHTML = "Eure <b>ganze Deutung</b> – Harmonie, Spannung, Anziehung und Kommunikation – und dein persönliches Horoskop bekommst du mit einem kostenlosen Konto.";
+      setText("ivCtaButton", "Kostenlos registrieren");
+    }
+  }
+
+  async function inviteCta() {
+    const state = await getSessionState();
+    if (state.ok && getCurrentPersonId()) { addPerson(); return; }
+    if (state.ok) { showSection("profile"); window.setTimeout(prefillProfileFromPreview, 120); return; }
+    try {
+      localStorage.setItem("soraya_after_login_section", "profile");
+      localStorage.setItem("soraya_after_login_path", "/?section=profile");
+    } catch (error) {}
+    publicEvent("register_click");
+    window.location.href = LOGIN_PATH + "?mode=register";
+  }
+
+  function closeInvite() {
+    try { localStorage.removeItem(INVITE_KEY); } catch (error) {}
+    const card = $("inviteCard");
+    if (card) card.hidden = true;
+    document.body.classList.remove("soraya-invite");
+  }
+
+  // ---------------------------------------------------------------------------
   // Der Himmel heute (fuer alle gleich, Backend /sky, stuendlich aktuell)
   // ---------------------------------------------------------------------------
   const WEEKDAYS = ["So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."];
@@ -2620,6 +2785,8 @@
     renderWheel(null);
     renderHomeSkyThrottled();
     renderSkyToday(true);
+    takeInviteFromUrl();
+    renderInviteCard();
     restoreQuickStart();
     renderIosHint();
     renderAuthUi();
@@ -2693,6 +2860,10 @@
   window.sorayaAddPerson = addPerson;
   window.sorayaQuickStart = quickStart;
   window.sorayaDismissIosHint = dismissIosHint;
+  window.sorayaShareInvite = shareInvite;
+  window.sorayaInviteMatch = inviteMatch;
+  window.sorayaInviteCta = inviteCta;
+  window.sorayaCloseInvite = closeInvite;
   window.sorayaQuickStartEdit = quickStartEdit;
   window.sorayaQuickStartCta = quickStartCta;
   window.sorayaOpenSynastryWith = openSynastryWith;
