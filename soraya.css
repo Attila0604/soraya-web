@@ -925,3 +925,21 @@ body.soraya-logged-out #peopleCard{display:none}
 #chat .chat-head{position:relative}
 #chat .chat-head .c73-report-head{position:absolute; top:0; right:0; margin:0}
 #chat .chat-head h4{white-space:nowrap; padding-right:100px}
+
+/* ============================================================
+   Partner-Einladung
+   ============================================================ */
+.invite-card{position:relative; border-color:var(--gold-dim)}
+.invite-card[hidden], .invite-result[hidden], #inviteForm[hidden]{display:none}
+.invite-title{font-family:var(--display); font-size:24px; color:var(--gold-soft); margin:6px 40px 6px 0}
+.invite-lead{color:var(--mist); margin:0 0 var(--s3)}
+.invite-score{text-align:center; margin:var(--s2) 0 var(--s3)}
+.invite-score strong{display:block; font-family:var(--display); font-size:54px; line-height:1; color:var(--gold-soft)}
+.invite-score span{display:block; margin-top:6px; color:var(--gold); letter-spacing:.04em}
+.invite-detail{color:var(--mist); line-height:1.6; margin:0 0 var(--s3)}
+.invite-status:empty{display:none}
+.invite-share-card p{color:var(--mist); margin:0 0 var(--s3)}
+.people-actions{display:grid; grid-template-columns:1fr 1fr; gap:var(--s2)}
+.people-actions .people-add{margin-top:var(--s2)}
+/* Mit Einladung: Einladungskarte statt Schnellstart */
+body.soraya-invite #quickStartCard{display:none}

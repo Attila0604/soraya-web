@@ -76,6 +76,35 @@
           </div>
         </div>
 
+        <!-- Partner-Einladung: sichtbar, wenn die App mit ?einladung=CODE geoeffnet wurde -->
+        <div class="card glow invite-card" id="inviteCard" hidden>
+          <button type="button" class="ios-install-close" onclick="sorayaCloseInvite()" aria-label="Einladung schließen">×</button>
+          <span class="eyebrow">Persönliche Einladung</span>
+          <h3 class="invite-title"><span id="inviteName">Jemand</span> lädt dich ein ✨</h3>
+          <p class="invite-lead" id="inviteLead">Wie gut passt ihr zusammen? Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.</p>
+          <div id="inviteForm">
+            <div class="form-row-3">
+              <div><label for="ivDay">Tag</label><input id="ivDay" inputmode="numeric" placeholder="22" maxlength="2" /></div>
+              <div><label for="ivMonth">Monat</label><input id="ivMonth" inputmode="numeric" placeholder="3" maxlength="2" /></div>
+              <div><label for="ivYear">Jahr</label><input id="ivYear" inputmode="numeric" placeholder="1992" maxlength="4" /></div>
+            </div>
+            <div class="form-row">
+              <div><label for="ivHour">Stunde (optional)</label><input id="ivHour" inputmode="numeric" placeholder="18" maxlength="2" /></div>
+              <div><label for="ivMinute">Minute (optional)</label><input id="ivMinute" inputmode="numeric" placeholder="30" maxlength="2" /></div>
+            </div>
+            <button class="btn gold block" id="ivButton" onclick="sorayaInviteMatch()">Unser Ergebnis zeigen</button>
+            <div id="ivStatus" class="status qs-status" aria-live="polite"></div>
+          </div>
+          <div id="inviteResult" class="invite-result" hidden>
+            <div class="invite-score"><strong id="ivPercent">–</strong><span id="ivLabel"></span></div>
+            <p class="invite-detail" id="ivDetail"></p>
+            <div class="qs-cta">
+              <p id="ivCtaText">Eure <b>ganze Deutung</b> – Harmonie, Spannung, Anziehung und Kommunikation – und dein persönliches Horoskop bekommst du mit einem kostenlosen Konto.</p>
+              <button class="btn gold block" id="ivCtaButton" onclick="sorayaInviteCta()">Kostenlos registrieren</button>
+            </div>
+          </div>
+        </div>
+
         <!-- iPhone: Hinweis "Zum Home-Bildschirm" (nur in Safari, nicht als installierte App) -->
         <div class="card ios-install-card" id="iosInstallCard" hidden>
           <button type="button" class="ios-install-close" onclick="sorayaDismissIosHint()" aria-label="Hinweis schließen">×</button>
@@ -228,7 +257,10 @@
           <div class="people-list" id="homePeopleList">
             <p class="people-empty">Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.</p>
           </div>
-          <button class="btn people-add" onclick="sorayaAddPerson()">+ Person hinzufügen</button>
+          <div class="people-actions">
+            <button class="btn people-add" onclick="sorayaAddPerson()">+ Person hinzufügen</button>
+            <button class="btn people-add" onclick="sorayaShareInvite()">♡ Einladen</button>
+          </div>
         </div>
       </section>
 
@@ -388,6 +420,13 @@
           </div>
           <input id="personBId" type="hidden" />
           <div id="synastryText" class="status" aria-live="polite">Noch nicht berechnet.</div>
+        </div>
+
+        <div class="card invite-share-card">
+          <div class="card-title"><h4>Partner einladen</h4><span class="badge">Link</span></div>
+          <p>Schick deinem Partner, deiner Freundin oder Familie einen Link: Sie geben nur ihr Geburtsdatum ein und sehen sofort, wie gut ihr zusammenpasst. Von dir sehen sie nur deinen Vornamen und dein Sternzeichen.</p>
+          <button class="btn gold block" onclick="sorayaShareInvite()">♡ Einladungslink teilen</button>
+          <div id="inviteShareStatus" class="status invite-status" aria-live="polite"></div>
         </div>
 
         <div class="c44-synastry-grid">
