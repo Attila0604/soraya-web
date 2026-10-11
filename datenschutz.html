@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="alternate" hreflang="de" href="https://app.sorayaluxuryastroguide.com/datenschutz" />
+  <link rel="alternate" hreflang="en" href="https://app.sorayaluxuryastroguide.com/datenschutz-en" />
+  <link rel="alternate" hreflang="hu" href="https://app.sorayaluxuryastroguide.com/datenschutz-hu" />
+  <link rel="alternate" hreflang="it" href="https://app.sorayaluxuryastroguide.com/datenschutz-it" />
+  <link rel="alternate" hreflang="de" href="https://app.sorayaluxuryastroguide.com/datenschutz" />
+  <link rel="alternate" hreflang="en" href="https://app.sorayaluxuryastroguide.com/datenschutz-en" />
+  <link rel="alternate" hreflang="hu" href="https://app.sorayaluxuryastroguide.com/datenschutz-hu" />
+  <link rel="alternate" hreflang="it" href="https://app.sorayaluxuryastroguide.com/datenschutz-it" />
   <style>
     :root{
       --ink:#070817; --navy:#0b1029; --glass:rgba(9,12,32,.78);
@@ -75,6 +83,11 @@
       margin-top:46px; padding-top:22px; border-top:1px solid var(--line2);
       color:var(--muted2); font-size:12.5px; text-align:center;
     }
+
+    .langs{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:0 0 26px}
+    .langs a{border:1px solid var(--line2); border-radius:999px; padding:5px 13px; font-size:13px; color:var(--muted)}
+    .langs a[aria-current="page"]{border-color:var(--gold); color:var(--gold2); font-weight:600}
+    .note{color:var(--muted2); font-size:13px; text-align:center; margin:-10px 0 26px}
   </style>
 </head>
 <body>
@@ -82,8 +95,16 @@
     <header class="page">
       <p class="mark">Soraya</p>
       <h1>Datenschutzerklärung</h1>
-      <p class="sub">Stand: 09.10.2026</p>
+      <p class="sub">Stand: 11.10.2026</p>
     </header>
+
+    <nav class="langs" aria-label="Sprache · Language · Nyelv · Lingua">
+      <a href="/datenschutz" hreflang="de" lang="de" aria-current="page">Deutsch</a>
+      <a href="/datenschutz-en" hreflang="en" lang="en">English</a>
+      <a href="/datenschutz-hu" hreflang="hu" lang="hu">Magyar</a>
+      <a href="/datenschutz-it" hreflang="it" lang="it">Italiano</a>
+    </nav>
+
 
     
 
@@ -99,7 +120,7 @@
     <h2><span class="n">2</span>Überblick: Welche Daten wir verarbeiten</h2>
     <p>Soraya ist eine Astrologie-Anwendung. Zur Erbringung der Funktionen verarbeiten wir folgende personenbezogene Daten:</p>
     <ul>
-      <li><strong>Kontodaten:</strong> deine E-Mail-Adresse und ein verschlüsseltes Passwort (zur Registrierung und Anmeldung).</li>
+      <li><strong>Kontodaten:</strong> deine E-Mail-Adresse, ein verschlüsseltes Passwort (zur Registrierung und Anmeldung) und die von dir gewählte App-Sprache.</li>
       <li><strong>Geburtsdaten:</strong> Name, Geburtsdatum, optional Geburtszeit und Geburtsort — notwendig zur Berechnung deines Geburtshoroskops, deiner Analysen und der Synastrie (Partnervergleich).</li>
       <li><strong>Schnellstart ohne Konto:</strong> gibst du auf der Startseite ohne Anmeldung dein Geburtsdatum (optional die Uhrzeit) ein, wird es nur zur Berechnung von Sonnen- und Mondzeichen an unser Backend übertragen und dort <strong>nicht gespeichert</strong>. Das Ergebnis bleibt lokal auf deinem Gerät. Zum Schutz vor Missbrauch wird deine IP-Adresse dabei kurzzeitig im Arbeitsspeicher gezählt (höchstens bis Tagesende, nicht dauerhaft gespeichert).</li>
       <li><strong>Partner-Einladung:</strong> wenn du einen Einladungslink teilst, sieht die eingeladene Person nur deinen <strong>Vornamen und dein Sonnenzeichen</strong> sowie euer gemeinsames Ergebnis in Prozent – nie dein Geburtsdatum, deine Geburtszeit oder deinen Geburtsort. Gibt die eingeladene Person ihr Geburtsdatum ein, wird es nur zur Berechnung übertragen und nicht gespeichert. Wir zählen lediglich, wie oft ein Link genutzt wurde. Mit deinem Konto wird auch der Link gelöscht.</li>
@@ -110,7 +131,7 @@
     </ul>
 
     <h2><span class="n">3</span>Lokale Speicherung und Nutzungsstatistik</h2>
-    <p>Soraya speichert einige Angaben lokal in deinem Browser (localStorage), z. B. deine Sitzung, App-Konfiguration und einen Cache deiner Personen. Diese Daten verbleiben auf deinem Gerät und dienen dem Betrieb der App. Es werden <strong>keine Cookies zu Werbe- oder Trackingzwecken</strong> gesetzt und <strong>keine Analyse- oder Werbedienste von Drittanbietern</strong> eingesetzt.</p>
+    <p>Soraya speichert einige Angaben lokal in deinem Browser (localStorage), z. B. deine Sitzung, deine Sprache, die App-Konfiguration und einen Cache deiner Personen. Diese Daten verbleiben auf deinem Gerät und dienen dem Betrieb der App. Es werden <strong>keine Cookies zu Werbe- oder Trackingzwecken</strong> gesetzt und <strong>keine Analyse- oder Werbedienste von Drittanbietern</strong> eingesetzt.</p>
     <p>Damit wir Fehler erkennen und die App verbessern können, speichert Soraya bei eingeloggten Nutzern einfache <strong>Nutzungs- und Fehlerereignisse</strong> in unserer eigenen Datenbank (Supabase), zusammen mit deiner Nutzer-ID: z. B. welcher Bereich geöffnet wurde, dass ein Horoskop oder eine Analyse geladen wurde, und technische Fehlermeldungen. <strong>Inhalte wie Chat-Nachrichten oder Geburtsdaten werden dabei nicht erfasst.</strong> Rechtsgrundlage ist unser berechtigtes Interesse an einem stabilen, funktionierenden Dienst (Art. 6 Abs. 1 lit. f DSGVO). Diese Ereignisse werden nach <strong>180 Tagen automatisch gelöscht</strong> und mit deinem Konto sofort entfernt. Du kannst dieser Verarbeitung jederzeit per E-Mail widersprechen.</p>
 
     <h2><span class="n">4</span>Zwecke und Rechtsgrundlagen</h2>
@@ -138,7 +159,7 @@
     <p>Wir speichern deine Daten, solange dein Konto besteht und es für die genannten Zwecke erforderlich ist. Nach Löschung deines Kontos werden die zugehörigen personenbezogenen Daten gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 
     <h2><span class="n">8</span>Löschung deines Kontos</h2>
-    <p>Du kannst dein Konto und alle zugehörigen Daten jederzeit selbst löschen — direkt in der App unter <strong>Einstellungen → Konto löschen</strong>. Alternativ genügt eine formlose E-Mail an die oben genannte Adresse.</p>
+    <p>Du kannst dein Konto und alle zugehörigen Daten jederzeit selbst löschen — direkt in der App unter <strong>Profil → Konto löschen</strong> (ganz unten). Alternativ genügt eine formlose E-Mail an die oben genannte Adresse.</p>
 
     <h2><span class="n">9</span>Deine Rechte</h2>
     <p>Dir stehen nach der DSGVO folgende Rechte zu:</p>
@@ -154,7 +175,7 @@
     <p>Zur Ausübung genügt eine Nachricht an attilakovacs0604@gmail.com.</p>
 
     <h2><span class="n">10</span>Beschwerderecht</h2>
-    <p>Wenn du der Ansicht bist, dass die Verarbeitung deiner Daten gegen die DSGVO verstößt, kannst du dich bei der Aufsichtsbehörde beschweren. Für Österreich ist das die <strong>Österreichische Datenschutzbehörde</strong>, Barichgasse 40–42, 1030 Wien (<a href="https://www.dsb.gv.at" target="_blank" rel="noopener">dsb.gv.at</a>).</p>
+    <p>Wenn du der Ansicht bist, dass die Verarbeitung deiner Daten gegen die DSGVO verstößt, kannst du dich bei der Aufsichtsbehörde beschweren. Für Österreich ist das die <strong>Österreichische Datenschutzbehörde</strong>, Barichgasse 40–42, 1030 Wien (<a href="https://www.dsb.gv.at" target="_blank" rel="noopener">dsb.gv.at</a>). Du kannst dich auch an die Aufsichtsbehörde deines Wohnsitzlandes wenden.</p>
 
     <a class="back" href="/">← Zurück zu Soraya</a>
 
