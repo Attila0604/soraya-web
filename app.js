@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v15";
+  const APP_VERSION = "web-v16";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -40,6 +40,12 @@
   let serverPeople = null;
 
   const PUBLIC_CONFIG = normalizeConfig(window.SORAYA_PUBLIC_CONFIG || {});
+
+  // Mehrsprachigkeit (i18n.js): t(deutscherText, vars) und Astro-Begriffe
+  const I18N = window.SorayaI18n || null;
+  const t = (key, vars) => (I18N ? I18N.t(key, vars) : String(key).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? vars[k] : m)));
+  const LANG = () => (I18N ? I18N.lang : "de");
+  const ASTRO = I18N ? I18N.astro : null;
 
   const $ = (id) => document.getElementById(id);
   const isMobile = () => window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
@@ -57,7 +63,7 @@
   }
 
   function markdownToHtml(text) {
-    return escapeHtml(text || "Noch kein Text vorhanden.")
+    return escapeHtml(text || t("Noch kein Text vorhanden."))
       .replace(/^### (.*)$/gm, "<h3>$1</h3>")
       .replace(/^## (.*)$/gm, "<h2>$1</h2>")
       .replace(/^# (.*)$/gm, "<h1>$1</h1>")
@@ -84,8 +90,8 @@
 
   function friendlyError(error, fallback) {
     const text = error && error.message ? error.message : fallback;
-    if (/not logged|nicht eingeloggt|JWT|session/i.test(text)) return "Bitte zuerst einloggen.";
-    if (/Failed to fetch|NetworkError|Load failed|fetch/i.test(text)) return "Verbindung nicht erreichbar. Bitte Backend-URL und Internet prüfen.";
+    if (/not logged|nicht eingeloggt|JWT|session/i.test(text)) return t("Bitte zuerst einloggen.");
+    if (/Failed to fetch|NetworkError|Load failed|fetch/i.test(text)) return t("Verbindung nicht erreichbar. Bitte prüfe dein Internet.");
     return text || fallback;
   }
 
@@ -177,7 +183,7 @@
   function showSection(id) {
     const target = $(id);
     if (!target) {
-      showGlobalError("Bereich nicht gefunden: " + id, "bad");
+      showGlobalError(t("Bereich nicht gefunden: {id}", { id }), "bad");
       return false;
     }
 
@@ -257,7 +263,7 @@
   function openSettings() {
     renderDeveloperTools();
     if (!isDeveloperMode() && hasCompleteConfig(PUBLIC_CONFIG)) {
-      toast("App-Verbindung ist aktiv.");
+      toast(t("App-Verbindung ist aktiv."));
       return;
     }
     const modal = $("settingsModal");
@@ -277,9 +283,9 @@
   }
 
   function initSupabase(config) {
-    if (!window.supabase) throw new Error("Supabase CDN wurde nicht geladen.");
+    if (!window.supabase) throw new Error(t("Supabase CDN wurde nicht geladen."));
     if (!config || !config.supabaseUrl || !config.supabaseAnonKey) {
-      throw new Error("Supabase-Verbindung fehlt.");
+      throw new Error(t("Supabase-Verbindung fehlt."));
     }
 
     sb = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
@@ -302,24 +308,24 @@
       };
 
       if (!config.supabaseUrl || !config.supabaseAnonKey || !config.engineUrl) {
-        status("configStatus", "Bitte alle Felder ausfüllen.", "bad");
+        status("configStatus", t("Bitte alle Felder ausfüllen."), "bad");
         return false;
       }
 
       if (!/^https:\/\//i.test(config.supabaseUrl) || !/^https:\/\//i.test(config.engineUrl)) {
-        status("configStatus", "Bitte gültige HTTPS-URLs verwenden.", "bad");
+        status("configStatus", t("Bitte gültige HTTPS-URLs verwenden."), "bad");
         return false;
       }
 
       writeJson(KEYS.config, config);
       initSupabase(config);
-      status("configStatus", "Verbindung gespeichert.", "ok");
-      toast("Verbindung gespeichert.");
+      status("configStatus", t("Verbindung gespeichert."), "ok");
+      toast(t("Verbindung gespeichert."));
       renderAuthUi();
       renderAppStatus();
       return true;
     } catch (error) {
-      status("configStatus", friendlyError(error, "Verbindung konnte nicht gespeichert werden."), "bad");
+      status("configStatus", friendlyError(error, t("Verbindung konnte nicht gespeichert werden.")), "bad");
       return false;
     }
   }
@@ -327,7 +333,7 @@
   function loadConfig(showMessage = false) {
     const config = getAvailableConfig();
     if (!config) {
-      if (showMessage) status("configStatus", "App-Verbindung fehlt. Bitte einmal einrichten.", "bad");
+      if (showMessage) status("configStatus", t("App-Verbindung fehlt. Bitte einmal einrichten."), "bad");
       renderDeveloperTools();
       return false;
     }
@@ -338,11 +344,11 @@
 
     try {
       initSupabase(config);
-      if (showMessage) status("configStatus", "Verbindung aktiv.", "ok");
+      if (showMessage) status("configStatus", t("Verbindung aktiv."), "ok");
       renderDeveloperTools();
       return true;
     } catch (error) {
-      if (showMessage) status("configStatus", friendlyError(error, "Verbindung konnte nicht geladen werden."), "bad");
+      if (showMessage) status("configStatus", friendlyError(error, t("Verbindung konnte nicht geladen werden.")), "bad");
       renderDeveloperTools();
       return false;
     }
@@ -350,7 +356,7 @@
 
   function getConfig() {
     const config = getAvailableConfig();
-    if (!config) throw new Error("App-Verbindung fehlt.");
+    if (!config) throw new Error(t("App-Verbindung fehlt."));
     return config;
   }
 
@@ -363,22 +369,22 @@
       const ok = saveConfig() || loadConfig(true);
       if (!ok) return false;
       await getSessionState();
-      status("connectionHealthStatus", "◈ Verbindung ist aktiv.", "ok");
+      status("connectionHealthStatus", t("◈ Verbindung ist aktiv."), "ok");
       return true;
     } catch (error) {
-      status("connectionHealthStatus", friendlyError(error, "Verbindung konnte nicht geprüft werden."), "bad");
+      status("connectionHealthStatus", friendlyError(error, t("Verbindung konnte nicht geprüft werden.")), "bad");
       return false;
     }
   }
 
   async function getToken() {
-    if (!sb && !loadConfig(false)) throw new Error("Supabase Client nicht bereit.");
+    if (!sb && !loadConfig(false)) throw new Error(t("Supabase Client nicht bereit."));
 
     const { data, error } = await sb.auth.getSession();
     if (error) throw error;
 
     const token = data && data.session && data.session.access_token;
-    if (!token) throw new Error("Nicht eingeloggt. Bitte über /login einloggen.");
+    if (!token) throw new Error(t("Nicht eingeloggt. Bitte über /login einloggen."));
 
     return token;
   }
@@ -400,7 +406,7 @@
     try {
       return await fetch(url, { ...options, signal: controller.signal });
     } catch (error) {
-      if (error && error.name === "AbortError") throw new Error("Backend dauerte zu lange (timeout).");
+      if (error && error.name === "AbortError") throw new Error(t("Backend dauerte zu lange (timeout)."));
       throw error;
     } finally {
       window.clearTimeout(timer);
@@ -424,9 +430,11 @@
     try {
       json = JSON.parse(text);
     } catch (error) {
-      throw new Error(text || "Ungültige Backend-Antwort.");
+      throw new Error(text || t("Ungültige Backend-Antwort."));
     }
 
+    // Tageslimit (Kostenbremse): Meldung in der App-Sprache
+    if (response.status === 429) throw new Error(t("Tageslimit erreicht – morgen geht es weiter ✨"));
     if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
     if (json.ok === false) throw new Error(json.error || "Soraya ok=false");
 
@@ -442,12 +450,12 @@
       localStorage.removeItem(KEYS.authUser);
       serverPeople = null;
       chartCache = { personId: null, json: null };
-      status("authStatus", "Abgemeldet.", "ok");
-      toast("Abgemeldet.");
+      status("authStatus", t("Abgemeldet."), "ok");
+      toast(t("Abgemeldet."));
       renderAuthUi();
       renderAppStatus();
     } catch (error) {
-      const msg = friendlyError(error, "Abmelden fehlgeschlagen.");
+      const msg = friendlyError(error, t("Abmelden fehlgeschlagen."));
       showGlobalError(msg, "bad");
       toast(msg);
     }
@@ -583,17 +591,17 @@
       if (topButton) {
         topButton.textContent = "✓";
         topButton.onclick = () => showSection("profile");
-        topButton.setAttribute("aria-label", "Profil öffnen");
+        topButton.setAttribute("aria-label", t("Profil öffnen"));
       }
 
       if (profileButton) {
-        profileButton.textContent = "Eingeloggt";
-        profileButton.onclick = () => toast("Du bist bereits eingeloggt.");
+        profileButton.textContent = t("Eingeloggt");
+        profileButton.onclick = () => toast(t("Du bist bereits eingeloggt."));
       }
 
       if (logoutButton) logoutButton.style.display = "block";
-      if (loginText) loginText.textContent = "Dein Konto ist aktiv.";
-      if (loginBadge) loginBadge.textContent = "Aktiv";
+      if (loginText) loginText.textContent = t("Dein Konto ist aktiv.");
+      if (loginBadge) loginBadge.textContent = t("Aktiv");
       if (loginCard) loginCard.classList.add("ok");
       return true;
     }
@@ -603,17 +611,17 @@
     if (topButton) {
       topButton.textContent = "☾";
       topButton.onclick = openLogin;
-      topButton.setAttribute("aria-label", "Einloggen");
+      topButton.setAttribute("aria-label", t("Einloggen"));
     }
 
     if (profileButton) {
-      profileButton.textContent = "Einloggen";
+      profileButton.textContent = t("Einloggen");
       profileButton.onclick = openLogin;
     }
 
     if (logoutButton) logoutButton.style.display = "none";
-    if (loginText) loginText.textContent = "Melde dich an, damit Soraya deine Daten speichern kann.";
-    if (loginBadge) loginBadge.textContent = "Offen";
+    if (loginText) loginText.textContent = t("Melde dich an, damit Soraya deine Daten speichern kann.");
+    if (loginBadge) loginBadge.textContent = t("Offen");
     if (loginCard) loginCard.classList.remove("ok");
     return false;
   }
@@ -629,16 +637,16 @@
 
   function requiredNumber(id, label) {
     const value = numOrNull(id);
-    if (value === null) throw new Error(label + " fehlt.");
+    if (value === null) throw new Error(t("{label} fehlt.", { label }));
     return value;
   }
 
   function getBirthFromForm() {
     return {
       name: ($("pName") && $("pName").value.trim()) || "",
-      year: requiredNumber("pYear", "Jahr"),
-      month: requiredNumber("pMonth", "Monat"),
-      day: requiredNumber("pDay", "Tag"),
+      year: requiredNumber("pYear", t("Jahr")),
+      month: requiredNumber("pMonth", t("Monat")),
+      day: requiredNumber("pDay", t("Tag")),
       hour: numOrNull("pHour"),
       minute: numOrNull("pMinute"),
       birthplace: ($("pBirthplace") && $("pBirthplace").value.trim()) || ""
@@ -653,10 +661,10 @@
     try {
       const person = getBirthFromForm();
 
-      if (!person.name) throw new Error("Name fehlt.");
-      if (!person.birthplace) throw new Error("Geburtsort fehlt.");
+      if (!person.name) throw new Error(t("Name fehlt."));
+      if (!person.birthplace) throw new Error(t("Geburtsort fehlt."));
 
-      showLoadingVeil("Profil wird gespeichert…");
+      showLoadingVeil(t("Profil wird gespeichert…"));
       const data = await callSoraya("/mobile/people/create", {
         is_self: true,
         relation: null,
@@ -664,7 +672,7 @@
       });
 
       const row = data.data && data.data.person;
-      if (!row || !row.id) throw new Error("Person wurde gespeichert, aber keine ID erhalten.");
+      if (!row || !row.id) throw new Error(t("Person wurde gespeichert, aber keine ID erhalten."));
 
       if ($("personId")) $("personId").value = row.id;
 
@@ -683,11 +691,11 @@
       renderOnboardingState();
       renderAppStatus();
       loadRealChartData(true);
-      status("personResult", "◈ Profil gespeichert.\nName: " + (row.name || person.name), "ok");
+      status("personResult", t("◈ Profil gespeichert.\nName: {name}", { name: row.name || person.name }), "ok");
       track("profile_saved", { time_known: person.hour !== null });
-      toast("Profil gespeichert.");
+      toast(t("Profil gespeichert."));
     } catch (error) {
-      const msg = friendlyError(error, "Profil konnte nicht gespeichert werden.");
+      const msg = friendlyError(error, t("Profil konnte nicht gespeichert werden."));
       trackError("profile", error);
       status("personResult", msg, "bad");
       toast(msg);
@@ -699,7 +707,7 @@
   function needPerson() {
     const id = getCurrentPersonId();
     if (!id) {
-      toast("Bitte zuerst dein Profil speichern.");
+      toast(t("Bitte zuerst dein Profil speichern."));
       showSection("profile");
       return false;
     }
@@ -716,7 +724,7 @@
     const regen = $("analysisRegenButton");
     if (open) {
       open.style.display = hasReading ? "none" : "";
-      open.textContent = "Analyse erstellen";
+      open.textContent = t("Analyse erstellen");
     }
     if (regen) regen.style.display = hasReading ? "" : "none";
   }
@@ -737,11 +745,11 @@
     const personId = getCurrentPersonId();
     if (!personId || analysisShownFor === personId) return;
     try {
-      const data = await callSoraya("/mobile/analysis/save", { person_id: personId, only_cached: true }, "POST", 15000);
+      const data = await callSoraya("/mobile/analysis/save", { person_id: personId, only_cached: true, lang: LANG() }, "POST", 15000);
       if (!showAnalysis(data)) {
         setAnalysisButtons(false);
-        if ($("analysisSource")) $("analysisSource").textContent = "bereit";
-        if ($("analysisReading")) $("analysisReading").textContent = "Deine persönliche Analyse ist noch nicht erstellt. Tippe auf „Analyse erstellen“ – Soraya schreibt sie in etwa einer Minute.";
+        if ($("analysisSource")) $("analysisSource").textContent = t("bereit");
+        if ($("analysisReading")) $("analysisReading").textContent = t("Deine persönliche Analyse ist noch nicht erstellt. Tippe auf „Analyse erstellen“ – Soraya schreibt sie in etwa einer Minute.");
       }
     } catch (error) {
       setAnalysisButtons(false);
@@ -750,18 +758,19 @@
 
   async function loadAnalysis(forceNew) {
     if (!needPerson()) return;
-    if (forceNew && !window.confirm("Eine neue Analyse ersetzt die bisherige. Du kannst bis zu 3 neue Analysen pro Tag erstellen. Jetzt neu erstellen?")) return;
+    if (forceNew && !window.confirm(t("Eine neue Analyse ersetzt die bisherige. Du kannst bis zu 3 neue Analysen pro Tag erstellen. Jetzt neu erstellen?"))) return;
 
     try {
-      if ($("analysisReading")) $("analysisReading").innerHTML = "Soraya schreibt deine Analyse… das dauert etwa eine Minute.";
-      showLoadingVeil("Analyse wird erstellt…");
+      if ($("analysisReading")) $("analysisReading").textContent = t("Soraya schreibt deine Analyse… das dauert etwa eine Minute.");
+      showLoadingVeil(t("Analyse wird erstellt…"));
 
       const data = await callSoraya("/mobile/analysis/save", {
         person_id: getCurrentPersonId(),
-        force_new: !!forceNew
+        force_new: !!forceNew,
+        lang: LANG()
       });
 
-      if (!showAnalysis(data) && $("analysisReading")) $("analysisReading").textContent = "Keine Analyse gefunden.";
+      if (!showAnalysis(data) && $("analysisReading")) $("analysisReading").textContent = t("Keine Analyse gefunden.");
 
       if (data.data.source === "created") {
         const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
@@ -769,9 +778,9 @@
       }
       renderIdentity();
       track("analysis_loaded", { source: data.data.source || "", force: !!forceNew });
-      toast("Analyse geladen.");
+      toast(t("Analyse geladen."));
     } catch (error) {
-      const msg = friendlyError(error, "Analyse konnte nicht geladen werden.");
+      const msg = friendlyError(error, t("Analyse konnte nicht geladen werden."));
       trackError("analysis", error);
       if ($("analysisReading")) $("analysisReading").textContent = msg;
       toast(msg);
@@ -793,25 +802,25 @@
     const root = payload && payload.data ? payload.data : payload || {};
     const h = root.horoscope || root || {};
     const body = pickText(h, ["body", "text", "beschreibung", "deutung", "message"], pickText(root, ["body", "text"], ""));
-    const mood = pickText(h, ["stimmung", "mood", "title", "titel"], pickText(root, ["stimmung", "mood"], "Dein Horoskop"));
-    const tip = pickText(h, ["tipp", "tip", "hinweis", "advice"], pickText(root, ["tipp", "tip"], "Vertraue deinem inneren Kompass."));
+    const mood = pickText(h, ["stimmung", "mood", "title", "titel"], pickText(root, ["stimmung", "mood"], t("Dein Horoskop")));
+    const tip = pickText(h, ["tipp", "tip", "hinweis", "advice"], pickText(root, ["tipp", "tip"], t("Vertraue deinem inneren Kompass.")));
     const lower = (body + " " + mood + " " + tip).toLowerCase();
 
-    const focus = pickText(h, ["fokus", "focus"], pickText(root, ["fokus", "focus"], lower.includes("klar") ? "Klarheit entsteht, wenn du heute bewusst langsamer wirst." : "Richte deine Energie auf eine Sache, die wirklich wichtig ist."));
-    const love = pickText(h, ["liebe", "love", "beziehung"], pickText(root, ["liebe", "love"], lower.includes("herz") || lower.includes("liebe") ? "Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören." : "Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen."));
-    const work = pickText(h, ["beruf", "work", "career"], pickText(root, ["beruf", "work"], lower.includes("geduld") ? "Geduld bringt heute mehr als Druck." : "Struktur hilft dir, deine Kraft sinnvoll einzusetzen."));
-    const ritual = pickText(h, ["ritual", "ritual_text"], pickText(root, ["ritual"], "Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention."));
-    const affirmation = pickText(h, ["affirmation", "mantra"], pickText(root, ["affirmation"], "Ich vertraue meinem Weg und bewege mich mit Klarheit."));
+    const focus = pickText(h, ["fokus", "focus"], pickText(root, ["fokus", "focus"], lower.includes("klar") ? t("Klarheit entsteht, wenn du heute bewusst langsamer wirst.") : t("Richte deine Energie auf eine Sache, die wirklich wichtig ist.")));
+    const love = pickText(h, ["liebe", "love", "beziehung"], pickText(root, ["liebe", "love"], lower.includes("herz") || lower.includes("liebe") ? t("Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören.") : t("Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen.")));
+    const work = pickText(h, ["beruf", "work", "career"], pickText(root, ["beruf", "work"], lower.includes("geduld") ? t("Geduld bringt heute mehr als Druck.") : t("Struktur hilft dir, deine Kraft sinnvoll einzusetzen.")));
+    const ritual = pickText(h, ["ritual", "ritual_text"], pickText(root, ["ritual"], t("Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention.")));
+    const affirmation = pickText(h, ["affirmation", "mantra"], pickText(root, ["affirmation"], t("Ich vertraue meinem Weg und bewege mich mit Klarheit.")));
 
-    setText("horoFocusTitle", "Dein Fokus");
+    setText("horoFocusTitle", t("Dein Fokus"));
     setText("horoFocusText", focus);
-    setText("horoLoveTitle", "Herz & Nähe");
+    setText("horoLoveTitle", t("Herz & Nähe"));
     setText("horoLoveText", love);
-    setText("horoWorkTitle", "Richtung & Kraft");
+    setText("horoWorkTitle", t("Richtung & Kraft"));
     setText("horoWorkText", work);
-    setText("horoRitualTitle", "Dein Ritual");
+    setText("horoRitualTitle", t("Dein Ritual"));
     setText("horoRitualText", ritual);
-    setText("horoAffirmation", "„" + affirmation.replace(/^„|“$|^"|"$/g, "") + "“");
+    setText("horoAffirmation", t("„{text}“", { text: affirmation.replace(/^[„“"«»]+|[„“"«»]+$/g, "") }));
   }
 
   // Horoskop: laedt beim Oeffnen und beim Wechsel Tag/Woche/Monat automatisch.
@@ -824,16 +833,23 @@
     return getCurrentPersonId() + "|" + period + "|" + new Date().toDateString();
   }
 
+  // Datum in der App-Sprache (Intl), z. B. "Freitag, 9. Oktober" / "Friday 9 October"
+  function longDate(d) {
+    return I18N ? I18N.formatDate(d, { weekday: "long", day: "numeric", month: "long" }) : d.toDateString();
+  }
+
+  function dayMonth(d) {
+    return I18N ? I18N.formatDate(d, { day: "numeric", month: "long" }) : d.toDateString();
+  }
+
   function horoscopeDateLabel(period) {
     const now = new Date();
-    const long = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
-    const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
     if (period === "weekly") {
       const end = new Date(now.getTime() + 6 * 86400000);
-      return "Die nächsten 7 Tage · bis " + end.getDate() + ". " + months[end.getMonth()];
+      return t("Die nächsten 7 Tage · bis {date}", { date: dayMonth(end) });
     }
-    if (period === "monthly") return "Die kommenden Wochen · ab " + now.getDate() + ". " + months[now.getMonth()];
-    return "Heute · " + long[now.getDay()] + ", " + now.getDate() + ". " + months[now.getMonth()];
+    if (period === "monthly") return t("Die kommenden Wochen · ab {date}", { date: dayMonth(now) });
+    return t("Heute · {date}", { date: longDate(now) });
   }
 
   function currentPeriod() {
@@ -845,7 +861,7 @@
     const hit = horoscopeCache[period];
     if (hit && hit.key === key) return Promise.resolve(hit.data);
     if (horoscopePending[key]) return horoscopePending[key];
-    const request = callSoraya("/mobile/horoscope/save", { person_id: getCurrentPersonId(), period, at: null })
+    const request = callSoraya("/mobile/horoscope/save", { person_id: getCurrentPersonId(), period, at: null, lang: LANG() })
       .then((data) => {
         horoscopeCache[period] = { key, data };
         return data;
@@ -857,9 +873,9 @@
 
   function renderHoroscope(data) {
     const h = data.data && data.data.horoscope ? data.data.horoscope : {};
-    const mood = h.stimmung || data.data.stimmung || "Dein Horoskop";
-    const body = h.body || h.text || data.data.body || data.data.text || "Keine Horoskopdaten gefunden.";
-    const tip = h.tipp || data.data.tipp || "Vertraue deinem inneren Kompass.";
+    const mood = h.stimmung || data.data.stimmung || t("Dein Horoskop");
+    const body = h.body || h.text || data.data.body || data.data.text || t("Keine Horoskopdaten gefunden.");
+    const tip = h.tipp || data.data.tipp || t("Vertraue deinem inneren Kompass.");
 
     setText("horoMood", mood);
     setText("horoDate", horoscopeDateLabel(currentPeriod()));
@@ -875,25 +891,25 @@
       const preview = readPreview();
       const sunKey = preview && preview.result && preview.result.sun && !preview.result.sun.uncertain ? preview.result.sun.sign : null;
       if (sunKey) {
-        setText("horoDate", "Allgemein für " + (preview.result.sun.sign_de || "") + " · heute");
-        setText("horoMood", "Soraya liest die Sterne…");
+        setText("horoDate", t("Allgemein für {sign} · heute", { sign: ASTRO ? ASTRO.sign(sunKey) : (preview.result.sun.sign_de || "") }));
+        setText("horoMood", t("Soraya liest die Sterne…"));
         try {
-          const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(sunKey));
+          const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(sunKey) + "&lang=" + LANG());
           const d = json.data || {};
-          setText("horoMood", d.stimmung || "Dein Tag");
-          setText("horoBody", (d.text || "") + "\n\nDein persönliches Horoskop – berechnet aus deinem ganzen Geburtshoroskop – bekommst du mit deinem Profil.");
+          setText("horoMood", d.stimmung || t("Dein Tag"));
+          setText("horoBody", (d.text || "") + "\n\n" + t("Dein persönliches Horoskop – berechnet aus deinem ganzen Geburtshoroskop – bekommst du mit deinem Profil."));
           setText("horoTip", d.tipp ? "✦ " + d.tipp : "");
           if (d.liebe) setText("horoLoveText", d.liebe);
           if (d.beruf) setText("horoWorkText", d.beruf);
         } catch (error) {
-          setText("horoMood", "Gleich verfügbar");
+          setText("horoMood", t("Gleich verfügbar"));
         }
         return;
       }
       if (!silent) needPerson();
       else {
-        setText("horoMood", "Dein Horoskop wartet");
-        setText("horoBody", "Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute.");
+        setText("horoMood", t("Dein Horoskop wartet"));
+        setText("horoBody", t("Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute."));
       }
       return;
     }
@@ -904,8 +920,8 @@
 
     try {
       if (!cached) {
-        setText("horoMood", "Soraya liest die Sterne…");
-        setText("horoBody", "Dein " + ({ daily: "Tages", weekly: "Wochen", monthly: "Monats" }[period] || "") + "horoskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.");
+        setText("horoMood", t("Soraya liest die Sterne…"));
+        setText("horoBody", t({ daily: "Dein Tageshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.", weekly: "Dein Wochenhoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.", monthly: "Dein Monatshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden." }[period] || "Dein Tageshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden."));
         setText("horoTip", "✦ …");
         document.body.classList.add("soraya-horoscope-loading");
       }
@@ -915,9 +931,9 @@
       renderHoroscope(data);
       if (!cached) track("horoscope_loaded", { period, source: data.data.source || "" });
     } catch (error) {
-      const msg = friendlyError(error, "Horoskop konnte nicht geladen werden.");
+      const msg = friendlyError(error, t("Horoskop konnte nicht geladen werden."));
       trackError("horoscope", error);
-      setText("horoMood", "Gerade nicht erreichbar");
+      setText("horoMood", t("Gerade nicht erreichbar"));
       setText("horoBody", msg);
       if (retry) retry.style.display = "";
       if (!silent) toast(msg);
@@ -939,7 +955,7 @@
       if (title) title.dataset.personal = "1";
       setText("dailyFocusTitle", mood);
       setText("dailyFocusText", tip);
-      setText("dailyFocusBadge", "Dein Tag");
+      setText("dailyFocusBadge", t("Dein Tag"));
       const card = $("dailyFocusCard");
       if (card) card.classList.add("is-personal");
     } catch (error) {}
@@ -957,7 +973,7 @@
     windowNode.scrollTop = windowNode.scrollHeight;
   }
 
-  const CHAT_GREETING = "Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?";
+  const CHAT_GREETING = t("Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?");
   let chatHistoryLoadedFor = null;
 
   // "Neues Gespraech": Ansicht leeren UND eine neue Unterhaltung beginnen
@@ -996,7 +1012,7 @@
   function quickChat(message) {
     const input = $("chatMessage");
     if (input) {
-      input.value = message;
+      input.value = t(message);
       input.focus();
     }
     showSection("chat");
@@ -1009,7 +1025,7 @@
     if (!windowNode) return null;
     const bubble = document.createElement("div");
     bubble.className = "bubble assistant typing";
-    bubble.setAttribute("aria-label", "Soraya schreibt");
+    bubble.setAttribute("aria-label", t("Soraya schreibt"));
     bubble.innerHTML = "<i></i><i></i><i></i>";
     windowNode.appendChild(bubble);
     windowNode.scrollTop = windowNode.scrollHeight;
@@ -1030,11 +1046,11 @@
     const selfId = getCurrentPersonId();
     const others = (serverPeople || []).filter((p) => p && p.id && p.id !== selfId && !p.is_self);
     const list = [];
-    if (afterReply) list.push("Erzähl mir mehr dazu.");
-    others.slice(0, 2).forEach((p) => list.push("Wie passe ich zu " + p.name + "?"));
-    if (skyToday && skyToday.moon && skyToday.moon.sign_de) list.push("Was bedeutet der Mond in " + skyToday.moon.sign_de + " heute für mich?");
-    list.push("Worauf soll ich diese Woche achten?");
-    list.push("Welche Stärke aus meinem Geburtshoroskop unterschätze ich?");
+    if (afterReply) list.push(t("Erzähl mir mehr dazu."));
+    others.slice(0, 2).forEach((p) => list.push(t("Wie passe ich zu {name}?", { name: p.name })));
+    if (skyToday && skyToday.moon && (skyToday.moon.sign || skyToday.moon.sign_de)) list.push(t("Was bedeutet der Mond in {sign} heute für mich?", { sign: ASTRO ? ASTRO.sign(skyToday.moon.sign || skyToday.moon.sign_de) : skyToday.moon.sign_de }));
+    list.push(t("Worauf soll ich diese Woche achten?"));
+    list.push(t("Welche Stärke aus meinem Geburtshoroskop unterschätze ich?"));
 
     box.innerHTML = "";
     list.slice(0, 3).forEach((text) => {
@@ -1053,11 +1069,11 @@
     const field = $("chatMessage");
     const message = field ? field.value.trim() : "";
     if (!message) {
-      toast("Bitte zuerst eine Nachricht schreiben.");
+      toast(t("Bitte zuerst eine Nachricht schreiben."));
       return;
     }
     if (message.length > 2000) {
-      toast("Deine Nachricht ist zu lang (maximal 2000 Zeichen).");
+      toast(t("Deine Nachricht ist zu lang (maximal 2000 Zeichen)."));
       return;
     }
 
@@ -1083,7 +1099,8 @@
         message,
         conversation_id: ($("conversationId") && $("conversationId").value.trim()) || null,
         memory: null,
-        people_ids: peopleIds
+        people_ids: peopleIds,
+        lang: LANG()
       });
 
       if ($("conversationId")) $("conversationId").value = data.data.conversation_id || "";
@@ -1092,9 +1109,9 @@
         chatHistoryLoadedFor = data.data.conversation_id;
       }
 
-      let reply = data.data.reply || "Keine Antwort.";
+      let reply = data.data.reply || t("Keine Antwort.");
       if (needsSafetyNote(message)) {
-        reply += "\n\nHinweis: Soraya ersetzt keine professionelle Finanz-, Rechts- oder Gesundheitsberatung.";
+        reply += "\n\n" + t("Hinweis: Soraya ersetzt keine professionelle Finanz-, Rechts- oder Gesundheitsberatung.");
       }
 
       if (typing) typing.remove();
@@ -1104,7 +1121,7 @@
     } catch (error) {
       if (typing) typing.remove();
       trackError("chat", error);
-      appendBubble("assistant", friendlyError(error, "Chat konnte nicht geladen werden."));
+      appendBubble("assistant", friendlyError(error, t("Chat konnte nicht geladen werden.")));
       renderChatSuggestions(false);
     } finally {
       setChatBusy(false);
@@ -1133,7 +1150,7 @@
     const rows = readPeopleCache();
     const merged = {
       id: row.id || fallback.id,
-      name: row.name || fallback.name || "Unbenannt",
+      name: row.name || fallback.name || t("Unbenannt"),
       is_self: row.is_self !== undefined ? row.is_self : !!fallback.is_self,
       relation: row.relation || fallback.relation || null,
       birth_date: row.birth_date || fallback.birth_date || null,
@@ -1151,7 +1168,7 @@
     const birth = readJson(KEYS.birth, null);
     addPersonToCache({
       id,
-      name: localStorage.getItem(KEYS.name) || (birth && birth.name) || "Ich",
+      name: localStorage.getItem(KEYS.name) || (birth && birth.name) || t("Ich"),
       is_self: true,
       relation: "self",
       birthplace: birth && birth.birthplace
@@ -1196,7 +1213,7 @@
       }
 
       const fresh = {
-        name: self.name || localStorage.getItem(KEYS.name) || "Ich",
+        name: self.name || localStorage.getItem(KEYS.name) || t("Ich"),
         year, month, day, hour, minute,
         birthplace: self.birthplace || ""
       };
@@ -1261,18 +1278,18 @@
         }
       }
 
-      if (showToast) toast("Personen geladen.");
+      if (showToast) toast(t("Personen geladen."));
       return people;
     } catch (error) {
       cacheSelfFromStorage();
       refreshSynastryPeople();
       renderHomePeople();
-      if (showToast) toast("Personen konnten nicht geladen werden.");
+      if (showToast) toast(t("Personen konnten nicht geladen werden."));
       return readPeopleCache();
     }
   }
 
-  const RELATION_LABELS = { partner: "Partner/in", friend: "Freund/in", family: "Familie", other: "Person" };
+  const RELATION_LABELS = { partner: t("Partner/in"), friend: t("Freund/in"), family: t("Familie"), other: t("Person") };
 
   function renderHomePeople() {
     const box = $("homePeopleList");
@@ -1281,14 +1298,14 @@
     const people = (serverPeople || readPeopleCache())
       .filter((p) => p && p.id && p.id !== selfId && !p.is_self && String(p.relation || "").toLowerCase() !== "self");
     if (!people.length) {
-      box.innerHTML = '<p class="people-empty">Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.</p>';
+      box.innerHTML = '<p class="people-empty">' + escapeHtml(t("Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.")) + '</p>';
       return;
     }
     box.innerHTML = people.slice(0, 6).map((p) =>
       '<div class="people-row">' +
         '<span class="people-avatar">' + escapeHtml(initials(p.name, "?")) + "</span>" +
-        '<div class="people-info"><b>' + escapeHtml(p.name || "Unbenannt") + "</b><small>" + escapeHtml(RELATION_LABELS[p.relation] || "Person") + "</small></div>" +
-        '<button type="button" class="btn people-compare" data-person="' + escapeHtml(p.id) + '">Vergleichen ›</button>' +
+        '<div class="people-info"><b>' + escapeHtml(p.name || t("Unbenannt")) + "</b><small>" + escapeHtml(RELATION_LABELS[p.relation] || t("Person")) + "</small></div>" +
+        '<button type="button" class="btn people-compare" data-person="' + escapeHtml(p.id) + '">' + escapeHtml(t("Vergleichen ›")) + '</button>' +
       "</div>"
     ).join("");
   }
@@ -1326,13 +1343,13 @@
 
     const first = document.createElement("option");
     first.value = "";
-    first.textContent = people.length ? "Person wählen…" : "Noch keine zweite Person gespeichert";
+    first.textContent = people.length ? t("Person wählen…") : t("Noch keine zweite Person gespeichert");
     select.appendChild(first);
 
     people.forEach((person) => {
       const option = document.createElement("option");
       option.value = person.id;
-      option.textContent = (person.name || "Unbenannt") + (person.relation ? " · " + (RELATION_LABELS[person.relation] || person.relation) : "");
+      option.textContent = (person.name || t("Unbenannt")) + (person.relation ? " · " + (RELATION_LABELS[person.relation] || person.relation) : "");
       select.appendChild(option);
     });
 
@@ -1351,9 +1368,9 @@
     try {
       const person = {
         name: ($("partnerName") && $("partnerName").value.trim()) || "",
-        year: requiredNumber("partnerYear", "Jahr"),
-        month: requiredNumber("partnerMonth", "Monat"),
-        day: requiredNumber("partnerDay", "Tag"),
+        year: requiredNumber("partnerYear", t("Jahr")),
+        month: requiredNumber("partnerMonth", t("Monat")),
+        day: requiredNumber("partnerDay", t("Tag")),
         hour: numOrNull("partnerHour"),
         minute: numOrNull("partnerMinute"),
         birthplace: ($("partnerBirthplace") && $("partnerBirthplace").value.trim()) || ""
@@ -1361,10 +1378,10 @@
 
       const relation = ($("partnerRelation") && $("partnerRelation").value) || "partner";
 
-      if (!person.name) throw new Error("Name fehlt.");
-      if (!person.birthplace) throw new Error("Geburtsort fehlt.");
+      if (!person.name) throw new Error(t("Name fehlt."));
+      if (!person.birthplace) throw new Error(t("Geburtsort fehlt."));
 
-      showLoadingVeil("Zweite Person wird gespeichert…");
+      showLoadingVeil(t("Zweite Person wird gespeichert…"));
       const data = await callSoraya("/mobile/people/create", {
         is_self: false,
         relation,
@@ -1372,7 +1389,7 @@
       });
 
       const row = data.data && data.data.person;
-      if (!row || !row.id) throw new Error("Person wurde gespeichert, aber keine ID erhalten.");
+      if (!row || !row.id) throw new Error(t("Person wurde gespeichert, aber keine ID erhalten."));
 
       addPersonToCache(row, { ...person, relation, is_self: false });
       if (Array.isArray(serverPeople)) serverPeople = [...serverPeople.filter((p) => p.id !== row.id), { ...row, relation, is_self: false }];
@@ -1385,10 +1402,10 @@
       if ($("personBId")) $("personBId").value = row.id;
       updateSynastryNames();
 
-      status("partnerCreateStatus", "◈ Zweite Person gespeichert.\nName: " + (row.name || person.name), "ok");
-      toast("Zweite Person gespeichert.");
+      status("partnerCreateStatus", t("◈ Zweite Person gespeichert.\nName: {name}", { name: row.name || person.name }), "ok");
+      toast(t("Zweite Person gespeichert."));
     } catch (error) {
-      const msg = friendlyError(error, "Person konnte nicht gespeichert werden.");
+      const msg = friendlyError(error, t("Person konnte nicht gespeichert werden."));
       status("partnerCreateStatus", msg, "bad");
       toast(msg);
     } finally {
@@ -1406,24 +1423,24 @@
     const aspects = payload.aspects || syn.aspects || [];
 
     const value = payload.percent != null ? payload.percent : (score.value || score.score || 0);
-    const label = payload.label || score.label || summary.label || "Kosmische Verbindung";
+    const label = payload.label || score.label || summary.label || t("Kosmische Verbindung");
     const text =
-      [payload.text, summary.text, summary.short, syn.summary].find((t) => typeof t === "string" && t.trim()) ||
-      "Eure Verbindung wurde berechnet. Achtet darauf, wo Harmonie entsteht und wo bewusste Kommunikation wichtig ist.";
+      [payload.text, summary.text, summary.short, syn.summary].find((x) => typeof x === "string" && x.trim()) ||
+      t("Eure Verbindung wurde berechnet. Achtet darauf, wo Harmonie entsteht und wo bewusste Kommunikation wichtig ist.");
 
     let html = "";
-    html += "◈ Partner-Vergleich gespeichert.\n";
-    html += "Kompatibilität: " + value + "%\n\n";
-    html += label + "\n";
+    html += t("◈ Partner-Vergleich gespeichert.") + "\n";
+    html += t("Kompatibilität: {value}%", { value }) + "\n\n";
+    html += t(label) + "\n";
     html += text;
 
     if (Array.isArray(aspects) && aspects.length) {
-      html += "\n\nWichtige Aspekte:\n";
+      html += "\n\n" + t("Wichtige Aspekte:") + "\n";
       aspects.slice(0, 5).forEach((aspect) => {
         const line = aspect.text || aspect.name ||
-          [aspect.p1_de || aspect.p1, aspect.type_de || aspect.type, aspect.p2_de || aspect.p2]
+          (ASTRO ? [ASTRO.planet(aspect.p1 || aspect.p1_de), ASTRO.aspect(aspect.type || aspect.type_de), ASTRO.planet(aspect.p2 || aspect.p2_de)] : [aspect.p1_de || aspect.p1, aspect.type_de || aspect.type, aspect.p2_de || aspect.p2])
             .filter(Boolean).join(" ");
-        html += "• " + safe(line || "Aspekt") + "\n";
+        html += "• " + safe(line || t("Aspekt")) + "\n";
       });
     }
 
@@ -1441,8 +1458,8 @@
   }
 
   function updateSynastryNames() {
-    const selfName = localStorage.getItem(KEYS.name) || "Du";
-    setText("synAInitial", initials(selfName, "Du"));
+    const selfName = localStorage.getItem(KEYS.name) || t("Du");
+    setText("synAInitial", initials(selfName, t("Du")));
     setText("synAName", selfName);
 
     const select = $("synPersonSelect");
@@ -1450,7 +1467,7 @@
       ? select.options[select.selectedIndex].textContent
       : "";
     // Nur der Name (ohne " · Partner/in"), sonst landet "·" im Kuerzel ("J·")
-    const partner = label && !label.includes("Person wählen") && !label.includes("Noch keine") ? label.replace(/\s*\(.+\)\s*$/, "").split(" · ")[0] : "Zweite Person";
+    const partner = label && select.value ? label.replace(/\s*\(.+\)\s*$/, "").split(" · ")[0] : t("Zweite Person");
 
     setText("synBInitial", initials(partner, "?"));
     setText("synBName", partner);
@@ -1473,31 +1490,31 @@
 
     const harmony = pickText(root, ["harmonie", "harmony"],
       lower.includes("harmonie") || lower.includes("trigon") || lower.includes("sextil")
-        ? "Zwischen euch gibt es Bereiche, die leicht und unterstützend fließen."
-        : "Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt.");
+        ? t("Zwischen euch gibt es Bereiche, die leicht und unterstützend fließen.")
+        : t("Achte darauf, wo ihr euch ohne Druck gegenseitig stärkt."));
 
     const challenge = pickText(root, ["spannung", "challenge"],
       lower.includes("spannung") || lower.includes("quadrat") || lower.includes("opposition")
-        ? "Spannungen zeigen Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel."
-        : "Unterschiede können euch reifen lassen, wenn ihr sie bewusst anschaut.");
+        ? t("Spannungen zeigen Entwicklungsfelder. Bewusste Kommunikation ist euer Schlüssel.")
+        : t("Unterschiede können euch reifen lassen, wenn ihr sie bewusst anschaut."));
 
     const magnet = pickText(root, ["anziehung", "magnet"],
       lower.includes("venus") || lower.includes("mars") || lower.includes("mond")
-        ? "Eure Anziehung wirkt besonders über Gefühl, Nähe und persönliche Resonanz."
-        : "Eure Verbindung kann durch ehrliche Aufmerksamkeit stärker werden.");
+        ? t("Eure Anziehung wirkt besonders über Gefühl, Nähe und persönliche Resonanz.")
+        : t("Eure Verbindung kann durch ehrliche Aufmerksamkeit stärker werden."));
 
     const comm = pickText(root, ["kommunikation", "communication"],
       lower.includes("merkur") || lower.includes("kommunikation") || lower.includes("gespräch")
-        ? "Eure Gespräche tragen viel: Worte öffnen zwischen euch Türen, die Gesten allein nicht erreichen."
-        : "Hört einander zu Ende zu — euer Verständnis wächst über echtes Zuhören.");
+        ? t("Eure Gespräche tragen viel: Worte öffnen zwischen euch Türen, die Gesten allein nicht erreichen.")
+        : t("Hört einander zu Ende zu — euer Verständnis wächst über echtes Zuhören."));
 
-    setText("synHarmonyTitle", "Seelische Resonanz");
+    setText("synHarmonyTitle", t("Seelische Resonanz"));
     setText("synHarmonyText", harmony);
-    setText("synChallengeTitle", "Lernfelder");
+    setText("synChallengeTitle", t("Lernfelder"));
     setText("synChallengeText", challenge);
-    setText("synMagnetTitle", "Anziehung");
+    setText("synMagnetTitle", t("Anziehung"));
     setText("synMagnetText", magnet);
-    setText("synCommTitle", "Kommunikation");
+    setText("synCommTitle", t("Kommunikation"));
     setText("synCommText", comm);
   }
 
@@ -1507,13 +1524,14 @@
     try {
       const partnerId = (($("synPersonSelect") && $("synPersonSelect").value) || "") || (($("personBId") && $("personBId").value.trim()) || "");
 
-      if (!partnerId) throw new Error("Bitte zuerst eine zweite Person auswählen oder anlegen.");
-      if (partnerId === getCurrentPersonId()) throw new Error("Bitte eine andere Person auswählen.");
+      if (!partnerId) throw new Error(t("Bitte zuerst eine zweite Person auswählen oder anlegen."));
+      if (partnerId === getCurrentPersonId()) throw new Error(t("Bitte eine andere Person auswählen."));
 
-      showLoadingVeil("Synastrie wird berechnet…");
+      showLoadingVeil(t("Synastrie wird berechnet…"));
       const data = await callSoraya("/mobile/synastry/save", {
         person_a_id: getCurrentPersonId(),
-        person_b_id: partnerId
+        person_b_id: partnerId,
+        lang: LANG()
       });
 
       const syn = (data.data && data.data.synastry) || {};
@@ -1539,9 +1557,9 @@
       });
       renderSynastryPremium(data);
       track("synastry_done", { source: (data.data && data.data.source) || "" });
-      toast("Partner-Vergleich berechnet.");
+      toast(t("Partner-Vergleich berechnet."));
     } catch (error) {
-      const msg = friendlyError(error, "Synastrie konnte nicht berechnet werden.");
+      const msg = friendlyError(error, t("Synastrie konnte nicht berechnet werden."));
       trackError("synastry", error);
       status("synastryText", msg, "bad");
       toast(msg);
@@ -1565,7 +1583,14 @@
     { s: "Schütze", g: "♐", el: "Feuer", q: "Veränderlich", r: "Jupiter", from: [11, 22], to: [12, 21] }
   ];
 
-  const MONTHS = ["Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
+  // Tag und Monat in der App-Sprache ("21. März", "21 Mar", "márc. 21.")
+  function dayMonthShort(day, month) {
+    const d = new Date(2000, month - 1, day);
+    return I18N ? I18N.formatDate(d, { day: "numeric", month: "short" }) : day + "." + month + ".";
+  }
+
+  const trSign = (value) => (ASTRO ? ASTRO.sign(value) : value);
+  const trPlanet = (value) => (ASTRO ? ASTRO.planet(value) : value);
 
   function signFor(day, month) {
     return ZODIAC.find((z) => {
@@ -1586,11 +1611,11 @@
     const sun = signName(big.sun);
     const moon = big.moon ? signName(big.moon) : "–";
     const asc = big.ascendant && timeKnown ? signName(big.ascendant) : null;
-    coreLine = "Mond in " + moon + " · " + (asc ? "Aszendent " + asc : "Aszendent: Geburtszeit fehlt");
+    coreLine = t("Mond in {sign}", { sign: moon }) + " · " + (asc ? t("Aszendent {sign}", { sign: asc }) : t("Aszendent: Geburtszeit fehlt"));
     setText("sunRange", coreLine);
     const ribbon = $("heroRibbon");
     if (ribbon) {
-      ribbon.innerHTML = [["☉", sun], ["☾", moon], asc ? ["AC", asc] : null]
+      ribbon.innerHTML = [["☉", sun], ["☾", moon], asc ? [t("AC"), asc] : null]
         .filter(Boolean)
         .map(([glyph, sign]) => "<span><b>" + escapeHtml(glyph) + "</b> " + escapeHtml(sign) + "</span>")
         .join("");
@@ -1616,22 +1641,22 @@
     if (!sign) return;
 
     setText("sunGlyph", sign.g);
-    setText("sunSign", sign.s);
-    setText("sunRange", coreLine || `${sign.from[1]}. ${MONTHS[sign.from[0] - 1]} – ${sign.to[1]}. ${MONTHS[sign.to[0] - 1]}`);
-    setText("sunElement", sign.el);
-    setText("sunQuality", sign.q);
-    setText("sunRuler", sign.r);
+    setText("sunSign", trSign(sign.s));
+    setText("sunRange", coreLine || dayMonthShort(sign.from[1], sign.from[0]) + " – " + dayMonthShort(sign.to[1], sign.to[0]));
+    setText("sunElement", t(sign.el));
+    setText("sunQuality", t(sign.q));
+    setText("sunRuler", sign.r.split(" & ").map(trPlanet).join(" & "));
     if ($("sunProps")) $("sunProps").style.display = "grid";
-    setText("profileSub", "Sonnenzeichen · " + sign.s);
+    setText("profileSub", t("Sonnenzeichen · {sign}", { sign: trSign(sign.s) }));
   }
 
   function renderGreeting() {
     const hour = new Date().getHours();
-    const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Schön, dass du da bist" : "Guten Abend";
-    const name = localStorage.getItem(KEYS.name) || "du";
+    const greeting = hour < 11 ? t("Guten Morgen") : hour < 18 ? t("Schön, dass du da bist") : t("Guten Abend");
+    const name = localStorage.getItem(KEYS.name) || t("du");
 
     if ($("greetLine")) {
-      $("greetLine").innerHTML = greeting + ',<br><span class="gold" id="heroName">' + escapeHtml(name) + "</span>.";
+      $("greetLine").innerHTML = escapeHtml(greeting) + ',<br><span class="gold" id="heroName">' + escapeHtml(name) + "</span>.";
     }
   }
 
@@ -1642,20 +1667,13 @@
     const age = ((now - reference) % synodic + synodic) % synodic;
     const illum = Math.round(((1 - Math.cos((2 * Math.PI * age) / synodic)) / 2) * 100);
 
-    let label = "Mondphase";
-    let sub = "Die Energie des Himmels für heute.";
-
-    if (age < 1.85) { label = "Neumond"; sub = "Zeit für Neuanfänge und Absichten."; }
-    else if (age < 5.5) { label = "Zunehmende Sichel"; sub = "Etwas Neues nimmt Form an."; }
-    else if (age < 9.2) { label = "Erstes Viertel"; sub = "Zeit zu handeln und dranzubleiben."; }
-    else if (age < 12.9) { label = "Zunehmender Mond"; sub = "Wachstum, Klärung, Ausrichtung."; }
-    else if (age < 16.6) { label = "Vollmond"; sub = "Höhepunkt — sehen, was gereift ist."; }
-    else if (age < 20.3) { label = "Abnehmender Mond"; sub = "Loslassen und dankbar sein."; }
-    else if (age < 23.99) { label = "Letztes Viertel"; sub = "Aufräumen und Klarheit schaffen."; }
-    else { label = "Abnehmende Sichel"; sub = "Ruhe, Rückzug, Vorbereitung."; }
+    const bounds = [1.85, 5.5, 9.2, 12.9, 16.6, 20.3, 23.99];
+    let index = bounds.findIndex((limit) => age < limit);
+    if (index < 0) index = 7;
+    const label = ASTRO ? ASTRO.moonPhase(index) : ["Neumond", "Zunehmende Sichel", "Erstes Viertel", "Zunehmender Mond", "Vollmond", "Abnehmender Mond", "Letztes Viertel", "Abnehmende Sichel"][index];
 
     setText("moonPhase", label);
-    setText("moonIllum", illum + "% beleuchtet");
+    setText("moonIllum", t("{value}% beleuchtet", { value: illum }));
     if ($("moonVisual")) $("moonVisual").innerHTML = moonSvg((age / synodic) * 360);
   }
 
@@ -1684,7 +1702,7 @@
   }
 
   function renderIdentity(force) {
-    const name = localStorage.getItem(KEYS.name) || "Dein Profil";
+    const name = localStorage.getItem(KEYS.name) || t("Dein Profil");
     const birth = readJson(KEYS.birth, null);
 
     setText("profileTitle", name);
@@ -1724,7 +1742,7 @@
     document.body.classList.toggle("soraya-no-profile", !hasProfile);
     const result = $("personResult");
     if (hasProfile && result && !result.classList.contains("bad") && /Noch nicht gespeichert/.test(result.textContent)) {
-      status("personResult", "◈ Dein Profil ist gespeichert. Änderungen einfach oben eintragen und erneut speichern.", "ok");
+      status("personResult", t("◈ Dein Profil ist gespeichert. Änderungen einfach oben eintragen und erneut speichern."), "ok");
     }
   }
 
@@ -1735,7 +1753,7 @@
 
     const time = birth.hour !== null && birth.hour !== undefined && birth.hour !== ""
       ? String(birth.hour).padStart(2, "0") + ":" + String(birth.minute || 0).padStart(2, "0")
-      : "Geburtszeit offen";
+      : t("Geburtszeit offen");
 
     preview.innerHTML = `
       <div><b>✦</b><span>${escapeHtml(birth.day)}.${escapeHtml(birth.month)}.${escapeHtml(birth.year)} · ${escapeHtml(time)}</span></div>
@@ -1765,6 +1783,7 @@
   function signName(pointOrSign) {
     const sign = typeof pointOrSign === "string" ? pointOrSign : pointOrSign && pointOrSign.sign;
     const signDe = typeof pointOrSign === "object" && pointOrSign ? pointOrSign.sign_de : "";
+    if (ASTRO && (sign || signDe)) return ASTRO.sign(sign || signDe) || "–";
     const map = { Ari: "Widder", Tau: "Stier", Gem: "Zwillinge", Can: "Krebs", Leo: "Löwe", Vir: "Jungfrau", Lib: "Waage", Sco: "Skorpion", Sag: "Schütze", Cap: "Steinbock", Aqu: "Wassermann", Pis: "Fische" };
     const fixed = { Loewe: "Löwe", Schuetze: "Schütze" };
     return fixed[signDe] || signDe || map[sign] || sign || "–";
@@ -1782,7 +1801,8 @@
   }
 
   function pointLabel(point) {
-    return point && (point.name_de || point.name) ? (point.name_de || point.name) : "Planet";
+    if (point && ASTRO && point.name) return ASTRO.planet(point.name);
+    return point && (point.name_de || point.name) ? (point.name_de || point.name) : t("Planet");
   }
 
   function planetGlyph(name) {
@@ -1872,7 +1892,7 @@
     });
 
     html += svgText(cx, cy - 5, "SORAYA", 20, "rgba(228,181,90,.96)", "700");
-    html += svgText(cx, cy + 17, drawablePoints.length ? "Radix" : "Birth Chart", 11, "rgba(231,222,255,.65)", "500");
+    html += svgText(cx, cy + 17, drawablePoints.length ? t("Radix") : t("Birth Chart"), 11, "rgba(231,222,255,.65)", "500");
     svg.innerHTML = html;
   }
 
@@ -1885,7 +1905,7 @@
     box.id = "chartDetails";
     box.className = "reading";
     box.style.marginTop = "14px";
-    box.textContent = "Birth-Chart-Daten werden geladen.";
+    box.textContent = t("Birth-Chart-Daten werden geladen.");
     svg.parentElement.appendChild(box);
     return box;
   }
@@ -1911,9 +1931,9 @@
     bigSign("bigSunSign", sun);
     bigSign("bigMoonSign", moon);
     bigSign("bigAscSign", asc);
-    setText("bigSunText", sun && sun.house ? "Haus " + sun.house + " · Identität und Wille" : "Identität · Ausdruck · Lebenslicht");
-    setText("bigMoonText", moon && moon.house ? "Haus " + moon.house + " · Gefühl und Sicherheit" : "Gefühl · Bedürfnis · innere Welt");
-    setText("bigAscText", asc ? "Dein Auftreten und dein Weg" : "Auftreten · Weg · Wirkung");
+    setText("bigSunText", sun && sun.house ? t("Haus {n} · Identität und Wille", { n: sun.house }) : t("Identität · Ausdruck · Lebenslicht"));
+    setText("bigMoonText", moon && moon.house ? t("Haus {n} · Gefühl und Sicherheit", { n: moon.house }) : t("Gefühl · Bedürfnis · innere Welt"));
+    setText("bigAscText", asc ? t("Dein Auftreten und dein Weg") : t("Auftreten · Weg · Wirkung"));
 
     const planetList = $("planetList");
     if (planetList) {
@@ -1923,7 +1943,7 @@
         const name = pointLabel(p);
         const sign = signName(p);
         const degree = formatDegree(p.degree);
-        const house = p.house ? "Haus " + p.house : "";
+        const house = p.house ? t("Haus {n}", { n: p.house }) : "";
         return `<div class="c41-planet-row">
           <span class="c41-planet-glyph">${escapeHtml(glyph)}</span>
           <span class="c41-planet-name">${escapeHtml(name)}</span>
@@ -1931,7 +1951,7 @@
           <span class="c41-planet-house">${escapeHtml(house)}</span>
         </div>`;
       }).join("");
-      planetList.innerHTML = rows || `<div class="c41-empty">Keine Planetenliste verfügbar.</div>`;
+      planetList.innerHTML = rows || `<div class="c41-empty">${escapeHtml(t("Keine Planetenliste verfügbar."))}</div>`;
     }
 
     const aspectSummary = $("aspectSummary");
@@ -1945,7 +1965,7 @@
 
       const elements = data.distributions && data.distributions.elements ? data.distributions.elements : null;
       const elementRows = elements ? Object.entries(elements).map(([key, val]) => {
-        const label = { fire: "Feuer", earth: "Erde", air: "Luft", water: "Wasser", Feuer: "Feuer", Erde: "Erde", Luft: "Luft", Wasser: "Wasser" }[key] || key;
+        const label = t({ fire: "Feuer", earth: "Erde", air: "Luft", water: "Wasser", Feuer: "Feuer", Erde: "Erde", Luft: "Luft", Wasser: "Wasser" }[key] || key);
         const count = Number(val) || 0;
         const pct = Math.min(100, Math.max(6, count * 12));
         return `<div class="c41-balance-row"><span>${escapeHtml(label)}</span><i><em style="width:${pct}%"></em></i><b>${count}</b></div>`;
@@ -1953,11 +1973,11 @@
 
       aspectSummary.innerHTML = `
         <div class="c41-aspect-cards">
-          <div><b>${harmonious}</b><span>Harmonisch</span></div>
-          <div><b>${challenging}</b><span>Spannung</span></div>
-          <div><b>${neutral}</b><span>Neutral</span></div>
+          <div><b>${harmonious}</b><span>${escapeHtml(t("Harmonisch"))}</span></div>
+          <div><b>${challenging}</b><span>${escapeHtml(t("Spannung"))}</span></div>
+          <div><b>${neutral}</b><span>${escapeHtml(t("Neutral"))}</span></div>
         </div>
-        ${elementRows ? `<div class="c41-balance">${elementRows}</div>` : `<div class="c41-empty">Elemente-Balance wird geladen, sobald verfügbar.</div>`}
+        ${elementRows ? `<div class="c41-balance">${elementRows}</div>` : `<div class="c41-empty">${escapeHtml(t("Elemente-Balance wird geladen, sobald verfügbar."))}</div>`}
       `;
     }
   }
@@ -1967,7 +1987,7 @@
     const details = ensureChartDetails();
     if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
       renderWheel(null);
-      if (details) details.textContent = "Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.";
+      if (details) details.textContent = t("Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.");
       return null;
     }
 
@@ -1977,7 +1997,7 @@
       if (!force && personId && chartCache.personId === personId && chartCache.json) {
         json = chartCache.json;
       } else {
-        if (details) details.textContent = "Soraya lädt dein Radix…";
+        if (details) details.textContent = t("Soraya lädt dein Radix…");
         json = await loadChartJson(personId, birth);
         if (personId) chartCache = { personId, json };
       }
@@ -1988,8 +2008,8 @@
       // Kurze Info statt doppelter Textliste (Big Three + Planeten stehen darunter).
       const meta = (json.data || json).meta || {};
       const parts = [];
-      if (meta.house_system) parts.push("Häuser: " + meta.house_system);
-      parts.push(meta.time_known === false ? "Geburtszeit unbekannt – Soraya rechnet mit 12:00 Uhr" : "mit Geburtszeit berechnet");
+      if (meta.house_system) parts.push(t("Häuser: {system}", { system: meta.house_system }));
+      parts.push(meta.time_known === false ? t("Geburtszeit unbekannt – Soraya rechnet mit 12:00 Uhr") : t("mit Geburtszeit berechnet"));
       if (details) {
         details.textContent = parts.join(" · ");
         details.classList.add("chart-meta-line");
@@ -1997,7 +2017,7 @@
       return json;
     } catch (error) {
       renderWheel(null);
-      if (details) details.textContent = "Chart konnte nicht geladen werden: " + friendlyError(error, "Chart nicht verfügbar.");
+      if (details) details.textContent = t("Chart konnte nicht geladen werden: {error}", { error: friendlyError(error, t("Chart nicht verfügbar.")) });
       return null;
     }
   }
@@ -2037,7 +2057,7 @@
     }, 15000);
     const json = await response.json();
     if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
-    if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || "Keine Daten erhalten.");
+    if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || t("Keine Daten erhalten."));
     return json;
   }
 
@@ -2063,7 +2083,7 @@
     const to = PLANET_THEMES[aspect.natal_de];
     const how = ASPECT_MEANINGS[aspect.type_de];
     if (!from || !to || !how) return "";
-    return from + " → " + to + " · " + how;
+    return t(from) + " → " + t(to) + " · " + t(how);
   }
 
   function transitRow(glyph, title, sub, right = "") {
@@ -2089,14 +2109,14 @@
     const config = getAvailableConfig();
 
     if (!config || !config.engineUrl) {
-      setHomeTransits(transitRow("✦", "Verbindung fehlt", "Speichere zuerst Supabase & Backend."));
-      setEnergy(null, "Verbindung fehlt");
+      setHomeTransits(transitRow("✦", t("Verbindung fehlt"), t("Speichere zuerst Supabase & Backend.")));
+      setEnergy(null, t("Verbindung fehlt"));
       return;
     }
 
     if (!birth || !birth.day || !birth.month || !birth.year) {
-      setHomeTransits(transitRow("✦", "Profil fehlt", "Hinterlege deine Geburtsdaten."));
-      setEnergy(null, "Profil anlegen");
+      setHomeTransits(transitRow("✦", t("Profil fehlt"), t("Hinterlege deine Geburtsdaten.")));
+      setEnergy(null, t("Profil anlegen"));
       return;
     }
 
@@ -2107,24 +2127,24 @@
 
       const aspects = (json.data.aspects_to_natal || []).slice(0, 3);
       if (!aspects.length) {
-        setHomeTransits(transitRow("☾", "Ruhiger Himmel", "Gerade keine engen Transite."));
-        setEnergy(60, "Ruhig & offen");
+        setHomeTransits(transitRow("☾", t("Ruhiger Himmel"), t("Gerade keine engen Transite.")));
+        setEnergy(60, t("Ruhig & offen"));
         return;
       }
 
       const VISIBLE = 4;
       const rowHtml = aspects.map((aspect) => {
-        const movement = aspect.movement === "Applying" ? "im Kommen" : aspect.movement === "Separating" ? "klingt ab" : "aktiv";
-        const title = [aspect.transit_de, aspect.type_de, aspect.natal_de].filter(Boolean).join(" ");
+        const movement = aspect.movement === "Applying" ? t("im Kommen") : aspect.movement === "Separating" ? t("klingt ab") : t("aktiv");
+        const title = [trPlanet(aspect.transit || aspect.transit_de), ASTRO ? ASTRO.aspect(aspect.type || aspect.type_de) : aspect.type_de, trPlanet(aspect.natal || aspect.natal_de)].filter(Boolean).join(" ");
         const meaning = transitMeaning(aspect);
-        return transitRow(planetGlyph(aspect.transit_de), title || "Transit", meaning ? meaning + " · " + movement : movement, aspect.movement === "Applying" ? "↗" : "↘");
+        return transitRow(planetGlyph(aspect.transit_de), title || t("Transit"), meaning ? meaning + " · " + movement : movement, aspect.movement === "Applying" ? "↗" : "↘");
       });
 
       let rows = rowHtml.slice(0, VISIBLE).join("");
       if (rowHtml.length > VISIBLE) {
         rows += '<div class="transit-more" id="transitMore">' + rowHtml.slice(VISIBLE).join("") + "</div>";
         rows += '<button type="button" class="collapse-toggle" data-collapse="transitMore">' +
-          "Weitere " + (rowHtml.length - VISIBLE) + " Transite anzeigen</button>";
+          escapeHtml(t("Weitere {n} Transite anzeigen", { n: rowHtml.length - VISIBLE })) + "</button>";
       }
 
       setHomeTransits(rows);
@@ -2139,13 +2159,13 @@
       const total = harmony + tension;
       let score = total ? Math.round(50 + ((harmony - tension) / total) * 42) : 60;
       score = Math.max(8, Math.min(96, score));
-      const label = score >= 66 ? "Harmonisch & offen" : score >= 45 ? "Ausgeglichen" : "Intensiv & fordernd";
+      const label = score >= 66 ? t("Harmonisch & offen") : score >= 45 ? t("Ausgeglichen") : t("Intensiv & fordernd");
       setEnergy(score, label);
     } catch (error) {
       trackError("transits", error);
       lastHomeSkyAt = 0;
       document.body.classList.add("soraya-backend-soft-fail");
-      setHomeTransits(transitRow("✦", "Sanfter Tagesimpuls", "Deine Transite sind gerade kurz nicht erreichbar. Soraya versucht es gleich erneut."));
+      setHomeTransits(transitRow("✦", t("Sanfter Tagesimpuls"), t("Deine Transite sind gerade kurz nicht erreichbar. Soraya versucht es gleich erneut.")));
       setEnergy(null, "–");
     }
   }
@@ -2201,7 +2221,7 @@
     } : { method: "GET" }, 30000);
     const json = await response.json();
     if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
-    if (!json || json.ok === false) throw new Error((json && json.error) || "Keine Daten erhalten.");
+    if (!json || json.ok === false) throw new Error((json && json.error) || t("Keine Daten erhalten."));
     return json;
   }
 
@@ -2220,8 +2240,10 @@
 
   function signDisplay(info) {
     if (!info) return "–";
-    if (info.uncertain && Array.isArray(info.alternatives)) return info.alternatives.join(" oder ");
-    return info.sign_de || "–";
+    if (info.uncertain && Array.isArray(info.alternatives) && info.alternatives.length === 2) {
+      return t("{a} oder {b}", { a: trSign(info.alternatives[0]), b: trSign(info.alternatives[1]) });
+    }
+    return trSign(info.sign || info.sign_de) || "–";
   }
 
   function renderQuickStart(preview) {
@@ -2233,10 +2255,11 @@
     const zodiac = ZODIAC.find((z) => z.s === sun.sign_de);
     setText("qsSunGlyph", zodiac ? zodiac.g : "☉");
     setText("qsSun", signDisplay(sun));
-    setText("qsSunText", sun.uncertain ? "Du bist an einem Wechseltag geboren – mit deiner Geburtszeit sagt Soraya dir genau, welches Zeichen es ist." : (SUN_TEXTS[sunKey] || ""));
+    setText("qsSunText", sun.uncertain ? t("Du bist an einem Wechseltag geboren – mit deiner Geburtszeit sagt Soraya dir genau, welches Zeichen es ist.") : (SUN_TEXTS[sunKey] ? t(SUN_TEXTS[sunKey]) : ""));
     setText("qsMoon", signDisplay(moon));
-    setText("qsMoonText", moon.uncertain ? "Der Mond hat an deinem Geburtstag das Zeichen gewechselt – mit Geburtszeit wird es genau." : (MOON_TEXTS[moonKey] || ""));
-    setText("qsHoroLabel", "Dein Tag als " + (SIGN_PERSON[sunKey] || "Sternzeichen"));
+    setText("qsMoonText", moon.uncertain ? t("Der Mond hat an deinem Geburtstag das Zeichen gewechselt – mit Geburtszeit wird es genau.") : (MOON_TEXTS[moonKey] ? t(MOON_TEXTS[moonKey]) : ""));
+    const signPerson = sunKey ? (LANG() === "de" ? SIGN_PERSON[sunKey] : trSign(sunKey)) : t("Sternzeichen");
+    setText("qsHoroLabel", t("Dein Tag als {sign}", { sign: signPerson }));
     const ribbon = $("heroRibbon");
     if (ribbon && !getCurrentPersonId()) {
       ribbon.innerHTML = "<span><b>☉</b> " + escapeHtml(signDisplay(sun)) + "</span><span><b>☾</b> " + escapeHtml(signDisplay(moon)) + "</span>";
@@ -2251,8 +2274,8 @@
     if (box) box.style.display = "block";
     if (sunKey && !sun.uncertain) loadSignHoroscope(sunKey);
     else {
-      setText("qsHoroMood", "Dein Tag");
-      setText("qsHoroText", "Gib deine Geburtszeit an, dann zeigt Soraya dir das passende Tageshoroskop.");
+      setText("qsHoroMood", t("Dein Tag"));
+      setText("qsHoroText", t("Gib deine Geburtszeit an, dann zeigt Soraya dir das passende Tageshoroskop."));
       setText("qsHoroTip", "");
     }
   }
@@ -2262,26 +2285,26 @@
     const cta = $("qsCtaText");
     if (cta) {
       cta.innerHTML = state.ok
-        ? "Ergänze im Profil Name und Geburtsort – dann berechnet Soraya dein <b>persönliches</b> Horoskop, deinen Aszendenten und dein Birth Chart."
-        : "Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.";
+        ? t("Ergänze im Profil Name und Geburtsort – dann berechnet Soraya dein <b>persönliches</b> Horoskop, deinen Aszendenten und dein Birth Chart.")
+        : t("Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.");
     }
-    setText("qsCtaButton", state.ok ? "Profil vervollständigen" : "Kostenlos registrieren");
+    setText("qsCtaButton", state.ok ? t("Profil vervollständigen") : t("Kostenlos registrieren"));
     const login = $("qsLoginLink");
     if (login) login.style.display = state.ok ? "none" : "";
   }
 
   async function loadSignHoroscope(signKey) {
     try {
-      setText("qsHoroMood", "Soraya liest die Sterne…");
-      const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(signKey));
+      setText("qsHoroMood", t("Soraya liest die Sterne…"));
+      const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(signKey) + "&lang=" + encodeURIComponent(LANG()));
       const d = json.data || {};
-      setText("qsHoroMood", d.stimmung || "Dein Tag");
+      setText("qsHoroMood", d.stimmung || t("Dein Tag"));
       setText("qsHoroText", d.text || "");
       setText("qsHoroTip", d.tipp ? "✦ " + d.tipp : "");
       return d;
     } catch (error) {
-      setText("qsHoroMood", "Gleich verfügbar");
-      setText("qsHoroText", "Das Tageshoroskop ist gerade kurz nicht erreichbar. Versuch es in einem Moment noch einmal.");
+      setText("qsHoroMood", t("Gleich verfügbar"));
+      setText("qsHoroText", t("Das Tageshoroskop ist gerade kurz nicht erreichbar. Versuch es in einem Moment noch einmal."));
       return null;
     }
   }
@@ -2300,13 +2323,13 @@
       hour: quickStartValue("qsHour"), minute: quickStartValue("qsMinute")
     };
     if (!birth.day || !birth.month || !birth.year || [birth.day, birth.month, birth.year].some(Number.isNaN)) {
-      status("qsStatus", "Bitte Tag, Monat und Jahr eingeben.", "bad");
+      status("qsStatus", t("Bitte Tag, Monat und Jahr eingeben."), "bad");
       return;
     }
     if (birth.hour !== null && birth.minute === null) birth.minute = 0;
     const button = $("qsButton");
     if (button) button.disabled = true;
-    status("qsStatus", "Soraya berechnet deinen Kosmos…");
+    status("qsStatus", t("Soraya berechnet deinen Kosmos…"));
     try {
       const json = await publicJson("/public/preview", birth);
       const preview = { birth, result: json.data, at: new Date().toISOString() };
@@ -2315,7 +2338,7 @@
       renderQuickStart(preview);
       track("quickstart_done", { time_known: birth.hour !== null });
     } catch (error) {
-      status("qsStatus", friendlyError(error, "Das hat nicht geklappt. Bitte Datum prüfen."), "bad");
+      status("qsStatus", friendlyError(error, t("Das hat nicht geklappt. Bitte Datum prüfen.")), "bad");
     } finally {
       if (button) button.disabled = false;
     }
@@ -2361,7 +2384,7 @@
       if (node && !node.value && v !== null && v !== undefined) { node.value = v; filled = true; }
     });
     if (filled) {
-      status("personResult", "✦ Dein Geburtsdatum aus dem Schnellstart ist eingetragen. Ergänze Name und Geburtsort und speichere dein Profil.", "ok");
+      status("personResult", t("✦ Dein Geburtsdatum aus dem Schnellstart ist eingetragen. Ergänze Name und Geburtsort und speichere dein Profil."), "ok");
       previewIdentityFromForm();
     }
   }
@@ -2391,20 +2414,20 @@
 
   async function shareInvite() {
     if (!getCurrentPersonId()) {
-      toast("Bitte zuerst dein Profil speichern.");
+      toast(t("Bitte zuerst dein Profil speichern."));
       showSection("profile");
       return;
     }
-    status("inviteShareStatus", "Dein Einladungslink wird erstellt…");
+    status("inviteShareStatus", t("Dein Einladungslink wird erstellt…"));
     try {
       const json = await callSoraya("/mobile/invite/create", {}, "POST", 15000);
       const url = json.data && json.data.url;
-      if (!url) throw new Error("Kein Link erhalten.");
-      const text = "Wie gut passen wir zusammen? ✨ Gib dein Geburtsdatum ein und sieh unser Ergebnis bei Soraya:";
+      if (!url) throw new Error(t("Kein Link erhalten."));
+      const text = t("Wie gut passen wir zusammen? ✨ Gib dein Geburtsdatum ein und sieh unser Ergebnis bei Soraya:");
       let method = "copy";
       if (navigator.share) {
         try {
-          await navigator.share({ title: "Soraya – Wie gut passen wir zusammen?", text, url });
+          await navigator.share({ title: t("Soraya – Wie gut passen wir zusammen?"), text, url });
           method = "share";
         } catch (error) {
           if (error && error.name === "AbortError") { status("inviteShareStatus", ""); return; }
@@ -2412,12 +2435,12 @@
         }
       }
       if (method === "copy") {
-        try { await navigator.clipboard.writeText(text + " " + url); toast("Link kopiert – jetzt einfügen und senden."); } catch (error) {}
+        try { await navigator.clipboard.writeText(text + " " + url); toast(t("Link kopiert – jetzt einfügen und senden.")); } catch (error) {}
       }
-      status("inviteShareStatus", method === "share" ? "✦ Einladung geteilt." : "Dein Link: " + url, "ok");
+      status("inviteShareStatus", method === "share" ? t("✦ Einladung geteilt.") : t("Dein Link: {url}", { url }), "ok");
       track("invite_shared", { method });
     } catch (error) {
-      status("inviteShareStatus", friendlyError(error, "Link konnte nicht erstellt werden."), "bad");
+      status("inviteShareStatus", friendlyError(error, t("Link konnte nicht erstellt werden.")), "bad");
       trackError("invite", error);
     }
   }
@@ -2453,9 +2476,10 @@
       document.body.classList.remove("soraya-invite");
       return;
     }
-    const name = inviteInfo.name || "Jemand";
+    const name = inviteInfo.name || t("Jemand");
+    const inviterSign = trSign(inviteInfo.sun_sign || inviteInfo.sun_sign_de);
     setText("inviteName", name);
-    setText("inviteLead", "Wie gut passt ihr zusammen? " + name + (inviteInfo.sun_sign_de ? " ist " + inviteInfo.sun_sign_de + "." : ".") + " Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.");
+    setText("inviteLead", t("Wie gut passt ihr zusammen?") + " " + (inviterSign ? t("{name} ist {sign}.", { name, sign: inviterSign }) : name + ".") + " " + t("Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus."));
     card.hidden = false;
     document.body.classList.add("soraya-invite");
     const saved = readJson(inviteResultKey(code), null);
@@ -2467,14 +2491,23 @@
     const you = d.you || {};
     const inviter = d.inviter || {};
     setText("ivPercent", (d.score_percent != null ? d.score_percent : "–") + " %");
-    setText("ivLabel", d.score_label || "");
+    setText("ivLabel", d.score_label ? t(d.score_label) : "");
     const sun = you.sun ? signDisplay(you.sun) : "";
     const moon = you.moon ? signDisplay(you.moon) : "";
     const parts = [];
-    if (inviter.sun_sign_de && sun) parts.push((inviter.name || "Ihr") + " ist " + inviter.sun_sign_de + ", du bist " + sun + (moon ? " mit Mond in " + moon : "") + ".");
-    if (d.harmonious != null) parts.push("Zwischen euch gibt es " + d.harmonious + " harmonische und " + (d.challenging || 0) + " spannungsreiche Verbindungen" + (d.tone ? " – der Grundton ist " + d.tone : "") + ".");
+    const inviterSign = trSign(inviter.sun_sign || inviter.sun_sign_de);
+    if (inviterSign && sun) {
+      parts.push(moon
+        ? t("{name} ist {sign}, du bist {you} mit Mond in {moon}.", { name: inviter.name || t("Jemand"), sign: inviterSign, you: sun, moon })
+        : t("{name} ist {sign}, du bist {you}.", { name: inviter.name || t("Jemand"), sign: inviterSign, you: sun }));
+    }
+    if (d.harmonious != null) {
+      parts.push(d.tone
+        ? t("Zwischen euch gibt es {good} harmonische und {hard} spannungsreiche Verbindungen – der Grundton ist {tone}.", { good: d.harmonious, hard: d.challenging || 0, tone: t(d.tone) })
+        : t("Zwischen euch gibt es {good} harmonische und {hard} spannungsreiche Verbindungen.", { good: d.harmonious, hard: d.challenging || 0 }));
+    }
     setText("ivDetail", parts.join(" "));
-    setText("inviteLead", "So passt ihr laut euren Geburtshoroskopen zusammen:");
+    setText("inviteLead", t("So passt ihr laut euren Geburtshoroskopen zusammen:"));
     if ($("inviteForm")) $("inviteForm").hidden = true;
     if ($("inviteResult")) $("inviteResult").hidden = false;
   }
@@ -2486,13 +2519,13 @@
     const v = (id) => quickStartValue(id);
     const birth = { day: v("ivDay"), month: v("ivMonth"), year: v("ivYear"), hour: v("ivHour"), minute: v("ivMinute") };
     if (!birth.day || !birth.month || !birth.year || [birth.day, birth.month, birth.year].some(Number.isNaN)) {
-      status("ivStatus", "Bitte Tag, Monat und Jahr eingeben.", "bad");
+      status("ivStatus", t("Bitte Tag, Monat und Jahr eingeben."), "bad");
       return;
     }
     if (birth.hour !== null && birth.minute === null) birth.minute = 0;
     const button = $("ivButton");
     if (button) button.disabled = true;
-    status("ivStatus", "Soraya vergleicht eure Sterne…");
+    status("ivStatus", t("Soraya vergleicht eure Sterne…"));
     try {
       const json = await publicJson("/public/invite/" + encodeURIComponent(code) + "/match", birth);
       const d = json.data || {};
@@ -2503,7 +2536,7 @@
       showInviteResult(d);
       updateInviteCta();
     } catch (error) {
-      status("ivStatus", friendlyError(error, "Das hat nicht geklappt. Bitte Datum prüfen."), "bad");
+      status("ivStatus", friendlyError(error, t("Das hat nicht geklappt. Bitte Datum prüfen.")), "bad");
     } finally {
       if (button) button.disabled = false;
     }
@@ -2511,17 +2544,17 @@
 
   async function updateInviteCta() {
     const state = await getSessionState();
-    const name = (inviteInfo && inviteInfo.name) || "die Person";
+    const name = (inviteInfo && inviteInfo.name) || t("die Person");
     const cta = $("ivCtaText");
     if (state.ok && getCurrentPersonId()) {
-      if (cta) cta.innerHTML = "Für eure <b>ganze Deutung</b> lege " + escapeHtml(name) + " bei „Deine Menschen“ an und starte den Partner-Vergleich.";
-      setText("ivCtaButton", name + " hinzufügen");
+      if (cta) cta.innerHTML = t("Für eure <b>ganze Deutung</b> lege {name} bei „Deine Menschen“ an und starte den Partner-Vergleich.", { name: escapeHtml(name) });
+      setText("ivCtaButton", t("{name} hinzufügen", { name }));
     } else if (state.ok) {
-      if (cta) cta.innerHTML = "Speichere dein Profil – dann bekommst du eure <b>ganze Deutung</b> und dein persönliches Horoskop.";
-      setText("ivCtaButton", "Profil vervollständigen");
+      if (cta) cta.innerHTML = t("Speichere dein Profil – dann bekommst du eure <b>ganze Deutung</b> und dein persönliches Horoskop.");
+      setText("ivCtaButton", t("Profil vervollständigen"));
     } else {
-      if (cta) cta.innerHTML = "Eure <b>ganze Deutung</b> – Harmonie, Spannung, Anziehung und Kommunikation – und dein persönliches Horoskop bekommst du mit einem kostenlosen Konto.";
-      setText("ivCtaButton", "Kostenlos registrieren");
+      if (cta) cta.innerHTML = t("Eure <b>ganze Deutung</b> – Harmonie, Spannung, Anziehung und Kommunikation – und dein persönliches Horoskop bekommst du mit einem kostenlosen Konto.");
+      setText("ivCtaButton", t("Kostenlos registrieren"));
     }
   }
 
@@ -2553,6 +2586,7 @@
   function formatDay(value) {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
+    if (I18N && LANG() !== "de") return I18N.formatDate(d, { weekday: "short", day: "numeric", month: "short" });
     return WEEKDAYS[d.getDay()] + ", " + d.getDate() + ". " + MONTHS_SHORT[d.getMonth()];
   }
 
@@ -2563,35 +2597,47 @@
     const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     const days = Math.round((target - start) / 86400000);
-    if (days <= 0) return "heute";
-    if (days === 1) return "morgen";
-    return "in " + days + " Tagen";
+    if (days <= 0) return t("heute");
+    if (days === 1) return t("morgen");
+    return t("in {n} Tagen", { n: days });
+  }
+
+  // "noch 5 Tage" (Restdauer) statt "in 5 Tagen"
+  function remainingDays(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    const today = new Date();
+    const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+    if (days <= 0) return t("heute");
+    if (days === 1) return t("morgen");
+    return t("noch {n} Tage", { n: days });
   }
 
   function skyRows(sky) {
     const rows = [];
     const moon = sky.moon || {};
-    rows.push(transitRow("☾", "Mond in " + (moon.sign_de || "–"), (moon.phase || "Mondphase") + " · " + (moon.illumination ?? "–") + " % beleuchtet"));
+    const phase = ASTRO && moon.phase_index != null ? ASTRO.moonPhase(moon.phase_index) : (ASTRO && ASTRO.moonPhaseIndexOf(moon.phase) >= 0 ? ASTRO.moonPhase(ASTRO.moonPhaseIndexOf(moon.phase)) : moon.phase);
+    rows.push(transitRow("☾", t("Mond in {sign}", { sign: trSign(moon.sign || moon.sign_de) || "–" }), (phase || t("Mondphase")) + " · " + t("{value} % beleuchtet", { value: moon.illumination ?? "–" })));
 
     const full = sky.next_full_moon;
     const fresh = sky.next_new_moon;
     const lunations = [
-      fresh ? { glyph: "●", title: "Neumond", when: fresh, text: "Zeit für neue Absichten" } : null,
-      full ? { glyph: "○", title: "Vollmond", when: full, text: "Höhepunkt und Loslassen" } : null
+      fresh ? { glyph: "●", title: ASTRO ? ASTRO.moonPhase(0) : "Neumond", when: fresh, text: t("Zeit für neue Absichten") } : null,
+      full ? { glyph: "○", title: ASTRO ? ASTRO.moonPhase(4) : "Vollmond", when: full, text: t("Höhepunkt und Loslassen") } : null
     ].filter(Boolean).sort((a, b) => new Date(a.when) - new Date(b.when));
     lunations.forEach((l) => rows.push(transitRow(l.glyph, l.title + " · " + formatDay(l.when), l.text, daysUntil(l.when))));
 
     const personal = ["Merkur", "Venus", "Mars"];
     const retro = Array.isArray(sky.retrograde) ? sky.retrograde : [];
     retro.filter((r) => personal.includes(r.planet)).forEach((r) => {
-      rows.push(transitRow(planetGlyph(r.planet), r.planet + " rückläufig", r.until ? "bis " + formatDay(r.until) + ": Altes überdenken, nichts überstürzen" : "Altes überdenken", r.until ? daysUntil(r.until).replace("in ", "noch ") : ""));
+      rows.push(transitRow(planetGlyph(r.planet), t("{planet} rückläufig", { planet: trPlanet(r.key || r.planet) }), r.until ? t("bis {date}: Altes überdenken, nichts überstürzen", { date: formatDay(r.until) }) : t("Altes überdenken"), r.until ? remainingDays(r.until) : ""));
     });
-    const slow = retro.filter((r) => !personal.includes(r.planet)).map((r) => r.planet);
+    const slow = retro.filter((r) => !personal.includes(r.planet)).map((r) => trPlanet(r.key || r.planet));
     if (slow.length) {
-      rows.push(transitRow("℞", slow.join(", ") + " rückläufig", "Langsame Planeten: innere Themen statt äußerer Tempo-Wechsel"));
+      rows.push(transitRow("℞", t("{planet} rückläufig", { planet: slow.join(", ") }), t("Langsame Planeten: innere Themen statt äußerer Tempo-Wechsel")));
     }
     (Array.isArray(sky.retrograde_soon) ? sky.retrograde_soon : []).forEach((r) => {
-      rows.push(transitRow(planetGlyph(r.planet), r.planet + " wird rückläufig", "ab " + formatDay(r.from), daysUntil(r.from)));
+      rows.push(transitRow(planetGlyph(r.planet), t("{planet} wird rückläufig", { planet: trPlanet(r.key || r.planet) }), t("ab {date}", { date: formatDay(r.from) }), daysUntil(r.from)));
     });
     return rows.join("");
   }
@@ -2604,27 +2650,29 @@
       const config = getConfig();
       const response = await fetchWithTimeout(config.engineUrl.replace(/\/$/, "") + "/sky", { method: "GET" }, 15000);
       const json = await response.json();
-      if (!json || json.ok === false || !json.data) throw new Error("Himmel nicht verfügbar.");
+      if (!json || json.ok === false || !json.data) throw new Error(t("Himmel nicht verfügbar."));
       skyToday = json.data;
       lastSkyTodayAt = Date.now();
       box.innerHTML = skyRows(skyToday);
-      if (skyToday.moon && skyToday.moon.sign_de && getCurrentPersonId()) {
-        setText("heroSub", "Heute wandert der Mond durch " + skyToday.moon.sign_de + " – hier ist, was das für dich bedeutet.");
+      const moon = skyToday.moon || {};
+      const moonSign = trSign(moon.sign || moon.sign_de);
+      if (moonSign && getCurrentPersonId()) {
+        setText("heroSub", t("Heute wandert der Mond durch {sign} – hier ist, was das für dich bedeutet.", { sign: moonSign }));
       }
 
-      const moon = skyToday.moon || {};
-      if (moon.phase) setText("moonPhase", moon.phase);
+      if (moon.phase_index != null && ASTRO) setText("moonPhase", ASTRO.moonPhase(moon.phase_index));
+      else if (moon.phase) setText("moonPhase", moon.phase);
       if (moon.illumination !== undefined) {
-        setText("moonIllum", (moon.sign_de ? "Mond in " + moon.sign_de + " · " : "") + moon.illumination + " % beleuchtet");
+        setText("moonIllum", (moonSign ? t("Mond in {sign}", { sign: moonSign }) + " · " : "") + t("{value} % beleuchtet", { value: moon.illumination }));
       }
       renderChatSuggestions();
     } catch (error) {
-      if (!skyToday) box.innerHTML = transitRow("☾", "Himmelsereignisse", "Gerade kurz nicht erreichbar. Soraya versucht es später erneut.");
+      if (!skyToday) box.innerHTML = transitRow("☾", t("Himmelsereignisse"), t("Gerade kurz nicht erreichbar. Soraya versucht es später erneut."));
     }
   }
 
   function previewIdentityFromForm() {
-    const name = ($("pName") && $("pName").value.trim()) || localStorage.getItem(KEYS.name) || "du";
+    const name = ($("pName") && $("pName").value.trim()) || localStorage.getItem(KEYS.name) || t("du");
     setText("profileTitle", name);
     setText("profileInitial", (name[0] || "S").toUpperCase());
 
@@ -2647,22 +2695,22 @@
 
     const pill = $("appStatusPill");
     if (!state.ok) {
-      setAppStatus("Jetzt einloggen ›", "warn");
+      setAppStatus(t("Jetzt einloggen ›"), "warn");
       if (pill) pill.dataset.action = "login";
       return;
     }
 
     if (!birth || !birth.name) {
-      setAppStatus("Profil anlegen ›", "warn");
+      setAppStatus(t("Profil anlegen ›"), "warn");
       if (pill) pill.dataset.action = "profile";
       return;
     }
 
     if (pill) pill.dataset.action = "";
-    setAppStatus("Soraya · aktiv", "ok");
+    setAppStatus(t("Soraya · aktiv"), "ok");
   }
 
-  function showLoadingVeil(text = "Soraya lädt…") {
+  function showLoadingVeil(text = t("Soraya lädt…")) {
     const veil = $("loadingVeil");
     if (!veil) return;
     const p = veil.querySelector("p");
@@ -2690,10 +2738,10 @@
         const open = target.classList.toggle("is-open");
         btn.classList.toggle("is-open", open);
         if (open) {
-          btn.textContent = "Weniger anzeigen";
+          btn.textContent = t("Weniger anzeigen");
         } else {
           const count = target.children.length;
-          btn.textContent = "Weitere " + count + " Transite anzeigen";
+          btn.textContent = t("Weitere {n} Transite anzeigen", { n: count });
         }
       });
     }
@@ -2820,8 +2868,16 @@
     } catch (error) {}
 
     window.setTimeout(auditButtons, 500);
-    track("app_open", { standalone: isStandalone(), ios: isIos() });
+    track("app_open", { standalone: isStandalone(), ios: isIos(), lang: LANG() });
   }
+
+  // Sprachwahl (i18n.js): im Konto merken, damit sie auf allen Geraeten gilt
+  window.sorayaOnLangChange = async (code) => {
+    await track("lang_changed", { lang: code });
+    const state = await getSessionState();
+    if (!state.ok || !state.session || !state.session.user) return;
+    await sb.from("profiles").update({ locale: code }).eq("id", state.session.user.id);
+  };
 
   window.toast = toast;
   window.status = status;

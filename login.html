@@ -20,6 +20,11 @@
 
   <script src="/vendor/supabase-js-2.117.3.js"></script>
   <script src="/config.js?v=6.7.0"></script>
+  <!-- Sprachen: Uebersetzungen zuerst, dann die Sprach-Logik -->
+  <script src="/i18n/en.js"></script>
+  <script src="/i18n/hu.js"></script>
+  <script src="/i18n/it.js"></script>
+  <script src="/i18n.js"></script>
   <link rel="stylesheet" href="/soraya.css" />
 </head>
 
@@ -33,6 +38,7 @@
         <h1>SORAYA</h1>
         <p>Dein persönlicher Sternenraum</p>
       </div>
+      <div class="lang-picker lang-picker-compact" data-lang-picker aria-label="Sprache wählen"></div>
 
       <div class="login-tabs" role="tablist" aria-label="Login Modus">
         <button id="loginTabButton" class="active" type="button" onclick="sorayaLogin.setMode('login')">Einloggen</button>
@@ -78,7 +84,7 @@
 
       <details id="connectionBox" class="login-config developer-only">
         <summary>Admin-Verbindung</summary>
-        <p>Nur sichtbar, wenn die öffentliche Verbindung in <code>config.js</code> fehlt.</p>
+        <p data-i18n-skip>Nur sichtbar, wenn die öffentliche Verbindung in <code>config.js</code> fehlt.</p>
 
         <label for="loginSupabaseUrl">Supabase URL</label>
         <input id="loginSupabaseUrl" placeholder="https://...supabase.co" />

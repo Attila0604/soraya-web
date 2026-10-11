@@ -20,6 +20,11 @@
 
   <script src="/vendor/supabase-js-2.117.3.js"></script>
   <script src="/config.js"></script>
+  <!-- Sprachen: Uebersetzungen zuerst, dann die Sprach-Logik -->
+  <script src="/i18n/en.js"></script>
+  <script src="/i18n/hu.js"></script>
+  <script src="/i18n/it.js"></script>
+  <script src="/i18n.js"></script>
   <link rel="stylesheet" href="/soraya.css" />
 </head>
 
@@ -99,7 +104,7 @@
             <div class="invite-score"><strong id="ivPercent">–</strong><span id="ivLabel"></span></div>
             <p class="invite-detail" id="ivDetail"></p>
             <div class="qs-cta">
-              <p id="ivCtaText">Eure <b>ganze Deutung</b> – Harmonie, Spannung, Anziehung und Kommunikation – und dein persönliches Horoskop bekommst du mit einem kostenlosen Konto.</p>
+              <p id="ivCtaText" data-i18n-html="html.invite.cta">Eure <b>ganze Deutung</b> – Harmonie, Spannung, Anziehung und Kommunikation – und dein persönliches Horoskop bekommst du mit einem kostenlosen Konto.</p>
               <button class="btn gold block" id="ivCtaButton" onclick="sorayaInviteCta()">Kostenlos registrieren</button>
             </div>
           </div>
@@ -110,11 +115,11 @@
           <button type="button" class="ios-install-close" onclick="sorayaDismissIosHint()" aria-label="Hinweis schließen">×</button>
           <div class="card-title"><h4>Soraya als App auf deinem iPhone</h4></div>
           <ol class="ios-steps" id="iosSteps">
-            <li>Tippe unten auf <span class="ios-share" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18.5 10H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span> <b>Teilen</b>.</li>
-            <li>Wähle <b>„Zum Home-Bildschirm“</b>.</li>
+            <li><span data-i18n-html="html.ios.step1">Tippe unten auf <b>Teilen</b>:</span> <span class="ios-share" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18.5 10H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></li>
+            <li data-i18n-html="html.ios.step2">Wähle <b>„Zum Home-Bildschirm“</b>.</li>
             <li>Öffne Soraya über das neue Symbol – dort meldest du dich einmal an.</li>
           </ol>
-          <p class="ios-inapp" id="iosInApp" hidden>Du bist gerade in einer anderen App (z. B. Instagram). Öffne diese Seite zuerst in <b>Safari</b>: Tippe auf <b>⋯</b> und dann <b>„In Safari öffnen“</b>.</p>
+          <p class="ios-inapp" id="iosInApp" hidden data-i18n-html="html.ios.inapp">Du bist gerade in einer anderen App (z. B. Instagram). Öffne diese Seite zuerst in <b>Safari</b>: Tippe auf <b>⋯</b> und dann <b>„In Safari öffnen“</b>.</p>
         </div>
 
         <!-- Schnellstart ohne Login / ohne Profil -->
@@ -150,7 +155,7 @@
               <span class="badge" id="qsHoroTip"></span>
             </div>
             <div class="qs-cta">
-              <p id="qsCtaText">Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.</p>
+              <p id="qsCtaText" data-i18n-html="html.qs.cta">Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.</p>
               <button class="btn gold block" id="qsCtaButton" onclick="sorayaQuickStartCta()">Kostenlos registrieren</button>
               <button class="btn block qs-edit" type="button" onclick="sorayaQuickStartEdit()">Anderes Geburtsdatum</button>
             </div>
@@ -268,7 +273,7 @@
       <section id="analysis" class="section">
         <div class="page-title">
           <span class="eyebrow">Birth Chart</span>
-          <h2>Dein<br><span class="gold">Radix</span></h2>
+          <h2 data-i18n-html="html.title.analysis">Dein<br><span class="gold">Radix</span></h2>
           <p>Planeten, Häuser, Aspekte und ein klares Reading.</p>
         </div>
 
@@ -320,7 +325,7 @@
       <section id="horoscope" class="section">
         <div class="page-title">
           <span class="eyebrow">Horoskop</span>
-          <h2>Dein<br><span class="gold">Impuls</span></h2>
+          <h2 data-i18n-html="html.title.horoscope">Dein<br><span class="gold">Impuls</span></h2>
           <p>Kurze Hinweise für Fokus, Liebe und Richtung.</p>
         </div>
 
@@ -400,7 +405,7 @@
       <section id="synastry" class="section">
         <div class="page-title">
           <span class="eyebrow">Synastrie</span>
-          <h2>Verbindung<br><span class="gold">verstehen</span></h2>
+          <h2 data-i18n-html="html.title.synastry">Verbindung<br><span class="gold">verstehen</span></h2>
           <p>Analysiere die Dynamik zwischen zwei gespeicherten Personen.</p>
         </div>
 
@@ -461,7 +466,7 @@
       <section id="profile" class="section">
         <div class="page-title">
           <span class="eyebrow">Profil</span>
-          <h2>Mein<br><span class="gold">Profil</span></h2>
+          <h2 data-i18n-html="html.title.profile">Mein<br><span class="gold">Profil</span></h2>
           <p>Deine Geburtsdaten sind die Basis für Analyse, Horoskop und Synastrie.</p>
         </div>
 
@@ -481,6 +486,12 @@
           <div class="card-title"><h4>Login</h4><span class="badge" id="loginBadge">Status</span></div>
           <p id="loginSessionText">Session wird geprüft…</p>
           <button id="profileAuthButton" class="btn gold block" onclick="openLogin()">Einloggen</button>
+        </div>
+
+        <div class="card c45-lang-card" id="languageCard">
+          <div class="card-title"><h4>Sprache</h4><span class="badge">🌐</span></div>
+          <p>Soraya spricht mit dir in deiner Sprache – auch Horoskope, Analysen und der Chat.</p>
+          <div class="lang-picker" data-lang-picker aria-label="Sprache wählen"></div>
         </div>
 
         <div class="card c4-birth-form-card c45-birth-card">

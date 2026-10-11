@@ -12,6 +12,8 @@
 (function () {
   "use strict";
 
+  function T(key, vars) { return window.SorayaI18n ? window.SorayaI18n.t(key, vars) : key; }
+
   var LOGIN_KEYS = {
     config: "soraya_config",
     name: "soraya_person_name",
@@ -104,12 +106,12 @@
   function friendlyError(error, fallback) {
     var msg = error && error.message ? error.message : text(error || fallback);
 
-    if (/invalid login|invalid credentials/i.test(msg)) return "E-Mail oder Passwort stimmt nicht.";
-    if (/email not confirmed|not confirmed|confirm/i.test(msg)) return "Bitte bestätige zuerst deine E-Mail und versuche es danach erneut.";
-    if (/password/i.test(msg) && /short|weak|6/i.test(msg)) return "Bitte ein Passwort mit mindestens 6 Zeichen verwenden.";
-    if (/Failed to fetch|NetworkError|Load failed|fetch|timeout|timed out/i.test(msg)) return "Verbindung nicht erreichbar. Bitte Internet prüfen und später erneut versuchen.";
-    if (/rate limit|too many/i.test(msg)) return "Zu viele Versuche. Bitte kurz warten und erneut versuchen.";
-    if (/storage|quota|localStorage/i.test(msg)) return "Der Browser-Speicher ist blockiert. Bitte Inkognito-Speicher erlauben oder normalen Browser verwenden.";
+    if (/invalid login|invalid credentials/i.test(msg)) return T("E-Mail oder Passwort stimmt nicht.");
+    if (/email not confirmed|not confirmed|confirm/i.test(msg)) return T("Bitte bestätige zuerst deine E-Mail und versuche es danach erneut.");
+    if (/password/i.test(msg) && /short|weak|6/i.test(msg)) return T("Bitte ein Passwort mit mindestens 6 Zeichen verwenden.");
+    if (/Failed to fetch|NetworkError|Load failed|fetch|timeout|timed out/i.test(msg)) return T("Verbindung nicht erreichbar. Bitte Internet prüfen und später erneut versuchen.");
+    if (/rate limit|too many/i.test(msg)) return T("Zu viele Versuche. Bitte kurz warten und erneut versuchen.");
+    if (/storage|quota|localStorage/i.test(msg)) return T("Der Browser-Speicher ist blockiert. Bitte Inkognito-Speicher erlauben oder normalen Browser verwenden.");
 
     return msg || fallback;
   }
@@ -131,8 +133,8 @@
 
   function initLoginClient(config) {
     var c = normalizeConfig(config || getAvailableConfig());
-    if (!window.supabase) throw new Error("Supabase wurde nicht geladen.");
-    if (!hasConfig(c)) throw new Error("App-Verbindung fehlt.");
+    if (!window.supabase) throw new Error(T("Supabase wurde nicht geladen."));
+    if (!hasConfig(c)) throw new Error(T("App-Verbindung fehlt."));
 
     writeStoredConfig(c);
 
@@ -164,8 +166,8 @@
   function validateLoginFields(requirePassword) {
     var email = getEmail();
     var password = getPassword();
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error("Bitte eine gültige E-Mail eingeben.");
-    if (requirePassword && (!password || password.length < 6)) throw new Error("Bitte ein Passwort mit mindestens 6 Zeichen eingeben.");
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error(T("Bitte eine gültige E-Mail eingeben."));
+    if (requirePassword && (!password || password.length < 6)) throw new Error(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));
     return { email: email, password: password };
   }
 
@@ -210,9 +212,9 @@
     if (el("loginMode")) el("loginMode").value = mode;
     if (el("loginTabButton")) el("loginTabButton").classList.toggle("active", mode === "login");
     if (el("registerTabButton")) el("registerTabButton").classList.toggle("active", mode === "register");
-    if (el("loginSubmitButton")) el("loginSubmitButton").textContent = mode === "register" ? "Registrieren" : "Einloggen";
+    if (el("loginSubmitButton")) el("loginSubmitButton").textContent = mode === "register" ? T("Registrieren") : T("Einloggen");
     if (el("loginPassword")) el("loginPassword").autocomplete = mode === "register" ? "new-password" : "current-password";
-    setLoginStatus(mode === "register" ? "Bereit zum Registrieren." : "Bereit zum Einloggen.");
+    setLoginStatus(mode === "register" ? T("Bereit zum Registrieren.") : T("Bereit zum Einloggen."));
   }
 
   function togglePassword() {
@@ -220,7 +222,7 @@
     if (!input) return;
     input.type = input.type === "password" ? "text" : "password";
     var button = document.querySelector(".password-toggle");
-    if (button) button.setAttribute("aria-label", input.type === "password" ? "Passwort anzeigen" : "Passwort verstecken");
+    if (button) button.setAttribute("aria-label", input.type === "password" ? T("Passwort anzeigen") : T("Passwort verstecken"));
   }
 
   async function withTimeout(promise, ms, label) {
@@ -264,12 +266,12 @@
       renderConnectionBox();
 
       if (!config) {
-        setLoginStatus("App-Verbindung fehlt. Bitte Admin-Verbindung prüfen.", "bad");
+        setLoginStatus(T("App-Verbindung fehlt. Bitte Admin-Verbindung prüfen."), "bad");
         return false;
       }
 
       var client = getLoginClient();
-      var result = await withTimeout(client.auth.getSession(), 12000, "Session-Prüfung dauerte zu lange.");
+      var result = await withTimeout(client.auth.getSession(), 12000, T("Session-Prüfung dauerte zu lange."));
       if (result.error) throw result.error;
 
       if (result.data && result.data.session && result.data.session.user) {
@@ -277,17 +279,17 @@
         if (email && !localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, email.split("@")[0]);
 
         var backendOk = await verifyBackendSession(result.data.session);
-        setLoginStatus(backendOk ? "✅ Du bist eingeloggt. Verbindung ist aktiv." : "✅ Login aktiv. Backend wird in der App erneut geprüft.", "ok");
+        setLoginStatus(backendOk ? T("✅ Du bist eingeloggt. Verbindung ist aktiv.") : T("✅ Login aktiv. Backend wird in der App erneut geprüft."), "ok");
 
         if (shouldReturnAfterSession()) returnToApp(650);
         return true;
       }
 
-      setLoginStatus("Bereit zum Einloggen.");
+      setLoginStatus(T("Bereit zum Einloggen."));
       return false;
     } catch (error) {
       renderConnectionBox();
-      setLoginStatus(friendlyError(error, "Login konnte nicht geprüft werden."), "bad");
+      setLoginStatus(friendlyError(error, T("Login konnte nicht geprüft werden.")), "bad");
       return false;
     }
   }
@@ -301,31 +303,31 @@
       safeSetAfterPath();
       localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
 
-      setLoginStatus("Login läuft ...");
+      setLoginStatus(T("Login läuft ..."));
       var client = getLoginClient();
-      var result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: fields.password }), 15000, "Login dauerte zu lange.");
+      var result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: fields.password }), 15000, T("Login dauerte zu lange."));
 
       // Beim Kopieren rutschen leicht Leerzeichen ins Passwortfeld:
       // bei falschem Passwort einmal ohne Leerzeichen am Rand versuchen.
       var trimmed = fields.password.trim();
       if (result.error && trimmed !== fields.password && trimmed.length >= 6 &&
           /invalid login|invalid credentials/i.test(result.error.message || "")) {
-        result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: trimmed }), 15000, "Login dauerte zu lange.");
+        result = await withTimeout(client.auth.signInWithPassword({ email: fields.email, password: trimmed }), 15000, T("Login dauerte zu lange."));
       }
       if (result.error) throw result.error;
 
-      var sessionResult = await withTimeout(client.auth.getSession(), 12000, "Session konnte nicht bestätigt werden.");
+      var sessionResult = await withTimeout(client.auth.getSession(), 12000, T("Session konnte nicht bestätigt werden."));
       if (sessionResult.error) throw sessionResult.error;
-      if (!sessionResult.data || !sessionResult.data.session) throw new Error("Login wurde nicht gespeichert. Bitte erneut versuchen.");
+      if (!sessionResult.data || !sessionResult.data.session) throw new Error(T("Login wurde nicht gespeichert. Bitte erneut versuchen."));
 
       var userEmail = result.data && result.data.user && result.data.user.email ? result.data.user.email : fields.email;
       if (!localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, userEmail.split("@")[0]);
 
       var backendOk = await verifyBackendSession(sessionResult.data.session);
-      setLoginStatus(backendOk ? "✅ Login erfolgreich. Soraya öffnet die App ..." : "✅ Login erfolgreich. Soraya öffnet die App und prüft Backend erneut ...", "ok");
+      setLoginStatus(backendOk ? T("✅ Login erfolgreich. Soraya öffnet die App ...") : T("✅ Login erfolgreich. Soraya öffnet die App und prüft Backend erneut ..."), "ok");
       returnToApp(500);
     } catch (error) {
-      setLoginStatus("Login fehlgeschlagen: " + friendlyError(error, "Bitte Daten prüfen."), "bad");
+      setLoginStatus(T("Login fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
     } finally {
       setBusy(false);
     }
@@ -339,11 +341,11 @@
       var fields = validateLoginFields(true);
       // Leerzeichen am Rand entfernen (meist versehentlich beim Kopieren)
       var password = fields.password.trim();
-      if (password.length < 6) throw new Error("Bitte ein Passwort mit mindestens 6 Zeichen eingeben.");
+      if (password.length < 6) throw new Error(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));
       safeSetAfterPath();
       localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
 
-      setLoginStatus("Registrierung läuft ...");
+      setLoginStatus(T("Registrierung läuft ..."));
       var client = getLoginClient();
       var redirectTo = window.location.origin + "/login?return=1";
       var result = await withTimeout(client.auth.signUp({
@@ -355,14 +357,14 @@
       if (result.error) throw result.error;
 
       if (result.data && result.data.session) {
-        setLoginStatus("✅ Registrierung erfolgreich. Soraya öffnet die App ...", "ok");
+        setLoginStatus(T("✅ Registrierung erfolgreich. Soraya öffnet die App ..."), "ok");
         returnToApp(650);
         return;
       }
 
-      setLoginStatus("✅ Registrierung erfolgreich. Bitte E-Mail bestätigen und danach einloggen.", "ok");
+      setLoginStatus(T("✅ Registrierung erfolgreich. Bitte E-Mail bestätigen und danach einloggen."), "ok");
     } catch (error) {
-      setLoginStatus("Registrierung fehlgeschlagen: " + friendlyError(error, "Bitte Daten prüfen."), "bad");
+      setLoginStatus(T("Registrierung fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
     } finally {
       setBusy(false);
     }
@@ -375,7 +377,7 @@
       setBusy(true);
       var fields = validateLoginFields(false);
       localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
-      setLoginStatus("Passwort-E-Mail wird gesendet ...");
+      setLoginStatus(T("Passwort-E-Mail wird gesendet ..."));
 
       var client = getLoginClient();
       var result = await withTimeout(client.auth.resetPasswordForEmail(fields.email, {
@@ -383,9 +385,9 @@
       }), 15000, "Passwort-E-Mail dauerte zu lange.");
 
       if (result.error) throw result.error;
-      setLoginStatus("✅ E-Mail zum Zurücksetzen wurde gesendet.", "ok");
+      setLoginStatus(T("✅ E-Mail zum Zurücksetzen wurde gesendet."), "ok");
     } catch (error) {
-      setLoginStatus("Passwort zurücksetzen fehlgeschlagen: " + friendlyError(error, "Bitte E-Mail prüfen."), "bad");
+      setLoginStatus(T("Passwort zurücksetzen fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte E-Mail prüfen.")) }), "bad");
     } finally {
       setBusy(false);
     }
@@ -398,15 +400,15 @@
         supabaseAnonKey: el("loginSupabaseAnonKey") ? el("loginSupabaseAnonKey").value.trim() : "",
         engineUrl: el("loginEngineUrl") ? el("loginEngineUrl").value.trim().replace(/\/$/, "") : ""
       };
-      if (!hasConfig(config)) throw new Error("Bitte alle Verbindungsfelder ausfüllen.");
-      if (!/^https:\/\//i.test(config.supabaseUrl) || !/^https:\/\//i.test(config.engineUrl)) throw new Error("Bitte gültige HTTPS-URLs verwenden.");
+      if (!hasConfig(config)) throw new Error(T("Bitte alle Verbindungsfelder ausfüllen."));
+      if (!/^https:\/\//i.test(config.supabaseUrl) || !/^https:\/\//i.test(config.engineUrl)) throw new Error(T("Bitte gültige HTTPS-URLs verwenden."));
       writeStoredConfig(config);
       loginClient = null;
       initLoginClient(config);
       renderConnectionBox();
-      setLoginStatus("✅ Verbindung gespeichert. Du kannst dich jetzt einloggen.", "ok");
+      setLoginStatus(T("✅ Verbindung gespeichert. Du kannst dich jetzt einloggen."), "ok");
     } catch (error) {
-      setLoginStatus("Verbindung konnte nicht gespeichert werden: " + friendlyError(error, "Bitte prüfen."), "bad");
+      setLoginStatus(T("Verbindung konnte nicht gespeichert werden: {error}", { error: friendlyError(error, T("Bitte prüfen.")) }), "bad");
     }
   }
 
