@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v12";
+  const APP_VERSION = "web-v13";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -483,9 +483,41 @@
     track("error", { where, msg: shortText(error && error.message ? error.message : error) });
   }
 
+  // iPhone/iPad (auch iPadOS, das sich als Mac ausgibt)
+  function isIos() {
+    const ua = navigator.userAgent || "";
+    return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  }
+
+  function isInAppBrowser() {
+    return /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Line\/|Snapchat|Pinterest/i.test(navigator.userAgent || "");
+  }
+
+  // Hinweis "Zum Home-Bildschirm" nur im iPhone-Browser, nicht in der
+  // installierten App, und nur bis zum Wegklicken.
+  function renderIosHint() {
+    const card = $("iosInstallCard");
+    if (!card) return;
+    let dismissed = false;
+    try { dismissed = localStorage.getItem("soraya_ios_hint_dismissed") === "1"; } catch (error) {}
+    const show = isIos() && !isStandalone() && !dismissed;
+    card.hidden = !show;
+    if (!show) return;
+    const inApp = isInAppBrowser();
+    if ($("iosInApp")) $("iosInApp").hidden = !inApp;
+    if ($("iosSteps")) $("iosSteps").hidden = inApp;
+  }
+
+  function dismissIosHint() {
+    try { localStorage.setItem("soraya_ios_hint_dismissed", "1"); } catch (error) {}
+    const card = $("iosInstallCard");
+    if (card) card.hidden = true;
+    track("ios_hint_closed", {});
+  }
+
   function isStandalone() {
     try {
-      return window.matchMedia("(display-mode: standalone)").matches || document.referrer.startsWith("android-app://");
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true || document.referrer.startsWith("android-app://");
     } catch (error) {
       return false;
     }
@@ -2588,6 +2620,7 @@
     renderHomeSkyThrottled();
     renderSkyToday(true);
     restoreQuickStart();
+    renderIosHint();
     renderAuthUi();
     bindUiEvents();
     cacheSelfFromStorage();
@@ -2619,7 +2652,7 @@
     } catch (error) {}
 
     window.setTimeout(auditButtons, 500);
-    track("app_open", { standalone: isStandalone() });
+    track("app_open", { standalone: isStandalone(), ios: isIos() });
   }
 
   window.toast = toast;
@@ -2658,6 +2691,7 @@
   window.refreshSynastryPeople = refreshSynastryPeople;
   window.sorayaAddPerson = addPerson;
   window.sorayaQuickStart = quickStart;
+  window.sorayaDismissIosHint = dismissIosHint;
   window.sorayaQuickStartEdit = quickStartEdit;
   window.sorayaQuickStartCta = quickStartCta;
   window.sorayaOpenSynastryWith = openSynastryWith;
