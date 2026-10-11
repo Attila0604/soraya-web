@@ -10,6 +10,8 @@
 (function () {
   "use strict";
 
+  function T(key) { return window.SorayaI18n ? window.SorayaI18n.t(key) : key; }
+
   function $(selector, root) {
     return (root || document).querySelector(selector);
   }
@@ -43,7 +45,7 @@
     var wrapper = document.createElement("div");
     wrapper.className = "c58-period-tabs";
     wrapper.setAttribute("role", "tablist");
-    wrapper.setAttribute("aria-label", "Zeitraum wählen");
+    wrapper.setAttribute("aria-label", T("Zeitraum wählen"));
 
     var labels = {
       daily: "Tag",
@@ -56,7 +58,7 @@
       button.type = "button";
       button.className = "c58-period-tab";
       button.dataset.periodValue = option.value;
-      button.textContent = labels[option.value] || option.textContent || option.value;
+      button.textContent = T(labels[option.value] || option.textContent || option.value);
       button.setAttribute("role", "tab");
 
       button.addEventListener("click", function () {

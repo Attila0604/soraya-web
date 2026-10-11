@@ -15,6 +15,8 @@
 (function () {
   "use strict";
 
+  function T(key, vars) { return window.SorayaI18n ? window.SorayaI18n.t(key, vars) : key; }
+
   var REASONS = [
     "Anstößig oder beleidigend",
     "Falsch oder irreführend",
@@ -33,8 +35,8 @@
     var link = document.createElement("button");
     link.type = "button";
     link.className = "c73-report-link";
-    link.setAttribute("aria-label", "Diese Antwort melden");
-    link.innerHTML = "\u2691 melden";
+    link.setAttribute("aria-label", T("Diese Antwort melden"));
+    link.textContent = "\u2691 " + T("melden");
     link.addEventListener("click", function (e) {
       e.stopPropagation();
       openModal(bubble.textContent || "");
@@ -82,6 +84,8 @@
       });
       reasonsBox.appendChild(b);
     });
+    // Texte im Dialog uebersetzen (der gespeicherte Grund bleibt deutsch)
+    if (window.SorayaI18n) window.SorayaI18n.apply(backdrop);
 
     backdrop.addEventListener("click", function (e) {
       if (e.target === backdrop) closeModal();
@@ -174,9 +178,9 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "c73-report-head";
-    btn.innerHTML = "\u2691 melden";
-    btn.title = "Eine Antwort von Soraya melden";
-    btn.setAttribute("aria-label", "Unangemessene Antwort melden");
+    btn.textContent = "\u2691 " + T("melden");
+    btn.title = T("Eine Antwort von Soraya melden");
+    btn.setAttribute("aria-label", T("Unangemessene Antwort melden"));
     btn.addEventListener("click", function () {
       // letzte Soraya-Antwort als Kontext, sonst leer
       var bubbles = document.querySelectorAll("#chatWindow .bubble.assistant");

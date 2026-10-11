@@ -14,6 +14,8 @@
 (function () {
   "use strict";
 
+  function T(key, vars) { return window.SorayaI18n ? window.SorayaI18n.t(key, vars) : key; }
+
   function engineBase() {
     var c = (window.SORAYA_PUBLIC_CONFIG || {});
     var url = (c.engineUrl || "").trim().replace(/\/$/, "");
@@ -59,13 +61,13 @@
       '<div style="max-width:420px;width:100%;background:linear-gradient(180deg,#0b1029,#070a1d);' +
       'border:1px solid rgba(255,120,90,.45);border-radius:22px;padding:26px 24px;' +
       'box-shadow:0 22px 70px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif;color:#fff4df;">' +
-        '<h3 style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;margin:0 0 8px;color:#ffd0a0;">Konto löschen?</h3>' +
-        '<p style="font-size:14.5px;line-height:1.6;color:#c8badf;margin:0 0 6px;">Das löscht dein Konto und <b style="color:#fff4df;">alle deine Daten</b> unwiderruflich:</p>' +
-        '<p style="font-size:13.5px;line-height:1.6;color:#9184a8;margin:0 0 18px;">Personen, Analysen, Horoskope, Synastrien und dein Chat-Verlauf mit Soraya. Das kann nicht rückgängig gemacht werden.</p>' +
+        '<h3 style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;margin:0 0 8px;color:#ffd0a0;">' + T("Konto löschen?") + '</h3>' +
+        '<p style="font-size:14.5px;line-height:1.6;color:#c8badf;margin:0 0 6px;">' + T("Das löscht dein Konto und <b>alle deine Daten</b> unwiderruflich:").replace("<b>", '<b style="color:#fff4df;">') + '</p>' +
+        '<p style="font-size:13.5px;line-height:1.6;color:#9184a8;margin:0 0 18px;">' + T("Personen, Analysen, Horoskope, Synastrien und dein Chat-Verlauf mit Soraya. Das kann nicht rückgängig gemacht werden.") + '</p>' +
         '<div id="c70-msg" style="display:none;font-size:13px;margin:0 0 14px;padding:10px 12px;border-radius:12px;"></div>' +
         '<div style="display:flex;gap:10px;">' +
-          '<button id="c70-cancel" style="flex:1;padding:13px;border-radius:14px;border:1px solid rgba(255,218,135,.30);background:transparent;color:#fff4df;font-weight:600;font-size:14px;cursor:pointer;">Abbrechen</button>' +
-          '<button id="c70-confirm" style="flex:1.3;padding:13px;border-radius:14px;border:none;background:linear-gradient(180deg,#ff7a5c,#c23b2a);color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Endgültig löschen</button>' +
+          '<button id="c70-cancel" style="flex:1;padding:13px;border-radius:14px;border:1px solid rgba(255,218,135,.30);background:transparent;color:#fff4df;font-weight:600;font-size:14px;cursor:pointer;">' + T("Abbrechen") + '</button>' +
+          '<button id="c70-confirm" style="flex:1.3;padding:13px;border-radius:14px;border:none;background:linear-gradient(180deg,#ff7a5c,#c23b2a);color:#fff;font-weight:700;font-size:14px;cursor:pointer;">' + T("Endgültig löschen") + '</button>' +
         '</div>' +
       '</div>';
 
@@ -94,15 +96,15 @@
     var cancelBtn = overlay.querySelector("#c70-cancel");
     confirmBtn.disabled = true;
     cancelBtn.disabled = true;
-    confirmBtn.textContent = "Wird gelöscht …";
+    confirmBtn.textContent = T("Wird gelöscht …");
     confirmBtn.style.opacity = ".7";
 
     try {
       var base = engineBase();
-      if (!base) { showMsg(overlay, "Backend-Verbindung fehlt. Bitte App neu laden.", "error"); resetButtons(overlay); return; }
+      if (!base) { showMsg(overlay, T("Backend-Verbindung fehlt. Bitte App neu laden."), "error"); resetButtons(overlay); return; }
 
       var token = await getAccessToken();
-      if (!token) { showMsg(overlay, "Keine gültige Sitzung. Bitte neu anmelden.", "error"); resetButtons(overlay); return; }
+      if (!token) { showMsg(overlay, T("Keine gültige Sitzung. Bitte neu anmelden."), "error"); resetButtons(overlay); return; }
 
       var resp = await fetch(base + "/mobile/account/delete", {
         method: "POST",
@@ -112,17 +114,17 @@
       try { data = await resp.json(); } catch (e) {}
 
       if (resp.ok && data && data.ok) {
-        showMsg(overlay, "Konto gelöscht. Du wirst abgemeldet …", "info");
+        showMsg(overlay, T("Konto gelöscht. Du wirst abgemeldet …"), "info");
         try { if (window.sb && window.sb.auth) await window.sb.auth.signOut(); } catch (e) {}
         clearLocalSoraya();
         setTimeout(function () { window.location.href = "/login"; }, 1200);
       } else {
         var err = (data && data.error) ? data.error : ("HTTP " + resp.status);
-        showMsg(overlay, "Löschen fehlgeschlagen: " + err, "error");
+        showMsg(overlay, T("Löschen fehlgeschlagen: {error}", { error: err }), "error");
         resetButtons(overlay);
       }
     } catch (e) {
-      showMsg(overlay, "Netzwerkfehler: " + (e && e.message ? e.message : e), "error");
+      showMsg(overlay, T("Netzwerkfehler: {error}", { error: e && e.message ? e.message : e }), "error");
       resetButtons(overlay);
     }
   }
@@ -130,7 +132,7 @@
   function resetButtons(overlay) {
     var confirmBtn = overlay.querySelector("#c70-confirm");
     var cancelBtn = overlay.querySelector("#c70-cancel");
-    if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = "Endgültig löschen"; confirmBtn.style.opacity = "1"; }
+    if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = T("Endgültig löschen"); confirmBtn.style.opacity = "1"; }
     if (cancelBtn) { cancelBtn.disabled = false; }
   }
 

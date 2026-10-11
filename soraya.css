@@ -943,3 +943,15 @@ body.soraya-logged-out #peopleCard{display:none}
 .people-actions .people-add{margin-top:var(--s2)}
 /* Mit Einladung: Einladungskarte statt Schnellstart */
 body.soraya-invite #quickStartCard{display:none}
+
+/* Sprachauswahl (i18n.js) */
+.lang-picker{display:grid; grid-template-columns:repeat(2,1fr); gap:var(--s2)}
+.c45-lang-card p{color:var(--mist); margin:0 0 var(--s3)}
+.lang-option{display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 12px;
+  border-radius:var(--r-sm); border:1px solid var(--line-soft); background:var(--panel-2); color:var(--mist);
+  font:inherit; font-size:14px; cursor:pointer; transition:border-color .2s, background .2s}
+.lang-option:hover{border-color:var(--line)}
+.lang-option.active{border-color:var(--gold); background:rgba(201,168,106,.12); color:var(--gold-soft); font-weight:600}
+.lang-option:focus-visible{outline:2px solid var(--gold-soft); outline-offset:2px}
+.lang-picker-compact{grid-template-columns:repeat(4,1fr); gap:6px; margin:0 0 var(--s3)}
+.lang-picker-compact .lang-option{min-height:38px; padding:6px 4px; font-size:12px; flex-direction:column; gap:2px}
