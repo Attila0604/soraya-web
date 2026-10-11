@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v13";
+  const APP_VERSION = "web-v14";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1332,7 +1332,7 @@
     people.forEach((person) => {
       const option = document.createElement("option");
       option.value = person.id;
-      option.textContent = (person.name || "Unbenannt") + (person.relation ? " · " + person.relation : "");
+      option.textContent = (person.name || "Unbenannt") + (person.relation ? " · " + (RELATION_LABELS[person.relation] || person.relation) : "");
       select.appendChild(option);
     });
 
@@ -1449,7 +1449,8 @@
     const label = select && select.options && select.selectedIndex >= 0
       ? select.options[select.selectedIndex].textContent
       : "";
-    const partner = label && !label.includes("Person wählen") && !label.includes("Noch keine") ? label.replace(/\s*\(.+\)\s*$/, "") : "Zweite Person";
+    // Nur der Name (ohne " · Partner/in"), sonst landet "·" im Kuerzel ("J·")
+    const partner = label && !label.includes("Person wählen") && !label.includes("Noch keine") ? label.replace(/\s*\(.+\)\s*$/, "").split(" · ")[0] : "Zweite Person";
 
     setText("synBInitial", initials(partner, "?"));
     setText("synBName", partner);
