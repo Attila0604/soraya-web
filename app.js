@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v19";
+  const APP_VERSION = "web-v20";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -771,7 +771,7 @@
     const reading = analysis.reading || data.data.reading || data.data.text || "";
     if (!reading) return false;
     const source = data.data.source;
-    if ($("analysisSource")) $("analysisSource").textContent = source === "created" ? "neu" : "gespeichert";
+    if ($("analysisSource")) $("analysisSource").textContent = source === "created" ? t("neu") : t("gespeichert");
     if ($("analysisReading")) $("analysisReading").innerHTML = markdownToHtml(reading);
     analysisShownFor = getCurrentPersonId();
     setAnalysisButtons(true);
