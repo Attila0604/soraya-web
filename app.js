@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v18";
+  const APP_VERSION = "web-v19";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -475,6 +475,37 @@
     return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
   }
 
+  // Herkunft: Kam jemand ueber einen Link aus einem Social-Media-Post (?q=p123)
+  // oder einen Bio-Link (?q=bio-ig)? Die Kennung bleibt 7 Tage lokal gespeichert.
+  // Gezaehlt wird anonym (nur Anzahl pro Kennung); bei eingeloggten Nutzern wird
+  // sie einmal mit dem naechsten Nutzungsereignis gespeichert (neue Konten je Post).
+  const QUELLE_KEY = "soraya_quelle";
+  const QUELLE_MUSTER = /^[a-z0-9-]{2,32}$/;
+
+  function quelle() {
+    try {
+      const d = JSON.parse(localStorage.getItem(QUELLE_KEY) || "null");
+      if (d && QUELLE_MUSTER.test(d.code || "") && Date.now() - (d.t || 0) < 7 * 864e5) return d;
+    } catch (error) {}
+    return null;
+  }
+
+  function quelleAusLink() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get("q") || "").trim().toLowerCase();
+      if (!code) return;
+      if (QUELLE_MUSTER.test(code)) {
+        localStorage.setItem(QUELLE_KEY, JSON.stringify({ code, t: Date.now() }));
+        if (params.get("qs") !== "1") publicEvent("besuch");  // qs=1: schon auf der Landingpage gezaehlt
+      }
+      params.delete("q");
+      params.delete("qs");
+      const rest = params.toString();
+      window.history.replaceState(null, "", window.location.pathname + (rest ? "?" + rest : "") + window.location.hash);
+    } catch (error) {}
+  }
+
   async function track(event, props = {}) {
     try {
       if (trackedCount >= TRACK_LIMIT) return;
@@ -483,7 +514,13 @@
       const { data } = await sb.auth.getSession();
       if (!data || !data.session) return;
       trackedCount += 1;
-      await sb.from("app_events").insert({ event, props: { ...props, v: APP_VERSION } });
+      // Kennung genau einmal mitschicken: sofort (vor dem Senden) als gemeldet markieren,
+      // damit gleichzeitige Ereignisse sie nicht auch tragen; bei Fehler zuruecksetzen.
+      const herkunft = quelle();
+      const mitQuelle = herkunft && !herkunft.gemeldet ? { q: herkunft.code } : {};
+      if (mitQuelle.q) localStorage.setItem(QUELLE_KEY, JSON.stringify({ ...herkunft, gemeldet: true }));
+      const { error } = await sb.from("app_events").insert({ event, props: { ...props, ...mitQuelle, v: APP_VERSION } });
+      if (error && mitQuelle.q) localStorage.setItem(QUELLE_KEY, JSON.stringify(herkunft));
     } catch (error) {}
   }
 
@@ -2232,7 +2269,7 @@
       fetch(config.engineUrl.replace(/\/$/, "") + "/public/event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind }),
+        body: JSON.stringify({ kind, q: (quelle() || {}).code }),
         keepalive: true
       }).catch(() => {});
     } catch (error) {}
@@ -2337,6 +2374,7 @@
       status("qsStatus", "");
       renderQuickStart(preview);
       track("quickstart_done", { time_known: birth.hour !== null });
+      if (quelle()) publicEvent("schnellstart");
     } catch (error) {
       status("qsStatus", friendlyError(error, t("Das hat nicht geklappt. Bitte Datum prüfen.")), "bad");
     } finally {
@@ -2817,6 +2855,7 @@
     if (bootstrapped) return;
     bootstrapped = true;
     loadConfig(false);
+    quelleAusLink();
     // Zuerst pruefen, ob noch derselbe Nutzer angemeldet ist -- sonst wuerden
     // fremde Profil-Daten kurz angezeigt.
     await ensureSameUser();
