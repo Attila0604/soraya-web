@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v20";
+  const APP_VERSION = "web-v21";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -780,6 +780,8 @@
 
   async function autoLoadAnalysis() {
     const personId = getCurrentPersonId();
+    if (anaResume()) return;                       // laeuft gerade: Anzeige fortsetzen
+    if (anaRunning && $("analysisProgress")) $("analysisProgress").hidden = true;  // gehoert zu anderer Person
     if (!personId || analysisShownFor === personId) return;
     try {
       const data = await callSoraya("/mobile/analysis/save", { person_id: personId, only_cached: true, lang: LANG() }, "POST", 15000);
@@ -793,36 +795,219 @@
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Tiefen-Analyse als Hintergrund-Auftrag (Engine v2.17)
+  // Der Start antwortet sofort; die App fragt alle paar Sekunden kurz nach dem
+  // Stand (Phase, Sekunden). Kurze Funkloecher sind egal, die App darf verlassen
+  // werden -- beim Zurueckkommen geht die Anzeige weiter oder die fertige Analyse
+  // erscheint.
+  // ---------------------------------------------------------------------------
+  const ANA_JOB_KEY = "soraya_analysis_job";
+  const ANA_MAX_MS = 12 * 60 * 1000;
+  let anaTimer = null, anaTick = null, anaState = null, anaFails = 0, anaRunning = false;
+
+  function anaPhaseText(phase) {
+    return {
+      chart: t("Geburtshoroskop wird berechnet"),
+      bereiche: t("Vier Lebensbereiche werden gedeutet"),
+      verweben: t("Soraya verwebt alles zu deiner Analyse"),
+      pruefen: t("Sprache wird geprüft"),
+      speichern: t("Wird gespeichert")
+    }[phase] || t("Soraya schreibt deine Analyse");
+  }
+
+  function anaJob() {
+    const job = readJson(ANA_JOB_KEY, null);
+    if (!job || !job.personId || Date.now() - (job.start || 0) > ANA_MAX_MS) return null;
+    return job;
+  }
+
+  function anaJobSet(job) {
+    if (job) localStorage.setItem(ANA_JOB_KEY, JSON.stringify(job));
+    else localStorage.removeItem(ANA_JOB_KEY);
+  }
+
+  function anaBox() {
+    let box = $("analysisProgress");
+    if (box) return box;
+    const reading = $("analysisReading");
+    if (!reading) return null;
+    box = document.createElement("div");
+    box.id = "analysisProgress";
+    box.className = "ana-progress";
+    box.setAttribute("role", "status");
+    box.innerHTML = `
+      <div class="ana-orbit" aria-hidden="true"><span class="ana-ring"></span><span class="ana-moon"></span><span class="ana-star"></span></div>
+      <div class="ana-info">
+        <p class="ana-step"></p>
+        <div class="ana-bar" aria-hidden="true"><i></i></div>
+        <p class="ana-time"></p>
+        <ol class="ana-steps"></ol>
+        <p class="ana-hint"></p>
+        <p class="ana-net" hidden></p>
+      </div>`;
+    reading.parentNode.insertBefore(box, reading);
+    return box;
+  }
+
+  function anaRestText(sec) {
+    if (sec <= 0) return t("dauert etwas länger als üblich – gleich fertig");
+    if (sec < 10) return t("gleich fertig …");
+    if (sec < 45) return t("noch ca. {n} Sekunden", { n: Math.max(10, Math.round(sec / 5) * 5) });
+    if (sec < 90) return t("noch ca. 1 Minute");
+    return t("noch ca. {n} Minuten", { n: Math.round(sec / 60) });
+  }
+
+  function anaRender() {
+    const box = anaBox();
+    if (!box || !anaState) return;
+    const s = anaState;
+    const phasen = s.phasen && s.phasen.length ? s.phasen : ["chart", "bereiche", "verweben", "speichern"];
+    const idx = Math.max(0, phasen.indexOf(s.phase));
+    const vergangen = (s.vergangen_sekunden || 0) + (Date.now() - s.empfangen) / 1000;
+    const erwartet = s.erwartet_sekunden || 90;
+    const prozent = Math.min(96, Math.max(idx / phasen.length * 100, vergangen / erwartet * 100, 3));
+    box.hidden = false;
+    box.querySelector(".ana-step").textContent = anaPhaseText(s.phase) + " …";
+    box.querySelector(".ana-bar i").style.width = prozent.toFixed(1) + "%";
+    box.querySelector(".ana-time").textContent = anaRestText(Math.round(erwartet - vergangen));
+    box.querySelector(".ana-steps").innerHTML = phasen.map((p, i) =>
+      `<li class="${i < idx ? "done" : i === idx ? "active" : ""}">${escapeHtml(anaPhaseText(p))}</li>`).join("");
+    box.querySelector(".ana-hint").textContent = t("Du kannst die App ruhig verlassen – Soraya schreibt im Hintergrund weiter und deine Analyse wartet hier auf dich.");
+    const net = box.querySelector(".ana-net");
+    net.hidden = anaFails < 2;
+    net.textContent = t("Verbindung wackelt – Soraya arbeitet trotzdem weiter.");
+  }
+
+  function anaStop() {
+    anaRunning = false;
+    window.clearTimeout(anaTimer);
+    window.clearInterval(anaTick);
+    anaTimer = anaTick = null;
+    anaState = null;
+    anaFails = 0;
+    const box = $("analysisProgress");
+    if (box) box.hidden = true;
+  }
+
+  function anaBegin(job, state) {
+    anaRunning = true;
+    anaState = { ...state, empfangen: Date.now() };
+    if ($("analysisSource")) $("analysisSource").textContent = t("läuft");
+    if ($("analysisReading")) $("analysisReading").textContent = "";
+    ["analysisOpenButton", "analysisRegenButton"].forEach((id) => { if ($(id)) $(id).style.display = "none"; });
+    anaRender();
+    window.clearInterval(anaTick);
+    anaTick = window.setInterval(anaRender, 1000);
+  }
+
+  function anaSchedule(ms) {
+    window.clearTimeout(anaTimer);
+    anaTimer = window.setTimeout(anaPoll, ms);
+  }
+
+  function anaFinishedOk(analysis, source) {
+    const job = anaJob();
+    anaStop();
+    anaJobSet(null);
+    if (job && job.personId !== getCurrentPersonId()) {   // inzwischen andere Person geoeffnet
+      analysisShownFor = null;
+      toast(t("Deine Analyse ist fertig ✨"));
+      return;
+    }
+    showAnalysis({ data: { source, analysis } });
+    if (source === "created") {
+      const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
+      localStorage.setItem(KEYS.analyses, String(count));
+      toast(t("Deine Analyse ist fertig ✨"));
+    }
+    renderIdentity();
+    track("analysis_loaded", { source: source || "" });
+  }
+
+  function anaFailed(message) {
+    anaStop();
+    anaJobSet(null);
+    setAnalysisButtons(false);
+    if ($("analysisSource")) $("analysisSource").textContent = t("bereit");
+    if ($("analysisReading")) $("analysisReading").textContent = message;
+    toast(message);
+  }
+
+  async function anaPoll() {
+    const job = anaJob();
+    if (!job) return anaFailed(t("Die Analyse wurde unterbrochen. Bitte starte sie noch einmal."));
+    try {
+      const res = await callSoraya("/mobile/analysis/status?person_id=" + encodeURIComponent(job.personId)
+        + "&lang=" + encodeURIComponent(job.lang), null, "GET", 12000);
+      const d = res.data || {};
+      anaFails = 0;
+      if (d.status === "fertig" && d.analysis) return anaFinishedOk(d.analysis, "created");
+      if (d.status === "fehler") {
+        trackError("analysis", new Error(d.fehler || "fehler"));
+        return anaFailed(t("Die Analyse konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht."));
+      }
+      if (d.status === "keiner" || (d.status === "fertig" && !d.analysis)) {
+        // Server wurde neu gestartet o. ae.: ist die Analyse schon gespeichert?
+        const saved = await callSoraya("/mobile/analysis/save", { person_id: job.personId, only_cached: true, lang: job.lang }, "POST", 15000);
+        const a = saved.data && saved.data.analysis;
+        if (a && a.reading && Date.parse(a.created_at || 0) >= job.start - 5000) return anaFinishedOk(a, "created");
+        return anaFailed(t("Die Analyse wurde unterbrochen. Bitte starte sie noch einmal."));
+      }
+      if (job.personId === getCurrentPersonId()) {
+        anaState = { ...d, empfangen: Date.now() };
+        anaRender();
+      }
+      anaSchedule(3000);
+    } catch (error) {
+      if (/Tageslimit|einloggen|login/i.test(error && error.message || "")) return anaFailed(friendlyError(error, ""));
+      anaFails += 1;            // Funkloch: einfach weiter versuchen, nichts abbrechen
+      anaRender();
+      anaSchedule(Math.min(10000, 3000 + anaFails * 2000));
+    }
+  }
+
+  // Beim Oeffnen/Zurueckkehren: laeuft fuer diese Person gerade eine Analyse?
+  function anaResume() {
+    const job = anaJob();
+    if (!job || job.personId !== getCurrentPersonId() || job.lang !== LANG()) return false;
+    if (!anaRunning) anaBegin(job, { status: "laeuft", phase: job.phase || "chart", phasen: job.phasen,
+      vergangen_sekunden: Math.round((Date.now() - job.start) / 1000), erwartet_sekunden: job.erwartet });
+    anaSchedule(0);
+    return true;
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && anaRunning) { anaFails = 0; anaSchedule(0); }
+  });
+
   async function loadAnalysis(forceNew) {
     if (!needPerson()) return;
+    if (anaRunning) return;
     if (forceNew && !window.confirm(t("Eine neue Analyse ersetzt die bisherige. Du kannst bis zu 3 neue Analysen pro Tag erstellen. Jetzt neu erstellen?"))) return;
 
+    const personId = getCurrentPersonId(), lang = LANG();
+    const job = { personId, lang, start: Date.now(), erwartet: lang === "de" ? 75 : 100 };
+    anaJobSet(job);   // vor dem Start merken: reisst die Verbindung, findet die App den Auftrag wieder
+    anaBegin(job, { status: "laeuft", phase: "chart", vergangen_sekunden: 0, erwartet_sekunden: job.erwartet });
     try {
-      if ($("analysisReading")) $("analysisReading").textContent = t("Soraya schreibt deine Analyse… das dauert etwa eine Minute.");
-      showLoadingVeil(t("Analyse wird erstellt…"));
-
-      const data = await callSoraya("/mobile/analysis/save", {
-        person_id: getCurrentPersonId(),
-        force_new: !!forceNew,
-        lang: LANG()
-      });
-
-      if (!showAnalysis(data) && $("analysisReading")) $("analysisReading").textContent = t("Keine Analyse gefunden.");
-
-      if (data.data.source === "created") {
-        const count = Number(localStorage.getItem(KEYS.analyses) || 0) + 1;
-        localStorage.setItem(KEYS.analyses, String(count));
-      }
-      renderIdentity();
-      track("analysis_loaded", { source: data.data.source || "", force: !!forceNew });
-      toast(t("Analyse geladen."));
+      const res = await callSoraya("/mobile/analysis/start", { person_id: personId, force_new: !!forceNew, lang }, "POST", 20000);
+      const d = res.data || {};
+      if (d.status === "fertig") return anaFinishedOk(d.analysis, d.source || "cached");
+      anaJobSet({ ...job, erwartet: d.erwartet_sekunden || job.erwartet, phasen: d.phasen });
+      anaState = { ...d, empfangen: Date.now() };
+      anaRender();
+      track("analysis_started", { force: !!forceNew });
+      anaSchedule(3000);
     } catch (error) {
-      const msg = friendlyError(error, t("Analyse konnte nicht geladen werden."));
+      const msg = error && error.message || "";
+      if (/Failed to fetch|NetworkError|Load failed|timeout/i.test(msg)) {
+        anaFails = 2;                       // vielleicht kam der Start trotzdem an -> nachsehen
+        anaRender();
+        return anaSchedule(4000);
+      }
       trackError("analysis", error);
-      if ($("analysisReading")) $("analysisReading").textContent = msg;
-      toast(msg);
-    } finally {
-      hideLoadingVeil();
+      anaFailed(friendlyError(error, t("Analyse konnte nicht geladen werden.")));
     }
   }
 
