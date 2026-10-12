@@ -630,5 +630,10 @@ window.SORAYA_STRINGS.hu = {
   "läuft": "folyamatban",
   "Deine Analyse ist fertig ✨": "Elkészült az elemzésed ✨",
   "Die Analyse konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Az elemzést nem sikerült elkészíteni. Kérlek, próbáld újra – ez nem számít bele a napi keretedbe.",
-  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "Az elemzés megszakadt. Kérlek, indítsd el újra."
+  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "Az elemzés megszakadt. Kérlek, indítsd el újra.",
+  "Eure Horoskope werden verglichen": "Születési horoszkópjaitok összevetése",
+  "Soraya deutet eure Verbindung": "Soraya értelmezi a kapcsolatotokat",
+  "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Nyugodtan kiléphetsz az alkalmazásból – az eredmény itt vár majd rád.",
+  "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "A párkapcsolati összevetést nem sikerült elkészíteni. Kérlek, próbáld újra – ez nem számít bele a napi keretedbe.",
+  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "A párkapcsolati összevetés megszakadt. Kérlek, indítsd el újra."
 };

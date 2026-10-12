@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v21";
+  const APP_VERSION = "web-v22";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -220,6 +220,7 @@
       window.setTimeout(() => {
         updateSynastryNames();
         loadPeopleFromSupabase(false);
+        synResume();                 // laeuft gerade ein Partner-Vergleich? Anzeige fortsetzen
       }, 80);
     }
 
@@ -827,13 +828,13 @@
     else localStorage.removeItem(ANA_JOB_KEY);
   }
 
-  function anaBox() {
-    let box = $("analysisProgress");
+  // Gemeinsame Fortschritts-Anzeige fuer Hintergrund-Auftraege (Analyse, Partner-Vergleich)
+  function jobBox(id, anker) {
+    let box = $(id);
     if (box) return box;
-    const reading = $("analysisReading");
-    if (!reading) return null;
+    if (!anker || !anker.parentNode) return null;
     box = document.createElement("div");
-    box.id = "analysisProgress";
+    box.id = id;
     box.className = "ana-progress";
     box.setAttribute("role", "status");
     box.innerHTML = `
@@ -846,11 +847,11 @@
         <p class="ana-hint"></p>
         <p class="ana-net" hidden></p>
       </div>`;
-    reading.parentNode.insertBefore(box, reading);
+    anker.parentNode.insertBefore(box, anker);
     return box;
   }
 
-  function anaRestText(sec) {
+  function jobRestText(sec) {
     if (sec <= 0) return t("dauert etwas länger als üblich – gleich fertig");
     if (sec < 10) return t("gleich fertig …");
     if (sec < 45) return t("noch ca. {n} Sekunden", { n: Math.max(10, Math.round(sec / 5) * 5) });
@@ -858,25 +859,37 @@
     return t("noch ca. {n} Minuten", { n: Math.round(sec / 60) });
   }
 
-  function anaRender() {
-    const box = anaBox();
-    if (!box || !anaState) return;
-    const s = anaState;
-    const phasen = s.phasen && s.phasen.length ? s.phasen : ["chart", "bereiche", "verweben", "speichern"];
+  function jobRender(box, s, { phaseText, hint, fails, standardPhasen, standardSekunden }) {
+    if (!box || !s) return;
+    const phasen = s.phasen && s.phasen.length ? s.phasen : standardPhasen;
     const idx = Math.max(0, phasen.indexOf(s.phase));
     const vergangen = (s.vergangen_sekunden || 0) + (Date.now() - s.empfangen) / 1000;
-    const erwartet = s.erwartet_sekunden || 90;
+    const erwartet = s.erwartet_sekunden || standardSekunden;
     const prozent = Math.min(96, Math.max(idx / phasen.length * 100, vergangen / erwartet * 100, 3));
     box.hidden = false;
-    box.querySelector(".ana-step").textContent = anaPhaseText(s.phase) + " …";
+    box.querySelector(".ana-step").textContent = phaseText(s.phase) + " …";
     box.querySelector(".ana-bar i").style.width = prozent.toFixed(1) + "%";
-    box.querySelector(".ana-time").textContent = anaRestText(Math.round(erwartet - vergangen));
+    box.querySelector(".ana-time").textContent = jobRestText(Math.round(erwartet - vergangen));
     box.querySelector(".ana-steps").innerHTML = phasen.map((p, i) =>
-      `<li class="${i < idx ? "done" : i === idx ? "active" : ""}">${escapeHtml(anaPhaseText(p))}</li>`).join("");
-    box.querySelector(".ana-hint").textContent = t("Du kannst die App ruhig verlassen – Soraya schreibt im Hintergrund weiter und deine Analyse wartet hier auf dich.");
+      `<li class="${i < idx ? "done" : i === idx ? "active" : ""}">${escapeHtml(phaseText(p))}</li>`).join("");
+    box.querySelector(".ana-hint").textContent = hint;
     const net = box.querySelector(".ana-net");
-    net.hidden = anaFails < 2;
+    net.hidden = fails < 2;
     net.textContent = t("Verbindung wackelt – Soraya arbeitet trotzdem weiter.");
+  }
+
+  function anaBox() {
+    return jobBox("analysisProgress", $("analysisReading"));
+  }
+
+  function anaRender() {
+    jobRender(anaBox(), anaState, {
+      phaseText: anaPhaseText,
+      hint: t("Du kannst die App ruhig verlassen – Soraya schreibt im Hintergrund weiter und deine Analyse wartet hier auf dich."),
+      fails: anaFails,
+      standardPhasen: ["chart", "bereiche", "verweben", "speichern"],
+      standardSekunden: 90
+    });
   }
 
   function anaStop() {
@@ -1740,53 +1753,194 @@
     setText("synCommText", comm);
   }
 
+  // Ergebnis anzeigen (Antwort von /mobile/synastry/save bzw. "ergebnis" aus dem Hintergrund-Auftrag)
+  function zeigeSynastrie(data) {
+    const syn = (data.data && data.data.synastry) || {};
+    const scoreObj = (data.data && data.data.score) || syn.score || {};
+    // score_percent: Backend rechnet Discepolo-Punkte in Prozent um.
+    // Alte Backends liefern nur Punkte -> grob umrechnen statt "29 %" zu zeigen.
+    const points = syn.score_value || scoreObj.value || 0;
+    const value = data.data && data.data.score_percent != null
+      ? data.data.score_percent
+      : Math.min(97, Math.round(35 + Number(points) * 1.9));
+
+    if ($("compatScore")) $("compatScore").textContent = value + "%";
+    if ($("compatRing")) $("compatRing").style.setProperty("--score", Math.min(100, Number(value) || 0) + "%");
+
+    renderSynastryDescription({
+      synastry: syn,
+      percent: value,
+      label: data.data && data.data.score_label,
+      score: scoreObj,
+      summary: data.data && data.data.summary,
+      aspects: data.data && data.data.aspects,
+      text: data.data && data.data.text
+    });
+    renderSynastryPremium(data);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Partner-Vergleich als Hintergrund-Auftrag (Engine v2.18) -- wie die Analyse
+  // ---------------------------------------------------------------------------
+  const SYN_JOB_KEY = "soraya_synastry_job";
+  let synTimer = null, synTick = null, synState = null, synFails = 0, synRunning = false;
+
+  function synPhaseText(phase) {
+    return {
+      chart: t("Eure Horoskope werden verglichen"),
+      deutung: t("Soraya deutet eure Verbindung"),
+      pruefen: t("Sprache wird geprüft"),
+      speichern: t("Wird gespeichert")
+    }[phase] || t("Synastrie wird berechnet…");
+  }
+
+  function synJob() {
+    const job = readJson(SYN_JOB_KEY, null);
+    if (!job || !job.a || !job.b || Date.now() - (job.start || 0) > 8 * 60 * 1000) return null;
+    return job;
+  }
+
+  function synJobSet(job) {
+    if (job) localStorage.setItem(SYN_JOB_KEY, JSON.stringify(job));
+    else localStorage.removeItem(SYN_JOB_KEY);
+  }
+
+  function synButton() {
+    return document.querySelector('[onclick="saveSynastry()"]');
+  }
+
+  function synRender() {
+    jobRender(jobBox("synastryProgress", $("synastryText")), synState, {
+      phaseText: synPhaseText,
+      hint: t("Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich."),
+      fails: synFails,
+      standardPhasen: ["chart", "deutung", "speichern"],
+      standardSekunden: 40
+    });
+  }
+
+  function synStop() {
+    synRunning = false;
+    window.clearTimeout(synTimer);
+    window.clearInterval(synTick);
+    synTimer = synTick = null;
+    synState = null;
+    synFails = 0;
+    if ($("synastryProgress")) $("synastryProgress").hidden = true;
+    if (synButton()) synButton().disabled = false;
+  }
+
+  function synBegin(state) {
+    synRunning = true;
+    synState = { ...state, empfangen: Date.now() };
+    status("synastryText", "");
+    if (synButton()) synButton().disabled = true;
+    synRender();
+    window.clearInterval(synTick);
+    synTick = window.setInterval(synRender, 1000);
+  }
+
+  function synSchedule(ms) {
+    window.clearTimeout(synTimer);
+    synTimer = window.setTimeout(synPoll, ms);
+  }
+
+  function synFertig(ergebnis) {
+    synStop();
+    synJobSet(null);
+    const data = { data: ergebnis || {} };
+    zeigeSynastrie(data);
+    track("synastry_done", { source: (ergebnis && ergebnis.source) || "" });
+    toast(t("Partner-Vergleich berechnet."));
+  }
+
+  function synFehler(msg) {
+    synStop();
+    synJobSet(null);
+    status("synastryText", msg, "bad");
+    toast(msg);
+  }
+
+  async function synPoll() {
+    const job = synJob();
+    if (!job) return synFehler(t("Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal."));
+    try {
+      const res = await callSoraya("/mobile/synastry/status?person_a_id=" + encodeURIComponent(job.a)
+        + "&person_b_id=" + encodeURIComponent(job.b) + "&lang=" + encodeURIComponent(job.lang), null, "GET", 12000);
+      const d = res.data || {};
+      synFails = 0;
+      if (d.status === "fertig" && d.ergebnis) return synFertig(d.ergebnis);
+      if (d.status === "fehler") {
+        trackError("synastry", new Error(d.fehler || "fehler"));
+        return synFehler(t("Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht."));
+      }
+      if (d.status !== "laeuft") {
+        // Auftrag unbekannt (z. B. Server-Neustart): schon gespeichert?
+        const nach = await callSoraya("/mobile/synastry/start", { person_a_id: job.a, person_b_id: job.b, lang: job.lang, nur_gespeichert: true }, "POST", 15000);
+        const n = nach.data || {};
+        if (n.status === "fertig" && n.ergebnis) return synFertig(n.ergebnis);
+        return synFehler(t("Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal."));
+      }
+      synState = { ...d, empfangen: Date.now() };
+      synRender();
+      synSchedule(2500);
+    } catch (error) {
+      if (/Tageslimit|einloggen|login/i.test(error && error.message || "")) return synFehler(friendlyError(error, ""));
+      synFails += 1;            // Funkloch: weiter versuchen
+      synRender();
+      synSchedule(Math.min(10000, 3000 + synFails * 2000));
+    }
+  }
+
+  function synResume() {
+    const job = synJob();
+    if (!job || synRunning) return false;
+    synBegin({ status: "laeuft", phase: job.phase || "chart", phasen: job.phasen,
+      vergangen_sekunden: Math.round((Date.now() - job.start) / 1000), erwartet_sekunden: job.erwartet });
+    synSchedule(0);
+    return true;
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && synRunning) { synFails = 0; synSchedule(0); }
+  });
+
   async function saveSynastry() {
     if (!needPerson()) return;
+    if (synRunning) return;
 
+    let partnerId = "";
     try {
-      const partnerId = (($("synPersonSelect") && $("synPersonSelect").value) || "") || (($("personBId") && $("personBId").value.trim()) || "");
-
+      partnerId = (($("synPersonSelect") && $("synPersonSelect").value) || "") || (($("personBId") && $("personBId").value.trim()) || "");
       if (!partnerId) throw new Error(t("Bitte zuerst eine zweite Person auswählen oder anlegen."));
       if (partnerId === getCurrentPersonId()) throw new Error(t("Bitte eine andere Person auswählen."));
-
-      showLoadingVeil(t("Synastrie wird berechnet…"));
-      const data = await callSoraya("/mobile/synastry/save", {
-        person_a_id: getCurrentPersonId(),
-        person_b_id: partnerId,
-        lang: LANG()
-      });
-
-      const syn = (data.data && data.data.synastry) || {};
-      const scoreObj = (data.data && data.data.score) || syn.score || {};
-      // score_percent: Backend rechnet Discepolo-Punkte in Prozent um.
-      // Alte Backends liefern nur Punkte -> grob umrechnen statt "29 %" zu zeigen.
-      const points = syn.score_value || scoreObj.value || 0;
-      const value = data.data && data.data.score_percent != null
-        ? data.data.score_percent
-        : Math.min(97, Math.round(35 + Number(points) * 1.9));
-
-      if ($("compatScore")) $("compatScore").textContent = value + "%";
-      if ($("compatRing")) $("compatRing").style.setProperty("--score", Math.min(100, Number(value) || 0) + "%");
-
-      renderSynastryDescription({
-        synastry: syn,
-        percent: value,
-        label: data.data && data.data.score_label,
-        score: scoreObj,
-        summary: data.data && data.data.summary,
-        aspects: data.data && data.data.aspects,
-        text: data.data && data.data.text
-      });
-      renderSynastryPremium(data);
-      track("synastry_done", { source: (data.data && data.data.source) || "" });
-      toast(t("Partner-Vergleich berechnet."));
     } catch (error) {
       const msg = friendlyError(error, t("Synastrie konnte nicht berechnet werden."));
-      trackError("synastry", error);
       status("synastryText", msg, "bad");
-      toast(msg);
-    } finally {
-      hideLoadingVeil();
+      return toast(msg);
+    }
+
+    const lang = LANG();
+    const job = { a: getCurrentPersonId(), b: partnerId, lang, start: Date.now(), erwartet: lang === "de" ? 30 : 45 };
+    synJobSet(job);   // vor dem Start merken: reisst die Verbindung, findet die App den Auftrag wieder
+    synBegin({ status: "laeuft", phase: "chart", vergangen_sekunden: 0, erwartet_sekunden: job.erwartet });
+    try {
+      const res = await callSoraya("/mobile/synastry/start", { person_a_id: job.a, person_b_id: job.b, lang }, "POST", 20000);
+      const d = res.data || {};
+      if (d.status === "fertig") return synFertig(d.ergebnis);
+      synJobSet({ ...job, erwartet: d.erwartet_sekunden || job.erwartet, phasen: d.phasen });
+      synState = { ...d, empfangen: Date.now() };
+      synRender();
+      synSchedule(2500);
+    } catch (error) {
+      const msg = error && error.message || "";
+      if (/Failed to fetch|NetworkError|Load failed|timeout/i.test(msg)) {
+        synFails = 2;                       // vielleicht kam der Start trotzdem an -> nachsehen
+        synRender();
+        return synSchedule(4000);
+      }
+      trackError("synastry", error);
+      synFehler(friendlyError(error, t("Synastrie konnte nicht berechnet werden.")));
     }
   }
 
