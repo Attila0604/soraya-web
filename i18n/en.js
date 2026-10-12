@@ -193,6 +193,8 @@ window.SORAYA_STRINGS.en = {
   "Gerade kurz nicht erreichbar. Soraya versucht es später erneut.": "Briefly unavailable. Soraya will try again later.",
   "Gerade nicht erreichbar": "Currently unavailable",
   "Gespeichert": "Saved",
+  "gespeichert": "saved",
+  "neu": "new",
   "Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute.": "Enter your birth date on the home screen – Soraya will show you today's horoscope right away.",
   "Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.": "Enter your birth date – Soraya calculates it instantly.",
   "Gib dein Geburtsdatum ein – Soraya zeigt dir sofort dein Sonnen- und Mondzeichen und dein Horoskop für heute. Ganz ohne Konto.": "Enter your birth date – Soraya instantly shows your sun and moon sign and your horoscope for today. No account needed.",

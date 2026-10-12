@@ -193,6 +193,8 @@ window.SORAYA_STRINGS.hu = {
   "Gerade kurz nicht erreichbar. Soraya versucht es später erneut.": "Most rövid ideig nem érhető el. Soraya később újra próbálja.",
   "Gerade nicht erreichbar": "Most nem érhető el",
   "Gespeichert": "Mentve",
+  "gespeichert": "mentve",
+  "neu": "új",
   "Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute.": "Add meg a kezdőlapon a születési dátumodat – Soraya azonnal megmutatja a mai horoszkópodat.",
   "Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.": "Add meg a születési dátumodat – Soraya azonnal kiszámolja.",
   "Gib dein Geburtsdatum ein – Soraya zeigt dir sofort dein Sonnen- und Mondzeichen und dein Horoskop für heute. Ganz ohne Konto.": "Add meg a születési dátumodat – Soraya azonnal megmutatja a nap- és holdjegyedet és a mai horoszkópodat. Fiók nélkül.",

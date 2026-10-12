@@ -193,6 +193,8 @@ window.SORAYA_STRINGS.it = {
   "Gerade kurz nicht erreichbar. Soraya versucht es später erneut.": "Momentaneamente non disponibile. Soraya riproverà più tardi.",
   "Gerade nicht erreichbar": "Non disponibile al momento",
   "Gespeichert": "Salvate",
+  "gespeichert": "salvata",
+  "neu": "nuova",
   "Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute.": "Inserisci la tua data di nascita nella pagina iniziale – Soraya ti mostra subito l'oroscopo di oggi.",
   "Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.": "Inserisci la tua data di nascita – Soraya lo calcola subito.",
   "Gib dein Geburtsdatum ein – Soraya zeigt dir sofort dein Sonnen- und Mondzeichen und dein Horoskop für heute. Ganz ohne Konto.": "Inserisci la tua data di nascita – Soraya ti mostra subito il tuo segno solare e lunare e l'oroscopo di oggi. Senza account.",
