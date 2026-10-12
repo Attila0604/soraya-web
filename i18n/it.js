@@ -613,5 +613,22 @@ window.SORAYA_STRINGS.it = {
   "✦ Birth Chart": "✦ Tema natale",
   "✦ Dein Geburtsdatum aus dem Schnellstart ist eingetragen. Ergänze Name und Geburtsort und speichere dein Profil.": "✦ La tua data di nascita dall'avvio rapido è stata inserita. Aggiungi nome e luogo di nascita e salva il profilo.",
   "✦ Dein Tipp erscheint hier": "✦ Qui comparirà il tuo consiglio",
-  "✦ Einladung geteilt.": "✦ Invito condiviso."
+  "✦ Einladung geteilt.": "✦ Invito condiviso.",
+  "Geburtshoroskop wird berechnet": "Calcolo del tema natale",
+  "Vier Lebensbereiche werden gedeutet": "Interpretazione di quattro ambiti della vita",
+  "Soraya verwebt alles zu deiner Analyse": "Soraya intreccia tutto nella tua analisi",
+  "Sprache wird geprüft": "Controllo della lingua",
+  "Wird gespeichert": "Salvataggio",
+  "Soraya schreibt deine Analyse": "Soraya sta scrivendo la tua analisi",
+  "noch ca. {n} Minuten": "ancora circa {n} minuti",
+  "noch ca. 1 Minute": "ancora circa 1 minuto",
+  "noch ca. {n} Sekunden": "ancora circa {n} secondi",
+  "gleich fertig …": "quasi pronto …",
+  "dauert etwas länger als üblich – gleich fertig": "ci vuole un po' più del solito – quasi pronto",
+  "Du kannst die App ruhig verlassen – Soraya schreibt im Hintergrund weiter und deine Analyse wartet hier auf dich.": "Puoi anche uscire dall'app: Soraya continua a scrivere in background e la tua analisi ti aspetterà qui.",
+  "Verbindung wackelt – Soraya arbeitet trotzdem weiter.": "La connessione è instabile – Soraya continua comunque a lavorare.",
+  "läuft": "in corso",
+  "Deine Analyse ist fertig ✨": "La tua analisi è pronta ✨",
+  "Die Analyse konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Non è stato possibile creare l'analisi. Riprova: non è stata conteggiata nel tuo limite giornaliero.",
+  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "L'analisi è stata interrotta. Avviala di nuovo."
 };

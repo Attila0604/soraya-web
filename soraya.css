@@ -955,3 +955,36 @@ body.soraya-invite #quickStartCard{display:none}
 .lang-option:focus-visible{outline:2px solid var(--gold-soft); outline-offset:2px}
 .lang-picker-compact{grid-template-columns:repeat(4,1fr); gap:6px; margin:0 0 var(--s3)}
 .lang-picker-compact .lang-option{min-height:38px; padding:6px 4px; font-size:12px; flex-direction:column; gap:2px}
+
+/* ---------- Analyse laeuft (Hintergrund-Auftrag) ---------- */
+.ana-progress{display:flex; gap:var(--s3); align-items:flex-start; margin:var(--s3) 0; padding:var(--s3);
+  border:1px solid var(--line); border-radius:var(--r-sm); background:var(--panel)}
+.ana-progress[hidden]{display:none}
+.ana-orbit{position:relative; flex:none; width:64px; height:64px}
+.ana-ring{position:absolute; inset:0; border-radius:50%; border:1px dashed var(--gold-dim)}
+.ana-moon{position:absolute; inset:18px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff6dc, var(--gold-soft) 45%, var(--gold-deep));
+  box-shadow:0 0 18px rgba(230,207,156,.35)}
+.ana-star{position:absolute; top:-3px; left:50%; width:7px; height:7px; margin-left:-3.5px; border-radius:50%;
+  background:var(--gold-soft); box-shadow:0 0 10px var(--gold-soft); transform-origin:3.5px 35px}
+@media (prefers-reduced-motion:no-preference){
+  .ana-star{animation:ana-kreis 3.2s linear infinite}
+  .ana-moon{animation:ana-puls 2.6s ease-in-out infinite}
+}
+@keyframes ana-kreis{to{transform:rotate(360deg)}}
+@keyframes ana-puls{50%{box-shadow:0 0 26px rgba(230,207,156,.6)}}
+.ana-info{flex:1; min-width:0}
+.ana-step{margin:0 0 var(--s2); color:var(--gold-soft); font-family:var(--display); font-size:19px; line-height:1.25}
+.ana-bar{height:6px; border-radius:3px; background:rgba(195,183,218,.12); overflow:hidden}
+.ana-bar i{display:block; height:100%; width:3%; border-radius:3px;
+  background:linear-gradient(90deg, var(--gold-deep), var(--gold-soft)); transition:width .9s ease}
+.ana-time{margin:var(--s1) 0 var(--s2); font-size:13px; color:var(--mist)}
+.ana-steps{list-style:none; margin:0 0 var(--s2); padding:0; font-size:13px; color:var(--mist-faint)}
+.ana-steps li{position:relative; padding-left:20px; margin:3px 0}
+.ana-steps li::before{content:"○"; position:absolute; left:0; color:var(--mist-faint)}
+.ana-steps li.done{color:var(--mist)}
+.ana-steps li.done::before{content:"✓"; color:var(--gold)}
+.ana-steps li.active{color:var(--gold-soft)}
+.ana-steps li.active::before{content:"✦"; color:var(--gold-soft)}
+.ana-hint{margin:0; font-size:12.5px; color:var(--mist-dim); line-height:1.5}
+.ana-net{margin:var(--s1) 0 0; font-size:12.5px; color:var(--gold)}

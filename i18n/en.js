@@ -613,5 +613,22 @@ window.SORAYA_STRINGS.en = {
   "✦ Birth Chart": "✦ Birth chart",
   "✦ Dein Geburtsdatum aus dem Schnellstart ist eingetragen. Ergänze Name und Geburtsort und speichere dein Profil.": "✦ Your birth date from the quick start has been filled in. Add your name and place of birth and save your profile.",
   "✦ Dein Tipp erscheint hier": "✦ Your tip appears here",
-  "✦ Einladung geteilt.": "✦ Invitation shared."
+  "✦ Einladung geteilt.": "✦ Invitation shared.",
+  "Geburtshoroskop wird berechnet": "Calculating your birth chart",
+  "Vier Lebensbereiche werden gedeutet": "Interpreting four areas of life",
+  "Soraya verwebt alles zu deiner Analyse": "Soraya is weaving it all into your reading",
+  "Sprache wird geprüft": "Checking the language",
+  "Wird gespeichert": "Saving",
+  "Soraya schreibt deine Analyse": "Soraya is writing your reading",
+  "noch ca. {n} Minuten": "about {n} minutes left",
+  "noch ca. 1 Minute": "about 1 minute left",
+  "noch ca. {n} Sekunden": "about {n} seconds left",
+  "gleich fertig …": "almost done …",
+  "dauert etwas länger als üblich – gleich fertig": "taking a little longer than usual – almost done",
+  "Du kannst die App ruhig verlassen – Soraya schreibt im Hintergrund weiter und deine Analyse wartet hier auf dich.": "Feel free to leave the app – Soraya keeps writing in the background and your reading will be waiting for you here.",
+  "Verbindung wackelt – Soraya arbeitet trotzdem weiter.": "Connection is unstable – Soraya keeps working anyway.",
+  "läuft": "in progress",
+  "Deine Analyse ist fertig ✨": "Your reading is ready ✨",
+  "Die Analyse konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "The reading could not be created. Please try again – this did not count towards your daily limit.",
+  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "The reading was interrupted. Please start it again."
 };

@@ -613,5 +613,22 @@ window.SORAYA_STRINGS.hu = {
   "✦ Birth Chart": "✦ Születési képlet",
   "✦ Dein Geburtsdatum aus dem Schnellstart ist eingetragen. Ergänze Name und Geburtsort und speichere dein Profil.": "✦ A gyorsindításból beírtuk a születési dátumodat. Add meg a neved és a születési helyed, majd mentsd el a profilodat.",
   "✦ Dein Tipp erscheint hier": "✦ Itt jelenik meg a tipped",
-  "✦ Einladung geteilt.": "✦ Meghívó megosztva."
+  "✦ Einladung geteilt.": "✦ Meghívó megosztva.",
+  "Geburtshoroskop wird berechnet": "Születési horoszkóp kiszámítása",
+  "Vier Lebensbereiche werden gedeutet": "Négy életterület értelmezése",
+  "Soraya verwebt alles zu deiner Analyse": "Soraya mindent egy elemzéssé sző össze",
+  "Sprache wird geprüft": "Nyelvi ellenőrzés",
+  "Wird gespeichert": "Mentés",
+  "Soraya schreibt deine Analyse": "Soraya írja az elemzésedet",
+  "noch ca. {n} Minuten": "még kb. {n} perc",
+  "noch ca. 1 Minute": "még kb. 1 perc",
+  "noch ca. {n} Sekunden": "még kb. {n} másodperc",
+  "gleich fertig …": "mindjárt kész …",
+  "dauert etwas länger als üblich – gleich fertig": "a szokásosnál kicsit tovább tart – mindjárt kész",
+  "Du kannst die App ruhig verlassen – Soraya schreibt im Hintergrund weiter und deine Analyse wartet hier auf dich.": "Nyugodtan kiléphetsz az alkalmazásból – Soraya a háttérben tovább dolgozik, és az elemzésed itt vár majd rád.",
+  "Verbindung wackelt – Soraya arbeitet trotzdem weiter.": "Akadozik a kapcsolat – Soraya ettől függetlenül tovább dolgozik.",
+  "läuft": "folyamatban",
+  "Deine Analyse ist fertig ✨": "Elkészült az elemzésed ✨",
+  "Die Analyse konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Az elemzést nem sikerült elkészíteni. Kérlek, próbáld újra – ez nem számít bele a napi keretedbe.",
+  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "Az elemzés megszakadt. Kérlek, indítsd el újra."
 };
