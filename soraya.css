@@ -988,3 +988,6 @@ body.soraya-invite #quickStartCard{display:none}
 .ana-steps li.active::before{content:"✦"; color:var(--gold-soft)}
 .ana-hint{margin:0; font-size:12.5px; color:var(--mist-dim); line-height:1.5}
 .ana-net{margin:var(--s1) 0 0; font-size:12.5px; color:var(--gold)}
+/* waehrend der Partner-Vergleich laeuft: kein leerer Statusrahmen, Knopf sichtbar gesperrt */
+#synastryText:empty{display:none}
+.btn:disabled{opacity:.5; cursor:default; filter:none}

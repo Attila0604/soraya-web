@@ -630,5 +630,10 @@ window.SORAYA_STRINGS.it = {
   "läuft": "in corso",
   "Deine Analyse ist fertig ✨": "La tua analisi è pronta ✨",
   "Die Analyse konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Non è stato possibile creare l'analisi. Riprova: non è stata conteggiata nel tuo limite giornaliero.",
-  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "L'analisi è stata interrotta. Avviala di nuovo."
+  "Die Analyse wurde unterbrochen. Bitte starte sie noch einmal.": "L'analisi è stata interrotta. Avviala di nuovo.",
+  "Eure Horoskope werden verglichen": "Confronto dei vostri temi natali",
+  "Soraya deutet eure Verbindung": "Soraya interpreta il vostro legame",
+  "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Puoi anche uscire dall'app: il risultato ti aspetterà qui.",
+  "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Non è stato possibile creare il confronto di coppia. Riprova: non è stato conteggiato nel tuo limite giornaliero.",
+  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "Il confronto di coppia è stato interrotto. Avvialo di nuovo."
 };
