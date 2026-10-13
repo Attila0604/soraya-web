@@ -37,6 +37,20 @@
   var lang = detect();
   document.documentElement.lang = lang;
 
+  // Kein deutsches Aufblitzen: Die Seiten sind auf Deutsch geschrieben und werden
+  // beim Laden uebersetzt. Bis dahin (Bruchteil einer Sekunde) bleibt der Inhalt
+  // unsichtbar; Sicherung nach 2,5 s, falls etwas schiefgeht.
+  if (lang !== "de") {
+    try {
+      var wait = document.createElement("style");
+      wait.id = "i18n-wait";
+      wait.textContent = "html.i18n-wait body{opacity:0!important}";
+      (document.head || document.documentElement).appendChild(wait);
+      document.documentElement.classList.add("i18n-wait");
+      window.setTimeout(function () { document.documentElement.classList.remove("i18n-wait"); }, 2500);
+    } catch (error) {}
+  }
+
   function norm(text) {
     return String(text == null ? "" : text).replace(/\s+/g, " ").trim();
   }
@@ -290,8 +304,12 @@
   window.sorayaT = t;
 
   function start() {
-    apply(document.body);
-    mountPickers(document);
+    try {
+      apply(document.body);
+      mountPickers(document);
+    } finally {
+      document.documentElement.classList.remove("i18n-wait");
+    }
   }
 
   // Vor den defer-Skripten (app.js, login.js) uebersetzen: "interactive" kommt
