@@ -98,7 +98,8 @@ img,svg{max-width:100%}
   padding-top:calc(var(--s5) + env(safe-area-inset-top));
 }
 .brand{flex:1; text-align:center; cursor:pointer; line-height:1}
-.brand .sigil{font-size:15px; color:var(--gold); opacity:.8; margin-bottom:6px}
+.brand .sigil{font-size:15px; color:var(--gold); margin-bottom:6px}
+.brand .sigil img,.login-logo .sigil img{display:block; margin:0 auto; height:auto; filter:drop-shadow(0 0 10px rgba(233,201,131,.25))}
 .brand h1{
   font-family:var(--wordmark); font-weight:600; font-size:21px; margin:0;
   letter-spacing:.36em; color:var(--gold-soft); text-indent:.36em;
