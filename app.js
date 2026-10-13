@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v24";
+  const APP_VERSION = "web-v25";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1190,6 +1190,8 @@
       if (title) title.dataset.personal = "1";
       setText("dailyFocusTitle", mood);
       setText("dailyFocusText", tip);
+      // Link-Hinweis am Ende (per CSS angehaengt) -- Text hier, damit er uebersetzt wird
+      if ($("dailyFocusText")) $("dailyFocusText").dataset.link = "  " + t("Zum Horoskop ›");
       setText("dailyFocusBadge", t("Dein Tag"));
       const card = $("dailyFocusCard");
       if (card) card.classList.add("is-personal");

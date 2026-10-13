@@ -802,7 +802,7 @@ input::-webkit-calendar-picker-indicator{filter:invert(78%) sepia(28%) saturate(
 /* Persoenlicher Tagesfokus ist antippbar (fuehrt zum Horoskop) */
 #dailyFocusCard{cursor:pointer}
 #dailyFocusCard.is-personal #dailyFocusBadge{color:var(--void); background:var(--gold-soft); border-color:var(--gold-soft)}
-#dailyFocusCard.is-personal #dailyFocusText::after{content:"  Zum Horoskop ›"; color:var(--gold); white-space:nowrap}
+#dailyFocusCard.is-personal #dailyFocusText::after{content:attr(data-link); color:var(--gold); white-space:nowrap}
 
 /* Horoskop: Lade-Zustand dezent pulsierend */
 body.soraya-horoscope-loading #horoMood,
