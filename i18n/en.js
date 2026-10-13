@@ -635,5 +635,6 @@ window.SORAYA_STRINGS.en = {
   "Soraya deutet eure Verbindung": "Soraya is interpreting your connection",
   "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Feel free to leave the app – your result will be waiting for you here.",
   "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "The partner comparison could not be created. Please try again – this did not count towards your daily limit.",
-  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "The partner comparison was interrupted. Please start it again."
+  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "The partner comparison was interrupted. Please start it again.",
+  "Zum Horoskop ›": "Go to horoscope ›"
 };

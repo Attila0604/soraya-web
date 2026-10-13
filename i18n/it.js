@@ -635,5 +635,6 @@ window.SORAYA_STRINGS.it = {
   "Soraya deutet eure Verbindung": "Soraya interpreta il vostro legame",
   "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Puoi anche uscire dall'app: il risultato ti aspetterà qui.",
   "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Non è stato possibile creare il confronto di coppia. Riprova: non è stato conteggiato nel tuo limite giornaliero.",
-  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "Il confronto di coppia è stato interrotto. Avvialo di nuovo."
+  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "Il confronto di coppia è stato interrotto. Avvialo di nuovo.",
+  "Zum Horoskop ›": "Vai all'oroscopo ›"
 };

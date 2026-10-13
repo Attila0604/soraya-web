@@ -635,5 +635,6 @@ window.SORAYA_STRINGS.hu = {
   "Soraya deutet eure Verbindung": "Soraya értelmezi a kapcsolatotokat",
   "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Nyugodtan kiléphetsz az alkalmazásból – az eredmény itt vár majd rád.",
   "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "A párkapcsolati összevetést nem sikerült elkészíteni. Kérlek, próbáld újra – ez nem számít bele a napi keretedbe.",
-  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "A párkapcsolati összevetés megszakadt. Kérlek, indítsd el újra."
+  "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "A párkapcsolati összevetés megszakadt. Kérlek, indítsd el újra.",
+  "Zum Horoskop ›": "Tovább a horoszkóphoz ›"
 };
