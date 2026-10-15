@@ -90,13 +90,13 @@
           <p class="invite-lead" id="inviteLead">Wie gut passt ihr zusammen? Gib dein Geburtsdatum ein – Soraya rechnet es sofort aus.</p>
           <div id="inviteForm">
             <div class="form-row-3">
-              <div><label for="ivDay">Tag</label><input id="ivDay" inputmode="numeric" placeholder="22" maxlength="2" /></div>
-              <div><label for="ivMonth">Monat</label><input id="ivMonth" inputmode="numeric" placeholder="3" maxlength="2" /></div>
-              <div><label for="ivYear">Jahr</label><input id="ivYear" inputmode="numeric" placeholder="1992" maxlength="4" /></div>
+              <div><label for="ivDay">Tag</label><input id="ivDay" inputmode="numeric" placeholder="TT" maxlength="2" /></div>
+              <div><label for="ivMonth">Monat</label><input id="ivMonth" inputmode="numeric" placeholder="MM" maxlength="2" /></div>
+              <div><label for="ivYear">Jahr</label><input id="ivYear" inputmode="numeric" placeholder="JJJJ" maxlength="4" /></div>
             </div>
             <div class="form-row">
-              <div><label for="ivHour">Stunde (optional)</label><input id="ivHour" inputmode="numeric" placeholder="18" maxlength="2" /></div>
-              <div><label for="ivMinute">Minute (optional)</label><input id="ivMinute" inputmode="numeric" placeholder="30" maxlength="2" /></div>
+              <div><label for="ivHour">Stunde (optional)</label><input id="ivHour" inputmode="numeric" placeholder="hh" maxlength="2" /></div>
+              <div><label for="ivMinute">Minute (optional)</label><input id="ivMinute" inputmode="numeric" placeholder="mm" maxlength="2" /></div>
             </div>
             <button class="btn gold block" id="ivButton" onclick="sorayaInviteMatch()">Unser Ergebnis zeigen</button>
             <div id="ivStatus" class="status qs-status" aria-live="polite"></div>
@@ -132,13 +132,13 @@
           <div id="qsForm">
             <p class="qs-lead">Gib dein Geburtsdatum ein – Soraya zeigt dir sofort dein Sonnen- und Mondzeichen und dein Horoskop für heute. Ganz ohne Konto.</p>
             <div class="form-row-3">
-              <div><label for="qsDay">Tag</label><input id="qsDay" inputmode="numeric" placeholder="4" maxlength="2" /></div>
-              <div><label for="qsMonth">Monat</label><input id="qsMonth" inputmode="numeric" placeholder="6" maxlength="2" /></div>
-              <div><label for="qsYear">Jahr</label><input id="qsYear" inputmode="numeric" placeholder="1990" maxlength="4" /></div>
+              <div><label for="qsDay">Tag</label><input id="qsDay" inputmode="numeric" placeholder="TT" maxlength="2" /></div>
+              <div><label for="qsMonth">Monat</label><input id="qsMonth" inputmode="numeric" placeholder="MM" maxlength="2" /></div>
+              <div><label for="qsYear">Jahr</label><input id="qsYear" inputmode="numeric" placeholder="JJJJ" maxlength="4" /></div>
             </div>
             <div class="form-row">
-              <div><label for="qsHour">Stunde (optional)</label><input id="qsHour" inputmode="numeric" placeholder="14" maxlength="2" /></div>
-              <div><label for="qsMinute">Minute (optional)</label><input id="qsMinute" inputmode="numeric" placeholder="30" maxlength="2" /></div>
+              <div><label for="qsHour">Stunde (optional)</label><input id="qsHour" inputmode="numeric" placeholder="hh" maxlength="2" /></div>
+              <div><label for="qsMinute">Minute (optional)</label><input id="qsMinute" inputmode="numeric" placeholder="mm" maxlength="2" /></div>
             </div>
             <button class="btn gold block" id="qsButton" onclick="sorayaQuickStart()">Meinen Kosmos zeigen</button>
             <div id="qsStatus" class="status qs-status" aria-live="polite"></div>
@@ -448,13 +448,13 @@
           <p class="synastry-hint">Speichere eine zweite Person. Danach erscheint sie oben in der Liste.</p>
           <label for="partnerName">Name</label><input id="partnerName" placeholder="Name der zweiten Person" />
           <div class="partner-form-grid">
-            <div><label for="partnerDay">Tag</label><input id="partnerDay" inputmode="numeric" placeholder="14" /></div>
-            <div><label for="partnerMonth">Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="9" /></div>
-            <div><label for="partnerYear">Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="1988" /></div>
+            <div><label for="partnerDay">Tag</label><input id="partnerDay" inputmode="numeric" placeholder="TT" /></div>
+            <div><label for="partnerMonth">Monat</label><input id="partnerMonth" inputmode="numeric" placeholder="MM" /></div>
+            <div><label for="partnerYear">Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="JJJJ" /></div>
           </div>
           <div class="partner-form-grid two">
-            <div><label for="partnerHour">Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="18" /></div>
-            <div><label for="partnerMinute">Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="30" /></div>
+            <div><label for="partnerHour">Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="hh" /></div>
+            <div><label for="partnerMinute">Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="mm" /></div>
           </div>
           <label for="partnerBirthplace">Geburtsort</label><input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
           <label for="partnerRelation">Beziehung</label>
@@ -501,13 +501,13 @@
           <input id="personId" type="hidden" />
           <label for="pName">Name</label><input id="pName" placeholder="Dein Name" oninput="window._sorayaPreview&&window._sorayaPreview()" />
           <div class="form-row-3">
-            <div><label for="pDay">Tag</label><input id="pDay" inputmode="numeric" placeholder="4" oninput="window._sorayaPreview&&window._sorayaPreview()" /></div>
-            <div><label for="pMonth">Monat</label><input id="pMonth" inputmode="numeric" placeholder="6" oninput="window._sorayaPreview&&window._sorayaPreview()" /></div>
-            <div><label for="pYear">Jahr</label><input id="pYear" inputmode="numeric" placeholder="1986" /></div>
+            <div><label for="pDay">Tag</label><input id="pDay" inputmode="numeric" placeholder="TT" oninput="window._sorayaPreview&&window._sorayaPreview()" /></div>
+            <div><label for="pMonth">Monat</label><input id="pMonth" inputmode="numeric" placeholder="MM" oninput="window._sorayaPreview&&window._sorayaPreview()" /></div>
+            <div><label for="pYear">Jahr</label><input id="pYear" inputmode="numeric" placeholder="JJJJ" /></div>
           </div>
           <div class="form-row">
-            <div><label for="pHour">Stunde optional</label><input id="pHour" inputmode="numeric" placeholder="14" /></div>
-            <div><label for="pMinute">Minute optional</label><input id="pMinute" inputmode="numeric" placeholder="00" /></div>
+            <div><label for="pHour">Stunde optional</label><input id="pHour" inputmode="numeric" placeholder="hh" /></div>
+            <div><label for="pMinute">Minute optional</label><input id="pMinute" inputmode="numeric" placeholder="mm" /></div>
           </div>
           <label for="pBirthplace">Geburtsort</label><input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
           <div class="c45-birth-preview">
