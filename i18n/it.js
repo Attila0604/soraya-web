@@ -636,5 +636,13 @@ window.SORAYA_STRINGS.it = {
   "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Puoi anche uscire dall'app: il risultato ti aspetterà qui.",
   "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "Non è stato possibile creare il confronto di coppia. Riprova: non è stato conteggiato nel tuo limite giornaliero.",
   "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "Il confronto di coppia è stato interrotto. Avvialo di nuovo.",
-  "Zum Horoskop ›": "Vai all'oroscopo ›"
+  "Zum Horoskop ›": "Vai all'oroscopo ›",
+  "Ergebnis teilen ✦": "Condividi il risultato ✦",
+  "Berechne deins gratis": "Calcola il tuo gratis",
+  "Das Bild konnte nicht erstellt werden.": "Non è stato possibile creare l'immagine.",
+  "Bild gespeichert – teile es in deiner Story. Der Link ist kopiert.": "Immagine salvata – condividila nella tua storia. Il link è copiato.",
+  "Mein kosmisches Trio": "Il mio trio cosmico",
+  "Mein kosmisches Trio: Sonne in {sign} ✨": "Il mio trio cosmico: Sole in {sign} ✨",
+  "Unsere Verbindung": "La nostra connessione",
+  "Wir passen zu {p} % zusammen – laut Soraya ✨": "Siamo compatibili al {p}% – parola di Soraya ✨"
 };

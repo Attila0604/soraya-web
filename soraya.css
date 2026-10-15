@@ -1,3 +1,7 @@
+/* Sternzeichen- und Planeten-Symbole in Gold statt als bunte Emojis (Android zeigt sonst lila Kaesten).
+   Nur diese Zeichen kommen aus der Schrift (unicode-range), alles andere bleibt unveraendert. */
+@font-face{font-family:"SorayaZeichen";src:url("/fonts/soraya-zeichen.woff2") format("woff2");font-display:block;
+  unicode-range:U+2648-2653,U+263D-263F,U+2640,U+2642-2647,U+260A,U+26B7-26B8}
 /* ============================================================
    soraya.css  ·  Die EINE Stylesheet
    Mystisch · elegant · zurückhaltend · symbolgetrieben
@@ -20,9 +24,9 @@
   /* ---- Radien ---- */
   --r-card:20px; --r-sm:14px; --r-pill:999px;
   /* ---- Schrift ---- */
-  --display:"Cormorant Garamond",Georgia,serif;
-  --wordmark:"Cinzel",serif;
-  --ui:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"SorayaZeichen","Cormorant Garamond",Georgia,serif;
+  --wordmark:"SorayaZeichen","Cinzel",serif;
+  --ui:"SorayaZeichen","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
@@ -992,3 +996,8 @@ body.soraya-invite #quickStartCard{display:none}
 /* waehrend der Partner-Vergleich laeuft: kein leerer Statusrahmen, Knopf sichtbar gesperrt */
 #synastryText:empty{display:none}
 .btn:disabled{opacity:.5; cursor:default; filter:none}
+
+/* Teilen-Knoepfe */
+.c4-kern-knoepfe{display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.c44-teilen{display:block;margin:0 auto 14px}
+[hidden]{display:none!important}

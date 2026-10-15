@@ -636,5 +636,13 @@ window.SORAYA_STRINGS.hu = {
   "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Nyugodtan kiléphetsz az alkalmazásból – az eredmény itt vár majd rád.",
   "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "A párkapcsolati összevetést nem sikerült elkészíteni. Kérlek, próbáld újra – ez nem számít bele a napi keretedbe.",
   "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "A párkapcsolati összevetés megszakadt. Kérlek, indítsd el újra.",
-  "Zum Horoskop ›": "Tovább a horoszkóphoz ›"
+  "Zum Horoskop ›": "Tovább a horoszkóphoz ›",
+  "Ergebnis teilen ✦": "Eredmény megosztása ✦",
+  "Berechne deins gratis": "Számold ki a tiédet ingyen",
+  "Das Bild konnte nicht erstellt werden.": "A képet nem sikerült elkészíteni.",
+  "Bild gespeichert – teile es in deiner Story. Der Link ist kopiert.": "A kép elmentve – oszd meg a történetedben. A linket kimásoltuk.",
+  "Mein kosmisches Trio": "Az én kozmikus hármasom",
+  "Mein kosmisches Trio: Sonne in {sign} ✨": "Az én kozmikus hármasom: Nap – {sign} ✨",
+  "Unsere Verbindung": "A kapcsolatunk",
+  "Wir passen zu {p} % zusammen – laut Soraya ✨": "{p}%-ban illünk össze – Soraya szerint ✨"
 };

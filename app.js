@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v25";
+  const APP_VERSION = "web-v26";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1767,6 +1767,9 @@
       : Math.min(97, Math.round(35 + Number(points) * 1.9));
 
     if ($("compatScore")) $("compatScore").textContent = value + "%";
+    SYN_TEILEN = { prozent: Math.round(Number(value) || 0), a: ($("synAName") || {}).textContent || t("Du"),
+                   b: ($("synBName") || {}).textContent || "", label: data.data && data.data.score_label };
+    if ($("synTeilen")) $("synTeilen").hidden = false;
     if ($("compatRing")) $("compatRing").style.setProperty("--score", Math.min(100, Number(value) || 0) + "%");
 
     renderSynastryDescription({
@@ -1989,6 +1992,8 @@
     const sun = signName(big.sun);
     const moon = big.moon ? signName(big.moon) : "–";
     const asc = big.ascendant && timeKnown ? signName(big.ascendant) : null;
+    TRIO = { sun: big.sun, moon: big.moon || null, asc: asc ? big.ascendant : null };
+    if ($("trioTeilen")) $("trioTeilen").hidden = false;
     coreLine = t("Mond in {sign}", { sign: moon }) + " · " + (asc ? t("Aszendent {sign}", { sign: asc }) : t("Aszendent: Geburtszeit fehlt"));
     setText("sunRange", coreLine);
     const ribbon = $("heroRibbon");
@@ -2181,6 +2186,123 @@
   function pointLabel(point) {
     if (point && ASTRO && point.name) return ASTRO.planet(point.name);
     return point && (point.name_de || point.name) ? (point.name_de || point.name) : t("Planet");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Teilen-Bilder (Story 1080x1920): kosmisches Trio und Partner-Ergebnis.
+  // Mit Link-Kennung, damit unter "Wirkung" sichtbar wird, wie viele dadurch kommen.
+  // ---------------------------------------------------------------------------
+  let TRIO = null, SYN_TEILEN = null;
+  const ZEICHEN_GLYPHE = { Ari: "♈", Tau: "♉", Gem: "♊", Can: "♋", Leo: "♌", Vir: "♍", Lib: "♎", Sco: "♏", Sag: "♐", Cap: "♑", Aqu: "♒", Pis: "♓" };
+  const ZEICHEN_DE = { Widder: "Ari", Stier: "Tau", Zwillinge: "Gem", Krebs: "Can", "Löwe": "Leo", Loewe: "Leo", Jungfrau: "Vir", Waage: "Lib",
+    Skorpion: "Sco", "Schütze": "Sag", Schuetze: "Sag", Steinbock: "Cap", Wassermann: "Aqu", Fische: "Pis" };
+  const LANDING = "https://www.sorayaluxuryastroguide.com/";
+
+  function zeichenKey(p) { return p ? (ZEICHEN_GLYPHE[p.sign] ? p.sign : ZEICHEN_DE[p.sign_de] || "") : ""; }
+
+  function ladeBild(src) {
+    return new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+  }
+
+  async function teilenLeinwand(zeichne) {
+    try { await Promise.all(['600 80px "Cormorant Garamond"', '600 40px "Cinzel"', '500 30px "Inter"', '80px "SorayaZeichen"']
+      .map((f) => document.fonts.load(f))); } catch (e) {}
+    const c = document.createElement("canvas"); c.width = 1080; c.height = 1920;
+    const g = c.getContext("2d");
+    const bg = g.createRadialGradient(540, 0, 40, 540, 480, 1920);
+    bg.addColorStop(0, "#2a1650"); bg.addColorStop(0.45, "#120a26"); bg.addColorStop(1, "#07040f");
+    g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
+    let s = 7;
+    const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+    for (let i = 0; i < 190; i++) {
+      const gold = rnd() < 0.12;
+      g.fillStyle = gold ? `rgba(233,207,156,${0.5 + rnd() * 0.45})` : `rgba(188,178,214,${0.2 + rnd() * 0.45})`;
+      g.beginPath(); g.arc(rnd() * 1080, rnd() * 1920, 0.6 + rnd() * (gold ? 2.4 : 1.6), 0, Math.PI * 2); g.fill();
+    }
+    const logo = await ladeBild("/brand/zeichen.svg");
+    if (logo) g.drawImage(logo, 540 - 70, 150, 140, 132);
+    g.textAlign = "center"; g.fillStyle = "#E6CF9C"; g.font = '600 46px "Cinzel", serif';
+    if ("letterSpacing" in g) g.letterSpacing = "16px";
+    g.fillText("SORAYA", 548, 360);
+    if ("letterSpacing" in g) g.letterSpacing = "0px";
+    zeichne(g);
+    g.fillStyle = "#8f83ad"; g.font = '500 30px "Inter", sans-serif';
+    g.fillText(t("Berechne deins gratis"), 540, 1700);
+    g.fillStyle = "#E6CF9C"; g.font = '600 34px "Inter", sans-serif';
+    g.fillText("sorayaluxuryastroguide.com", 540, 1756);
+    return new Promise((ok) => c.toBlob(ok, "image/png"));
+  }
+
+  function textZeilen(g, text, breite) {
+    const woerter = String(text || "").split(/\s+/), zeilen = []; let z = "";
+    woerter.forEach((w) => { const v = z ? z + " " + w : w; if (g.measureText(v).width > breite && z) { zeilen.push(z); z = w; } else z = v; });
+    if (z) zeilen.push(z);
+    return zeilen;
+  }
+
+  async function teileBild(blob, name, text, code) {
+    if (!blob) { toast(t("Das Bild konnte nicht erstellt werden.")); return; }
+    const link = LANDING + "?q=" + code;
+    const datei = new File([blob], name, { type: "image/png" });
+    track("teilen", { art: code });
+    if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+      try { await navigator.share({ files: [datei], text: text + "\n" + link }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    try { await navigator.clipboard.writeText(text + " " + link); } catch (e) {}
+    toast(t("Bild gespeichert – teile es in deiner Story. Der Link ist kopiert."));
+  }
+
+  async function teileTrio() {
+    if (!TRIO) return;
+    const zeilen = [[t("Sonne"), TRIO.sun], [t("Mond"), TRIO.moon], [t("Aszendent"), TRIO.asc]].filter((z) => z[1]);
+    const blob = await teilenLeinwand((g) => {
+      g.fillStyle = "#C9A86A"; g.font = '500 30px "Inter", sans-serif';
+      if ("letterSpacing" in g) g.letterSpacing = "6px";
+      g.fillText(t("Mein kosmisches Trio").toUpperCase(), 546, 520);
+      if ("letterSpacing" in g) g.letterSpacing = "0px";
+      const start = 650, schritt = zeilen.length === 3 ? 330 : 420;
+      zeilen.forEach(([was, punkt], i) => {
+        const y = start + i * schritt, key = zeichenKey(punkt);
+        g.strokeStyle = "rgba(230,207,156,.7)"; g.lineWidth = 3;
+        g.beginPath(); g.arc(540, y + 70, 78, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = "rgba(233,207,156,.08)"; g.fill();
+        g.fillStyle = "#E9CF9C"; g.font = '86px "SorayaZeichen", serif';
+        g.fillText(ZEICHEN_GLYPHE[key] || "✦", 540, y + 100);
+        g.fillStyle = "#8f83ad"; g.font = '500 28px "Inter", sans-serif';
+        if ("letterSpacing" in g) g.letterSpacing = "6px";
+        g.fillText(was.toUpperCase(), 543, y + 196);
+        if ("letterSpacing" in g) g.letterSpacing = "0px";
+        g.fillStyle = "#F6E3B4"; g.font = '600 72px "Cormorant Garamond", serif';
+        g.fillText(signName(punkt), 540, y + 268);
+      });
+    });
+    const sonne = signName(TRIO.sun);
+    teileBild(blob, "soraya-trio.png", t("Mein kosmisches Trio: Sonne in {sign} ✨", { sign: sonne }), "teilen-trio");
+  }
+
+  async function teileSynastrie() {
+    if (!SYN_TEILEN) return;
+    const { prozent, a, b, label } = SYN_TEILEN;
+    const blob = await teilenLeinwand((g) => {
+      g.fillStyle = "#C9A86A"; g.font = '500 30px "Inter", sans-serif';
+      if ("letterSpacing" in g) g.letterSpacing = "6px";
+      g.fillText(t("Unsere Verbindung").toUpperCase(), 546, 540);
+      if ("letterSpacing" in g) g.letterSpacing = "0px";
+      // zwei verschlungene Ringe mit dem Ergebnis in der Mitte
+      g.lineWidth = 4; g.strokeStyle = "rgba(236,180,160,.75)";
+      [[430, 900], [650, 900]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 210, 0, Math.PI * 2); g.stroke(); });
+      g.fillStyle = "#F6E3B4"; g.font = '600 150px "Cormorant Garamond", serif';
+      g.fillText(prozent + " %", 540, 950);
+      g.fillStyle = "#EFE8F8"; g.font = '600 64px "Cormorant Garamond", serif';
+      g.fillText(a + " & " + b, 540, 1240);
+      if (label) {
+        g.fillStyle = "#C3B7DA"; g.font = '400 38px "Inter", sans-serif';
+        textZeilen(g, label, 860).slice(0, 2).forEach((z, i) => g.fillText(z, 540, 1320 + i * 52));
+      }
+    });
+    teileBild(blob, "soraya-verbindung.png", t("Wir passen zu {p} % zusammen – laut Soraya ✨", { p: prozent }), "teilen-partner");
   }
 
   function planetGlyph(name) {
@@ -3305,6 +3427,8 @@
   window.sorayaOpenSynastryWith = openSynastryWith;
   window.createSynastryPerson = createSynastryPerson;
   window.saveSynastry = saveSynastry;
+  window.teileTrio = teileTrio;
+  window.teileSynastrie = teileSynastrie;
   window.renderSynastryDescription = renderSynastryDescription;
 
   window.renderMoon = renderMoon;
