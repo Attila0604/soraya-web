@@ -235,6 +235,7 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
 .form-row, .partner-form-grid.two{grid-template-columns:1fr 1fr}
 .form-row-3, .partner-form-grid{grid-template-columns:1fr 1fr 1fr}
 .form-row label, .form-row-3 label, .partner-form-grid label{margin-top:0}
+.form-row > div, .form-row-3 > div, .partner-form-grid > div{display:flex; flex-direction:column; justify-content:flex-end; min-width:0}
 .segmented, .c4-period-picker{display:grid; grid-template-columns:1fr auto; gap:var(--s2); align-items:center}
 
 /* ---- Status-Zeile ---- */

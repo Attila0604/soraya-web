@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v26";
+  const APP_VERSION = "web-v27";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1024,6 +1024,31 @@
     }
   }
 
+  // Wechselt jeden Tag (gleicher Tag = gleicher Text, auch nach Neuladen)
+  const DAILY_RITUALS = [
+    "Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention.",
+    "Schreib drei Dinge auf, für die du heute dankbar bist – auch ganz kleine.",
+    "Trink am Morgen ein Glas Wasser ganz bewusst und denk dabei an das, was du heute loslassen willst.",
+    "Geh zehn Minuten ohne Handy nach draußen und schau einmal bewusst in den Himmel.",
+    "Zünde am Abend eine Kerze an und lass den Tag in drei Sätzen Revue passieren.",
+    "Räum eine kleine Ecke auf – Ordnung außen schafft Ruhe innen.",
+    "Schreib einen Satz an dein zukünftiges Ich und lies ihn in einem Monat wieder."
+  ];
+  const DAILY_AFFIRMATIONS = [
+    "Ich vertraue meinem Weg und bewege mich mit Klarheit.",
+    "Ich darf langsam sein und trotzdem ankommen.",
+    "Was für mich bestimmt ist, findet mich.",
+    "Ich höre auf mein Gefühl – es kennt den Weg.",
+    "Ich lasse los, was mich schwer macht.",
+    "Ich bin genug, genau so, wie ich heute bin.",
+    "Mein Licht wird stärker, wenn ich es teile."
+  ];
+  function ofTheDay(list) {
+    const now = new Date();
+    const day = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+    return list[day % list.length];
+  }
+
   function pickText(source, keys, fallback) {
     if (!source) return fallback;
     for (const key of keys) {
@@ -1044,8 +1069,8 @@
     const focus = pickText(h, ["fokus", "focus"], pickText(root, ["fokus", "focus"], lower.includes("klar") ? t("Klarheit entsteht, wenn du heute bewusst langsamer wirst.") : t("Richte deine Energie auf eine Sache, die wirklich wichtig ist.")));
     const love = pickText(h, ["liebe", "love", "beziehung"], pickText(root, ["liebe", "love"], lower.includes("herz") || lower.includes("liebe") ? t("Sprich ehrlich, aber sanft. Nähe entsteht durch echtes Zuhören.") : t("Zeige dich offen, aber bleibe bei deinen eigenen Bedürfnissen.")));
     const work = pickText(h, ["beruf", "work", "career"], pickText(root, ["beruf", "work"], lower.includes("geduld") ? t("Geduld bringt heute mehr als Druck.") : t("Struktur hilft dir, deine Kraft sinnvoll einzusetzen.")));
-    const ritual = pickText(h, ["ritual", "ritual_text"], pickText(root, ["ritual"], t("Lege eine Hand auf dein Herz, atme fünfmal tief und formuliere eine klare Intention.")));
-    const affirmation = pickText(h, ["affirmation", "mantra"], pickText(root, ["affirmation"], t("Ich vertraue meinem Weg und bewege mich mit Klarheit.")));
+    const ritual = pickText(h, ["ritual", "ritual_text"], pickText(root, ["ritual"], t(ofTheDay(DAILY_RITUALS))));
+    const affirmation = pickText(h, ["affirmation", "mantra"], pickText(root, ["affirmation"], t(ofTheDay(DAILY_AFFIRMATIONS))));
 
     setText("horoFocusTitle", t("Dein Fokus"));
     setText("horoFocusText", focus);
@@ -1598,6 +1623,12 @@
 
     const raw = $("personBId");
     if (raw) raw.value = select.value || "";
+    const createStatus = $("partnerCreateStatus");
+    if (createStatus && !createStatus.classList.contains("ok") && !createStatus.classList.contains("bad")) {
+      createStatus.textContent = people.length
+        ? t("Gespeichert: {names}", { names: people.map((person) => person.name || t("Unbenannt")).join(", ") })
+        : t("Noch keine zweite Person gespeichert.");
+    }
     updateSynastryNames();
   }
 
@@ -2457,10 +2488,11 @@
     const aspectSummary = $("aspectSummary");
     if (aspectSummary) {
       const total = aspects.length;
-      const harmoniousNames = ["Trine", "Sextile", "Conjunction", "Trigon", "Sextil", "Konjunktion"];
-      const challengingNames = ["Square", "Opposition", "Quadrat"];
-      const harmonious = aspects.filter((a) => harmoniousNames.includes(a.type || a.aspect || a.name || a.type_de)).length;
-      const challenging = aspects.filter((a) => challengingNames.includes(a.type || a.aspect || a.name || a.type_de)).length;
+      const harmoniousNames = ["trine", "sextile", "conjunction", "trigon", "sextil", "konjunktion"];
+      const challengingNames = ["square", "opposition", "quadrat"];
+      const aspectType = (a) => String(a.type || a.aspect || a.name || a.type_de || "").toLowerCase();
+      const harmonious = aspects.filter((a) => harmoniousNames.includes(aspectType(a))).length;
+      const challenging = aspects.filter((a) => challengingNames.includes(aspectType(a))).length;
       const neutral = Math.max(0, total - harmonious - challenging);
 
       const elements = data.distributions && data.distributions.elements ? data.distributions.elements : null;
@@ -2890,7 +2922,33 @@
     }
   }
 
+  // Von der Landingpage: Geburtsdatum mitgegeben -> Schnellstart sofort ausfuellen und rechnen
+  function takeBirthFromUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const geb = url.searchParams.get("geb");
+      if (geb === null) return false;
+      const zeit = url.searchParams.get("zeit") || "";
+      url.searchParams.delete("geb");
+      url.searchParams.delete("zeit");
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(geb);
+      if (!m || getCurrentPersonId()) return false;
+      const z = /^(\d{2}):(\d{2})$/.exec(zeit);
+      [["qsYear", m[1]], ["qsMonth", String(+m[2])], ["qsDay", String(+m[3])],
+       ["qsHour", z ? String(+z[1]) : ""], ["qsMinute", z ? String(+z[2]) : ""]].forEach(([id, v]) => { if ($(id)) $(id).value = v; });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async function restoreQuickStart() {
+    if (takeBirthFromUrl()) {
+      const form = $("qsForm");
+      if (form) form.style.display = "block";
+      await quickStart();
+    }
     const preview = readPreview();
     if (preview) renderQuickStart(preview);
     else updateQuickStartCta();
