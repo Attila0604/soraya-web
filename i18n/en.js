@@ -636,5 +636,13 @@ window.SORAYA_STRINGS.en = {
   "Du kannst die App ruhig verlassen – das Ergebnis wartet hier auf dich.": "Feel free to leave the app – your result will be waiting for you here.",
   "Der Partner-Vergleich konnte nicht erstellt werden. Bitte versuche es noch einmal – dein Tageslimit wurde dafür nicht verbraucht.": "The partner comparison could not be created. Please try again – this did not count towards your daily limit.",
   "Der Partner-Vergleich wurde unterbrochen. Bitte starte ihn noch einmal.": "The partner comparison was interrupted. Please start it again.",
-  "Zum Horoskop ›": "Go to horoscope ›"
+  "Zum Horoskop ›": "Go to horoscope ›",
+  "Ergebnis teilen ✦": "Share result ✦",
+  "Berechne deins gratis": "Calculate yours for free",
+  "Das Bild konnte nicht erstellt werden.": "The image could not be created.",
+  "Bild gespeichert – teile es in deiner Story. Der Link ist kopiert.": "Image saved – share it in your story. The link is copied.",
+  "Mein kosmisches Trio": "My cosmic trio",
+  "Mein kosmisches Trio: Sonne in {sign} ✨": "My cosmic trio: Sun in {sign} ✨",
+  "Unsere Verbindung": "Our connection",
+  "Wir passen zu {p} % zusammen – laut Soraya ✨": "We're a {p}% match – says Soraya ✨"
 };
