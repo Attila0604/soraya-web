@@ -285,7 +285,8 @@
         return true;
       }
 
-      setLoginStatus(T("Bereit zum Einloggen."));
+      var mode = el("loginMode") ? el("loginMode").value : "login";
+      setLoginStatus(mode === "register" ? T("Bereit zum Registrieren.") : T("Bereit zum Einloggen."));
       return false;
     } catch (error) {
       renderConnectionBox();

@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v27";
+  const APP_VERSION = "web-v28";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -2519,6 +2519,15 @@
     const details = ensureChartDetails();
     if (!birth || !birth.day || !birth.month || !birth.year || !birth.birthplace) {
       renderWheel(null);
+      // Schon im Schnellstart gerechnet: Sonne und Mond trotzdem zeigen
+      const preview = readPreview();
+      const r = preview && preview.result;
+      if (r && r.sun && r.moon) {
+        const nameOf = (p) => (ASTRO ? ASTRO.sign(p.sign) : p.sign_de || p.sign) + (p.uncertain ? " ?" : "");
+        setText("bigSunSign", nameOf(r.sun));
+        setText("bigMoonSign", nameOf(r.moon));
+        setText("bigAscText", t("Mit Geburtszeit und Ort im Profil"));
+      }
       if (details) details.textContent = t("Speichere zuerst dein Profil, dann lädt Soraya dein echtes Birth Chart.");
       return null;
     }

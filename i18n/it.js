@@ -662,5 +662,8 @@ window.SORAYA_STRINGS.it = {
   "Ich höre auf mein Gefühl – es kennt den Weg.": "Ascolto le mie emozioni: conoscono la strada.",
   "Ich lasse los, was mich schwer macht.": "Lascio andare ciò che mi appesantisce.",
   "Ich bin genug, genau so, wie ich heute bin.": "Sono abbastanza, esattamente come sono oggi.",
-  "Mein Licht wird stärker, wenn ich es teile.": "La mia luce cresce quando la condivido."
+  "Mein Licht wird stärker, wenn ich es teile.": "La mia luce cresce quando la condivido.",
+  "Ohne Konto": "Senza account",
+  "Trag unten deine Geburtsdaten ein.": "Inserisci qui sotto i tuoi dati di nascita.",
+  "Mit Geburtszeit und Ort im Profil": "Con ora e luogo di nascita nel profilo"
 };

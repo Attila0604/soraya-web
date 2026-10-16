@@ -662,5 +662,8 @@ window.SORAYA_STRINGS.hu = {
   "Ich höre auf mein Gefühl – es kennt den Weg.": "Hallgatok az érzéseimre – ők ismerik az utat.",
   "Ich lasse los, was mich schwer macht.": "Elengedem, ami nehézzé tesz.",
   "Ich bin genug, genau so, wie ich heute bin.": "Elég vagyok, pontosan úgy, ahogy ma vagyok.",
-  "Mein Licht wird stärker, wenn ich es teile.": "A fényem erősebb lesz, amikor megosztom."
+  "Mein Licht wird stärker, wenn ich es teile.": "A fényem erősebb lesz, amikor megosztom.",
+  "Ohne Konto": "Fiók nélkül",
+  "Trag unten deine Geburtsdaten ein.": "Add meg lent a születési adataidat.",
+  "Mit Geburtszeit und Ort im Profil": "Születési időponttal és hellyel a profilban"
 };
