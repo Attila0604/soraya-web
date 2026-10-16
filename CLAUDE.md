@@ -100,15 +100,18 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 
 - **Beide Hauptschalter sind AUS** (Tagesplan-Automatik unter „Heute“, „Automatisch posten“ unter
   „Posten“). Attila will erst alles einrichten und dann selbst einschalten – **nicht eigenmächtig einschalten**.
-- **Meta-App noch nicht angelegt.** Attila war bei developers.facebook.com bei „Weiter mit Facebook“
-  (nicht „Neues Konto erstellen“!). Nächste Schritte: App „Soraya Agent“ anlegen (Business-Portfolio
-  „keines“), Datenschutz-URL `https://app.sorayaluxuryastroguide.com/datenschutz.html`,
-  Redirect-URIs `https://soraya-agent-production.up.railway.app/meta/rueckruf/facebook` und
-  `.../meta/rueckruf/instagram`, Variablen `META_APP_ID`, `META_APP_SECRET`, `INSTAGRAM_APP_ID`,
-  `INSTAGRAM_APP_SECRET` in Railway, App auf „Live“, dann im Dashboard verbinden und mit
-  „Jetzt posten“ testen. Falls die Entwickler-App wegen der Sperre nicht geht → TikTok als Alternative.
-- Instagram-Konto ist auf **Business** umgestellt, die Verknüpfung mit der FB-Seite scheiterte an der
-  Profil-Sperre (deshalb Instagram-Login statt Seiten-Verknüpfung).
+- **Meta-App „Soraya Agent“ ist angelegt (16.10.2026)**, ohne Business-Portfolio, Modus „Entwicklung“
+  (reicht fürs Posten auf eigene Konten; App-Review/„Tech-Anbieter“ NICHT nötig und NICHT machen –
+  verlangt Unternehmensverifizierung, unumkehrbar). Rechte „Bereit zum Testen“: `pages_show_list`,
+  `pages_read_engagement`, `pages_manage_posts` (+ automatisch `business_management`, `public_profile`),
+  `instagram_business_basic`, `instagram_business_content_publish`. Redirect-URIs für Facebook und Instagram
+  eingetragen. In Railway gesetzt: `META_APP_ID`, `META_APP_SECRET`.
+- **Facebook-Seite „Soraya Luxury Astrology“ ist verbunden**, erster Testpost (Feed-Post EN) am 16.10. erfolgreich
+  (Text, Bild, Link `?q=p<id>`; auf Facebook wird „Link in bio“ automatisch zu „Link below“).
+- **Instagram noch offen:** `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET` (Meta → Anwendungsfälle → Instagram →
+  API-Einrichtung mit Instagram-Login) noch nicht in Railway. Soraya hat **kein eigenes Instagram-Konto**;
+  vorhanden ist nur `attilazsolt.kovacs` (Business). Empfehlung: dieses umbenennen statt neues Konto anlegen
+  (Sperr-Risiko). Danach in Meta unter App-Rollen → Instagram-Tester eintragen und im Dashboard verbinden.
 - Tipp für Kosten: Tagesplan-Sprachen auf **nur EN** stellen, solange nur Englisch gepostet wird.
 - Nutzerzahlen (15.10.2026): 6 Konten insgesamt (inkl. Demo), letzte Registrierung 03.10. – es fehlt
   Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
