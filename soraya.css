@@ -326,6 +326,8 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
   display:flex; flex-direction:column; gap:var(--s4); padding:var(--s3) 0;
   flex:1 1 auto; min-height:300px; max-height:60vh; overflow-y:auto;
 }
+/* Nur die Begruessung: kein grosses leeres Feld */
+.chat-window:not(:has(.bubble + .bubble)){min-height:0}
 .bubble{max-width:84%; font-size:14px; line-height:1.55; padding:13px 16px; border-radius:18px}
 .bubble.assistant{
   align-self:flex-start; font-family:var(--display); font-style:italic; font-size:17px;
@@ -909,6 +911,9 @@ body.soraya-no-profile #onboardingCard{display:none !important}
 .qs-edit{margin-top:var(--s2)}
 /* Ausgeloggt: Personen anlegen braucht ein Konto */
 body.soraya-logged-out #peopleCard{display:none}
+/* Ohne Konto: keine Mitglieds-Angaben und kein "Konto löschen" */
+body.soraya-logged-out .member-only, body.soraya-logged-out .c45-stats, body.soraya-logged-out #deleteAccountBtn{display:none !important}
+body:not(.soraya-logged-out) .guest-only{display:none}
 /* Tipp im Schnellstart normal lesbar statt Versalien */
 .qs-horo .badge{text-transform:none; letter-spacing:.01em; font-size:13px; white-space:normal; line-height:1.5; display:inline-block; padding:8px 12px}
 

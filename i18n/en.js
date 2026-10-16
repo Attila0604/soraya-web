@@ -662,5 +662,8 @@ window.SORAYA_STRINGS.en = {
   "Ich höre auf mein Gefühl – es kennt den Weg.": "I listen to my feelings – they know the way.",
   "Ich lasse los, was mich schwer macht.": "I let go of what weighs me down.",
   "Ich bin genug, genau so, wie ich heute bin.": "I am enough, exactly as I am today.",
-  "Mein Licht wird stärker, wenn ich es teile.": "My light grows stronger when I share it."
+  "Mein Licht wird stärker, wenn ich es teile.": "My light grows stronger when I share it.",
+  "Ohne Konto": "No account yet",
+  "Trag unten deine Geburtsdaten ein.": "Enter your birth details below.",
+  "Mit Geburtszeit und Ort im Profil": "With birth time and place in your profile"
 };
