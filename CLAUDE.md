@@ -121,8 +121,10 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **Mails über Resend sind live (17.10.):** Domain in Resend verifiziert (Region eu-west-1, DNS automatisch über
   Vercel: `send`, `rsend`, `resend._domainkey`). Supabase Custom SMTP: `smtp.resend.com:465`, User `resend`,
   Absender `hallo@sorayaluxuryastroguide.com` / „Soraya“. Vorlagen aus `mail-vorlagen/` eingetragen (Confirm sign up,
-  Reset password). Test „Passwort vergessen“ kam im Posteingang an. **„Confirm email“ ist in Supabase AUS**
-  (Nutzer sind sofort eingeloggt, keine Bestätigungs-Mail) – bewusst, um keine Registrierungen zu verlieren.
+  Reset password). Test „Passwort vergessen“ kam im Posteingang an. **„Confirm email“ ist in Supabase EIN** (seit 17.10., von
+  Attila eingeschaltet): nach der Registrierung zeigt die App „Bitte E-Mail bestätigen…“, der Link
+  `/login?token_hash=…&type=email` bestätigt per `verifyOtp` und öffnet die App; Login vor Bestätigung → Hinweis
+  „Bitte bestätige zuerst deine E-Mail…“.
 - **Passwort vergessen funktioniert (17.10., getestet):** Supabase URL Configuration: Site URL
   `https://app.sorayaluxuryastroguide.com`, Redirect `https://app.sorayaluxuryastroguide.com/**`. Mail-Links gehen auf
   `/login?token_hash=…&type=recovery` (geräteunabhängig, `verifyOtp`), `/login` zeigt dann „Neues Passwort festlegen“.
