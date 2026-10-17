@@ -118,11 +118,13 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
   Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
   Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
-- **Mails über Resend (vorbereitet, noch nicht eingerichtet):** App speichert `lang` im Konto; Vorlagen +
-  Schritt-für-Schritt in `mail-vorlagen/` (ANLEITUNG.md). Attila legt Resend-Konto + Domain an, trägt SMTP in
-  Supabase ein. Danach Branch `datenschutz-resend` (Datenschutz 4 Sprachen) mergen.
-- Nutzerzahlen (15.10.2026): 6 Konten insgesamt (inkl. Demo), letzte Registrierung 03.10. – es fehlt
-  Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
+- **Mails über Resend sind live (17.10.):** Domain in Resend verifiziert (Region eu-west-1, DNS automatisch über
+  Vercel: `send`, `rsend`, `resend._domainkey`). Supabase Custom SMTP: `smtp.resend.com:465`, User `resend`,
+  Absender `hallo@sorayaluxuryastroguide.com` / „Soraya“. Vorlagen aus `mail-vorlagen/` eingetragen (Confirm sign up,
+  Reset password). Test „Passwort vergessen“ kam im Posteingang an. **„Confirm email“ ist in Supabase AUS**
+  (Nutzer sind sofort eingeloggt, keine Bestätigungs-Mail) – bewusst, um keine Registrierungen zu verlieren.
+- Nutzerzahlen (17.10.2026): 8 Konten in Supabase (inkl. Demo und Attilas Testkonten).
+- Es fehlt Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
 - Ideen für später: Google-Ads-App-Kampagne (Texte/Bilder liefert der Agent), TikTok-Anbindung,
   Instagram-Insights in die Lernschleife, neues App-Icon im Play Store (neues AAB über PWABuilder).
