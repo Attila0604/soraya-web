@@ -669,5 +669,17 @@ window.SORAYA_STRINGS.hu = {
   "Soraya als App auf deinem Handy": "Soraya alkalmazásként a telefonodon",
   "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Ingyenes a Google Playen – gyorsabban indul, és bejelentkezve maradsz.",
   "Bei Google Play laden": "Letöltés a Google Playről",
-  "html.horo.gast": "A <b>személyes</b> horoszkópodat – a teljes születési képletedből, nem csak a Nap-jegyedből – ingyenes fiókkal kapod meg."
+  "html.horo.gast": "A <b>személyes</b> horoszkópodat – a teljes születési képletedből, nem csak a Nap-jegyedből – ingyenes fiókkal kapod meg.",
+  "Neues Passwort festlegen": "Új jelszó beállítása",
+  "Neues Passwort": "Új jelszó",
+  "Passwort speichern": "Jelszó mentése",
+  "Link wird geprüft ...": "A link ellenőrzése ...",
+  "Das dauerte zu lange.": "Ez túl sokáig tartott.",
+  "Gib jetzt dein neues Passwort ein.": "Most add meg az új jelszavadat.",
+  "✅ E-Mail bestätigt. Soraya öffnet die App ...": "✅ E-mail megerősítve. A Soraya megnyitja az alkalmazást ...",
+  "Der Link ist abgelaufen oder wurde schon benutzt. Bitte fordere einen neuen an.": "A link lejárt, vagy már felhasználták. Kérj egy újat.",
+  "Passwort wird gespeichert ...": "A jelszó mentése ...",
+  "✅ Neues Passwort gespeichert. Soraya öffnet die App ...": "✅ Az új jelszó elmentve. A Soraya megnyitja az alkalmazást ...",
+  "Passwort konnte nicht gespeichert werden: {error}": "A jelszót nem sikerült menteni: {error}",
+  "Bitte erneut versuchen.": "Kérlek, próbáld újra."
 };

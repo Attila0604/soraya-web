@@ -23,6 +23,14 @@ Die Vorlagen hier wählen damit selbst Deutsch, Englisch, Ungarisch oder Italien
 - **Reset password**: Inhalt von `passwort.html` komplett einfügen.
   Betreff: `Soraya ✦ Neues Passwort · New password`
 
+**Authentication → URL Configuration**
+- Site URL: `https://app.sorayaluxuryastroguide.com`
+- Redirect URLs: `https://app.sorayaluxuryastroguide.com/**`
+
+Die Links in den Vorlagen gehen direkt auf `/login?token_hash=…&type=…` – das funktioniert auf jedem Gerät
+(auch wenn die Mail auf dem Handy, die Anfrage aber am PC kam). `/login` zeigt bei `type=recovery` das Feld
+„Neues Passwort“.
+
 **Authentication → Rate Limits**: „Emails sent per hour“ auf z. B. 30 erhöhen (geht erst mit eigenem SMTP).
 
 ## 3. Danach
