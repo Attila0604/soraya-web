@@ -123,6 +123,9 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   Absender `hallo@sorayaluxuryastroguide.com` / „Soraya“. Vorlagen aus `mail-vorlagen/` eingetragen (Confirm sign up,
   Reset password). Test „Passwort vergessen“ kam im Posteingang an. **„Confirm email“ ist in Supabase AUS**
   (Nutzer sind sofort eingeloggt, keine Bestätigungs-Mail) – bewusst, um keine Registrierungen zu verlieren.
+- **Passwort vergessen funktioniert (17.10., getestet):** Supabase URL Configuration: Site URL
+  `https://app.sorayaluxuryastroguide.com`, Redirect `https://app.sorayaluxuryastroguide.com/**`. Mail-Links gehen auf
+  `/login?token_hash=…&type=recovery` (geräteunabhängig, `verifyOtp`), `/login` zeigt dann „Neues Passwort festlegen“.
 - Nutzerzahlen (17.10.2026): 8 Konten in Supabase (inkl. Demo und Attilas Testkonten).
 - Es fehlt Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
