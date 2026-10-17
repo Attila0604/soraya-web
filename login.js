@@ -217,11 +217,11 @@
     setLoginStatus(mode === "register" ? T("Bereit zum Registrieren.") : T("Bereit zum Einloggen."));
   }
 
-  function togglePassword() {
-    var input = el("loginPassword");
+  function togglePassword(id) {
+    var input = el(id || "loginPassword");
     if (!input) return;
     input.type = input.type === "password" ? "text" : "password";
-    var button = document.querySelector(".password-toggle");
+    var button = input.parentNode && input.parentNode.querySelector(".password-toggle");
     if (button) button.setAttribute("aria-label", input.type === "password" ? T("Passwort anzeigen") : T("Passwort verstecken"));
   }
 
@@ -414,6 +414,56 @@
     }
   }
 
+  // Link aus der Mail: ?token_hash=...&type=recovery|email. Funktioniert auf jedem Geraet
+  // (anders als der Code-Link, der nur im Browser klappt, in dem man die Mail angefordert hat).
+  async function handleMailLink() {
+    var url = new URL(window.location.href);
+    var tokenHash = url.searchParams.get("token_hash");
+    var type = url.searchParams.get("type");
+    if (!tokenHash || !type) return false;
+    url.searchParams.delete("token_hash");
+    url.searchParams.delete("type");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    var recovery = type === "recovery";
+    if (recovery) document.body.classList.add("soraya-reset-mode");
+    try {
+      setLoginStatus(T("Link wird geprüft ..."));
+      var result = await withTimeout(getLoginClient().auth.verifyOtp({ token_hash: tokenHash, type: type }), 15000, T("Das dauerte zu lange."));
+      if (result.error) throw result.error;
+      if (recovery) {
+        el("newPasswordForm").hidden = false;
+        setLoginStatus(T("Gib jetzt dein neues Passwort ein."), "ok");
+        if (el("newPassword")) el("newPassword").focus();
+      } else {
+        setLoginStatus(T("✅ E-Mail bestätigt. Soraya öffnet die App ..."), "ok");
+        returnToApp(900);
+      }
+    } catch (error) {
+      document.body.classList.remove("soraya-reset-mode");
+      setLoginStatus(T("Der Link ist abgelaufen oder wurde schon benutzt. Bitte fordere einen neuen an."), "bad");
+    }
+    return true;
+  }
+
+  async function saveNewPassword(event) {
+    event.preventDefault();
+    if (busy) return;
+    var password = (el("newPassword") ? el("newPassword").value : "").trim();
+    if (password.length < 6) { setLoginStatus(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."), "bad"); return; }
+    try {
+      setBusy(true);
+      setLoginStatus(T("Passwort wird gespeichert ..."));
+      var result = await withTimeout(getLoginClient().auth.updateUser({ password: password }), 15000, T("Das dauerte zu lange."));
+      if (result.error) throw result.error;
+      setLoginStatus(T("✅ Neues Passwort gespeichert. Soraya öffnet die App ..."), "ok");
+      returnToApp(900);
+    } catch (error) {
+      setLoginStatus(T("Passwort konnte nicht gespeichert werden: {error}", { error: friendlyError(error, T("Bitte erneut versuchen.")) }), "bad");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     var mode = el("loginMode") ? el("loginMode").value : "login";
@@ -433,7 +483,9 @@
     } catch (error) {}
 
     setMode((new URLSearchParams(window.location.search)).get("mode") === "register" ? "register" : "login");
-    checkLoginSession();
+    var np = el("newPasswordForm");
+    if (np && !np.dataset.bound) { np.dataset.bound = "1"; np.addEventListener("submit", saveNewPassword); }
+    handleMailLink().then(function (war) { if (!war) checkLoginSession(); });
 
     var form = el("loginForm");
     if (form && !form.dataset.bound) {

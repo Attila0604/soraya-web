@@ -669,5 +669,17 @@ window.SORAYA_STRINGS.en = {
   "Soraya als App auf deinem Handy": "Soraya as an app on your phone",
   "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Free on Google Play – opens faster and keeps you signed in.",
   "Bei Google Play laden": "Get it on Google Play",
-  "html.horo.gast": "Your <b>personal</b> horoscope – from your whole birth chart instead of just your Sun sign – comes with a free account."
+  "html.horo.gast": "Your <b>personal</b> horoscope – from your whole birth chart instead of just your Sun sign – comes with a free account.",
+  "Neues Passwort festlegen": "Set a new password",
+  "Neues Passwort": "New password",
+  "Passwort speichern": "Save password",
+  "Link wird geprüft ...": "Checking link ...",
+  "Das dauerte zu lange.": "That took too long.",
+  "Gib jetzt dein neues Passwort ein.": "Now enter your new password.",
+  "✅ E-Mail bestätigt. Soraya öffnet die App ...": "✅ Email confirmed. Soraya is opening the app ...",
+  "Der Link ist abgelaufen oder wurde schon benutzt. Bitte fordere einen neuen an.": "This link has expired or was already used. Please request a new one.",
+  "Passwort wird gespeichert ...": "Saving password ...",
+  "✅ Neues Passwort gespeichert. Soraya öffnet die App ...": "✅ New password saved. Soraya is opening the app ...",
+  "Passwort konnte nicht gespeichert werden: {error}": "Password could not be saved: {error}",
+  "Bitte erneut versuchen.": "Please try again."
 };

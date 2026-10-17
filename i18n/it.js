@@ -669,5 +669,17 @@ window.SORAYA_STRINGS.it = {
   "Soraya als App auf deinem Handy": "Soraya come app sul tuo telefono",
   "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Gratis su Google Play: si apre più velocemente e resti connesso.",
   "Bei Google Play laden": "Scarica da Google Play",
-  "html.horo.gast": "Il tuo oroscopo <b>personale</b> – da tutto il tuo tema natale, non solo dal segno solare – lo ricevi con un account gratuito."
+  "html.horo.gast": "Il tuo oroscopo <b>personale</b> – da tutto il tuo tema natale, non solo dal segno solare – lo ricevi con un account gratuito.",
+  "Neues Passwort festlegen": "Imposta una nuova password",
+  "Neues Passwort": "Nuova password",
+  "Passwort speichern": "Salva password",
+  "Link wird geprüft ...": "Verifica del link ...",
+  "Das dauerte zu lange.": "Ci è voluto troppo tempo.",
+  "Gib jetzt dein neues Passwort ein.": "Ora inserisci la tua nuova password.",
+  "✅ E-Mail bestätigt. Soraya öffnet die App ...": "✅ Email confermata. Soraya sta aprendo l'app ...",
+  "Der Link ist abgelaufen oder wurde schon benutzt. Bitte fordere einen neuen an.": "Il link è scaduto o è già stato usato. Richiedine uno nuovo.",
+  "Passwort wird gespeichert ...": "Salvataggio della password ...",
+  "✅ Neues Passwort gespeichert. Soraya öffnet die App ...": "✅ Nuova password salvata. Soraya sta aprendo l'app ...",
+  "Passwort konnte nicht gespeichert werden: {error}": "Impossibile salvare la password: {error}",
+  "Bitte erneut versuchen.": "Riprova."
 };
