@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v31";
+  const APP_VERSION = "web-v32";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -636,6 +636,19 @@
     }
   }
 
+  // Sprache fuer die Mails (z. B. "Passwort zurücksetzen") im Konto aktuell halten.
+  // Nur wenn sie sich geaendert hat; das Demo-Konto bleibt unveraendert.
+  let mailLangSynced = false;
+  function syncMailLang(session) {
+    try {
+      const user = session && session.user;
+      if (mailLangSynced || !user || !sb || user.email === "kovacs.attilazsolt@gmx.at") return;
+      mailLangSynced = true;
+      if ((user.user_metadata || {}).lang === LANG()) return;
+      sb.auth.updateUser({ data: { lang: LANG() } }).catch(() => {});
+    } catch (error) {}
+  }
+
   async function renderAuthUi() {
     const state = await getSessionState();
     const topButton = $("authTopButton");
@@ -647,6 +660,7 @@
 
     if (state.ok) {
       document.body.classList.remove("soraya-logged-out", "soraya-needs-login");
+      syncMailLang(state.session);
       const email = state.session && state.session.user ? state.session.user.email : "Supabase User";
 
       if (topButton) {

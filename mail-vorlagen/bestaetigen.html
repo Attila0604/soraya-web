@@ -1,0 +1,46 @@
+{{ $l := or .Data.lang "en" }}<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"></head>
+<body style="margin:0;padding:0;background:#0b0713">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0b0713;padding:32px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background:#160d26;border:1px solid #3a2c52;border-radius:20px">
+        <tr><td align="center" style="padding:36px 28px 8px">
+          <img src="https://app.sorayaluxuryastroguide.com/icon-192.png" width="72" height="72" alt="Soraya" style="display:block;border:0;border-radius:16px">
+          <div style="margin-top:14px;font-family:Georgia,'Times New Roman',serif;font-size:15px;letter-spacing:6px;color:#d9bd85">SORAYA</div>
+        </td></tr>
+        <tr><td align="center" style="padding:20px 32px 36px;font-family:Arial,Helvetica,sans-serif">
+          {{ if eq $l "de" }}
+          <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:28px;line-height:1.25;color:#f4e6c4">Willkommen bei Soraya</h1>
+          <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#d9d0ea">Nur noch ein Schritt: Bestätige deine E-Mail-Adresse, dann wartet dein persönliches Horoskop auf dich.</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td style="border-radius:999px;background:#d9bd85">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 34px;font-size:16px;font-weight:bold;color:#1a1209;text-decoration:none;border-radius:999px">E-Mail bestätigen</a>
+          </td></tr></table>
+          <p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:#8a7ea6">Du hast dich nicht bei Soraya registriert? Dann kannst du diese Mail einfach ignorieren.</p>
+          {{ else if eq $l "hu" }}
+          <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:28px;line-height:1.25;color:#f4e6c4">Üdv a Sorayánál</h1>
+          <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#d9d0ea">Már csak egy lépés: erősítsd meg az e-mail-címedet, és vár a személyes horoszkópod.</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td style="border-radius:999px;background:#d9bd85">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 34px;font-size:16px;font-weight:bold;color:#1a1209;text-decoration:none;border-radius:999px">E-mail megerősítése</a>
+          </td></tr></table>
+          <p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:#8a7ea6">Nem regisztráltál a Sorayán? Akkor nyugodtan hagyd figyelmen kívül ezt a levelet.</p>
+          {{ else if eq $l "it" }}
+          <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:28px;line-height:1.25;color:#f4e6c4">Ti diamo il benvenuto su Soraya</h1>
+          <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#d9d0ea">Manca solo un passo: conferma il tuo indirizzo email e il tuo oroscopo personale ti aspetta.</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td style="border-radius:999px;background:#d9bd85">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 34px;font-size:16px;font-weight:bold;color:#1a1209;text-decoration:none;border-radius:999px">Conferma email</a>
+          </td></tr></table>
+          <p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:#8a7ea6">Non hai creato un account su Soraya? Puoi semplicemente ignorare questa email.</p>
+          {{ else }}
+          <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:28px;line-height:1.25;color:#f4e6c4">Welcome to Soraya</h1>
+          <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#d9d0ea">Just one more step: confirm your email address and your personal horoscope is waiting for you.</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td style="border-radius:999px;background:#d9bd85">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 34px;font-size:16px;font-weight:bold;color:#1a1209;text-decoration:none;border-radius:999px">Confirm email</a>
+          </td></tr></table>
+          <p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:#8a7ea6">Didn't sign up for Soraya? You can simply ignore this email.</p>
+          {{ end }}
+        </td></tr>
+      </table>
+      <p style="margin:18px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5c5175">Soraya · Luxury Astro Guide · sorayaluxuryastroguide.com</p>
+    </td></tr>
+  </table>
+</body></html>
