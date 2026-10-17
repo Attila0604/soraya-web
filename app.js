@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v28";
+  const APP_VERSION = "web-v29";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -552,6 +552,29 @@
     const inApp = isInAppBrowser();
     if ($("iosInApp")) $("iosInApp").hidden = !inApp;
     if ($("iosSteps")) $("iosSteps").hidden = inApp;
+  }
+
+  function isAndroid() {
+    return /Android/i.test(navigator.userAgent || "");
+  }
+
+  // Android im Browser (nicht in der Play-App): Hinweis auf Google Play, bis zum Wegklicken
+  function renderAndroidHint() {
+    const card = $("androidInstallCard");
+    if (!card) return;
+    let dismissed = false;
+    try { dismissed = localStorage.getItem("soraya_android_hint_dismissed") === "1"; } catch (error) {}
+    const show = isAndroid() && !isStandalone() && !dismissed;
+    card.hidden = !show;
+    const link = $("androidPlayLink");
+    if (show && link) link.href = link.href.split("&hl=")[0] + "&hl=" + LANG();
+  }
+
+  function dismissAndroidHint() {
+    try { localStorage.setItem("soraya_android_hint_dismissed", "1"); } catch (error) {}
+    const card = $("androidInstallCard");
+    if (card) card.hidden = true;
+    track("android_hint_closed", {});
   }
 
   function dismissIosHint() {
@@ -3232,6 +3255,10 @@
       else if (moon.phase) setText("moonPhase", moon.phase);
       if (moon.illumination !== undefined) {
         setText("moonIllum", (moonSign ? t("Mond in {sign}", { sign: moonSign }) + " · " : "") + t("{value} % beleuchtet", { value: moon.illumination }));
+        // Bild aus den genauen Werten des Servers (die eigene Rechnung nutzt nur den mittleren Mondmonat)
+        const winkel = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * Number(moon.illumination) / 100))) * 180 / Math.PI;
+        const zunehmend = moon.phase_index == null ? true : Number(moon.phase_index) < 4;
+        if ($("moonVisual") && Number.isFinite(winkel)) $("moonVisual").innerHTML = moonSvg(zunehmend ? winkel : 360 - winkel);
       }
       renderChatSuggestions();
     } catch (error) {
@@ -3406,6 +3433,7 @@
     renderInviteCard();
     restoreQuickStart();
     renderIosHint();
+    renderAndroidHint();
     renderAuthUi();
     bindUiEvents();
     cacheSelfFromStorage();
@@ -3485,6 +3513,8 @@
   window.sorayaAddPerson = addPerson;
   window.sorayaQuickStart = quickStart;
   window.sorayaDismissIosHint = dismissIosHint;
+  window.sorayaDismissAndroidHint = dismissAndroidHint;
+  window.sorayaTrackPlay = () => { track("android_play_click", {}); if (quelle()) publicEvent("store_klick"); };
   window.sorayaShareInvite = shareInvite;
   window.sorayaInviteMatch = inviteMatch;
   window.sorayaInviteCta = inviteCta;
