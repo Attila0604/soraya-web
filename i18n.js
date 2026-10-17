@@ -22,6 +22,11 @@
   var STRINGS = window.SORAYA_STRINGS || {};
 
   function detect() {
+    // ?lang= aus einem Link (Landingpage, Post) gilt und wird gemerkt
+    try {
+      var q = new URLSearchParams(location.search).get("lang");
+      if (q && LANGS.indexOf(q) >= 0) { localStorage.setItem(KEY, q); return q; }
+    } catch (error) {}
     try {
       var stored = localStorage.getItem(KEY);
       if (stored && LANGS.indexOf(stored) >= 0) return stored;
