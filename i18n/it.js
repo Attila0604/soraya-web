@@ -668,5 +668,6 @@ window.SORAYA_STRINGS.it = {
   "Mit Geburtszeit und Ort im Profil": "Con ora e luogo di nascita nel profilo",
   "Soraya als App auf deinem Handy": "Soraya come app sul tuo telefono",
   "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Gratis su Google Play: si apre più velocemente e resti connesso.",
-  "Bei Google Play laden": "Scarica da Google Play"
+  "Bei Google Play laden": "Scarica da Google Play",
+  "html.horo.gast": "Il tuo oroscopo <b>personale</b> – da tutto il tuo tema natale, non solo dal segno solare – lo ricevi con un account gratuito."
 };
