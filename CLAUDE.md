@@ -112,7 +112,12 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   API-Einrichtung mit Instagram-Login) noch nicht in Railway. Soraya hat **kein eigenes Instagram-Konto**;
   vorhanden ist nur `attilazsolt.kovacs` (Business). Empfehlung: dieses umbenennen statt neues Konto anlegen
   (Sperr-Risiko). Danach in Meta unter App-Rollen → Instagram-Tester eintragen und im Dashboard verbinden.
-- Tipp für Kosten: Tagesplan-Sprachen auf **nur EN** stellen, solange nur Englisch gepostet wird.
+- **Lernen aus der Wirkung (17.10.):** Punkte je Post (neues Konto 15, geteilt 4, Kommentar 3, Link-Besuch 2,
+  Gefällt mir 1); Facebook-Reaktionen werden alle 6 h gemerkt. Tagesplan bekommt die 3 besten Posts (auch aus
+  anderen Sprachen) und welche Formate am besten/schwächsten ankommen. Sichtbar unter Wirkung → „Was Soraya daraus lernt“.
+- **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
+  Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
+  Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
 - Nutzerzahlen (15.10.2026): 6 Konten insgesamt (inkl. Demo), letzte Registrierung 03.10. – es fehlt
   Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
