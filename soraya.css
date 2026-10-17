@@ -826,6 +826,7 @@ body.soraya-horoscope-loading #horoBody{animation:soraya-pulse 1.6s ease-in-out 
 body.soraya-no-profile #home .c46-energy-card,
 body.soraya-no-profile #home .c46-transit-preview{display:none}
 body.soraya-no-profile #home .c46-dashboard-grid{grid-template-columns:1fr}
+body.soraya-no-profile #home .c46-dashboard-grid .card{padding:var(--s4)}
 
 @media (max-width: 600px){
   /* Horoskop-Karten (Fokus/Liebe/Beruf) als saubere Liste statt 2+1-Raster */

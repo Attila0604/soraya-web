@@ -192,6 +192,14 @@
           </div>
         </div>
 
+        <!-- Android im Browser: Hinweis auf die App bei Google Play -->
+        <div class="card ios-install-card" id="androidInstallCard" hidden>
+          <button type="button" class="ios-install-close" onclick="sorayaDismissAndroidHint()" aria-label="Hinweis schließen">×</button>
+          <div class="card-title"><h4>Soraya als App auf deinem Handy</h4></div>
+          <p class="c4-muted">Kostenlos bei Google Play – startet schneller und bleibt angemeldet.</p>
+          <a class="btn gold block" style="text-align:center;justify-content:center" id="androidPlayLink" href="https://play.google.com/store/apps/details?id=com.sorayaluxuryastroguide.app.twa" target="_blank" rel="noopener" onclick="sorayaTrackPlay()">Bei Google Play laden</a>
+        </div>
+
         <div class="card premium c46-daily-focus" id="dailyFocusCard" role="button" tabindex="0" onclick="showSection('horoscope')" aria-label="Zum Tageshoroskop">
           <div class="card-title">
             <h4>Dein Tagesfokus</h4>

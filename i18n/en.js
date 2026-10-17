@@ -665,5 +665,8 @@ window.SORAYA_STRINGS.en = {
   "Mein Licht wird stärker, wenn ich es teile.": "My light grows stronger when I share it.",
   "Ohne Konto": "No account yet",
   "Trag unten deine Geburtsdaten ein.": "Enter your birth details below.",
-  "Mit Geburtszeit und Ort im Profil": "With birth time and place in your profile"
+  "Mit Geburtszeit und Ort im Profil": "With birth time and place in your profile",
+  "Soraya als App auf deinem Handy": "Soraya as an app on your phone",
+  "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Free on Google Play – opens faster and keeps you signed in.",
+  "Bei Google Play laden": "Get it on Google Play"
 };
