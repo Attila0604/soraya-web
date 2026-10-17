@@ -352,7 +352,8 @@
       var result = await withTimeout(client.auth.signUp({
         email: fields.email,
         password: password,
-        options: { emailRedirectTo: redirectTo }
+        // Sprache merken: die Bestaetigungs-Mail (Supabase-Vorlage) waehlt damit DE/EN/HU/IT
+        options: { emailRedirectTo: redirectTo, data: { lang: (window.SorayaI18n && window.SorayaI18n.lang) || "en" } }
       }), 15000, "Registrierung dauerte zu lange.");
 
       if (result.error) throw result.error;

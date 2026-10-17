@@ -46,7 +46,7 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Statisches Vanilla-JS: `index.html`, `app.js` (Hauptlogik), `soraya.css`, Module `c58…c74-*.js`,
   `sw.js` (Service Worker, network-first; **bei jeder Änderung `CACHE_VERSION` erhöhen**, aktuell
-  `soraya-v31`, `APP_VERSION` in `app.js` = `web-v31`).
+  `soraya-v32`, `APP_VERSION` in `app.js` = `web-v32`).
 - i18n: deutsche Quelltexte sind die Schlüssel; Übersetzungen in `i18n/en.js`, `i18n/hu.js`, `i18n/it.js`
   (je ~644 Einträge), `t()` in `app.js`, `i18n.js` blendet die Seite bis zur Übersetzung aus (kein Flackern).
 - Funktionen: Schnellstart ohne Konto (Sonne/Mond), Profil, Geburtshoroskop/Radix, Tageshoroskop,
@@ -118,6 +118,9 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
   Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
   Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
+- **Mails über Resend (vorbereitet, noch nicht eingerichtet):** App speichert `lang` im Konto; Vorlagen +
+  Schritt-für-Schritt in `mail-vorlagen/` (ANLEITUNG.md). Attila legt Resend-Konto + Domain an, trägt SMTP in
+  Supabase ein. Danach Branch `datenschutz-resend` (Datenschutz 4 Sprachen) mergen.
 - Nutzerzahlen (15.10.2026): 6 Konten insgesamt (inkl. Demo), letzte Registrierung 03.10. – es fehlt
   Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
