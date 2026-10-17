@@ -668,5 +668,6 @@ window.SORAYA_STRINGS.en = {
   "Mit Geburtszeit und Ort im Profil": "With birth time and place in your profile",
   "Soraya als App auf deinem Handy": "Soraya as an app on your phone",
   "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Free on Google Play – opens faster and keeps you signed in.",
-  "Bei Google Play laden": "Get it on Google Play"
+  "Bei Google Play laden": "Get it on Google Play",
+  "html.horo.gast": "Your <b>personal</b> horoscope – from your whole birth chart instead of just your Sun sign – comes with a free account."
 };

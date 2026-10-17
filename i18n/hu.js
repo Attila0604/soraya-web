@@ -668,5 +668,6 @@ window.SORAYA_STRINGS.hu = {
   "Mit Geburtszeit und Ort im Profil": "Születési időponttal és hellyel a profilban",
   "Soraya als App auf deinem Handy": "Soraya alkalmazásként a telefonodon",
   "Kostenlos bei Google Play – startet schneller und bleibt angemeldet.": "Ingyenes a Google Playen – gyorsabban indul, és bejelentkezve maradsz.",
-  "Bei Google Play laden": "Letöltés a Google Playről"
+  "Bei Google Play laden": "Letöltés a Google Playről",
+  "html.horo.gast": "A <b>személyes</b> horoszkópodat – a teljes születési képletedből, nem csak a Nap-jegyedből – ingyenes fiókkal kapod meg."
 };

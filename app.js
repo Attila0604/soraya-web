@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v30";
+  const APP_VERSION = "web-v31";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1155,6 +1155,7 @@
   }
 
   function renderHoroscope(data) {
+    if ($("horoGastCta")) $("horoGastCta").hidden = true;
     const h = data.data && data.data.horoscope ? data.data.horoscope : {};
     const mood = h.stimmung || data.data.stimmung || t("Dein Horoskop");
     const body = h.body || h.text || data.data.body || data.data.text || t("Keine Horoskopdaten gefunden.");
@@ -1180,7 +1181,12 @@
           const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(sunKey) + "&lang=" + LANG());
           const d = json.data || {};
           setText("horoMood", d.stimmung || t("Dein Tag"));
-          setText("horoBody", (d.text || "") + "\n\n" + t("Dein persönliches Horoskop – berechnet aus deinem ganzen Geburtshoroskop – bekommst du mit deinem Profil."));
+          setText("horoBody", d.text || "");
+          if ($("horoGastCta")) $("horoGastCta").hidden = false;
+          // Ritual und Affirmation wechseln auch ohne Konto taeglich
+          setText("horoRitualTitle", t("Dein Ritual"));
+          setText("horoRitualText", t(ofTheDay(DAILY_RITUALS)));
+          setText("horoAffirmation", t("„{text}“", { text: t(ofTheDay(DAILY_AFFIRMATIONS)) }));
           setText("horoTip", d.tipp ? "✦ " + d.tipp : "");
           if (d.liebe) setText("horoLoveText", d.liebe);
           if (d.beruf) setText("horoWorkText", d.beruf);
