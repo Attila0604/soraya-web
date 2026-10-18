@@ -115,6 +115,12 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **Lernen aus der Wirkung (17.10.):** Punkte je Post (neues Konto 15, geteilt 4, Kommentar 3, Link-Besuch 2,
   Gefällt mir 1); Facebook-Reaktionen werden alle 6 h gemerkt. Tagesplan bekommt die 3 besten Posts (auch aus
   anderen Sprachen) und welche Formate am besten/schwächsten ankommen. Sichtbar unter Wirkung → „Was Soraya daraus lernt“.
+- **Selbst-Tests (18.10.):** Jeder Tagesplan wählt einen Hook-Stil (Frage, Mutige Aussage, Neugier-Lücke, Alltags-Szene,
+  Sternzeichen direkt, Zahl & Liste) und eine Handlungsaufforderung (`redaktion.selbsttest`, in `meta.hook_stil` /
+  `meta.aufforderung`). Nach je 3 gemessenen Posts meist die beste Variante, 20 % Neugier; Aufforderung zählt nach
+  Besuchen/Konten. Facebook-Reichweite (Recht `read_insights`, noch nicht in der Meta-App) gibt je 100 erreicht 1 Punkt.
+- **Bilder/Reels (18.10.):** Mond mit Oberfläche und Erdschein, Sternennebel, Goldrahmen (`bild-3`); Farb-Emojis auf
+  Bildern (`fonts/NotoColorEmoji-Soraya.ttf`, Auszug, OFL); Reels mit wandernden Sternen und Sternschnuppen (`reel-5`).
 - **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
   Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
   Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
