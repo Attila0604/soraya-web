@@ -19,8 +19,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <script src="/vendor/supabase-js-2.117.3.js"></script>
-  <script src="/config.js"></script>
+  <!-- defer: blockiert den ersten Bildaufbau nicht; laeuft trotzdem vor app.js (gleiche Reihenfolge) -->
+  <script src="/vendor/supabase-js-2.117.3.js" defer></script>
+  <script src="/config.js" defer></script>
   <!-- Sprachen: Uebersetzungen zuerst, dann die Sprach-Logik -->
   <script src="/i18n/en.js"></script>
   <script src="/i18n/hu.js"></script>
@@ -136,7 +137,8 @@
               <div><label for="qsMonth">Monat</label><input id="qsMonth" inputmode="numeric" placeholder="MM" maxlength="2" /></div>
               <div><label for="qsYear">Jahr</label><input id="qsYear" inputmode="numeric" placeholder="JJJJ" maxlength="4" /></div>
             </div>
-            <div class="form-row">
+            <button class="qs-time-toggle" type="button" id="qsTimeToggle" aria-expanded="false" aria-controls="qsTimeRow">+ Geburtszeit hinzufügen (optional)</button>
+            <div class="form-row" id="qsTimeRow" hidden>
               <div><label for="qsHour">Stunde (optional)</label><input id="qsHour" inputmode="numeric" placeholder="hh" maxlength="2" /></div>
               <div><label for="qsMinute">Minute (optional)</label><input id="qsMinute" inputmode="numeric" placeholder="mm" maxlength="2" /></div>
             </div>
@@ -154,6 +156,7 @@
               <h4 id="qsHoroMood">Soraya liest die Sterne…</h4>
               <p id="qsHoroText"></p>
               <span class="badge" id="qsHoroTip"></span>
+              <p class="qs-tomorrow" id="qsTomorrow">☾ Morgen schreibt Soraya ein neues Tageshoroskop für dich – schau einfach wieder vorbei.</p>
             </div>
             <div class="qs-cta">
               <p id="qsCtaText" data-i18n-html="html.qs.cta">Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.</p>
@@ -212,6 +215,7 @@
               <p id="dailyFocusText">Soraya nutzt dein Profil und aktuelle Transite für deinen Tagesimpuls.</p>
             </div>
           </div>
+          <p class="c46-streak" id="dailyStreak" hidden></p>
         </div>
 
         <div class="c4-dashboard-grid c46-dashboard-grid">
@@ -558,7 +562,7 @@
         <button id="deleteAccountBtn" type="button" style="display:block;width:100%;margin-top:10px;padding:11px;background:transparent;border:none;color:#9184a8;font-size:13px;text-decoration:underline;cursor:pointer;">Konto löschen</button>
       </section>
 
-      <footer style="text-align:center;padding:26px 16px calc(30px + env(safe-area-inset-bottom));font-size:12.5px;color:#9184a8;">
+      <footer class="app-footer" style="text-align:center;padding:26px 16px calc(30px + env(safe-area-inset-bottom));font-size:12.5px;color:#9184a8;">
         <a href="/datenschutz" style="color:#ffe39b;text-decoration:none;">Datenschutz</a>
         <span style="opacity:.4;margin:0 8px;">·</span>
         <a href="/impressum" style="color:#ffe39b;text-decoration:none;">Impressum</a>

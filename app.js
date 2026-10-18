@@ -20,11 +20,12 @@
     created: "soraya_created_at",
     analyses: "soraya_analysis_count",
     people: "soraya_people_cache_v1",
-    authUser: "soraya_auth_user_id"
+    authUser: "soraya_auth_user_id",
+    streak: "soraya_streak"
   };
 
   // Alles, was zu einem bestimmten Nutzer gehoert (bei Benutzerwechsel loeschen)
-  const PROFILE_KEYS = [KEYS.person, KEYS.conv, KEYS.name, KEYS.birth, KEYS.created, KEYS.analyses, KEYS.people];
+  const PROFILE_KEYS = [KEYS.person, KEYS.conv, KEYS.name, KEYS.birth, KEYS.created, KEYS.analyses, KEYS.people, KEYS.streak];
 
   const LOGIN_PATH = "/login";
   const SKY_REFRESH_MS = 10 * 60 * 1000;
@@ -32,7 +33,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v36";
+  const APP_VERSION = "web-v37";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -62,14 +63,28 @@
       .replace(/"/g, "&quot;");
   }
 
+  // Lange Texte (Analyse, Partner-Deutung): echte Absaetze, Zwischentitel und Listen
+  // statt <br><br> -- ruhiger Lesefluss und gleichmaessige Abstaende.
   function markdownToHtml(text) {
-    return escapeHtml(text || t("Noch kein Text vorhanden."))
-      .replace(/^### (.*)$/gm, "<h3>$1</h3>")
-      .replace(/^## (.*)$/gm, "<h2>$1</h2>")
-      .replace(/^# (.*)$/gm, "<h1>$1</h1>")
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\n\n/g, "<br><br>")
-      .replace(/\n/g, "<br>");
+    const inline = (s) => escapeHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>");
+    const blocks = String(text || t("Noch kein Text vorhanden.")).replace(/\r/g, "").split(/\n\s*\n/);
+    const out = [];
+    blocks.forEach((block) => {
+      const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+      let para = [];
+      let list = [];
+      const flushPara = () => { if (para.length) out.push("<p>" + para.map(inline).join("<br>") + "</p>"); para = []; };
+      const flushList = () => { if (list.length) out.push("<ul>" + list.map((l) => "<li>" + inline(l) + "</li>").join("") + "</ul>"); list = []; };
+      lines.forEach((line) => {
+        const h = /^#{1,4}\s+(.*)$/.exec(line);
+        const li = /^[-*•]\s+(.*)$/.exec(line);
+        if (h) { flushPara(); flushList(); out.push('<h3 class="rd-h">' + inline(h[1].replace(/[#*]+$/g, "").trim()) + "</h3>"); }
+        else if (li) { flushPara(); list.push(li[1]); }
+        else { flushList(); para.push(line); }
+      });
+      flushPara(); flushList();
+    });
+    return out.join("");
   }
 
   function toast(message) {
@@ -830,6 +845,14 @@
       open.textContent = t("Analyse erstellen");
     }
     if (regen) regen.style.display = hasReading ? "" : "none";
+    // Mit fertigem Text: "Neu erstellen" ans Ende (erst lesen, dann ggf. neu machen)
+    const row = open && open.parentNode;
+    const reading = $("analysisReading");
+    if (row && reading && reading.parentNode === row.parentNode) {
+      if (hasReading && row.nextElementSibling !== null && reading.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_PRECEDING) reading.after(row);
+      if (!hasReading && reading.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING) reading.before(row);
+      row.classList.toggle("is-after", !!hasReading);
+    }
   }
 
   function showAnalysis(data) {
@@ -1290,8 +1313,30 @@
     }
   }
 
+  // Taegliche Gewohnheit: Tage in Folge zaehlen (nur auf diesem Geraet) und auf morgen hinweisen
+  function localDayKey(d = new Date()) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function renderStreak() {
+    const box = $("dailyStreak");
+    if (!box) return;
+    if (!getCurrentPersonId()) { box.hidden = true; return; }
+    const today = localDayKey();
+    const yesterday = localDayKey(new Date(Date.now() - 86400000));
+    let st = readJson(KEYS.streak, null);
+    if (!st || !st.last) st = { last: today, n: 1 };
+    else if (st.last !== today) st = { last: today, n: st.last === yesterday ? (Number(st.n) || 1) + 1 : 1 };
+    try { writeJson(KEYS.streak, st); } catch (error) {}
+    box.textContent = st.n >= 2
+      ? t("✦ {n} Tage in Folge bei Soraya – morgen wartet dein nächster Impuls.", { n: st.n })
+      : t("✦ Morgen wartet ein neuer Impuls für dich – schau einfach wieder vorbei.");
+    box.hidden = false;
+  }
+
   // Startseite: "Dein Tag" aus dem eigenen Tageshoroskop (statt Zufallsspruch).
   async function loadDailyFocus() {
+    renderStreak();
     if (!getCurrentPersonId()) return;
     try {
       const data = await fetchHoroscope("daily");
@@ -2991,6 +3036,7 @@
     const signPerson = sunKey ? (LANG() === "de" ? SIGN_PERSON[sunKey] : trSign(sunKey)) : t("Sternzeichen");
     setText("qsHoroLabel", t("Dein Tag als {sign}", { sign: signPerson }));
     const ribbon = $("heroRibbon");
+    if (!getCurrentPersonId()) setText("heroSub", t("Das verraten Sonne und Mond über dich – und so wird dein Tag heute."));
     if (ribbon && !getCurrentPersonId()) {
       ribbon.innerHTML = "<span><b>☉</b> " + escapeHtml(signDisplay(sun)) + "</span><span><b>☾</b> " + escapeHtml(signDisplay(moon)) + "</span>";
       ribbon.classList.add("is-personal");
@@ -3056,6 +3102,17 @@
       status("qsStatus", t("Bitte Tag, Monat und Jahr eingeben."), "bad");
       return;
     }
+    const thisYear = new Date().getFullYear();
+    const probe = new Date(birth.year, birth.month - 1, birth.day);
+    if (birth.year < 1900 || birth.year > thisYear || probe.getMonth() !== birth.month - 1 || probe.getDate() !== birth.day) {
+      status("qsStatus", t("Dieses Datum gibt es nicht. Bitte prüfe Tag, Monat und Jahr (z. B. 05 · 11 · 1990)."), "bad");
+      return;
+    }
+    if ((birth.hour !== null && (Number.isNaN(birth.hour) || birth.hour < 0 || birth.hour > 23)) ||
+        (birth.minute !== null && (Number.isNaN(birth.minute) || birth.minute < 0 || birth.minute > 59))) {
+      status("qsStatus", t("Bitte die Uhrzeit als Stunde 0–23 und Minute 0–59 eingeben – oder leer lassen."), "bad");
+      return;
+    }
     if (birth.hour !== null && birth.minute === null) birth.minute = 0;
     const button = $("qsButton");
     if (button) button.disabled = true;
@@ -3066,6 +3123,9 @@
       writeJson(PREVIEW_KEY, preview);
       status("qsStatus", "");
       renderQuickStart(preview);
+      // Ergebnis sofort ins Blickfeld holen (der Moment, auf den der Gast wartet)
+      const card = $("quickStartCard");
+      if (card && card.getBoundingClientRect().top < 0) card.scrollIntoView({ behavior: "smooth", block: "start" });
       track("quickstart_done", { time_known: birth.hour !== null });
       // anonym zaehlen (auch ohne Konto) -- sonst sieht die Statistik nur eingeloggte Schnellstarts
       publicEvent("quickstart_done");
@@ -3100,6 +3160,50 @@
     }
     if (box) box.style.display = "none";
     if (form) form.style.display = "block";
+    if (preview && preview.birth.hour !== null && preview.birth.hour !== undefined) toggleQuickStartTime(true);
+  }
+
+  function toggleQuickStartTime(open) {
+    const row = $("qsTimeRow");
+    const btn = $("qsTimeToggle");
+    if (!row || !btn) return;
+    const next = open === undefined ? row.hidden : !!open;
+    row.hidden = !next;
+    btn.setAttribute("aria-expanded", next ? "true" : "false");
+    btn.hidden = next;
+    if (next && open === undefined && $("qsHour")) $("qsHour").focus();
+  }
+
+  // Schnellstart-Felder: nach 2 Ziffern automatisch weiter, Enter rechnet sofort
+  function bindQuickStartFields() {
+    const chain = [["qsDay", 2, "qsMonth"], ["qsMonth", 2, "qsYear"], ["qsHour", 2, "qsMinute"],
+      ["ivDay", 2, "ivMonth"], ["ivMonth", 2, "ivYear"], ["ivHour", 2, "ivMinute"]];
+    chain.forEach(([id, len, next]) => {
+      const node = $(id);
+      if (!node || node.dataset.chain) return;
+      node.dataset.chain = "1";
+      node.addEventListener("input", () => {
+        node.value = node.value.replace(/\D/g, "");
+        if (node.value.length >= len && $(next) && !$(next).value) $(next).focus();
+      });
+    });
+    ["qsDay", "qsMonth", "qsYear", "qsHour", "qsMinute"].forEach((id) => {
+      const node = $(id);
+      if (!node || node.dataset.enter) return;
+      node.dataset.enter = "1";
+      if (id === "qsYear" || id === "qsMinute") node.addEventListener("input", () => { node.value = node.value.replace(/\D/g, ""); });
+      node.setAttribute("enterkeyhint", "go");
+      node.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { event.preventDefault(); quickStart(); }
+      });
+    });
+    const toggle = $("qsTimeToggle");
+    if (toggle && !toggle.dataset.bound) {
+      toggle.dataset.bound = "1";
+      toggle.addEventListener("click", () => toggleQuickStartTime());
+    }
+    const preview = readPreview();
+    if ((preview && preview.birth.hour !== null && preview.birth.hour !== undefined) || ($("qsHour") && $("qsHour").value)) toggleQuickStartTime(true);
   }
 
   async function quickStartCta() {
@@ -3156,6 +3260,7 @@
 
   async function restoreQuickStart() {
     if (takeBirthFromUrl()) {
+      if ($("qsHour") && $("qsHour").value) toggleQuickStartTime(true);
       const form = $("qsForm");
       if (form) form.style.display = "block";
       await quickStart();
@@ -3648,6 +3753,7 @@
     renderSkyToday(true);
     takeInviteFromUrl();
     renderInviteCard();
+    bindQuickStartFields();
     restoreQuickStart();
     renderIosHint();
     renderAndroidHint();

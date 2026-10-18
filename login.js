@@ -214,7 +214,9 @@
     if (el("registerTabButton")) el("registerTabButton").classList.toggle("active", mode === "register");
     if (el("loginSubmitButton")) el("loginSubmitButton").textContent = mode === "register" ? T("Registrieren") : T("Einloggen");
     if (el("loginPassword")) el("loginPassword").autocomplete = mode === "register" ? "new-password" : "current-password";
-    setLoginStatus(mode === "register" ? T("Bereit zum Registrieren.") : T("Bereit zum Einloggen."));
+    document.body.classList.toggle("soraya-register-mode", mode === "register");
+    showResendInline(false);
+    setLoginStatus("");
   }
 
   function togglePassword(id) {
@@ -285,8 +287,6 @@
         return true;
       }
 
-      var mode = el("loginMode") ? el("loginMode").value : "login";
-      setLoginStatus(mode === "register" ? T("Bereit zum Registrieren.") : T("Bereit zum Einloggen."));
       return false;
     } catch (error) {
       renderConnectionBox();
@@ -328,7 +328,9 @@
       setLoginStatus(backendOk ? T("✅ Login erfolgreich. Soraya öffnet die App ...") : T("✅ Login erfolgreich. Soraya öffnet die App und prüft Backend erneut ..."), "ok");
       returnToApp(500);
     } catch (error) {
-      setLoginStatus(T("Login fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
+      var notConfirmed = /email not confirmed|not confirmed/i.test((error && error.message) || "");
+      setLoginStatus(notConfirmed ? friendlyError(error, "") : T("Login fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
+      showResendInline(notConfirmed);
     } finally {
       setBusy(false);
     }
@@ -364,7 +366,15 @@
         return;
       }
 
-      setLoginStatus(T("✅ Registrierung erfolgreich. Bitte E-Mail bestätigen und danach einloggen."), "ok");
+      // Supabase meldet ein schon bestaetigtes Konto ohne Fehler, aber ohne Identitaet
+      var user = result.data && result.data.user;
+      if (user && Array.isArray(user.identities) && user.identities.length === 0) {
+        setMode("login");
+        setLoginStatus(T("Mit dieser E-Mail gibt es schon ein Konto. Bitte einloggen – oder „Passwort vergessen“ antippen."), "bad");
+        return;
+      }
+      // Bestaetigung noetig: klare eigene Ansicht statt kleiner Statuszeile
+      showConfirmPanel(fields.email);
     } catch (error) {
       setLoginStatus(T("Registrierung fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
     } finally {
@@ -392,6 +402,52 @@
       setLoginStatus(T("Passwort zurücksetzen fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte E-Mail prüfen.")) }), "bad");
     } finally {
       setBusy(false);
+    }
+  }
+
+  function showResendInline(show) {
+    var b = el("resendInlineButton");
+    if (b) b.hidden = !show;
+  }
+
+  function showConfirmPanel(email) {
+    if (el("confirmEmail")) el("confirmEmail").textContent = email;
+    if (el("confirmPanel")) el("confirmPanel").hidden = false;
+    document.body.classList.add("soraya-confirm-mode");
+    setLoginStatus("");
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (error) {}
+  }
+
+  function backToLogin() {
+    if (el("confirmPanel")) el("confirmPanel").hidden = true;
+    document.body.classList.remove("soraya-confirm-mode");
+    setMode("login");
+    if (el("loginPassword")) el("loginPassword").value = "";
+  }
+
+  async function resendConfirmation() {
+    if (busy) return;
+    var email = (el("confirmEmail") && el("confirmEmail").textContent) || getEmail();
+    var inPanel = el("confirmPanel") && !el("confirmPanel").hidden;
+    var btn = el(inPanel ? "resendConfirmButton" : "resendInlineButton");
+    try {
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error(T("Bitte eine gültige E-Mail eingeben."));
+      setBusy(true);
+      if (btn) btn.disabled = true;
+      var result = await withTimeout(getLoginClient().auth.resend({
+        type: "signup",
+        email: email,
+        options: { emailRedirectTo: window.location.origin + "/login?return=1" }
+      }), 15000, T("Das dauerte zu lange."));
+      if (result.error) throw result.error;
+      setLoginStatus(T("✅ Neue Bestätigungs-Mail ist unterwegs. Bitte schau in dein Postfach."), "ok");
+      if (inPanel && el("loginStatus")) el("loginStatus").style.display = "block";
+    } catch (error) {
+      setLoginStatus(T("Senden hat nicht geklappt: {error}", { error: friendlyError(error, T("Bitte erneut versuchen.")) }), "bad");
+    } finally {
+      setBusy(false);
+      // kurz sperren, damit nicht mehrfach hintereinander gesendet wird
+      if (btn) window.setTimeout(function () { btn.disabled = false; }, 30000);
     }
   }
 
@@ -500,6 +556,8 @@
     signIn: signIn,
     signUp: signUp,
     resetPassword: resetPassword,
+    resendConfirmation: resendConfirmation,
+    backToLogin: backToLogin,
     saveConfig: saveConfig,
     checkLoginSession: checkLoginSession
   };
