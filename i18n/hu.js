@@ -59,6 +59,7 @@ window.SORAYA_STRINGS.hu = {
   "Birth Chart": "Születési képlet",
   "Birth Chart · Transite · persönliche Antwort": "Születési képlet · tranzitok · személyes válasz",
   "Birth Chart, Horoskop, Chat und Synastrie — klar, schön und persönlich.": "Születési képlet, horoszkóp, chat és szinasztria — világosan, szépen és személyesen.",
+  "Geburtshoroskop, Tageshoroskop, Chat und Partner-Vergleich — klar, schön und persönlich.": "Születési képlet, napi horoszkóp, chat és párkapcsolati összevetés — világosan, szépen és személyesen.",
   "Birth-Chart-Daten werden geladen.": "A születési képlet adatai betöltődnek.",
   "Bitte Daten prüfen.": "Kérlek, ellenőrizd az adatokat.",
   "Bitte E-Mail prüfen.": "Kérlek, ellenőrizd az e-mail-címet.",

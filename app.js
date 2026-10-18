@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v35";
+  const APP_VERSION = "web-v36";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -3067,6 +3067,8 @@
       status("qsStatus", "");
       renderQuickStart(preview);
       track("quickstart_done", { time_known: birth.hour !== null });
+      // anonym zaehlen (auch ohne Konto) -- sonst sieht die Statistik nur eingeloggte Schnellstarts
+      publicEvent("quickstart_done");
       if (quelle()) publicEvent("schnellstart");
     } catch (error) {
       status("qsStatus", friendlyError(error, t("Das hat nicht geklappt. Bitte Datum prüfen.")), "bad");

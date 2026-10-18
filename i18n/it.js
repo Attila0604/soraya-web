@@ -59,6 +59,7 @@ window.SORAYA_STRINGS.it = {
   "Birth Chart": "Tema natale",
   "Birth Chart · Transite · persönliche Antwort": "Tema natale · transiti · risposta personale",
   "Birth Chart, Horoskop, Chat und Synastrie — klar, schön und persönlich.": "Tema natale, oroscopo, chat e sinastria — chiari, belli e personali.",
+  "Geburtshoroskop, Tageshoroskop, Chat und Partner-Vergleich — klar, schön und persönlich.": "Tema natale, oroscopo del giorno, chat e affinità di coppia — chiari, belli e personali.",
   "Birth-Chart-Daten werden geladen.": "Caricamento dei dati del tema natale.",
   "Bitte Daten prüfen.": "Controlla i dati.",
   "Bitte E-Mail prüfen.": "Controlla l'indirizzo e-mail.",
