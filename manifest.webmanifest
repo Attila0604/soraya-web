@@ -1,7 +1,9 @@
 {
+  "id": "/",
   "name": "Soraya",
   "short_name": "Soraya",
-  "description": "Luxury Astrology Guide",
+  "description": "Luxury Astrology Guide – birth chart, daily horoscope, chat and partner compatibility",
+  "categories": ["lifestyle", "entertainment"],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

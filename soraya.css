@@ -1091,3 +1091,94 @@ body.soraya-logged-out #synastry .c44-synastry-hero{display:none !important}
 #dailyFocusCard:active{transform:scale(.985)}
 .btn.gold{box-shadow:0 6px 20px rgba(201,168,106,.18)}
 .btn.gold:active{transform:translateY(1px); box-shadow:0 3px 10px rgba(201,168,106,.14)}
+
+/* ============================================================
+   v37: Runde 3 – Lesbarkeit, Touch-Flächen, Kontrast, Gewohnheit
+   ============================================================ */
+/* Status-Zeilen: Erfolg und Fehler auf einen Blick unterscheidbar */
+.status.ok{color:var(--gold-soft); border-color:var(--gold-dim); background:rgba(201,168,106,.08)}
+.status.bad{color:#f2b2a9; border-color:rgba(224,133,122,.5); background:rgba(224,133,122,.08)}
+
+/* Touch-Flächen mindestens 44 px (Google/Apple-Richtlinie) */
+.btn{min-height:44px}
+a.btn{display:inline-flex; align-items:center; justify-content:center}
+.c58-period-tab, .login-tabs button{min-height:44px}
+.qs-login-link{min-height:44px; padding:10px 8px}
+.back-link{min-height:44px; padding:10px 0}
+.chat-suggestions button{min-height:44px; padding:9px 14px}
+.composer .round{width:44px; height:44px}
+.c73-report-head{min-height:44px}
+.ios-install-close{width:44px; height:44px; top:6px; right:6px; font-size:20px}
+#deleteAccountBtn{min-height:44px}
+.app-footer a, .login-app footer a{display:inline-block; padding:12px 6px}
+.lang-picker-compact .lang-option{min-height:44px}
+.password-toggle{width:44px; height:44px; right:2px}
+.password-toggle svg{width:20px; height:20px}
+
+/* Untere Leiste: nicht aktive Reiter besser lesbar (Kontrast vorher ca. 2,6:1) */
+.tabbar button{color:var(--mist-dim); min-height:48px}
+.tabbar button span{font-size:10.5px; letter-spacing:.03em}
+.tabbar button.active span{font-weight:600}
+/* Kleine graue Hinweise etwas heller */
+.brand .sub{color:#7d7199}
+.c41-empty{color:var(--mist-dim)}
+
+/* Lange Texte (Analyse, Partner-Deutung, Horoskop): ruhiger Lesefluss */
+.reading{white-space:normal; font-size:18px; line-height:1.62; color:#d6cce8; max-width:62ch; hyphens:auto; -webkit-hyphens:auto; overflow-wrap:break-word}
+.reading p{font-size:18px; line-height:1.62; color:#d6cce8; margin:0 0 .85em}
+.reading p:first-child{font-size:19.5px; line-height:1.55; color:var(--mist)}
+.reading p:last-child{margin-bottom:0}
+.reading ul{margin:0 0 .9em; padding-left:1.2em}
+.reading li{font-size:18px; line-height:1.55; margin:0 0 .35em; color:#d6cce8}
+.reading li::marker{color:var(--gold)}
+.reading .rd-h{font-family:var(--display); font-weight:600; font-size:22px; line-height:1.25; color:var(--gold-soft);
+  margin:1.5em 0 .45em; padding-top:1em; border-top:1px solid var(--line-soft)}
+.reading .rd-h:first-child{margin-top:0; padding-top:0; border-top:0}
+.reading strong{color:var(--gold-soft); font-weight:600}
+.syn-reading, .syn-reading p{font-size:17.5px}
+#horoBody{font-size:18px; line-height:1.62; color:#d6cce8}
+.qs-horo p{font-size:17.5px; line-height:1.6}
+.c4-reading-card #analysisReading{margin-top:var(--s2)}
+
+/* Startseite: was heute zählt nach oben (Tagesimpuls direkt unter der Begrüßung) */
+#home.section.active{display:flex; flex-direction:column}
+#home > *{order:20}
+#home > .page-title{order:0}
+#home > #inviteCard{order:1}
+#home > #quickStartCard{order:2}
+#home > #dailyFocusCard{order:3}
+#home > .c46-hero-dashboard{order:4}
+#home > #onboardingCard{order:5}
+#home > #iosInstallCard{order:6}
+#home > .c46-dashboard-grid{order:7}
+#home > #skyCard{order:8}
+#home > .c46-transit-preview{order:9}
+#home > #peopleCard{order:10}
+#home > #androidInstallCard{order:11}
+.c46-streak{margin:var(--s3) 0 0 !important; padding-top:var(--s2); border-top:1px solid var(--line-soft); font-size:12.5px !important; color:var(--gold) !important; letter-spacing:.02em}
+
+/* Gast: Begrüßung kompakter, damit der Schnellstart sofort sichtbar ist */
+body.soraya-logged-out.soraya-no-profile #home .page-title{margin:0 0 var(--s4)}
+body.soraya-logged-out.soraya-no-profile #home .page-title h2{font-size:32px; margin-bottom:var(--s2)}
+body.soraya-logged-out.soraya-no-profile #home .page-title p{font-size:13.5px}
+body.soraya-logged-out .c54-hero-ribbon:not(.is-personal){display:none}
+body.soraya-logged-out.soraya-no-profile .topbar{padding-bottom:var(--s3)}
+.qs-time-toggle{display:block; width:100%; min-height:44px; margin:var(--s3) 0 0; padding:10px 12px; text-align:left;
+  background:none; border:1px dashed var(--line); border-radius:var(--r-sm); color:var(--gold-soft); font:inherit; font-size:13px; cursor:pointer}
+#qsTimeRow{margin-top:var(--s3)}
+.qs-tomorrow{margin:var(--s3) 0 0 !important; font-size:12.5px !important; color:var(--gold) !important; font-family:var(--ui) !important; line-height:1.5 !important}
+
+/* Gast: keine leeren "Profil speichern"-Karten in der Analyse, keine Woche/Monat ohne Konto */
+body.soraya-logged-out #analysis .c41-analysis-panel,
+body.soraya-logged-out #analysis .c4-reading-card,
+body.soraya-logged-out #analysis #chartDetails,
+body.soraya-logged-out #horoscope .c58-period-tabs{display:none !important}
+.card .qs-lead{margin:0 0 var(--s4)}
+.c4-reading-card .c4-action-row.is-after{margin:var(--s4) 0 0; padding-top:var(--s3); border-top:1px solid var(--line-soft)}
+#horoscope .c4-period-picker{margin-bottom:var(--s4)}
+.c58-period-tabs{width:100%}
+/* Zahlen in der Zierschrift als normale Ziffern (alte Ziffern sahen aus wie "I" und "O") */
+body{font-variant-numeric:lining-nums}
+.stat b, .energy-ring strong, .compat strong, .invite-score strong, .c41-aspect-cards b, .syn-counts b, .c41-balance-row > b{font-variant-numeric:lining-nums tabular-nums}
+/* Big-Three: "ASZCENDENS"/"ASCENDENTE" passt in die Karte */
+.c4-big-three-grid .eyebrow{letter-spacing:.14em; font-size:9.5px; max-width:100%; overflow-wrap:anywhere}
