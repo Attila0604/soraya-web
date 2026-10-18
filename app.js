@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v33";
+  const APP_VERSION = "web-v34";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1170,6 +1170,7 @@
 
   function renderHoroscope(data) {
     if ($("horoGastCta")) $("horoGastCta").hidden = true;
+    if ($("horoStartCta")) $("horoStartCta").hidden = true;
     const h = data.data && data.data.horoscope ? data.data.horoscope : {};
     const mood = h.stimmung || data.data.stimmung || t("Dein Horoskop");
     const body = h.body || h.text || data.data.body || data.data.text || t("Keine Horoskopdaten gefunden.");
@@ -1189,6 +1190,7 @@
       const preview = readPreview();
       const sunKey = preview && preview.result && preview.result.sun && !preview.result.sun.uncertain ? preview.result.sun.sign : null;
       if (sunKey) {
+        if ($("horoStartCta")) $("horoStartCta").hidden = true;
         setText("horoDate", t("Allgemein für {sign} · heute", { sign: ASTRO ? ASTRO.sign(sunKey) : (preview.result.sun.sign_de || "") }));
         setText("horoMood", t("Soraya liest die Sterne…"));
         try {
@@ -1213,6 +1215,8 @@
       else {
         setText("horoMood", t("Dein Horoskop wartet"));
         setText("horoBody", t("Gib auf der Startseite dein Geburtsdatum ein – dann zeigt Soraya dir sofort dein Horoskop für heute."));
+        setText("horoTip", "");
+        if ($("horoStartCta")) $("horoStartCta").hidden = false;
       }
       return;
     }
@@ -2198,9 +2202,20 @@
     const hasProfile = !!(localStorage.getItem(KEYS.person) && birth && birth.day);
     document.body.classList.toggle("soraya-no-profile", !hasProfile);
     const result = $("personResult");
-    if (hasProfile && result && !result.classList.contains("bad") && /Noch nicht gespeichert/.test(result.textContent)) {
+    if (hasProfile && result && !result.classList.contains("bad") &&
+        (/Noch nicht gespeichert/.test(result.textContent) || result.textContent.trim() === t("Noch nicht gespeichert.").trim())) {
       status("personResult", t("◈ Dein Profil ist gespeichert. Änderungen einfach oben eintragen und erneut speichern."), "ok");
     }
+  }
+
+  // Geburtsdatum in der Sprache der App (z. B. "5. November 1990", "1990. november 5.")
+  function birthDateLabel(birth) {
+    const d = new Date(Number(birth.year), Number(birth.month) - 1, Number(birth.day));
+    if (I18N && !Number.isNaN(d.getTime())) {
+      const label = I18N.formatDate(d, { day: "numeric", month: "long", year: "numeric" });
+      if (label) return label;
+    }
+    return birth.day + "." + birth.month + "." + birth.year;
   }
 
   function renderProfilePreview() {
@@ -2213,7 +2228,7 @@
       : t("Geburtszeit offen");
 
     preview.innerHTML = `
-      <div><b>✦</b><span>${escapeHtml(birth.day)}.${escapeHtml(birth.month)}.${escapeHtml(birth.year)} · ${escapeHtml(time)}</span></div>
+      <div><b>✦</b><span>${escapeHtml(birthDateLabel(birth))} · ${escapeHtml(time)}</span></div>
       <div><b>⌖</b><span>${escapeHtml(birth.birthplace)}</span></div>
     `;
   }
@@ -2659,8 +2674,16 @@
   };
   const ASPECT_MEANINGS = {
     Konjunktion: "verstärkt sich", Trigon: "fließt leicht", Sextil: "öffnet Chancen",
-    Quadrat: "fordert heraus", Opposition: "sucht Balance"
+    Quadrat: "fordert heraus", Opposition: "sucht Balance",
+    Quintil: "weckt Talente", Biquintil: "weckt Talente", Halbsextil: "gibt kleine Impulse",
+    Quincunx: "verlangt Anpassung", Halbquadrat: "reibt leise", Anderthalbquadrat: "drängt zur Korrektur"
   };
+  // Achsen des Transit-Horoskops (Aszendent usw.) wandern alle paar Minuten weiter --
+  // fuer "Transit-Vorschau" und "Tagesenergie" zaehlen nur die Planeten.
+  const FAST_TRANSIT_POINTS = ["Aszendent", "Deszendent", "IC", "MC (Himmelsmitte)"];
+  function dailyAspects(list) {
+    return (list || []).filter((aspect) => FAST_TRANSIT_POINTS.indexOf(aspect.transit_de) < 0);
+  }
 
   function transitMeaning(aspect) {
     const from = PLANET_THEMES[aspect.transit_de];
@@ -2709,7 +2732,8 @@
       const json = await loadTransitsJson(getCurrentPersonId(), birth);
       document.body.classList.remove("soraya-backend-soft-fail");
 
-      const aspects = (json.data.aspects_to_natal || []).slice(0, 3);
+      const planetAspects = dailyAspects(json.data.aspects_to_natal);
+      const aspects = planetAspects.slice(0, 3);
       if (!aspects.length) {
         setHomeTransits(transitRow("☾", t("Ruhiger Himmel"), t("Gerade keine engen Transite.")));
         setEnergy(60, t("Ruhig & offen"));
@@ -2735,14 +2759,14 @@
 
       let harmony = 0;
       let tension = 0;
-      (json.data.aspects_to_natal || []).slice(0, 7).forEach((aspect) => {
+      planetAspects.slice(0, 7).forEach((aspect) => {
         if (aspect.type_de === "Trigon" || aspect.type_de === "Sextil") harmony += 1;
         if (aspect.type_de === "Quadrat" || aspect.type_de === "Opposition") tension += 1;
       });
 
       const total = harmony + tension;
       let score = total ? Math.round(50 + ((harmony - tension) / total) * 42) : 60;
-      score = Math.max(8, Math.min(96, score));
+      score = Math.max(24, Math.min(96, score));
       const label = score >= 66 ? t("Harmonisch & offen") : score >= 45 ? t("Ausgeglichen") : t("Intensiv & fordernd");
       setEnergy(score, label);
     } catch (error) {
@@ -2927,6 +2951,17 @@
     } finally {
       if (button) button.disabled = false;
     }
+  }
+
+  // Leerer Zustand (z. B. Horoskop ohne Daten): direkt zum Schnellstart springen
+  function goToQuickStart() {
+    if (typeof window.showSection === "function") window.showSection("home");
+    window.setTimeout(() => {
+      const card = $("quickStartCard");
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+      const day = $("qsDay");
+      if (day && day.offsetParent) day.focus({ preventScroll: true });
+    }, 120);
   }
 
   function quickStartEdit() {
@@ -3197,6 +3232,8 @@
   function formatDay(value) {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
+    // Ungarisch: Kurzformen wie "H", "V" sind kaum lesbar -> Wochentag ausschreiben
+    if (I18N && LANG() === "hu") return I18N.formatDate(d, { month: "short", day: "numeric", weekday: "long" });
     if (I18N && LANG() !== "de") return I18N.formatDate(d, { weekday: "short", day: "numeric", month: "short" });
     return WEEKDAYS[d.getDay()] + ", " + d.getDate() + ". " + MONTHS_SHORT[d.getMonth()];
   }
@@ -3540,6 +3577,7 @@
   window.sorayaInviteCta = inviteCta;
   window.sorayaCloseInvite = closeInvite;
   window.sorayaQuickStartEdit = quickStartEdit;
+  window.sorayaGoToQuickStart = goToQuickStart;
   window.sorayaQuickStartCta = quickStartCta;
   window.sorayaOpenSynastryWith = openSynastryWith;
   window.createSynastryPerson = createSynastryPerson;

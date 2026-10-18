@@ -681,5 +681,11 @@ window.SORAYA_STRINGS.en = {
   "Passwort wird gespeichert ...": "Saving password ...",
   "✅ Neues Passwort gespeichert. Soraya öffnet die App ...": "✅ New password saved. Soraya is opening the app ...",
   "Passwort konnte nicht gespeichert werden: {error}": "Password could not be saved: {error}",
-  "Bitte erneut versuchen.": "Please try again."
+  "Bitte erneut versuchen.": "Please try again.",
+  "Geburtsdatum eingeben": "Enter your birth date",
+  "weckt Talente": "awakens talents",
+  "gibt kleine Impulse": "gives small nudges",
+  "verlangt Anpassung": "asks you to adjust",
+  "reibt leise": "causes slight friction",
+  "drängt zur Korrektur": "pushes for a correction"
 };

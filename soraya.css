@@ -1013,3 +1013,13 @@ body.soraya-invite #quickStartCard{display:none}
 .c4-kern-knoepfe{display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .c44-teilen{display:block;margin:0 auto 14px}
 [hidden]{display:none!important}
+
+/* v34: Kern-Karte – Knöpfe bleiben nebeneinander (auch bei längeren Wörtern in HU/IT) */
+.c4-card-title .eyebrow{min-width:0}
+.c4-kern-knoepfe{flex-wrap:nowrap; flex-shrink:0}
+.c4-kern-knoepfe .btn{padding:9px 14px}
+/* v34: Leerer Tipp wird nicht als leere Pille gezeigt; Start-Knopf ohne Rahmenkasten */
+#horoTip:empty{display:none}
+#horoStartCta{border:0; padding:0; background:none}
+/* v34: Deutung – Abstand zwischen Knopf und Text */
+.c4-reading-card .c4-action-row{margin-bottom:var(--s4)}
