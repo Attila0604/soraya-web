@@ -59,6 +59,7 @@ window.SORAYA_STRINGS.en = {
   "Birth Chart": "Birth chart",
   "Birth Chart · Transite · persönliche Antwort": "Birth chart · transits · personal answer",
   "Birth Chart, Horoskop, Chat und Synastrie — klar, schön und persönlich.": "Birth chart, horoscope, chat and synastry — clear, beautiful and personal.",
+  "Geburtshoroskop, Tageshoroskop, Chat und Partner-Vergleich — klar, schön und persönlich.": "Birth chart, daily horoscope, chat and partner match — clear, beautiful and personal.",
   "Birth-Chart-Daten werden geladen.": "Loading birth chart data.",
   "Bitte Daten prüfen.": "Please check your details.",
   "Bitte E-Mail prüfen.": "Please check your email address.",
