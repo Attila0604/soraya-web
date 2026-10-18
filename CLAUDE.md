@@ -124,6 +124,11 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   Besuchen/Konten. Facebook-Reichweite (Recht `read_insights`, noch nicht in der Meta-App) gibt je 100 erreicht 1 Punkt.
 - **Bilder/Reels (18.10.):** Mond mit Oberfläche und Erdschein, Sternennebel, Goldrahmen (`bild-3`); Farb-Emojis auf
   Bildern (`fonts/NotoColorEmoji-Soraya.ttf`, Auszug, OFL); Reels mit wandernden Sternen und Sternschnuppen (`reel-5`).
+- **Posts professioneller (18.10.):** Feed-Posts als **Karussell** (Titelbild + 3 Folien + Schlussfolie; Facebook
+  Mehrbild-Beitrag, Instagram CAROUSEL), **Serien-Nummer** im Etikett („Folge 12“, `meta.folge`), Hook allein in der
+  ersten Zeile + Absätze, **besondere Tage** (`anlaesse.py`: Saisonbeginn, Vollmond-Namen, Feiertage), Uhrzeit-Tipps
+  unter Posten. Reels mit eigener Klangfläche (`reel-6`). Freigabe nur bei ernsten Befunden (`redaktion.schwer`),
+  Facebook max. 3 Hashtags. Die Tagesplan-Automatik ist seit 18.10. ebenfalls von Attila EINGESCHALTET.
 - **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
   Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
   Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
