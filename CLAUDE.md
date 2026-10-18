@@ -134,9 +134,8 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **Passwort vergessen funktioniert (17.10., getestet):** Supabase URL Configuration: Site URL
   `https://app.sorayaluxuryastroguide.com`, Redirect `https://app.sorayaluxuryastroguide.com/**`. Mail-Links gehen auf
   `/login?token_hash=…&type=recovery` (geräteunabhängig, `verifyOtp`), `/login` zeigt dann „Neues Passwort festlegen“.
-- **Statistik-Verbindung fehlt noch (18.10.):** `AGENT_STATS_TOKEN` ist offenbar nicht (gleich) in beiden Railway-Diensten
-  gesetzt – Wirkung zeigt die Anleitung „Statistik verbinden“ (Schlüssel wird dort im Browser erzeugt). Ohne sie lernt
-  Soraya nicht aus Besuchen/neuen Konten. Attila trägt den Schlüssel selbst ein.
+- **Statistik ist verbunden (18.10.):** `AGENT_STATS_TOKEN` in beiden Diensten gesetzt, Wirkung zeigt Zahlen
+  (30 Tage: 7 neue Konten, 6 aktive Nutzer, Schnellstart oft geöffnet, aber nur 1× berechnet – Absprung prüfen).
 - Nutzerzahlen (17.10.2026): 8 Konten in Supabase (inkl. Demo und Attilas Testkonten).
 - Es fehlt Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
