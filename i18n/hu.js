@@ -681,5 +681,11 @@ window.SORAYA_STRINGS.hu = {
   "Passwort wird gespeichert ...": "A jelszó mentése ...",
   "✅ Neues Passwort gespeichert. Soraya öffnet die App ...": "✅ Az új jelszó elmentve. A Soraya megnyitja az alkalmazást ...",
   "Passwort konnte nicht gespeichert werden: {error}": "A jelszót nem sikerült menteni: {error}",
-  "Bitte erneut versuchen.": "Kérlek, próbáld újra."
+  "Bitte erneut versuchen.": "Kérlek, próbáld újra.",
+  "Geburtsdatum eingeben": "Születési dátum megadása",
+  "weckt Talente": "tehetséget ébreszt",
+  "gibt kleine Impulse": "apró lendületet ad",
+  "verlangt Anpassung": "alkalmazkodást kér",
+  "reibt leise": "enyhe súrlódást okoz",
+  "drängt zur Korrektur": "kiigazításra sarkall"
 };
