@@ -1023,3 +1023,71 @@ body.soraya-invite #quickStartCard{display:none}
 #horoStartCta{border:0; padding:0; background:none}
 /* v34: Deutung – Abstand zwischen Knopf und Text */
 .c4-reading-card .c4-action-row{margin-bottom:var(--s4)}
+
+/* ============================================================
+   v35: Runde 2 – Lade-Platzhalter, Gast-Hinweise, Ergebnisse
+   ============================================================ */
+/* Lade-Schleier und Fehler-Hinweis: app.js setzt .show (vorher nie sichtbar) */
+.c411-loading-veil.show{display:grid}
+.c413-error-panel.show{display:flex}
+
+/* Schimmernde Lade-Zeilen statt "wird geladen…" */
+.sk{display:grid; gap:10px; padding:4px 0}
+.sk i{display:block; height:12px; border-radius:6px;
+  background:linear-gradient(90deg, rgba(195,183,218,.07) 0%, rgba(230,207,156,.16) 50%, rgba(195,183,218,.07) 100%);
+  background-size:200% 100%}
+.sk i:nth-child(3n+1){width:92%} .sk i:nth-child(3n+2){width:76%} .sk i:nth-child(3n){width:58%}
+.sk-rows{gap:18px; padding:8px 0}
+.sk-rows i{height:14px}
+.sk-note{display:block; margin-top:var(--s3); font-family:var(--ui); font-size:12.5px; color:var(--mist-dim); line-height:1.5}
+@media (prefers-reduced-motion:no-preference){
+  .sk i{animation:sk-schimmer 1.4s ease-in-out infinite}
+}
+@keyframes sk-schimmer{from{background-position:120% 0} to{background-position:-80% 0}}
+
+/* Ringe (Tagesenergie, Partner-%) füllen sich sanft */
+@property --score{syntax:"<percentage>"; inherits:false; initial-value:0%}
+@property --energy{syntax:"<percentage>"; inherits:false; initial-value:0%}
+.compat{transition:--score 1s cubic-bezier(.2,.7,.2,1)}
+.energy-ring{transition:--energy 1s cubic-bezier(.2,.7,.2,1)}
+/* Bezeichnung im Energie-Ring lief über den Rand ("rmonisch & off") */
+.energy-ring small{display:inline-block; max-width:70px; line-height:1.25; font-size:9px; letter-spacing:.04em; overflow-wrap:break-word}
+.compat strong{font-size:30px}
+.c44-synastry-hero .compat{width:128px; height:128px}
+
+/* Gast: klarer Hinweis "kostenloses Konto" statt Sackgasse ins Profil */
+.guest-gate{border-color:var(--gold-dim); background:linear-gradient(170deg, rgba(201,168,106,.12), rgba(26,17,44,.5) 60%)}
+.guest-gate h4{font-size:22px; margin:2px 0 var(--s1); color:var(--gold-soft)}
+.guest-gate p{color:var(--mist); font-size:14px; line-height:1.6}
+.guest-gate .btn.block{margin-top:var(--s4)}
+.guest-gate.is-nudged{animation:gate-nudge .7s ease}
+@keyframes gate-nudge{0%,100%{transform:none} 30%{transform:scale(1.02); box-shadow:0 0 0 1px var(--gold), 0 0 34px rgba(230,207,156,.25)}}
+body.soraya-logged-out #analysisEmptyGuide,
+body.soraya-logged-out #synastryPersonCreateCard,
+body.soraya-logged-out #synastry .invite-share-card,
+body.soraya-logged-out #synastry .c44-synastry-hero{display:none !important}
+
+/* Partner-Vergleich: Ergebnis als eigene, ruhige Fläche */
+.syn-result{margin-top:var(--s4); padding:var(--s4) var(--s3) var(--s3); border-top:1px solid var(--line); text-align:left}
+.syn-result h4{font-size:22px; color:var(--gold-soft); margin:0 0 var(--s3)}
+.syn-counts{display:grid; grid-template-columns:1fr 1fr; gap:var(--s2); margin-bottom:var(--s3)}
+.syn-counts span{display:flex; flex-direction:column; align-items:center; padding:var(--s2); border-radius:var(--r-sm);
+  background:rgba(10,7,20,.4); border:1px solid var(--line-soft); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--mist-dim)}
+.syn-counts b{font-family:var(--display); font-size:24px; color:var(--gold-soft); letter-spacing:0; line-height:1.1}
+.syn-reading{white-space:normal; font-size:16px}
+.syn-aspects-title{margin-top:var(--s4)}
+.syn-aspects{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px}
+.syn-aspects li{padding:7px 12px; border-radius:var(--r-pill); border:1px solid var(--line); background:rgba(201,168,106,.06); font-size:12.5px; color:var(--mist)}
+.c44-synastry-hero > .btn.block{margin-top:var(--s3)}
+#synastry .c44-synastry-hero label{margin-top:var(--s4)}
+
+/* Kleine Text-Knöpfe ("Erneut versuchen", "Zurück") */
+.link-btn{background:none; border:none; padding:0 2px; color:var(--gold-soft); font:inherit; text-decoration:underline; cursor:pointer}
+.back-link{background:none; border:none; padding:6px 0; margin:0 0 var(--s1); color:var(--gold); font-family:var(--ui); font-size:13px; letter-spacing:.04em; cursor:pointer}
+.back-link:hover{color:var(--gold-soft)}
+
+/* Antippbare Karten geben spürbares Feedback */
+#dailyFocusCard{transition:transform .15s ease, border-color .2s}
+#dailyFocusCard:active{transform:scale(.985)}
+.btn.gold{box-shadow:0 6px 20px rgba(201,168,106,.18)}
+.btn.gold:active{transform:translateY(1px); box-shadow:0 3px 10px rgba(201,168,106,.14)}
