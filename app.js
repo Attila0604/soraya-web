@@ -32,7 +32,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v34";
+  const APP_VERSION = "web-v35";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -180,6 +180,13 @@
     if (node) node.textContent = value;
   }
 
+  // Lade-Platzhalter (schimmernde Zeilen) statt leerer oder springender Inhalte
+  function skeleton(lines = 3) {
+    let html = '<div class="sk" role="status" aria-label="' + escapeHtml(t("Wird geladen…")) + '">';
+    for (let i = 0; i < lines; i += 1) html += "<i></i>";
+    return html + "</div>";
+  }
+
   function showSection(id) {
     const target = $(id);
     if (!target) {
@@ -191,7 +198,8 @@
     target.classList.add("active");
 
     document.querySelectorAll("[data-nav]").forEach((button) => {
-      button.classList.toggle("active", button.getAttribute("data-nav") === id);
+      // Partner-Vergleich hat keinen eigenen Reiter -- er gehoert zu Home ("Deine Menschen")
+      button.classList.toggle("active", button.getAttribute("data-nav") === (id === "synastry" ? "home" : id));
     });
 
     window.scrollTo({ top: 0, behavior: isMobile() ? "auto" : "smooth" });
@@ -219,8 +227,10 @@
     if (id === "synastry") {
       window.setTimeout(() => {
         updateSynastryNames();
-        loadPeopleFromSupabase(false);
-        synResume();                 // laeuft gerade ein Partner-Vergleich? Anzeige fortsetzen
+        // laeuft gerade ein Partner-Vergleich? Anzeige fortsetzen -- sonst ein
+        // gespeichertes Ergebnis fuer die gewaehlte Person zeigen
+        const running = synResume();
+        loadPeopleFromSupabase(false).then(() => { if (!running) synShowSaved(); });
       }, 80);
     }
 
@@ -449,12 +459,16 @@
 
       clearProfileStorage();
       localStorage.removeItem(KEYS.authUser);
+      // Laufende Auftraege und der Schnellstart gehoeren zur abgemeldeten Person
+      ["soraya_analysis_job", "soraya_synastry_job", "soraya_preview_v1"].forEach((key) => {
+        try { localStorage.removeItem(key); } catch (error) {}
+      });
       serverPeople = null;
       chartCache = { personId: null, json: null };
-      status("authStatus", t("Abgemeldet."), "ok");
-      toast(t("Abgemeldet."));
-      renderAuthUi();
-      renderAppStatus();
+      // Sauber neu starten: sonst bleiben Name, Chart, Analyse und Personen der
+      // abgemeldeten Person auf dem Bildschirm stehen.
+      try { sessionStorage.setItem("soraya_just_logged_out", "1"); } catch (error) {}
+      window.location.replace("/");
     } catch (error) {
       const msg = friendlyError(error, t("Abmelden fehlgeschlagen."));
       showGlobalError(msg, "bad");
@@ -669,13 +683,13 @@
         topButton.setAttribute("aria-label", t("Profil öffnen"));
       }
 
-      if (profileButton) {
-        profileButton.textContent = t("Eingeloggt");
-        profileButton.onclick = () => toast(t("Du bist bereits eingeloggt."));
-      }
+      // Kein Knopf ohne Funktion ("Eingeloggt"): stattdessen zeigen, mit welcher Adresse
+      if (profileButton) profileButton.style.display = "none";
 
       if (logoutButton) logoutButton.style.display = "block";
-      if (loginText) loginText.textContent = t("Dein Konto ist aktiv.");
+      if (loginText) loginText.textContent = email && email !== "Supabase User"
+        ? t("Angemeldet als {email}", { email })
+        : t("Dein Konto ist aktiv.");
       if (loginBadge) loginBadge.textContent = t("Aktiv");
       if (loginCard) loginCard.classList.add("ok");
       return true;
@@ -690,6 +704,7 @@
     }
 
     if (profileButton) {
+      profileButton.style.display = "";
       profileButton.textContent = t("Einloggen");
       profileButton.onclick = openLogin;
     }
@@ -781,6 +796,19 @@
 
   function needPerson() {
     const id = getCurrentPersonId();
+    // Ohne Konto fuehrte das frueher ins Profil, wo man ohne Login nichts
+    // speichern kann (Sackgasse). Jetzt: Hinweis-Karte "Kostenloses Konto".
+    if (!id && document.body.classList.contains("soraya-logged-out")) {
+      const gate = document.querySelector(".section.active .guest-gate");
+      if (gate) {
+        gate.scrollIntoView({ behavior: "smooth", block: "center" });
+        gate.classList.remove("is-nudged");
+        void gate.offsetWidth;
+        gate.classList.add("is-nudged");
+      }
+      toast(t("Dafür brauchst du ein kostenloses Konto."));
+      return false;
+    }
     if (!id) {
       toast(t("Bitte zuerst dein Profil speichern."));
       showSection("profile");
@@ -821,6 +849,8 @@
     if (anaResume()) return;                       // laeuft gerade: Anzeige fortsetzen
     if (anaRunning && $("analysisProgress")) $("analysisProgress").hidden = true;  // gehoert zu anderer Person
     if (!personId || analysisShownFor === personId) return;
+    const reading = $("analysisReading");
+    if (reading && !reading.querySelector("h1,h2,h3,strong") && !anaRunning) reading.innerHTML = skeleton(4);
     try {
       const data = await callSoraya("/mobile/analysis/save", { person_id: personId, only_cached: true, lang: LANG() }, "POST", 15000);
       if (!showAnalysis(data)) {
@@ -830,6 +860,11 @@
       }
     } catch (error) {
       setAnalysisButtons(false);
+      if (reading && reading.querySelector(".sk")) {
+        reading.textContent = isNetworkError(error)
+          ? t("Deine gespeicherte Analyse ist gerade nicht erreichbar. Versuch es gleich noch einmal.")
+          : t("Deine persönliche Analyse ist noch nicht erstellt. Tippe auf „Analyse erstellen“ – Soraya schreibt sie in etwa einer Minute.");
+      }
     }
   }
 
@@ -1124,6 +1159,7 @@
   // Der Server liefert dasselbe Horoskop pro Zeitraum aus seinem Cache, hier wird
   // zusaetzlich im Speicher gehalten, damit Tab-Wechsel sofort reagieren.
   const horoscopeCache = {};
+  let horoGuestShown = false;
   const horoscopePending = {};
 
   function horoscopeKey(period) {
@@ -1193,11 +1229,13 @@
         if ($("horoStartCta")) $("horoStartCta").hidden = true;
         setText("horoDate", t("Allgemein für {sign} · heute", { sign: ASTRO ? ASTRO.sign(sunKey) : (preview.result.sun.sign_de || "") }));
         setText("horoMood", t("Soraya liest die Sterne…"));
+        if ($("horoBody") && !horoGuestShown) $("horoBody").innerHTML = skeleton(3);
         try {
           const json = await publicJson("/public/sign-horoscope?sign=" + encodeURIComponent(sunKey) + "&lang=" + LANG());
           const d = json.data || {};
           setText("horoMood", d.stimmung || t("Dein Tag"));
           setText("horoBody", d.text || "");
+          horoGuestShown = true;
           if ($("horoGastCta")) $("horoGastCta").hidden = false;
           // Ritual und Affirmation wechseln auch ohne Konto taeglich
           setText("horoRitualTitle", t("Dein Ritual"));
@@ -1208,6 +1246,7 @@
           if (d.beruf) setText("horoWorkText", d.beruf);
         } catch (error) {
           setText("horoMood", t("Gleich verfügbar"));
+          if (!horoGuestShown) setText("horoBody", t("Das Tageshoroskop ist gerade kurz nicht erreichbar. Versuch es in einem Moment noch einmal."));
         }
         return;
       }
@@ -1228,8 +1267,10 @@
     try {
       if (!cached) {
         setText("horoMood", t("Soraya liest die Sterne…"));
-        setText("horoBody", t({ daily: "Dein Tageshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.", weekly: "Dein Wochenhoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.", monthly: "Dein Monatshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden." }[period] || "Dein Tageshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden."));
-        setText("horoTip", "✦ …");
+        if ($("horoBody")) $("horoBody").innerHTML = skeleton(4) + '<small class="sk-note"></small>';
+        const note = $("horoBody") && $("horoBody").querySelector(".sk-note");
+        if (note) note.textContent = (t({ daily: "Dein Tageshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.", weekly: "Dein Wochenhoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden.", monthly: "Dein Monatshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden." }[period] || "Dein Tageshoroskop wird geschrieben. Beim ersten Mal dauert das einige Sekunden."));
+        setText("horoTip", "");
         document.body.classList.add("soraya-horoscope-loading");
       }
 
@@ -1576,6 +1617,16 @@
       refreshSynastryPeople();
       renderChatSuggestions(false);
       renderHomePeople();
+      // Auf einem frischen Geraet kommen Name/Geburtsdaten erst jetzt vom Server:
+      // "Erste Schritte", "Profil noetig" und der Hinweis oben duerfen nicht
+      // auf dem alten Stand (kein Profil) stehen bleiben.
+      if (!hadBirth && hasBirthNow) {
+        renderIdentity();
+        renderProfilePreview();
+      }
+      renderOnboardingState();
+      renderAppStatus();
+      setEngineReachable(true);
 
       // Wenn gerade erst Geburtsdaten/Person reingespiegelt wurden und die
       // Analyse offen ist, Chart automatisch nachladen (sonst bleibt der Hinweis).
@@ -1593,6 +1644,7 @@
       cacheSelfFromStorage();
       refreshSynastryPeople();
       renderHomePeople();
+      if (isNetworkError(error)) setEngineReachable(false);
       if (showToast) toast(t("Personen konnten nicht geladen werden."));
       return readPeopleCache();
     }
@@ -1670,6 +1722,9 @@
 
     const raw = $("personBId");
     if (raw) raw.value = select.value || "";
+    // Noch niemand gespeichert: der Hauptknopf fuehrt direkt zum Anlegen
+    const calc = $("synCalcButton");
+    if (calc) calc.textContent = people.length ? t("Verbindung berechnen") : t("Zweite Person anlegen");
     const createStatus = $("partnerCreateStatus");
     if (createStatus && !createStatus.classList.contains("ok") && !createStatus.classList.contains("bad")) {
       createStatus.textContent = people.length
@@ -1728,38 +1783,89 @@
     }
   }
 
+  // Ergebnis als eigene Karte (Titel, Deutung, Aspekte als Liste) statt als
+  // Textblock im Statusfeld -- die Prozentzahl steht schon gross im Ring.
   function renderSynastryDescription(payload) {
-    const box = $("synastryText");
+    const box = $("synResult");
     if (!box) return;
 
     const syn = payload.synastry || {};
     const score = payload.score || syn.score || {};
-    const summary = payload.summary || syn.summary || {};
+    const summary = (payload.summary && typeof payload.summary === "object") ? payload.summary : (syn.summary && typeof syn.summary === "object" ? syn.summary : {});
     const aspects = payload.aspects || syn.aspects || [];
 
-    const value = payload.percent != null ? payload.percent : (score.value || score.score || 0);
-    const label = payload.label || score.label || summary.label || t("Kosmische Verbindung");
+    const label = payload.label || score.label || summary.label || "Kosmische Verbindung";
     const text =
-      [payload.text, summary.text, summary.short, syn.summary].find((x) => typeof x === "string" && x.trim()) ||
+      [payload.text, summary.text, summary.short, typeof syn.summary === "string" ? syn.summary : ""].find((x) => typeof x === "string" && x.trim()) ||
       t("Eure Verbindung wurde berechnet. Achtet darauf, wo Harmonie entsteht und wo bewusste Kommunikation wichtig ist.");
 
-    let html = "";
-    html += t("◈ Partner-Vergleich gespeichert.") + "\n";
-    html += t("Kompatibilität: {value}%", { value }) + "\n\n";
-    html += t(label) + "\n";
-    html += text;
+    let html = '<span class="eyebrow">' + escapeHtml(t("Euer Ergebnis")) + "</span>";
+    html += "<h4>" + escapeHtml(t(label)) + "</h4>";
+    if (summary.harmonious != null || summary.challenging != null) {
+      html += '<div class="syn-counts">' +
+        "<span><b>" + escapeHtml(summary.harmonious || 0) + "</b>" + escapeHtml(t("Harmonisch")) + "</span>" +
+        "<span><b>" + escapeHtml(summary.challenging || 0) + "</b>" + escapeHtml(t("Spannung")) + "</span></div>";
+    }
+    html += '<div class="reading syn-reading" data-i18n-skip>' + markdownToHtml(text) + "</div>";
 
     if (Array.isArray(aspects) && aspects.length) {
-      html += "\n\n" + t("Wichtige Aspekte:") + "\n";
+      html += '<span class="eyebrow syn-aspects-title">' + escapeHtml(t("Wichtige Aspekte:").replace(/[:：]\s*$/, "")) + '</span><ul class="syn-aspects">';
       aspects.slice(0, 5).forEach((aspect) => {
         const line = aspect.text || aspect.name ||
           (ASTRO ? [ASTRO.planet(aspect.p1 || aspect.p1_de), ASTRO.aspect(aspect.type || aspect.type_de), ASTRO.planet(aspect.p2 || aspect.p2_de)] : [aspect.p1_de || aspect.p1, aspect.type_de || aspect.type, aspect.p2_de || aspect.p2])
             .filter(Boolean).join(" ");
-        html += "• " + safe(line || t("Aspekt")) + "\n";
+        html += "<li>" + escapeHtml(safe(line || t("Aspekt"))) + "</li>";
       });
+      html += "</ul>";
     }
 
-    status("synastryText", html, "ok");
+    box.innerHTML = html;
+    box.hidden = false;
+    status("synastryText", "");
+  }
+
+  // Schon einmal berechnet? Dann das gespeicherte Ergebnis gleich zeigen
+  // (nur nachsehen -- startet nie eine neue, kostenpflichtige Deutung).
+  let synSavedFor = "";
+  async function synShowSaved() {
+    const a = getCurrentPersonId();
+    const b = ($("synPersonSelect") && $("synPersonSelect").value) || "";
+    if (!a || !b || a === b || synRunning || synJob()) return;
+    const key = a + "|" + b + "|" + LANG();
+    if (synSavedFor === key && SYN_TEILEN) return;
+    synSavedFor = key;
+    try {
+      const res = await callSoraya("/mobile/synastry/start", { person_a_id: a, person_b_id: b, lang: LANG(), nur_gespeichert: true }, "POST", 15000);
+      const d = res.data || {};
+      const still = ($("synPersonSelect") && $("synPersonSelect").value) === b;
+      if (d.status === "fertig" && d.ergebnis && still && !synRunning) zeigeSynastrie({ data: d.ergebnis });
+    } catch (error) {
+      synSavedFor = "";
+    }
+  }
+
+  function resetSynastryResult() {
+    setText("compatScore", "–");
+    if ($("compatRing")) $("compatRing").style.setProperty("--score", "0%");
+    if ($("synResult")) $("synResult").hidden = true;
+    if ($("synTeilen")) $("synTeilen").hidden = true;
+    status("synastryText", "");
+    SYN_TEILEN = null;
+  }
+
+  // Zahl sanft hochzaehlen (Ringe); ohne Animation, wenn der Nutzer das so eingestellt hat
+  function countUp(node, to, suffix) {
+    if (!node) return;
+    const end = Math.round(Number(to) || 0);
+    const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still || end <= 0) { node.textContent = end + suffix; return; }
+    const startAt = performance.now(), ms = 900;
+    const step = (now) => {
+      const k = Math.min(1, (now - startAt) / ms);
+      node.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))) + suffix;
+      if (k < 1) window.requestAnimationFrame(step);
+    };
+    window.requestAnimationFrame(step);
   }
 
   function initials(value, fallback = "?") {
@@ -1844,7 +1950,7 @@
       ? data.data.score_percent
       : Math.min(97, Math.round(35 + Number(points) * 1.9));
 
-    if ($("compatScore")) $("compatScore").textContent = value + "%";
+    countUp($("compatScore"), value, "%");
     SYN_TEILEN = { prozent: Math.round(Number(value) || 0), a: ($("synAName") || {}).textContent || t("Du"),
                    b: ($("synBName") || {}).textContent || "", label: data.data && data.data.score_label };
     if ($("synTeilen")) $("synTeilen").hidden = false;
@@ -1917,6 +2023,7 @@
     synRunning = true;
     synState = { ...state, empfangen: Date.now() };
     status("synastryText", "");
+    if ($("synResult")) $("synResult").hidden = true;
     if (synButton()) synButton().disabled = true;
     synRender();
     window.clearInterval(synTick);
@@ -1995,6 +2102,7 @@
     let partnerId = "";
     try {
       partnerId = (($("synPersonSelect") && $("synPersonSelect").value) || "") || (($("personBId") && $("personBId").value.trim()) || "");
+      if (!partnerId && !readPeopleCache().some((p) => p && p.id && p.id !== getCurrentPersonId())) return addPerson();
       if (!partnerId) throw new Error(t("Bitte zuerst eine zweite Person auswählen oder anlegen."));
       if (partnerId === getCurrentPersonId()) throw new Error(t("Bitte eine andere Person auswählen."));
     } catch (error) {
@@ -2114,11 +2222,14 @@
   function renderGreeting() {
     const hour = new Date().getHours();
     const greeting = hour < 11 ? t("Guten Morgen") : hour < 18 ? t("Schön, dass du da bist") : t("Guten Abend");
-    const name = localStorage.getItem(KEYS.name) || t("du");
-
-    if ($("greetLine")) {
-      $("greetLine").innerHTML = escapeHtml(greeting) + ',<br><span class="gold" id="heroName">' + escapeHtml(name) + "</span>.";
-    }
+    const name = (localStorage.getItem(KEYS.name) || "").trim();
+    const line = $("greetLine");
+    if (!line) return;
+    // Ohne Namen keine Platzhalter-Anrede ("Guten Morgen, du.") -- in anderen
+    // Sprachen klang das schief ("Jó reggelt, kedves.", "Good morning, friend.").
+    line.innerHTML = name
+      ? escapeHtml(greeting) + ',<br><span class="gold" id="heroName">' + escapeHtml(name) + "</span>."
+      : escapeHtml(t("{greeting}.", { greeting })) + '<br><span class="gold" id="heroName">' + escapeHtml(t("Willkommen bei Soraya.")) + "</span>";
   }
 
   function renderMoon() {
@@ -2597,6 +2708,8 @@
         json = chartCache.json;
       } else {
         if (details) details.textContent = t("Soraya lädt dein Radix…");
+        if ($("planetList") && !$("planetList").querySelector(".c41-planet-row")) $("planetList").innerHTML = skeleton(5);
+        if ($("aspectSummary") && !$("aspectSummary").querySelector(".c41-aspect-cards")) $("aspectSummary").innerHTML = skeleton(3);
         json = await loadChartJson(personId, birth);
         if (personId) chartCache = { personId, json };
       }
@@ -2616,7 +2729,14 @@
       return json;
     } catch (error) {
       renderWheel(null);
-      if (details) details.textContent = t("Chart konnte nicht geladen werden: {error}", { error: friendlyError(error, t("Chart nicht verfügbar.")) });
+      if (details) {
+        details.innerHTML = escapeHtml(t("Chart konnte nicht geladen werden: {error}", { error: friendlyError(error, t("Chart nicht verfügbar.")) })) +
+          ' <button type="button" class="link-btn" onclick="loadRealChartData(true)">' + escapeHtml(t("Erneut versuchen")) + "</button>";
+      }
+      ["planetList", "aspectSummary"].forEach((id) => {
+        const box = $(id);
+        if (box && box.querySelector(".sk")) box.innerHTML = '<div class="c41-empty">' + escapeHtml(t("Gerade nicht erreichbar")) + "</div>";
+      });
       return null;
     }
   }
@@ -2700,7 +2820,8 @@
 
   function setEnergy(percent, label) {
     if ($("energyRing")) $("energyRing").style.setProperty("--energy", (percent == null ? 0 : percent) + "%");
-    setText("energyPct", percent == null ? "–" : percent + "%");
+    if (percent == null) setText("energyPct", "–");
+    else countUp($("energyPct"), percent, "%");
     setText("energyLabel", label || "–");
   }
 
@@ -2771,6 +2892,7 @@
       setEnergy(score, label);
     } catch (error) {
       trackError("transits", error);
+      if (isNetworkError(error)) setEngineReachable(false);
       lastHomeSkyAt = 0;
       document.body.classList.add("soraya-backend-soft-fail");
       setHomeTransits(transitRow("✦", t("Sanfter Tagesimpuls"), t("Deine Transite sind gerade kurz nicht erreichbar. Soraya versucht es gleich erneut.")));
@@ -3301,6 +3423,7 @@
       if (!json || json.ok === false || !json.data) throw new Error(t("Himmel nicht verfügbar."));
       skyToday = json.data;
       lastSkyTodayAt = Date.now();
+      setEngineReachable(true);
       box.innerHTML = skyRows(skyToday);
       const moon = skyToday.moon || {};
       const moonSign = trSign(moon.sign || moon.sign_de);
@@ -3319,6 +3442,7 @@
       }
       renderChatSuggestions();
     } catch (error) {
+      if (isNetworkError(error)) setEngineReachable(false);
       if (!skyToday) box.innerHTML = transitRow("☾", t("Himmelsereignisse"), t("Gerade kurz nicht erreichbar. Soraya versucht es später erneut."));
     }
   }
@@ -3341,11 +3465,41 @@
     if (type) pill.classList.add(type);
   }
 
+  // Offline / Server nicht erreichbar: oben ein klarer, antippbarer Hinweis
+  // statt falscher Aufforderungen ("Profil anlegen", obwohl es nur nicht laedt).
+  let engineReachable = true;
+
+  function isNetworkError(error) {
+    return /Failed to fetch|NetworkError|Load failed|timeout|zu lange/i.test((error && error.message) || String(error || ""));
+  }
+
+  function setEngineReachable(ok) {
+    if (engineReachable === ok) return;
+    engineReachable = ok;
+    renderAppStatus();
+  }
+
+  function retryConnection() {
+    setAppStatus(t("Soraya verbindet…"), "warn");
+    engineReachable = true;   // Ergebnis der neuen Abfragen entscheidet
+    loadPeopleFromSupabase(false);
+    renderHomeSkyThrottled(true);
+    renderSkyToday(true);
+    const active = document.querySelector(".section.active");
+    if (active && active.id === "horoscope") loadHoroscope({ silent: true });
+  }
+
   async function renderAppStatus() {
     const birth = readJson(KEYS.birth, null);
     const state = await getSessionState();
 
     const pill = $("appStatusPill");
+    const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+    if (offline || !engineReachable) {
+      setAppStatus(offline ? t("Offline · keine Internetverbindung") : t("Verbindung wackelt · erneut versuchen ›"), "warn");
+      if (pill) pill.dataset.action = offline ? "" : "retry";
+      return;
+    }
     if (!state.ok) {
       setAppStatus(t("Jetzt einloggen ›"), "warn");
       if (pill) pill.dataset.action = "login";
@@ -3430,6 +3584,7 @@
       appStatus.addEventListener("click", () => {
         if (appStatus.dataset.action === "login") openLogin();
         if (appStatus.dataset.action === "profile") showSection("profile");
+        if (appStatus.dataset.action === "retry") retryConnection();
       });
     }
 
@@ -3438,8 +3593,11 @@
       synSelect.dataset.bound = "1";
       synSelect.addEventListener("change", () => {
         const raw = $("personBId");
+        const changed = raw && raw.value !== (synSelect.value || "");
         if (raw) raw.value = synSelect.value || "";
         updateSynastryNames();
+        // Anderes Gegenueber gewaehlt: altes Ergebnis nicht stehen lassen
+        if (changed && !synRunning) { resetSynastryResult(); synShowSaved(); }
       });
     }
 
@@ -3518,6 +3676,13 @@
         window.setTimeout(() => showSection(afterLogin), 120);
       } else {
         showSection("home");
+      }
+    } catch (error) {}
+
+    try {
+      if (sessionStorage.getItem("soraya_just_logged_out") === "1") {
+        sessionStorage.removeItem("soraya_just_logged_out");
+        window.setTimeout(() => toast(t("Abgemeldet. Bis bald ✨")), 400);
       }
     } catch (error) {}
 
@@ -3601,6 +3766,16 @@
     if (home && home.classList.contains("active") && Date.now() - lastHomeSkyAt > SKY_REFRESH_MS) {
       renderHomeSkyThrottled();
     }
+  });
+
+  window.addEventListener("offline", () => {
+    renderAppStatus();
+    toast(t("Keine Internetverbindung – Soraya zeigt dir, was schon geladen ist."));
+  });
+  window.addEventListener("online", () => {
+    toast(t("Wieder online ✨"));
+    engineReachable = true;
+    retryConnection();
   });
 
   if (document.readyState === "loading") {
