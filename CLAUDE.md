@@ -98,8 +98,11 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 
 ### Aktueller Stand / offen (Oktober 2026)
 
-- **Beide Hauptschalter sind AUS** (Tagesplan-Automatik unter „Heute“, „Automatisch posten“ unter
-  „Posten“). Attila will erst alles einrichten und dann selbst einschalten – **nicht eigenmächtig einschalten**.
+- **„Automatisch posten“ hat Attila am 18.10. selbst EINGESCHALTET** (EN, Facebook; Story 06:00, Feed 12:30, Reel 09:00).
+  Die **Tagesplan-Automatik** (Reiter „Heute“) war da noch AUS – ohne sie entstehen keine neuen Posts.
+  Schalter nur Attila überlassen – **nicht eigenmächtig ein- oder ausschalten**.
+- **Schnellstart-Zählung (18.10.):** Gäste wurden beim Berechnen nicht gezählt (nur `app_events` mit Login). Jetzt
+  anonymes Ereignis `quickstart_done`; Engine ergänzt `schnellstart_berechnet` und `gratis_tests` (App + Landingpage).
 - **Meta-App „Soraya Agent“ ist angelegt (16.10.2026)**, ohne Business-Portfolio, Modus „Entwicklung“
   (reicht fürs Posten auf eigene Konten; App-Review/„Tech-Anbieter“ NICHT nötig und NICHT machen –
   verlangt Unternehmensverifizierung, unumkehrbar). Rechte „Bereit zum Testen“: `pages_show_list`,
