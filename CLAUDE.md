@@ -111,10 +111,10 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   eingetragen. In Railway gesetzt: `META_APP_ID`, `META_APP_SECRET`.
 - **Facebook-Seite „Soraya Luxury Astrology“ ist verbunden**, erster Testpost (Feed-Post EN) am 16.10. erfolgreich
   (Text, Bild, Link `?q=p<id>`; auf Facebook wird „Link in bio“ automatisch zu „Link below“).
-- **Instagram noch offen:** `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET` (Meta → Anwendungsfälle → Instagram →
-  API-Einrichtung mit Instagram-Login) noch nicht in Railway. Soraya hat **kein eigenes Instagram-Konto**;
-  vorhanden ist nur `attilazsolt.kovacs` (Business). Empfehlung: dieses umbenennen statt neues Konto anlegen
-  (Sperr-Risiko). Danach in Meta unter App-Rollen → Instagram-Tester eintragen und im Dashboard verbinden.
+- **Instagram ist verbunden (19.10.):** früheres Konto `attilazsolt.kovacs` umbenannt in **`soraya.astroguide`**
+  (Name „Soraya – Luxury Astro Guide“, Logo, Bio EN, Bio-Link `?q=bio-ig`). `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET`
+  in Railway, Instagram-Tester angenommen, im Dashboard verbunden (Zugang 60 Tage, verlängert sich selbst).
+  Ob Instagram beim automatischen Posten mitläuft, entscheidet Attila selbst (Posten → Plattformen).
 - **Lernen aus der Wirkung (17.10.):** Punkte je Post (neues Konto 15, geteilt 4, Kommentar 3, Link-Besuch 2,
   Gefällt mir 1); Facebook-Reaktionen werden alle 6 h gemerkt. Tagesplan bekommt die 3 besten Posts (auch aus
   anderen Sprachen) und welche Formate am besten/schwächsten ankommen. Sichtbar unter Wirkung → „Was Soraya daraus lernt“.
