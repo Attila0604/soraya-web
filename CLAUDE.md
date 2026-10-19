@@ -132,6 +132,10 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **TikTok (19.10.):** `tiktok.py` im Agent, nur Reels, eigener Schalter (Standard aus), Modus Entwurf (Posteingang der
   TikTok-App) oder Direkt (öffentlich erst nach TikTok-Audit). Railway: `TIKTOK_CLIENT_KEY`/`TIKTOK_CLIENT_SECRET`,
   Rückruf `/tiktok/rueckruf`. Nutzungsbedingungen-Seiten `nutzungsbedingungen(-en|-hu|-it).html` in soraya-web (für TikTok).
+- **Runde 5 (19.10.):** Post-Bilder mit eigenem Aufbau je Format (`bild-4`: Mondphasen-Woche, Umfrage A/B/C bei
+  „Mitmachen“, Zitat beim Rückblick, großes Sternzeichen zum Saisonbeginn). Content Studio „Heute“: Zeitleiste
+  „Heute geht raus“ + Kasten „Post braucht dich“ (Dashboard rechnet die Sprach-Rotation wie `posten.sprache_fuer()` nach –
+  bei Änderungen beide anpassen). App v40: Tagesenergie ein fester Wert pro Tag, Karte „Dein Tag“ oben.
 - **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
   Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
   Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
