@@ -46,7 +46,7 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Statisches Vanilla-JS: `index.html`, `app.js` (Hauptlogik), `soraya.css`, Module `c58…c74-*.js`,
   `sw.js` (Service Worker, network-first; **bei jeder Änderung `CACHE_VERSION` erhöhen**, aktuell
-  `soraya-v38`, `APP_VERSION` in `app.js` = `web-v38`).
+  `soraya-v39`, `APP_VERSION` in `app.js` = `web-v39`).
 - i18n: deutsche Quelltexte sind die Schlüssel; Übersetzungen in `i18n/en.js`, `i18n/hu.js`, `i18n/it.js`
   (je ~644 Einträge), `t()` in `app.js`, `i18n.js` blendet die Seite bis zur Übersetzung aus (kein Flackern).
 - Funktionen: Schnellstart ohne Konto (Sonne/Mond), Profil, Geburtshoroskop/Radix, Tageshoroskop,
@@ -129,6 +129,9 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   ersten Zeile + Absätze, **besondere Tage** (`anlaesse.py`: Saisonbeginn, Vollmond-Namen, Feiertage), Uhrzeit-Tipps
   unter Posten. Reels mit eigener Klangfläche (`reel-6`). Freigabe nur bei ernsten Befunden (`redaktion.schwer`),
   Facebook max. 3 Hashtags. Die Tagesplan-Automatik ist seit 18.10. ebenfalls von Attila EINGESCHALTET.
+- **TikTok (19.10.):** `tiktok.py` im Agent, nur Reels, eigener Schalter (Standard aus), Modus Entwurf (Posteingang der
+  TikTok-App) oder Direkt (öffentlich erst nach TikTok-Audit). Railway: `TIKTOK_CLIENT_KEY`/`TIKTOK_CLIENT_SECRET`,
+  Rückruf `/tiktok/rueckruf`. Nutzungsbedingungen-Seiten `nutzungsbedingungen(-en|-hu|-it).html` in soraya-web (für TikTok).
 - **Alle 4 Sprachen:** Posten → Sprache „Alle 4 Sprachen im Wechsel“ (Story/Feed/Reel täglich in 3 verschiedenen
   Sprachen, rotiert). Dafür müssen im Tagesplan alle 4 Sprachen angehakt sein (kostet 4 Claude-Aufrufe/Tag statt 1).
   Post-Links tragen `&lang=`, Landingpage und App öffnen in der Sprache des Posts.
