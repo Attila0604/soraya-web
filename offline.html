@@ -56,7 +56,7 @@
   <div class="shell">
     <div class="sigil"><img src="/brand/zeichen.svg" alt="" width="96" height="91"></div>
     <h1>Die Sterne sind kurz nicht erreichbar</h1>
-    <p>Du bist offline. Soraya braucht eine aktive Internetverbindung, um deine Charts, Horoskope und Deutungen zu berechnen.</p>
+    <p>Du bist offline. Soraya braucht eine aktive Internetverbindung, um deine Geburtshoroskope, Horoskope und Deutungen zu berechnen.</p>
     <button onclick="location.reload()">Erneut verbinden</button>
     <div class="hint">Soraya</div>
   </div>
@@ -64,9 +64,9 @@
     // Sprache wie in der App (gespeichert > Handy-Sprache > Englisch)
     (function () {
       var T = {
-        en: ["The stars are briefly out of reach", "You are offline. Soraya needs an active internet connection to calculate your charts, horoscopes and readings.", "Reconnect"],
-        hu: ["A csillagok most rövid ideig nem érhetők el", "Nincs internetkapcsolat. Sorayának aktív internetkapcsolatra van szüksége a képletek, horoszkópok és értelmezések kiszámításához.", "Újracsatlakozás"],
-        it: ["Le stelle sono momentaneamente irraggiungibili", "Sei offline. Soraya ha bisogno di una connessione internet attiva per calcolare i tuoi temi, oroscopi e letture.", "Riconnetti"]
+        en: ["The stars are briefly out of reach", "You are offline. Soraya needs an active internet connection to calculate your birth charts, horoscopes and readings.", "Reconnect", "Offline · Soraya"],
+        hu: ["A csillagok most rövid ideig nem érhetők el", "Nincs internetkapcsolat. Sorayának aktív internetkapcsolatra van szüksége a képletek, horoszkópok és értelmezések kiszámításához.", "Újracsatlakozás", "Nincs kapcsolat · Soraya"],
+        it: ["Le stelle sono momentaneamente irraggiungibili", "Sei offline. Soraya ha bisogno di una connessione internet attiva per calcolare i tuoi temi natali, oroscopi e interpretazioni.", "Riconnetti", "Offline · Soraya"]
       };
       var lang = "";
       try { lang = localStorage.getItem("soraya_lang") || ""; } catch (e) {}
@@ -80,6 +80,7 @@
       document.querySelector("h1").textContent = T[lang][0];
       document.querySelector(".shell p").textContent = T[lang][1];
       document.querySelector("button").textContent = T[lang][2];
+      document.title = T[lang][3];
     })();
 
     // sobald das Netz zurück ist, automatisch neu laden

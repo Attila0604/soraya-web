@@ -424,8 +424,17 @@ textarea{resize:vertical; min-height:64px; line-height:1.5}
 #deleteAccountBtn{color:var(--mist-faint) !important; letter-spacing:.04em}
 #deleteAccountBtn:hover{color:var(--danger) !important}
 
-/* ---- Footer ---- */
-main footer a{color:var(--gold-soft) !important}
+/* ---- Footer + Rechtliches (App, Login, Profil: gleicher Stil) ---- */
+.legal-footer{display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:0 14px;
+  padding:var(--s4) var(--s3) calc(30px + env(safe-area-inset-bottom)); font-size:12.5px; color:var(--mist-dim); text-align:center}
+.legal-footer a{color:var(--gold-soft)}
+.legal-footer span{display:none}
+.delete-account-link{display:block; width:100%; margin-top:var(--s2); padding:11px; background:transparent; border:none;
+  font:inherit; font-size:13px; text-decoration:underline; text-underline-offset:3px; cursor:pointer}
+.profile-legal{display:flex; flex-wrap:wrap; justify-content:center; gap:0 18px; margin-top:var(--s3);
+  padding-top:var(--s3); border-top:1px solid var(--line-soft); font-size:12.5px}
+.profile-legal a{display:inline-block; padding:12px 2px; color:var(--mist-dim)}
+.profile-legal a:hover{color:var(--gold-soft)}
 
 /* ============ Accessibility ============ */
 @media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
@@ -1110,7 +1119,7 @@ a.btn{display:inline-flex; align-items:center; justify-content:center}
 .c73-report-head{min-height:44px}
 .ios-install-close{width:44px; height:44px; top:6px; right:6px; font-size:20px}
 #deleteAccountBtn{min-height:44px}
-.app-footer a, .login-app footer a{display:inline-block; padding:12px 6px}
+.legal-footer a{display:inline-block; padding:12px 6px}
 .lang-picker-compact .lang-option{min-height:44px}
 .password-toggle{width:44px; height:44px; right:2px}
 .password-toggle svg{width:20px; height:20px}
@@ -1364,3 +1373,35 @@ body:not(.soraya-no-profile) #home .c54-hero-ribbon{margin-top:var(--s3)}
 .r5-toc::-webkit-scrollbar{display:none}
 .r5-chip{flex:none; white-space:nowrap}
 .r5-toc-time{flex:none; align-self:center; margin-right:4px; white-space:nowrap}
+/* Im Profil stehen die Rechtstexte schon unten im Bereich -> Fusszeile dort nicht doppelt */
+#profile.active ~ .app-footer{display:none}
+/* Schmale Bildschirme / starke Vergroesserung: nichts ragt aus dem Bild */
+.login-mini-actions{flex-wrap:wrap; justify-content:center; column-gap:var(--s4)}
+.c41-aspect-cards > div{min-width:0}
+@media (max-width:360px){.c41-aspect-cards span{letter-spacing:.03em; hyphens:auto}}
+.card-title{flex-wrap:wrap; row-gap:var(--s1)}
+@media (max-width:300px){
+  .c41-aspect-cards{flex-wrap:wrap}
+  .c41-aspect-cards > div{flex:1 1 40%}
+  .sky-list .row{flex-wrap:wrap}
+  .sky-list .row > span{white-space:normal; text-align:left; padding-left:28px}
+  .r5-moon-row{flex-wrap:wrap}
+  .c41-aspect-cards span{overflow-wrap:anywhere; letter-spacing:.03em}
+  .tabbar{gap:0; padding-left:4px; padding-right:4px}
+  .tabbar button{min-width:0; flex:1 1 0; padding-left:0; padding-right:0}
+  .tabbar button span{display:none}
+  .c4-kern-knoepfe, .people-row, .people-actions, .c58-period-tabs, .c43-chat-footer, .syn-counts, .wheel-legend{flex-wrap:wrap; flex-shrink:1}
+  .people-actions .btn, .c43-chat-footer .btn{flex:1 1 100%}
+  .r5-today-actions, .c45-stats, .lang-picker, .people-actions, .syn-counts{grid-template-columns:1fr}
+  .people-row{grid-template-columns:32px 1fr}
+  .people-row .people-compare{grid-column:1 / -1}
+  .c41-planet-list > .c41-planet-row{grid-template-columns:22px 1fr; row-gap:2px}
+  .c41-planet-sign, .c41-planet-house{grid-column:2; text-align:left}
+  .topbar{flex-wrap:nowrap; gap:var(--s1)}
+  .topbar .round{flex:none; width:40px; height:40px}
+  .brand h1{font-size:22px; letter-spacing:.18em}
+  .brand .sub, #profileTopButton{display:none}
+  .brand h1{font-size:20px !important; letter-spacing:.14em !important}
+  .c46-focus-layout{flex-wrap:wrap}
+  .c46-focus-layout > *{min-width:0}
+}

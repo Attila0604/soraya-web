@@ -20,10 +20,10 @@
   <link rel="alternate" hreflang="it" href="https://app.sorayaluxuryastroguide.com/datenschutz-it" />
   <style>
     :root{
-      --ink:#070817; --navy:#0b1029; --glass:rgba(9,12,32,.78);
-      --gold:#d9a84b; --gold2:#ffe39b; --champagne:#fff3ca;
-      --violet2:#b56bff; --bone:#fff4df; --muted:#c8badf; --muted2:#9184a8;
-      --line:rgba(255,218,135,.30); --line2:rgba(181,107,255,.22);
+      --ink:#070817; --navy:#0b1029; --glass:rgba(26,17,44,.55);
+      --gold:#c9a86a; --gold2:#e6cf9c; --champagne:#f4e6c4;
+      --violet2:#b98cff; --bone:#e9e2f2; --muted:#c3b7da; --muted2:#8a7ea6;
+      --line:rgba(201,168,106,.26); --line2:rgba(168,107,255,.20);
       --display:"Cormorant Garamond",Georgia,serif;
       --wordmark:"Cinzel",serif;
       --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -89,12 +89,28 @@
     .langs a{border:1px solid var(--line2); border-radius:999px; padding:5px 13px; font-size:13px; color:var(--muted)}
     .langs a[aria-current="page"]{border-color:var(--gold); color:var(--gold2); font-weight:600}
     .note{color:var(--muted2); font-size:13px; text-align:center; margin:-10px 0 26px}
+    /* Gleiche Farbwelt wie die App (soraya.css) */
+    html{background:#060410}
+    body{background:
+        radial-gradient(68% 45% at 80% 12%, rgba(140,74,206,.30), transparent 60%),
+        radial-gradient(62% 44% at 14% 26%, rgba(58,50,168,.28), transparent 60%),
+        radial-gradient(95% 55% at 50% -10%, rgba(74,44,120,.55), transparent 62%),
+        linear-gradient(180deg, #0e0a22 0%, #0a0618 52%, #060410 100%) fixed}
+    .wrap{max-width:720px}
+    a.mark{display:inline-flex; flex-direction:column; align-items:center; gap:10px; border-bottom:none; text-decoration:none}
+    a.mark img{display:block; width:44px; height:auto}
+    footer.page nav{display:flex; flex-wrap:wrap; justify-content:center; gap:4px 18px; margin:0 0 14px}
+    footer.page nav a{display:inline-block; padding:10px 2px; font-size:13px; color:var(--gold2); border-bottom:none}
+    footer.page nav a[aria-current="page"]{color:var(--muted)}
+    footer.page .brandline{margin:0; color:var(--muted2); font-size:12.5px; letter-spacing:.04em}
+    header.page .sub{color:var(--muted2); font-size:13px; margin:12px 0 0; letter-spacing:.04em}
+    .back{min-height:44px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="page">
-      <p class="mark">Soraya</p>
+      <a class="mark" href="/" aria-label="Soraya – Open the app"><img src="/brand/zeichen.svg" alt="" width="44" height="42"><span>Soraya</span></a>
       <h1>Privacy Policy</h1>
       <p class="sub">Last updated: 12 October 2026</p>
     </header>
@@ -120,10 +136,10 @@
     <p>Soraya is an astrology application. To provide its features we process the following personal data:</p>
     <ul>
       <li><strong>Account data:</strong> your email address, an encrypted password (for sign-up and login) and the app language you chose.</li>
-      <li><strong>Birth data:</strong> name, date of birth, optionally time and place of birth — required to calculate your birth chart, your analyses and the synastry (compatibility check).</li>
+      <li><strong>Birth data:</strong> name, date of birth, optionally time and place of birth — required to calculate your birth chart, your analyses and the partner match (synastry).</li>
       <li><strong>Quick start without an account:</strong> if you enter your date of birth (optionally the time) on the home screen without logging in, it is only sent to our backend to calculate your sun and moon sign and is <strong>not stored</strong> there. The result stays locally on your device. To prevent abuse, your IP address is briefly counted in memory (at most until the end of the day, not stored permanently).</li>
       <li><strong>Partner invitation:</strong> if you share an invitation link, the invited person only sees your <strong>first name and your sun sign</strong> and your joint result as a percentage – never your date, time or place of birth. If the invited person enters their date of birth, it is only transmitted for the calculation and not stored. We only count how often a link was used. The link is deleted together with your account.</li>
-      <li><strong>Data about other people:</strong> if you add a second person for a synastry, we process their name and birth data. Please only add such data with the consent of the person concerned.</li>
+      <li><strong>Data about other people:</strong> if you add a second person for a partner match, we process their name and birth data. Please only add such data with the consent of the person concerned.</li>
       <li><strong>Chat content:</strong> messages you enter in the dialogue with “Soraya” and the generated answers.</li>
       <li><strong>Technical data:</strong> when the app is accessed, the usual access data arise on the server side (e.g. IP address, time, browser type).</li>
       <li><strong>Usage and error events:</strong> when you are logged in, e.g. “app opened”, “horoscope loaded” or a technical error message (see section 3).</li>
@@ -136,7 +152,7 @@
 
     <h2><span class="n">4</span>Purposes and legal bases</h2>
     <ul>
-      <li><strong>Performance of a contract (Art. 6(1)(b) GDPR):</strong> providing the account, horoscopes, analyses, synastry and chat.</li>
+      <li><strong>Performance of a contract (Art. 6(1)(b) GDPR):</strong> providing the account, horoscopes, analyses, partner match and chat.</li>
       <li><strong>Consent (Art. 6(1)(a) GDPR):</strong> insofar as you voluntarily enter particularly sensitive information.</li>
       <li><strong>Legitimate interest (Art. 6(1)(f) GDPR):</strong> technical security and stability of the service, error detection and improvement of the app (usage and error events, see section 3).</li>
     </ul>
@@ -181,7 +197,13 @@
     <a class="back" href="/">← Back to Soraya</a>
 
     <footer class="page">
-      Soraya — Luxury Astrology Guide · Privacy Policy
+      <nav aria-label="Legal">
+        <a href="/datenschutz-en" aria-current="page">Privacy Policy</a>
+        <a href="/nutzungsbedingungen-en">Terms of Use</a>
+        <a href="/impressum-en">Legal Notice</a>
+        <a href="/konto-loeschen-en">Delete account</a>
+      </nav>
+      <p class="brandline">Soraya — Luxury Astro Guide</p>
     </footer>
   </div>
 </body>

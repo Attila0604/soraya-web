@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v40";
+  const APP_VERSION = "web-v41";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -204,6 +204,20 @@
     return html + "</div>";
   }
 
+  // Seitentitel je Bereich (Browser-Tab, Verlauf, Teilen-Vorschau)
+  const SECTION_TITLES = {
+    home: "Soraya — Luxury Astro Guide",
+    analysis: "Geburtshoroskop · Soraya",
+    horoscope: "Horoskop · Soraya",
+    chat: "Chat mit Soraya",
+    synastry: "Partner-Vergleich · Soraya",
+    profile: "Profil · Soraya"
+  };
+  function setPageTitle(id) {
+    const title = SECTION_TITLES[id];
+    if (title) document.title = t(title);
+  }
+
   function showSection(id) {
     const target = $(id);
     if (!target) {
@@ -221,6 +235,7 @@
 
     window.scrollTo({ top: 0, behavior: isMobile() ? "auto" : "smooth" });
     renderAppStatus();
+    setPageTitle(id);
 
     track("section_view", { id });
 
@@ -2114,7 +2129,7 @@
       deutung: t("Soraya deutet eure Verbindung"),
       pruefen: t("Sprache wird geprüft"),
       speichern: t("Wird gespeichert")
-    }[phase] || t("Synastrie wird berechnet…");
+    }[phase] || t("Partner-Vergleich wird berechnet…");
   }
 
   function synJob() {
@@ -2240,7 +2255,7 @@
       if (!partnerId) throw new Error(t("Bitte zuerst eine zweite Person auswählen oder anlegen."));
       if (partnerId === getCurrentPersonId()) throw new Error(t("Bitte eine andere Person auswählen."));
     } catch (error) {
-      const msg = friendlyError(error, t("Synastrie konnte nicht berechnet werden."));
+      const msg = friendlyError(error, t("Der Partner-Vergleich konnte nicht berechnet werden."));
       status("synastryText", msg, "bad");
       return toast(msg);
     }
@@ -2265,7 +2280,7 @@
         return synSchedule(4000);
       }
       trackError("synastry", error);
-      synFehler(friendlyError(error, t("Synastrie konnte nicht berechnet werden.")));
+      synFehler(friendlyError(error, t("Der Partner-Vergleich konnte nicht berechnet werden.")));
     }
   }
 
@@ -2383,7 +2398,7 @@
     const label = ASTRO ? ASTRO.moonPhase(index) : ["Neumond", "Zunehmende Sichel", "Erstes Viertel", "Zunehmender Mond", "Vollmond", "Abnehmender Mond", "Letztes Viertel", "Abnehmende Sichel"][index];
 
     setText("moonPhase", label);
-    setText("moonIllum", t("{value}% beleuchtet", { value: illum }));
+    setText("moonIllum", t("{value} % beleuchtet", { value: illum }));
     if ($("moonVisual")) $("moonVisual").innerHTML = moonSvg((age / synodic) * 360);
   }
 
@@ -2906,7 +2921,7 @@
       if (!force && personId && chartCache.personId === personId && chartCache.json) {
         json = chartCache.json;
       } else {
-        if (details) details.textContent = t("Soraya lädt dein Radix…");
+        if (details) details.textContent = t("Soraya zeichnet dein Geburtshoroskop…");
         if ($("planetList") && !$("planetList").querySelector(".c41-planet-row")) $("planetList").innerHTML = skeleton(5);
         if ($("aspectSummary") && !$("aspectSummary").querySelector(".c41-aspect-cards")) $("aspectSummary").innerHTML = skeleton(3);
         json = await loadChartJson(personId, birth);

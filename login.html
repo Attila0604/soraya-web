@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Soraya — Login</title>
+  <meta name="description" content="Log in to Soraya or create a free account – birth chart, daily horoscope, chat and partner match." />
 
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#070817" />
@@ -38,6 +39,9 @@
   body.soraya-confirm-mode .login-shell .login-tabs, body.soraya-confirm-mode .login-shell #loginForm, body.soraya-confirm-mode .login-shell .login-mini-actions,
   body.soraya-confirm-mode .login-shell .register-perks, body.soraya-confirm-mode .login-shell .lang-picker, body.soraya-confirm-mode .login-shell #loginStatus:not(.bad){display:none}
   .login-status:empty{display:none}
+  .register-consent{display:none; margin:var(--s3) 0 0; font-size:12.5px; line-height:1.55; color:var(--mist-dim); text-align:center}
+  .register-consent a{color:var(--gold-soft); text-decoration:underline; text-underline-offset:2px}
+  body.soraya-register-mode .register-consent{display:block}
   .login-resend{display:block; margin:var(--s2) auto 0; min-height:44px; font-size:13.5px}
   .confirm-panel{text-align:center}
   .confirm-icon{width:64px; height:64px; margin:0 auto var(--s3); border-radius:50%; display:grid; place-items:center; color:var(--gold-soft); background:var(--panel-2); border:1px solid var(--line)}
@@ -86,7 +90,7 @@
           <li data-i18n-html="html.login.confirm2">Tippe in der Mail von Soraya auf <b>„E-Mail bestätigen“</b>.</li>
           <li>Soraya öffnet sich danach von selbst – du bist eingeloggt.</li>
         </ol>
-        <p class="confirm-hint">Keine Mail da? Schau auch im Spam- oder Werbung-Ordner nach. Absender: hallo@sorayaluxuryastroguide.com</p>
+        <p class="confirm-hint">Keine Mail da? Schau auch im Spam- oder Werbe-Ordner nach. Absender: hallo@sorayaluxuryastroguide.com</p>
         <button class="btn block" type="button" id="resendConfirmButton" onclick="sorayaLogin.resendConfirmation()">E-Mail erneut senden</button>
         <button class="qs-login-link" type="button" onclick="sorayaLogin.backToLogin()">Andere E-Mail-Adresse? Zurück</button>
       </div>
@@ -119,6 +123,7 @@
         </div>
 
         <button id="loginSubmitButton" class="btn gold block" type="submit">Einloggen</button>
+        <p class="register-consent" data-i18n-html="html.login.consent">Mit der Registrierung akzeptierst du die <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>. Wie wir mit deinen Daten umgehen, steht in der <a href="/datenschutz">Datenschutzerklärung</a>.</p>
       </form>
 
       <form id="newPasswordForm" hidden novalidate>
@@ -133,7 +138,7 @@
 
       <div class="login-mini-actions">
         <button class="link-btn forgot-btn" type="button" onclick="sorayaLogin.resetPassword()">Passwort vergessen?</button>
-        <a class="link-btn" href="/?section=profile">Ohne Login weiter ›</a>
+        <a class="link-btn" href="/?section=profile">Ohne Konto weiter ›</a>
       </div>
 
       <div id="loginStatus" class="status login-status" aria-live="polite"></div>
@@ -156,10 +161,12 @@
       </details>
     </section>
 
-    <footer style="text-align:center;padding:26px 16px calc(30px + env(safe-area-inset-bottom));font-size:12.5px;color:#9184a8;">
-      <a href="/datenschutz" style="color:#ffe39b;text-decoration:none;">Datenschutz</a>
-      <span style="opacity:.4;margin:0 8px;">·</span>
-      <a href="/impressum" style="color:#ffe39b;text-decoration:none;">Impressum</a>
+    <footer class="legal-footer">
+      <a href="/datenschutz">Datenschutz</a>
+      <span aria-hidden="true">·</span>
+      <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+      <span aria-hidden="true">·</span>
+      <a href="/impressum">Impressum</a>
     </footer>
   </main>
 

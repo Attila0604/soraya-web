@@ -63,7 +63,7 @@
       'box-shadow:0 22px 70px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif;color:#fff4df;">' +
         '<h3 style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;margin:0 0 8px;color:#ffd0a0;">' + T("Konto löschen?") + '</h3>' +
         '<p style="font-size:14.5px;line-height:1.6;color:#c8badf;margin:0 0 6px;">' + T("Das löscht dein Konto und <b>alle deine Daten</b> unwiderruflich:").replace("<b>", '<b style="color:#fff4df;">') + '</p>' +
-        '<p style="font-size:13.5px;line-height:1.6;color:#9184a8;margin:0 0 18px;">' + T("Personen, Analysen, Horoskope, Synastrien und dein Chat-Verlauf mit Soraya. Das kann nicht rückgängig gemacht werden.") + '</p>' +
+        '<p style="font-size:13.5px;line-height:1.6;color:#9184a8;margin:0 0 18px;">' + T("Personen, Analysen, Horoskope, Partner-Vergleiche und dein Chat-Verlauf mit Soraya. Das kann nicht rückgängig gemacht werden.") + '</p>' +
         '<div id="c70-msg" style="display:none;font-size:13px;margin:0 0 14px;padding:10px 12px;border-radius:12px;"></div>' +
         '<div style="display:flex;gap:10px;">' +
           '<button id="c70-cancel" style="flex:1;padding:13px;border-radius:14px;border:1px solid rgba(255,218,135,.30);background:transparent;color:#fff4df;font-weight:600;font-size:14px;cursor:pointer;">' + T("Abbrechen") + '</button>' +
