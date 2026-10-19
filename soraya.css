@@ -1182,3 +1182,67 @@ body{font-variant-numeric:lining-nums}
 .stat b, .energy-ring strong, .compat strong, .invite-score strong, .c41-aspect-cards b, .syn-counts b, .c41-balance-row > b{font-variant-numeric:lining-nums tabular-nums}
 /* Big-Three: "ASZCENDENS"/"ASCENDENTE" passt in die Karte */
 .c4-big-three-grid .eyebrow{letter-spacing:.14em; font-size:9.5px; max-width:100%; overflow-wrap:anywhere}
+
+/* ============================================================
+   Runde 4 (v38): Feinschliff
+   ============================================================ */
+.sr-only{position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+/* Formulare: gleichmäßiger Abstand zwischen den Zeilen */
+.form-row, .form-row-3{margin-top:var(--s3)}
+.field-hint{margin:var(--s2) 0 0 !important; font-size:12.5px !important; line-height:1.5 !important; color:var(--mist-dim) !important}
+/* Kopfzeile: Initiale statt Häkchen */
+#authTopButton.is-avatar{font-family:var(--display); font-size:20px; font-weight:600; color:#2a1c05;
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold-deep)); border-color:transparent}
+/* Laufender Knopf (Doppeltippen) */
+.btn.is-busy, button.is-busy{opacity:.65; pointer-events:none; cursor:progress}
+/* Horoskop: Affirmation als Höhepunkt der Karte */
+#horoscope .c42-affirmation{font-size:21px !important; line-height:1.45 !important; color:var(--gold-soft) !important; margin-top:var(--s1) !important}
+body.soraya-horo-empty #horoscope .c42-guidance-grid{display:none}
+/* Profil: kosmisches Trio statt Zähler */
+.c45-stats .stat b{font-size:19px; line-height:1.25; min-height:24px; overflow-wrap:anywhere}
+.c45-stats .stat span{display:block; margin-top:4px}
+/* Analyse ohne Profil: nur die Anleitung, keine leeren Kästen */
+body.soraya-no-profile:not(.soraya-logged-out) #analysis .c4-chart-card,
+body.soraya-no-profile:not(.soraya-logged-out) #analysis .c4-big-three-grid,
+body.soraya-no-profile:not(.soraya-logged-out) #analysis .c41-analysis-panel,
+body.soraya-no-profile:not(.soraya-logged-out) #analysis .c4-reading-card{display:none !important}
+/* Radix */
+.c4-chart-card svg#chartWheel{max-width:360px}
+.wheel-legend{display:flex; justify-content:center; gap:var(--s4); margin-top:var(--s2); font-size:11.5px; color:var(--mist-dim); letter-spacing:.04em}
+.wheel-legend span{display:inline-flex; align-items:center; gap:8px}
+.wheel-legend i{display:inline-block; width:18px; height:2px; border-radius:2px}
+.wheel-legend .lg-h{background:rgba(228,181,90,.85)}
+.wheel-legend .lg-s{background:rgba(236,122,140,.85)}
+.c4-big-three-grid strong .big-degree{font-size:12px}
+.reading-stale{margin:0 0 var(--s4) !important; padding:var(--s3); border:1px solid var(--line); border-radius:var(--r-sm);
+  background:rgba(201,168,106,.08); font-family:var(--ui) !important; font-size:13.5px !important; line-height:1.55 !important; color:var(--gold-soft) !important}
+/* Chat: Antworten aufrecht und gut lesbar, nur die Begrüßung kursiv */
+.bubble.assistant{font-style:normal; font-size:17px; line-height:1.6; max-width:94%}
+.bubble.assistant.greet{font-style:italic}
+.bubble.assistant p{margin:0 0 var(--s2)}
+.bubble.assistant p:last-of-type{margin-bottom:0}
+.bubble.assistant strong{color:var(--gold-soft); font-weight:600}
+.bubble.assistant ul{margin:0 0 var(--s2); padding-left:1.1em}
+.bubble.assistant .rd-h{font-size:18px; margin:var(--s2) 0 6px; color:var(--gold-soft)}
+.bubble.user{font-size:15px}
+.bubble.assistant .c73-report-link{display:block; margin-top:var(--s2); min-height:32px}
+#chat .chat-head p{font-size:12.5px}
+#chatWindow .bubble.assistant p, #chatWindow .bubble.assistant li{font-size:inherit !important; line-height:inherit !important; color:inherit !important; font-family:inherit !important}
+#chatWindow .bubble{scroll-margin-top:var(--s4)}
+.c49-empty-guide .btn{margin-top:var(--s3)}
+body.soraya-horo-empty #horoscope .c58-period-tabs{display:none !important}
+/* Chat: Titel steht schon oben -> im Chat-Kasten nur der Melde-Knopf, Verlauf beginnt sofort */
+#chat .chat-head > .avatar, #chat .chat-head > div:nth-child(2){display:none}
+#chat .chat-head{justify-content:flex-end; margin-bottom:0; min-height:0}
+#chat .chat-head .c73-report-head{position:static}
+#chat .bubble.typing{border-left:none; padding-left:0}
+body.soraya-logged-out .profile-hero{margin-bottom:0}
+body.soraya-logged-out #chat .c73-report-head{display:none}
+#chat .c43-chat-card{position:relative}
+#chat .chat-head{position:absolute; top:var(--s3); right:var(--s3); z-index:1}
+#chat .bubble.assistant.greet{max-width:calc(100% - 96px)}
+/* Ohne eigene Zeichen keine Stichwort-Chips (wiederholen nur den Satz darüber) */
+.c54-hero-ribbon:not(.is-personal){display:none}
+body:not(.soraya-logged-out) #qsLoginLink, body:not(.soraya-logged-out) #quickStartCard .card-title .badge{display:none}
+.horo-ask{margin-top:var(--s3)}
+body.soraya-logged-out .horo-ask{display:none !important}

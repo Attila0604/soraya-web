@@ -22,10 +22,9 @@
   <!-- defer: blockiert den ersten Bildaufbau nicht; laeuft trotzdem vor app.js (gleiche Reihenfolge) -->
   <script src="/vendor/supabase-js-2.117.3.js" defer></script>
   <script src="/config.js" defer></script>
-  <!-- Sprachen: Uebersetzungen zuerst, dann die Sprach-Logik -->
-  <script src="/i18n/en.js"></script>
-  <script src="/i18n/hu.js"></script>
-  <script src="/i18n/it.js"></script>
+  <!-- Sprachen: nur die gewaehlte Uebersetzung laden (Deutsch braucht keine), dann die Sprach-Logik.
+       Gleiche Erkennung wie in i18n.js: ?lang= > gespeichert > Handy-Sprache > Englisch. -->
+  <script>(function(){var A=["de","en","hu","it"],c=null;try{var q=new URLSearchParams(location.search).get("lang");if(q&&A.indexOf(q)>=0)c=q}catch(e){}if(!c){try{var s=localStorage.getItem("soraya_lang");if(s&&A.indexOf(s)>=0)c=s}catch(e){}}if(!c){var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||""];for(var i=0;i<l.length;i++){var k=String(l[i]||"").toLowerCase().slice(0,2);if(A.indexOf(k)>=0){c=k;break}}}if(!c)c="en";if(c!=="de")document.write('<script src="/i18n/'+c+'.js"><\/script>')})();</script>
   <script src="/i18n.js"></script>
   <link rel="stylesheet" href="/soraya.css" />
 </head>
@@ -65,7 +64,7 @@
         <div class="sub">Luxury Astro Guide</div>
       </div>
 
-      <button id="profileTopButton" class="round" onclick="showSection('profile')" aria-label="Profil öffnen"><svg><use href="#i-sun"/></svg></button>
+      <button id="profileTopButton" class="round" onclick="showSection('synastry')" aria-label="Partner-Vergleich"><svg><use href="#i-synastry"/></svg></button>
       <div class="c410-app-status" id="appStatusPill">Soraya · bereit</div>
     </header>
 
@@ -77,9 +76,9 @@
           <h2 id="greetLine"><span class="gold" id="heroName">Willkommen bei Soraya.</span></h2>
           <p id="heroSub">Geburtshoroskop, Tageshoroskop, Chat und Partner-Vergleich — klar, schön und persönlich.</p>
           <div class="c54-hero-ribbon" id="heroRibbon" aria-label="Soraya Highlights">
-            <span>✦ Birth Chart</span>
-            <span>☾ Transite</span>
-            <span>♡ Synastrie</span>
+            <span>✦ Geburtshoroskop</span>
+            <span>☾ Tageshoroskop</span>
+            <span>♡ Partner-Vergleich</span>
           </div>
         </div>
 
@@ -159,7 +158,7 @@
               <p class="qs-tomorrow" id="qsTomorrow">☾ Morgen schreibt Soraya ein neues Tageshoroskop für dich – schau einfach wieder vorbei.</p>
             </div>
             <div class="qs-cta">
-              <p id="qsCtaText" data-i18n-html="html.qs.cta">Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Birth Chart und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.</p>
+              <p id="qsCtaText" data-i18n-html="html.qs.cta">Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Geburtshoroskop und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.</p>
               <button class="btn gold block" id="qsCtaButton" onclick="sorayaQuickStartCta()">Kostenlos registrieren</button>
               <button class="btn block qs-edit" type="button" onclick="sorayaQuickStartEdit()">Anderes Geburtsdatum</button>
             </div>
@@ -252,7 +251,6 @@
         <div class="card c46-transit-preview">
           <div class="card-title">
             <h4>Transit-Vorschau</h4>
-            <span class="badge">Aktuell</span>
           </div>
           <div class="transit-list" id="homeTransits">
             <div class="sk sk-rows" role="status" aria-label="Wird geladen…"><i></i><i></i><i></i></div>
@@ -262,7 +260,6 @@
         <div class="card c46-people-card" id="peopleCard">
           <div class="card-title">
             <h4>Deine Menschen</h4>
-            <span class="badge">Vergleich</span>
           </div>
           <div class="people-list" id="homePeopleList">
             <p class="people-empty">Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.</p>
@@ -277,14 +274,14 @@
       <!-- ANALYSE -->
       <section id="analysis" class="section">
         <div class="page-title">
-          <span class="eyebrow">Birth Chart</span>
+          <span class="eyebrow">Geburtshoroskop</span>
           <h2 data-i18n-html="html.title.analysis">Dein<br><span class="gold">Radix</span></h2>
-          <p>Planeten, Häuser, Aspekte und ein klares Reading.</p>
+          <p>Planeten, Häuser, Aspekte und deine persönliche Deutung.</p>
         </div>
 
         <div class="card glow guest-gate guest-only">
           <span class="eyebrow">Kostenloses Konto</span>
-          <h4>Dein Birth Chart wartet auf dich</h4>
+          <h4>Dein Geburtshoroskop wartet auf dich</h4>
           <p>Mit einem kostenlosen Konto berechnet Soraya dein ganzes Geburtshoroskop – mit Aszendent, Häusern und deiner persönlichen Analyse.</p>
           <button class="btn gold block" type="button" onclick="sorayaQuickStartCta()">Kostenlos registrieren</button>
           <button class="qs-login-link" type="button" onclick="openLogin()">Schon ein Konto? Einloggen</button>
@@ -303,9 +300,9 @@
         <div class="card glow c4-chart-card">
           <div class="card-title">
             <h4>Dein Radix</h4>
-            <span class="badge">Chart</span>
           </div>
-          <svg id="chartWheel" viewBox="0 0 420 420" role="img" aria-label="Birth Chart"></svg>
+          <svg id="chartWheel" viewBox="0 0 420 420" role="img" aria-label="Geburtshoroskop"></svg>
+          <div class="wheel-legend" aria-hidden="true"><span><i class="lg-h"></i>Harmonisch</span><span><i class="lg-s"></i>Spannung</span></div>
         </div>
 
         <div class="c4-big-three-grid" id="bigThreeGrid">
@@ -315,17 +312,17 @@
         </div>
 
         <div class="card c41-analysis-panel">
-          <div class="card-title"><h4>Planeten & Häuser</h4><span class="badge">Live</span></div>
+          <div class="card-title"><h4>Planeten & Häuser</h4></div>
           <div id="planetList" class="c41-planet-list"><div class="c41-empty">Speichere dein Profil und öffne die Analyse.</div></div>
         </div>
 
         <div class="card c41-analysis-panel">
-          <div class="card-title"><h4>Aspekte & Balance</h4><span class="badge">Übersicht</span></div>
+          <div class="card-title"><h4>Aspekte & Balance</h4></div>
           <div id="aspectSummary" class="c41-aspect-summary"><div class="c41-empty">Aspekte werden mit deinem Chart geladen.</div></div>
         </div>
 
         <div class="card c4-reading-card">
-          <div class="card-title"><h4>Reading</h4><span id="analysisSource" class="badge">bereit</span></div>
+          <div class="card-title"><h4>Deutung</h4><span id="analysisSource" class="badge">bereit</span></div>
           <div class="c4-action-row">
             <button class="btn gold" id="analysisOpenButton" onclick="loadAnalysis(false)">Analyse öffnen</button>
             <button class="btn" id="analysisRegenButton" onclick="loadAnalysis(true)" style="display:none">Neu erstellen</button>
@@ -343,7 +340,7 @@
         </div>
 
         <div class="card glow c4-horoscope-card c42-horoscope-hero">
-          <div class="card-title"><h4>Kosmische Botschaft</h4><span class="badge">Soraya</span></div>
+          <div class="card-title"><h4>Kosmische Botschaft</h4></div>
           <div class="segmented c4-period-picker">
             <select id="period" aria-label="Zeitraum wählen">
               <option value="daily">Tag</option>
@@ -360,6 +357,7 @@
               <p class="horo-date" id="horoDate"></p>
               <p id="horoBody">Wähle einen Zeitraum und lade dein Horoskop.</p>
               <span id="horoTip" class="badge">✦ Dein Tipp erscheint hier</span>
+              <button class="btn block horo-ask" id="horoAskButton" type="button" hidden onclick="sorayaAskAboutHoroscope()">✦ Frag Soraya dazu</button>
               <div class="horo-gast-cta" id="horoGastCta" hidden>
                 <p data-i18n-html="html.horo.gast">Dein <b>persönliches</b> Horoskop – aus deinem ganzen Geburtshoroskop statt nur aus dem Sonnenzeichen – bekommst du mit einem kostenlosen Konto.</p>
                 <button class="btn gold block" type="button" onclick="sorayaQuickStartCta()">Kostenlos registrieren</button>
@@ -391,7 +389,7 @@
         <div class="page-title">
           <span class="eyebrow">Soraya Chat</span>
           <h2>Soraya</h2>
-          <p>Stelle eine Frage oder nutze einen Vorschlag.</p>
+          <p>Kennt dein Geburtshoroskop und den Himmel von heute</p>
         </div>
 
         <div class="card glow guest-gate guest-only">
@@ -402,22 +400,16 @@
           <button class="qs-login-link" type="button" onclick="openLogin()">Schon ein Konto? Einloggen</button>
         </div>
 
-        <div class="c43-prompt-grid">
-          <button class="card c43-prompt" onclick="quickChat('Was sagt mein Geburtshoroskop über meine aktuelle Lebensphase?')"><b>☉</b><span>Lebensphase</span></button>
-          <button class="card c43-prompt" onclick="quickChat('Welche Energie begleitet mich heute in Liebe und Beziehungen?')"><b>♡</b><span>Liebe</span></button>
-          <button class="card c43-prompt" onclick="quickChat('Worauf soll ich beruflich oder finanziell aktuell achten?')"><b>◇</b><span>Beruf</span></button>
-          <button class="card c43-prompt" onclick="quickChat('Welche Blockade darf ich gerade loslassen?')"><b>☾</b><span>Blockade</span></button>
-        </div>
 
         <div class="card chat-card c4-chat-card c43-chat-card">
           <div class="chat-head">
             <div class="avatar">✦</div>
-            <div><h4>Chat mit Soraya</h4><p>Birth Chart · Transite · persönliche Antwort</p></div>
+            <div><h4>Chat mit Soraya</h4><p>Kennt dein Geburtshoroskop und den Himmel von heute</p></div>
           </div>
           <input id="conversationId" type="hidden" />
-          <div class="chat-window" id="chatWindow"><div class="bubble assistant">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div></div>
+          <div class="chat-window" id="chatWindow" aria-live="polite"><div class="bubble assistant greet">Hallo, ich bin Soraya ✨ Was möchtest du heute verstehen?</div></div>
           <div class="chat-suggestions" id="chatSuggestions" aria-label="Vorschläge"></div>
-          <label for="chatMessage">Deine Nachricht</label>
+          <label for="chatMessage" class="sr-only">Deine Nachricht</label>
           <div class="composer c43-composer">
             <textarea id="chatMessage" placeholder="Nachricht an Soraya…"></textarea>
             <button class="round" id="chatSendButton" onclick="sendChat()" title="Senden" aria-label="Nachricht senden">➤</button>
@@ -433,7 +425,7 @@
       <section id="synastry" class="section">
         <button type="button" class="back-link" onclick="showSection('home')">‹ Zurück</button>
         <div class="page-title">
-          <span class="eyebrow">Synastrie</span>
+          <span class="eyebrow">Partner-Vergleich</span>
           <h2 data-i18n-html="html.title.synastry">Verbindung<br><span class="gold">verstehen</span></h2>
           <p>Analysiere die Dynamik zwischen zwei gespeicherten Personen.</p>
         </div>
@@ -464,7 +456,7 @@
         </div>
 
         <div class="card invite-share-card">
-          <div class="card-title"><h4>Partner einladen</h4><span class="badge">Link</span></div>
+          <div class="card-title"><h4>Partner einladen</h4></div>
           <p>Schick deinem Partner, deiner Freundin oder Familie einen Link: Sie geben nur ihr Geburtsdatum ein und sehen sofort, wie gut ihr zusammenpasst. Von dir sehen sie nur deinen Vornamen und dein Sternzeichen.</p>
           <button class="btn gold block" onclick="sorayaShareInvite()">♡ Einladungslink teilen</button>
           <div id="inviteShareStatus" class="status invite-status" aria-live="polite"></div>
@@ -478,7 +470,7 @@
         </div>
 
         <div class="card phaseb3-partner-card" id="synastryPersonCreateCard">
-          <div class="card-title"><h4>Zweite Person anlegen</h4><span class="badge">Synastrie</span></div>
+          <div class="card-title"><h4>Zweite Person anlegen</h4></div>
           <p class="synastry-hint">Speichere eine zweite Person. Danach erscheint sie oben in der Liste.</p>
           <label for="partnerName">Name</label><input id="partnerName" placeholder="Name der zweiten Person" />
           <div class="partner-form-grid">
@@ -512,9 +504,9 @@
             <div><span class="eyebrow member-only">Soraya Mitglied</span><span class="eyebrow guest-only">Ohne Konto</span><h3 id="profileTitle">Dein Profil</h3><p id="profileSub">Trag unten deine Geburtsdaten ein.</p></div>
           </div>
           <div class="stats c45-stats">
-            <div class="stat"><b id="daysStat">1</b><span>Tag dabei</span></div>
-            <div class="stat"><b id="analysisStat">0</b><span>Analysen</span></div>
-            <div class="stat"><b id="savedStat">0</b><span>Gespeichert</span></div>
+            <div class="stat"><b id="statSun">–</b><span>Sonne</span></div>
+            <div class="stat"><b id="statMoon">–</b><span>Mond</span></div>
+            <div class="stat"><b id="statAsc">–</b><span>Aszendent</span></div>
           </div>
         </div>
 
@@ -525,13 +517,13 @@
         </div>
 
         <div class="card c45-lang-card" id="languageCard">
-          <div class="card-title"><h4>Sprache</h4><span class="badge">🌐</span></div>
+          <div class="card-title"><h4>Sprache</h4></div>
           <p>Soraya spricht mit dir in deiner Sprache – auch Horoskope, Analysen und der Chat.</p>
           <div class="lang-picker" data-lang-picker aria-label="Sprache wählen"></div>
         </div>
 
         <div class="card c4-birth-form-card c45-birth-card">
-          <div class="card-title"><h4>Geburtsdaten</h4><span class="badge">Radix</span></div>
+          <div class="card-title"><h4>Geburtsdaten</h4></div>
           <input id="personId" type="hidden" />
           <label for="pName">Name</label><input id="pName" placeholder="Dein Name" oninput="window._sorayaPreview&&window._sorayaPreview()" />
           <div class="form-row-3">
@@ -543,12 +535,13 @@
             <div><label for="pHour">Stunde optional</label><input id="pHour" inputmode="numeric" placeholder="hh" /></div>
             <div><label for="pMinute">Minute optional</label><input id="pMinute" inputmode="numeric" placeholder="mm" /></div>
           </div>
+          <p class="field-hint">Geburtszeit unbekannt? Einfach leer lassen – Sonne, Mond und Planeten stimmen trotzdem. Nur Aszendent und Häuser brauchen die Uhrzeit.</p>
           <label for="pBirthplace">Geburtsort</label><input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
           <div class="c45-birth-preview">
             <div><b>☉</b><span>Sonne wird nach dem Speichern berechnet.</span></div>
             <div><b>☾</b><span>Mond & Aszendent erscheinen in der Analyse.</span></div>
           </div>
-          <button class="btn gold block" onclick="createPerson()">Profil speichern</button>
+          <button class="btn gold block" id="profileSaveButton" onclick="createPerson()">Profil speichern</button>
           <div id="personResult" class="status" aria-live="polite">Noch nicht gespeichert.</div>
         </div>
 
