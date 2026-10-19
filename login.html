@@ -21,10 +21,9 @@
 
   <script src="/vendor/supabase-js-2.117.3.js" defer></script>
   <script src="/config.js?v=6.7.0" defer></script>
-  <!-- Sprachen: Uebersetzungen zuerst, dann die Sprach-Logik -->
-  <script src="/i18n/en.js"></script>
-  <script src="/i18n/hu.js"></script>
-  <script src="/i18n/it.js"></script>
+  <!-- Sprachen: nur die gewaehlte Uebersetzung laden (Deutsch braucht keine), dann die Sprach-Logik.
+       Gleiche Erkennung wie in i18n.js: ?lang= > gespeichert > Handy-Sprache > Englisch. -->
+  <script>(function(){var A=["de","en","hu","it"],c=null;try{var q=new URLSearchParams(location.search).get("lang");if(q&&A.indexOf(q)>=0)c=q}catch(e){}if(!c){try{var s=localStorage.getItem("soraya_lang");if(s&&A.indexOf(s)>=0)c=s}catch(e){}}if(!c){var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||""];for(var i=0;i<l.length;i++){var k=String(l[i]||"").toLowerCase().slice(0,2);if(A.indexOf(k)>=0){c=k;break}}}if(!c)c="en";if(c!=="de")document.write('<script src="/i18n/'+c+'.js"><\/script>')})();</script>
   <script src="/i18n.js"></script>
   <link rel="stylesheet" href="/soraya.css" />
 <style>

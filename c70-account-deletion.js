@@ -142,6 +142,15 @@
     overlay.querySelector("#c70-cancel").addEventListener("click", function () { overlay.remove(); });
     overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
     overlay.querySelector("#c70-confirm").addEventListener("click", function () { runDeletion(overlay); });
+    // Escape schliesst den Dialog (solange nicht gerade geloescht wird); Fokus auf "Abbrechen"
+    var onKey = function (e) {
+      if (e.key !== "Escape" || !document.body.contains(overlay)) return;
+      if (overlay.querySelector("#c70-cancel").disabled) return;
+      overlay.remove();
+      document.removeEventListener("keydown", onKey);
+    };
+    document.addEventListener("keydown", onKey);
+    try { overlay.querySelector("#c70-cancel").focus(); } catch (e) {}
   }
 
   function wire() {
