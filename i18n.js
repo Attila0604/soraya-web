@@ -98,7 +98,7 @@
     }
 
     // Rechtstexte: Links auf die Fassung in der App-Sprache (/datenschutz-en usw.)
-    var legal = root.querySelectorAll ? root.querySelectorAll('a[href="/datenschutz"],a[href="/impressum"],a[href="/konto-loeschen"]') : [];
+    var legal = root.querySelectorAll ? root.querySelectorAll('a[href="/datenschutz"],a[href="/impressum"],a[href="/nutzungsbedingungen"],a[href="/konto-loeschen"]') : [];
     Array.prototype.forEach.call(legal, function (a) { a.setAttribute("href", a.getAttribute("href") + "-" + lang); });
 
     var htmlEls = root.querySelectorAll ? root.querySelectorAll("[data-i18n-html]") : [];

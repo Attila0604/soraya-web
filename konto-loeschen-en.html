@@ -20,10 +20,10 @@
   <link rel="alternate" hreflang="it" href="https://app.sorayaluxuryastroguide.com/konto-loeschen-it" />
   <style>
     :root{
-      --ink:#070817; --navy:#0b1029; --glass:rgba(9,12,32,.78);
-      --gold:#d9a84b; --gold2:#ffe39b; --champagne:#fff3ca;
-      --violet2:#b56bff; --bone:#fff4df; --muted:#c8badf; --muted2:#9184a8;
-      --line:rgba(255,218,135,.30); --line2:rgba(181,107,255,.22);
+      --ink:#070817; --navy:#0b1029; --glass:rgba(26,17,44,.55);
+      --gold:#c9a86a; --gold2:#e6cf9c; --champagne:#f4e6c4;
+      --violet2:#b98cff; --bone:#e9e2f2; --muted:#c3b7da; --muted2:#8a7ea6;
+      --line:rgba(201,168,106,.26); --line2:rgba(168,107,255,.20);
       --display:"Cormorant Garamond",Georgia,serif;
       --wordmark:"Cinzel",serif;
       --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -88,12 +88,28 @@
     .langs a{border:1px solid var(--line2); border-radius:999px; padding:5px 13px; font-size:13px; color:var(--muted)}
     .langs a[aria-current="page"]{border-color:var(--gold); color:var(--gold2); font-weight:600}
     .note{color:var(--muted2); font-size:13px; text-align:center; margin:-10px 0 26px}
+    /* Gleiche Farbwelt wie die App (soraya.css) */
+    html{background:#060410}
+    body{background:
+        radial-gradient(68% 45% at 80% 12%, rgba(140,74,206,.30), transparent 60%),
+        radial-gradient(62% 44% at 14% 26%, rgba(58,50,168,.28), transparent 60%),
+        radial-gradient(95% 55% at 50% -10%, rgba(74,44,120,.55), transparent 62%),
+        linear-gradient(180deg, #0e0a22 0%, #0a0618 52%, #060410 100%) fixed}
+    .wrap{max-width:720px}
+    a.mark{display:inline-flex; flex-direction:column; align-items:center; gap:10px; border-bottom:none; text-decoration:none}
+    a.mark img{display:block; width:44px; height:auto}
+    footer.page nav{display:flex; flex-wrap:wrap; justify-content:center; gap:4px 18px; margin:0 0 14px}
+    footer.page nav a{display:inline-block; padding:10px 2px; font-size:13px; color:var(--gold2); border-bottom:none}
+    footer.page nav a[aria-current="page"]{color:var(--muted)}
+    footer.page .brandline{margin:0; color:var(--muted2); font-size:12.5px; letter-spacing:.04em}
+    header.page .sub{color:var(--muted2); font-size:13px; margin:12px 0 0; letter-spacing:.04em}
+    .back{min-height:44px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="page">
-      <p class="mark">Soraya</p>
+      <a class="mark" href="/" aria-label="Soraya – Open the app"><img src="/brand/zeichen.svg" alt="" width="44" height="42"><span>Soraya</span></a>
       <h1>Delete account</h1>
       <p class="sub">Deleting your Soraya account and your data</p>
     </header>
@@ -130,7 +146,7 @@
     <ul>
       <li>your account data (email address and login data),</li>
       <li>your birth data (name, date of birth, time and place of birth if provided),</li>
-      <li>other people you added (e.g. for the synastry),</li>
+      <li>other people you added (e.g. for the partner match),</li>
       <li>your chat histories with Soraya,</li>
       <li>all calculated analyses and horoscopes assigned to your account.</li>
     </ul>
@@ -141,7 +157,13 @@
     <a class="back" href="/">← Back to Soraya</a>
 
     <footer class="page">
-      Soraya — Luxury Astrology Guide · Delete account
+      <nav aria-label="Legal">
+        <a href="/datenschutz-en">Privacy Policy</a>
+        <a href="/nutzungsbedingungen-en">Terms of Use</a>
+        <a href="/impressum-en">Legal Notice</a>
+        <a href="/konto-loeschen-en" aria-current="page">Delete account</a>
+      </nav>
+      <p class="brandline">Soraya — Luxury Astro Guide</p>
     </footer>
   </div>
 </body>

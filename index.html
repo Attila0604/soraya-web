@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Soraya — Luxury Astro Guide</title>
+  <meta name="description" content="Birth chart, daily horoscope, chat and partner match – calculated precisely and explained clearly. Free to start, in German, English, Hungarian and Italian." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Soraya" />
+  <meta property="og:title" content="Soraya — Luxury Astro Guide" />
+  <meta property="og:description" content="Birth chart, daily horoscope, chat and partner match – free to start." />
+  <meta property="og:url" content="https://app.sorayaluxuryastroguide.com/" />
+  <meta property="og:image" content="https://www.sorayaluxuryastroguide.com/og-bild.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#070817" />
@@ -455,7 +463,7 @@
         </div>
 
         <div class="card glow syn-wrap c4-synastry-card c44-synastry-hero">
-          <span class="eyebrow">Partnerschaftsanalyse</span>
+          <span class="eyebrow">Eure Verbindung</span>
           <div class="c44-connection-visual">
             <div class="c44-person-orb"><span id="synAInitial">Du</span><small id="synAName">Dein Chart</small></div>
             <div class="c44-link-symbol">♡</div>
@@ -495,8 +503,8 @@
             <div><label for="partnerYear">Jahr</label><input id="partnerYear" inputmode="numeric" placeholder="JJJJ" /></div>
           </div>
           <div class="partner-form-grid two">
-            <div><label for="partnerHour">Stunde optional</label><input id="partnerHour" inputmode="numeric" placeholder="hh" /></div>
-            <div><label for="partnerMinute">Minute optional</label><input id="partnerMinute" inputmode="numeric" placeholder="mm" /></div>
+            <div><label for="partnerHour">Stunde (optional)</label><input id="partnerHour" inputmode="numeric" placeholder="hh" /></div>
+            <div><label for="partnerMinute">Minute (optional)</label><input id="partnerMinute" inputmode="numeric" placeholder="mm" /></div>
           </div>
           <label for="partnerBirthplace">Geburtsort</label><input id="partnerBirthplace" placeholder="z. B. Budapest, Ungarn" />
           <label for="partnerRelation">Beziehung</label>
@@ -511,7 +519,7 @@
         <div class="page-title">
           <span class="eyebrow">Profil</span>
           <h2 data-i18n-html="html.title.profile">Mein<br><span class="gold">Profil</span></h2>
-          <p>Deine Geburtsdaten sind die Basis für Analyse, Horoskop und Synastrie.</p>
+          <p>Deine Geburtsdaten sind die Basis für Analyse, Horoskop und Partner-Vergleich.</p>
         </div>
 
         <div class="card glow c4-profile-card c45-profile-hero">
@@ -528,7 +536,7 @@
 
         <div class="card c4-login-session c45-login-card" id="loginSessionCard">
           <div class="card-title"><h4>Login</h4><span class="badge" id="loginBadge">Status</span></div>
-          <p id="loginSessionText">Session wird geprüft…</p>
+          <p id="loginSessionText">Anmeldung wird geprüft…</p>
           <button id="profileAuthButton" class="btn gold block" onclick="openLogin()">Einloggen</button>
         </div>
 
@@ -548,8 +556,8 @@
             <div><label for="pYear">Jahr</label><input id="pYear" inputmode="numeric" placeholder="JJJJ" /></div>
           </div>
           <div class="form-row">
-            <div><label for="pHour">Stunde optional</label><input id="pHour" inputmode="numeric" placeholder="hh" /></div>
-            <div><label for="pMinute">Minute optional</label><input id="pMinute" inputmode="numeric" placeholder="mm" /></div>
+            <div><label for="pHour">Stunde (optional)</label><input id="pHour" inputmode="numeric" placeholder="hh" /></div>
+            <div><label for="pMinute">Minute (optional)</label><input id="pMinute" inputmode="numeric" placeholder="mm" /></div>
           </div>
           <p class="field-hint">Geburtszeit unbekannt? Einfach leer lassen – Sonne, Mond und Planeten stimmen trotzdem. Nur Aszendent und Häuser brauchen die Uhrzeit.</p>
           <label for="pBirthplace">Geburtsort</label><input id="pBirthplace" placeholder="z. B. Debrecen, Ungarn" />
@@ -568,13 +576,21 @@
         </div>
 
         <button id="logoutButton" class="btn block c4-logout-btn c45-logout-btn" onclick="signOut()">Abmelden</button>
-        <button id="deleteAccountBtn" type="button" style="display:block;width:100%;margin-top:10px;padding:11px;background:transparent;border:none;color:#9184a8;font-size:13px;text-decoration:underline;cursor:pointer;">Konto löschen</button>
+        <button id="deleteAccountBtn" class="delete-account-link" type="button">Konto löschen</button>
+
+        <nav class="profile-legal" aria-label="Rechtliches">
+          <a href="/datenschutz">Datenschutz</a>
+          <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+          <a href="/impressum">Impressum</a>
+        </nav>
       </section>
 
-      <footer class="app-footer" style="text-align:center;padding:26px 16px calc(30px + env(safe-area-inset-bottom));font-size:12.5px;color:#9184a8;">
-        <a href="/datenschutz" style="color:#ffe39b;text-decoration:none;">Datenschutz</a>
-        <span style="opacity:.4;margin:0 8px;">·</span>
-        <a href="/impressum" style="color:#ffe39b;text-decoration:none;">Impressum</a>
+      <footer class="app-footer legal-footer">
+        <a href="/datenschutz">Datenschutz</a>
+        <span aria-hidden="true">·</span>
+        <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+        <span aria-hidden="true">·</span>
+        <a href="/impressum">Impressum</a>
       </footer>
     </main>
   </div>
