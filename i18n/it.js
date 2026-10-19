@@ -752,5 +752,20 @@ window.SORAYA_STRINGS.it = {
   "✦ Frag Soraya dazu": "✦ Chiedi a Soraya",
   "Erklär mir mein Wochenhoroskop genauer: Worauf kommt es diese Woche für mich an?": "Spiegami meglio il mio oroscopo della settimana: cosa conta di più per me questa settimana?",
   "Erklär mir mein Monatshoroskop genauer: Worauf kommt es diesen Monat für mich an?": "Spiegami meglio il mio oroscopo del mese: cosa conta di più per me questo mese?",
-  "Erklär mir mein Tageshoroskop genauer: Was bedeutet „{mood}“ heute für mich?": "Spiegami meglio il mio oroscopo di oggi: cosa significa «{mood}» per me oggi?"
+  "Erklär mir mein Tageshoroskop genauer: Was bedeutet „{mood}“ heute für mich?": "Spiegami meglio il mio oroscopo di oggi: cosa significa «{mood}» per me oggi?",
+  "{n} Min. Lesezeit": "{n} min di lettura",
+  "gibt Rückenwind": "ti dà una spinta",
+  "fordert dich": "ti mette alla prova",
+  "Wie entsteht der Wert?": "Come nasce questo valore?",
+  "Ein fester Wert für den ganzen Tag: Soraya vergleicht den Himmel um 12 Uhr mit deinem Geburtshoroskop. Es zählen nur die langsameren Planeten – harmonische Winkel heben den Wert, spannungsreiche senken ihn. Morgen gibt es einen neuen.": "Un valore fisso per tutta la giornata: Soraya confronta il cielo di mezzogiorno con il tuo tema natale. Contano solo i pianeti più lenti – gli angoli armonici alzano il valore, quelli tesi lo abbassano. Domani ne arriva uno nuovo.",
+  "Horoskop lesen": "Leggi l'oroscopo",
+  "Soraya fragen": "Chiedi a Soraya",
+  "Inhalt der Deutung": "Indice dell'interpretazione",
+  "Ohne Zahlungsdaten": "Senza dati di pagamento",
+  "In einer Minute erledigt": "Fatto in un minuto",
+  "Passwort vergessen?": "Password dimenticata?",
+  "Ohne Login weiter ›": "Continua senza accesso ›",
+  "Was heute auf dich wirkt": "Cosa influenza la tua giornata",
+  "Dein Himmelsbild": "La tua mappa del cielo",
+  "Danach zeichnet Soraya dein Geburtshoroskop und schreibt deine persönliche Deutung.": "Poi Soraya disegna il tuo tema natale e scrive la tua interpretazione personale."
 };

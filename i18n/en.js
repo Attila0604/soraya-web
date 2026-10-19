@@ -752,5 +752,20 @@ window.SORAYA_STRINGS.en = {
   "✦ Frag Soraya dazu": "✦ Ask Soraya about it",
   "Erklär mir mein Wochenhoroskop genauer: Worauf kommt es diese Woche für mich an?": "Explain my weekly horoscope in more detail: what matters most for me this week?",
   "Erklär mir mein Monatshoroskop genauer: Worauf kommt es diesen Monat für mich an?": "Explain my monthly horoscope in more detail: what matters most for me this month?",
-  "Erklär mir mein Tageshoroskop genauer: Was bedeutet „{mood}“ heute für mich?": "Explain my daily horoscope in more detail: what does “{mood}” mean for me today?"
+  "Erklär mir mein Tageshoroskop genauer: Was bedeutet „{mood}“ heute für mich?": "Explain my daily horoscope in more detail: what does “{mood}” mean for me today?",
+  "{n} Min. Lesezeit": "{n} min read",
+  "gibt Rückenwind": "gives you a tailwind",
+  "fordert dich": "challenges you",
+  "Wie entsteht der Wert?": "How is this value calculated?",
+  "Ein fester Wert für den ganzen Tag: Soraya vergleicht den Himmel um 12 Uhr mit deinem Geburtshoroskop. Es zählen nur die langsameren Planeten – harmonische Winkel heben den Wert, spannungsreiche senken ihn. Morgen gibt es einen neuen.": "One fixed value for the whole day: Soraya compares the sky at 12 noon with your birth chart. Only the slower planets count – harmonious angles raise the value, tense ones lower it. Tomorrow brings a new one.",
+  "Horoskop lesen": "Read horoscope",
+  "Soraya fragen": "Ask Soraya",
+  "Inhalt der Deutung": "Contents of the interpretation",
+  "Ohne Zahlungsdaten": "No payment details",
+  "In einer Minute erledigt": "Done in a minute",
+  "Passwort vergessen?": "Forgot password?",
+  "Ohne Login weiter ›": "Continue without login ›",
+  "Was heute auf dich wirkt": "What's shaping your day",
+  "Dein Himmelsbild": "Your sky map",
+  "Danach zeichnet Soraya dein Geburtshoroskop und schreibt deine persönliche Deutung.": "Then Soraya draws your birth chart and writes your personal interpretation."
 };

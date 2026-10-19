@@ -1246,3 +1246,121 @@ body.soraya-logged-out #chat .c73-report-head{display:none}
 body:not(.soraya-logged-out) #qsLoginLink, body:not(.soraya-logged-out) #quickStartCard .card-title .badge{display:none}
 .horo-ask{margin-top:var(--s3)}
 body.soraya-logged-out .horo-ask{display:none !important}
+
+/* ============================================================
+   Runde 5 (v40): Tagesritual, Lesbarkeit, Feinschliff
+   ============================================================ */
+:root{
+  --mist-faint:#8578a6;                 /* vorher #5c5175: zu wenig Kontrast (AA) */
+  --focus:rgba(230,207,156,.85);
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+
+/* ---- Startseite: "Dein Tag" als Ritual-Karte ganz oben ---- */
+.r5-today .card-title{align-items:flex-start}
+.r5-today-head{min-width:0}
+.r5-today-head h4{margin:0}
+.r5-today-date{display:block; margin-top:2px; font-size:12.5px; color:var(--mist-dim); letter-spacing:.02em}
+.r5-today-date:empty{display:none}
+.r5-today .c46-focus-layout{align-items:center}
+.r5-today .c46-focus-layout h3{font-size:24px; line-height:1.2}
+.r5-today #dailyFocusText{font-size:14.5px; line-height:1.55; color:var(--mist)}
+.r5-energy{flex:none}
+.r5-energy .energy-ring{width:92px; height:92px; margin:0}
+.r5-energy .energy-ring::before{inset:7px}
+.r5-energy .energy-ring strong{font-size:24px}
+.r5-energy-info{margin-top:var(--s3); padding:var(--s3); border-radius:var(--r-sm); background:rgba(10,7,20,.32); border:1px solid var(--line-soft)}
+.r5-energy-caption{margin:0 !important; display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; font-size:12.5px !important}
+.r5-energy-caption span{text-transform:uppercase; letter-spacing:.14em; font-size:11px; color:var(--gold)}
+.r5-energy-caption b{font-weight:600; color:var(--gold-soft); font-size:13.5px}
+.r5-energy-why{list-style:none; margin:var(--s2) 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--mist); line-height:1.45}
+.r5-energy-why[hidden]{display:none}
+.r5-energy-why li{display:flex; gap:8px}
+.r5-energy-why li span{flex:none; width:14px; text-align:center}
+.r5-energy-why li.is-plus span{color:var(--gold-soft)}
+.r5-energy-why li.is-minus span{color:#d9a0c8}
+.r5-energy-how{margin-top:var(--s2)}
+.r5-energy-how summary{cursor:pointer; list-style:none; font-size:12.5px; color:var(--gold-soft); min-height:32px; display:inline-flex; align-items:center; gap:6px}
+.r5-energy-how summary::-webkit-details-marker{display:none}
+.r5-energy-how summary::before{content:"ⓘ"; font-size:13px; opacity:.9}
+.r5-energy-how p{margin:4px 0 0 !important; font-size:12.5px !important; line-height:1.55; color:var(--mist-dim)}
+.r5-today-actions{display:grid; grid-template-columns:1fr 1fr; gap:var(--s2); margin-top:var(--s3)}
+.r5-today-actions .btn{min-height:46px; padding:10px 8px; text-align:center; line-height:1.25}
+#dailyFocusCard{cursor:default}
+#dailyFocusCard:active{transform:none}
+/* Mit Profil: Ring statt Deko-Stern; ohne Profil: kein leerer Ring */
+body.soraya-no-profile .r5-energy, body.soraya-no-profile #energyInfo{display:none}
+body:not(.soraya-no-profile) .r5-today .c46-focus-orb{display:none}
+/* Gast: Aktionen fuehren ins Konto -- Karte bleibt ein ruhiger Impuls */
+body.soraya-logged-out .r5-today-actions{display:none}
+/* Gast mit Schnellstart-Ergebnis: Tageshoroskop steht schon im Ergebnis */
+body.soraya-logged-out.r5-qs-shown #dailyFocusCard{display:none}
+/* Mondphase: eine ruhige Zeile statt halber Kachel */
+.c46-dashboard-grid{grid-template-columns:1fr !important}
+.r5-moon-row{display:flex; align-items:center; gap:var(--s4)}
+.r5-moon-row .moon-visual{margin:0; width:76px; height:76px; flex:none}
+.r5-moon-row .moon-visual svg{width:76px; height:76px}
+.r5-moon-row .c4-center-title, .r5-moon-row .c4-center-muted{text-align:left; margin:0}
+.r5-moon-row .c4-center-title{font-size:19px; margin-bottom:2px}
+.r5-moon-row .c4-center-muted{font-size:13px}
+.c46-moon-card .card-title{margin-bottom:var(--s2)}
+
+/* ---- Analyse: Kapitel-Chips ueber langen Deutungen ---- */
+.r5-toc{display:flex; flex-wrap:wrap; gap:8px; margin:var(--s2) 0 var(--s3)}
+.r5-toc[hidden]{display:none}
+.r5-toc-time{flex-basis:100%; font-size:12px; color:var(--mist-dim); letter-spacing:.04em}
+.r5-chip{min-height:36px; padding:7px 13px; border-radius:var(--r-pill); border:1px solid var(--line); background:rgba(201,168,106,.07);
+  color:var(--gold-soft); font:inherit; font-size:12.5px; line-height:1.25; cursor:pointer; text-align:left;
+  transition:background .2s, border-color .2s, transform .12s}
+.r5-chip:hover{background:rgba(201,168,106,.14); border-color:var(--gold-dim)}
+.r5-chip:active{transform:scale(.97)}
+.reading h3.rd-h{scroll-margin-top:24px}
+
+/* ---- Chat: "melden" erst zeigen, wenn Soraya geantwortet hat ---- */
+.chat-card:not(:has(.bubble.assistant:not(.greet))) .c73-report-head{display:none}
+
+/* ---- Login: ruhigere Nebenaktionen ---- */
+.login-mini-actions{justify-content:space-between; align-items:center; margin-top:var(--s3)}
+.login-mini-actions .link-btn{flex:none; min-height:44px; display:inline-flex; align-items:center; padding:0 4px;
+  font-size:13.5px; text-decoration:none; color:var(--gold-soft)}
+.login-mini-actions .link-btn:hover{text-decoration:underline}
+body.soraya-register-mode .login-mini-actions{justify-content:center}
+.login-logo{margin-bottom:var(--s4)}
+.login-logo p{color:var(--mist-dim)}
+.lang-picker-compact{grid-template-columns:repeat(4,minmax(0,1fr))}
+.lang-picker-compact .lang-option{min-width:0; overflow-wrap:anywhere}
+
+/* ---- Zustaende: sichtbar und einheitlich ---- */
+:focus-visible{outline:2px solid var(--focus); outline-offset:3px}
+.btn{transition:border-color .2s, color .2s, background .2s, transform .12s var(--ease), filter .2s}
+.btn:active{transform:scale(.97)}
+.btn.gold:active{filter:brightness(.96)}
+.btn:disabled, button:disabled{opacity:.55; cursor:not-allowed}
+.btn:focus-visible, .r5-chip:focus-visible, .lang-option:focus-visible, .link-btn:focus-visible{outline:2px solid var(--focus); outline-offset:3px}
+.badge{border-radius:var(--r-pill)}
+@media (hover:none){.tile:hover, .c43-prompt:hover{transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .btn:active, .r5-chip:active{transform:none}
+  html{scroll-behavior:auto}
+}
+/* Mit Profil: Begruessung kompakter -> "Dein Tag" samt Knoepfen rueckt nach oben */
+body:not(.soraya-no-profile) #home .page-title{margin:0 0 var(--s4)}
+body:not(.soraya-no-profile) #home .page-title .eyebrow{display:none}
+body:not(.soraya-no-profile) #home .page-title h2{font-size:30px; line-height:1.15; margin-bottom:var(--s2)}
+body:not(.soraya-no-profile) #home .page-title p{font-size:13.5px}
+body:not(.soraya-no-profile) #home .c54-hero-ribbon{margin-top:var(--s3)}
+/* Himmel heute: Zeitangabe als kleine Spalte, damit der Text nicht in schmale Zeilen bricht */
+.sky-list{gap:0}
+.sky-list .row{align-items:flex-start; padding:12px 0; border-top:1px solid var(--line-soft)}
+.sky-list .row:first-child{border-top:none; padding-top:2px}
+.sky-list .row .left{align-items:flex-start}
+.sky-list .row .left > :first-child{flex:none; width:20px; text-align:center; margin-top:2px}
+.sky-list .row > span{flex:none; font-size:12px; white-space:nowrap; text-align:right; padding-top:3px; line-height:1.35}
+/* Kapitel-Chips: eine wischbare Zeile statt hoher Stapel */
+.r5-toc{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin-left:calc(-1 * var(--s4)); margin-right:calc(-1 * var(--s4));
+  padding:2px var(--s4) 4px; scroll-padding-left:var(--s4);
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 var(--s4), #000 calc(100% - 32px), transparent 100%);
+          mask-image:linear-gradient(90deg, transparent 0, #000 var(--s4), #000 calc(100% - 32px), transparent 100%)}
+.r5-toc::-webkit-scrollbar{display:none}
+.r5-chip{flex:none; white-space:nowrap}
+.r5-toc-time{flex:none; align-self:center; margin-right:4px; white-space:nowrap}
