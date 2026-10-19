@@ -202,17 +202,37 @@
           <a class="btn gold block" style="text-align:center;justify-content:center" id="androidPlayLink" href="https://play.google.com/store/apps/details?id=com.sorayaluxuryastroguide.app.twa" target="_blank" rel="noopener" onclick="sorayaTrackPlay()">Bei Google Play laden</a>
         </div>
 
-        <div class="card premium c46-daily-focus" id="dailyFocusCard" role="button" tabindex="0" onclick="showSection('horoscope')" aria-label="Zum Tageshoroskop">
+        <div class="card premium c46-daily-focus r5-today" id="dailyFocusCard">
           <div class="card-title">
-            <h4>Dein Tagesfokus</h4>
+            <div class="r5-today-head">
+              <h4>Dein Tagesfokus</h4>
+              <span class="r5-today-date" id="todayDate"></span>
+            </div>
             <span class="badge" id="dailyFocusBadge">Heute</span>
           </div>
           <div class="c46-focus-layout">
             <div class="c46-focus-orb">✦</div>
+            <div class="r5-energy" id="todayEnergy">
+              <div class="energy-ring" id="energyRing" style="--energy:0%" role="img" aria-labelledby="energyCaption">
+                <div><span><strong id="energyPct">–</strong></span></div>
+              </div>
+            </div>
             <div>
               <h3 id="dailyFocusTitle">Innere Klarheit</h3>
               <p id="dailyFocusText">Soraya nutzt dein Profil und aktuelle Transite für deinen Tagesimpuls.</p>
             </div>
+          </div>
+          <div class="r5-today-actions">
+            <button class="btn gold" type="button" onclick="showSection('horoscope')">Horoskop lesen</button>
+            <button class="btn" type="button" onclick="showSection('chat')">Soraya fragen</button>
+          </div>
+          <div class="r5-energy-info" id="energyInfo">
+            <p class="r5-energy-caption" id="energyCaption"><span>Tagesenergie</span> <b id="energyLabel">wird berechnet</b></p>
+            <ul class="r5-energy-why" id="energyWhy" hidden></ul>
+            <details class="r5-energy-how">
+              <summary>Wie entsteht der Wert?</summary>
+              <p>Ein fester Wert für den ganzen Tag: Soraya vergleicht den Himmel um 12 Uhr mit deinem Geburtshoroskop. Es zählen nur die langsameren Planeten – harmonische Winkel heben den Wert, spannungsreiche senken ihn. Morgen gibt es einen neuen.</p>
+            </details>
           </div>
           <p class="c46-streak" id="dailyStreak" hidden></p>
         </div>
@@ -222,19 +242,13 @@
             <div class="card-title">
               <h4>Mondphase</h4>
             </div>
-            <div class="moon-visual" id="moonVisual"></div>
-            <h4 id="moonPhase" class="c4-center-title">Mondphase</h4>
-            <p id="moonIllum" class="c4-center-muted">– beleuchtet</p>
-          </div>
-
-          <div class="card c4-energy-card c46-energy-card">
-            <div class="card-title">
-              <h4>Tagesenergie</h4>
+            <div class="r5-moon-row">
+              <div class="moon-visual" id="moonVisual"></div>
+              <div>
+                <h4 id="moonPhase" class="c4-center-title">Mondphase</h4>
+                <p id="moonIllum" class="c4-center-muted">– beleuchtet</p>
+              </div>
             </div>
-            <div class="energy-ring" id="energyRing" style="--energy:0%">
-              <div><span><strong id="energyPct">–</strong><br><small id="energyLabel">wird berechnet</small></span></div>
-            </div>
-            <p class="c4-center-muted">Klarheit · Liebe · Kraft · Intuition</p>
           </div>
         </div>
 
@@ -250,7 +264,7 @@
 
         <div class="card c46-transit-preview">
           <div class="card-title">
-            <h4>Transit-Vorschau</h4>
+            <h4>Was heute auf dich wirkt</h4>
           </div>
           <div class="transit-list" id="homeTransits">
             <div class="sk sk-rows" role="status" aria-label="Wird geladen…"><i></i><i></i><i></i></div>
@@ -274,8 +288,8 @@
       <!-- ANALYSE -->
       <section id="analysis" class="section">
         <div class="page-title">
-          <span class="eyebrow">Geburtshoroskop</span>
-          <h2 data-i18n-html="html.title.analysis">Dein<br><span class="gold">Radix</span></h2>
+          <span class="eyebrow">Analyse</span>
+          <h2 data-i18n-html="html.title.analysis">Dein<br><span class="gold">Geburtshoroskop</span></h2>
           <p>Planeten, Häuser, Aspekte und deine persönliche Deutung.</p>
         </div>
 
@@ -292,14 +306,14 @@
           <div>
             <span class="eyebrow">Profil nötig</span>
             <h4>Speichere zuerst deine Geburtsdaten</h4>
-            <p>Danach kann Soraya dein Chart berechnen.</p>
+            <p>Danach zeichnet Soraya dein Geburtshoroskop und schreibt deine persönliche Deutung.</p>
             <button class="btn gold" onclick="showSection('profile')">Profil öffnen</button>
           </div>
         </div>
 
         <div class="card glow c4-chart-card">
           <div class="card-title">
-            <h4>Dein Radix</h4>
+            <h4>Dein Himmelsbild</h4>
           </div>
           <svg id="chartWheel" viewBox="0 0 420 420" role="img" aria-label="Geburtshoroskop"></svg>
           <div class="wheel-legend" aria-hidden="true"><span><i class="lg-h"></i>Harmonisch</span><span><i class="lg-s"></i>Spannung</span></div>
@@ -309,6 +323,16 @@
           <div class="card c4-mini-card c41-big-card"><span class="eyebrow">Sonne</span><b id="bigSunGlyph">☉</b><strong id="bigSunSign">–</strong><p id="bigSunText">Identität · Ausdruck · Lebenslicht</p></div>
           <div class="card c4-mini-card c41-big-card"><span class="eyebrow">Mond</span><b id="bigMoonGlyph">☾</b><strong id="bigMoonSign">–</strong><p id="bigMoonText">Gefühl · Bedürfnis · innere Welt</p></div>
           <div class="card c4-mini-card c41-big-card"><span class="eyebrow">Aszendent</span><b id="bigAscGlyph">AC</b><strong id="bigAscSign">–</strong><p id="bigAscText">Auftreten · Weg · Wirkung</p></div>
+        </div>
+
+        <div class="card c4-reading-card" id="readingCard">
+          <div class="card-title"><h4>Deutung</h4><span id="analysisSource" class="badge">bereit</span></div>
+          <div class="c4-action-row">
+            <button class="btn gold" id="analysisOpenButton" onclick="loadAnalysis(false)">Analyse öffnen</button>
+            <button class="btn" id="analysisRegenButton" onclick="loadAnalysis(true)" style="display:none">Neu erstellen</button>
+          </div>
+          <nav class="r5-toc" id="readingToc" aria-label="Inhalt der Deutung" hidden></nav>
+          <div id="analysisReading" class="reading">Noch nichts geladen.</div>
         </div>
 
         <div class="card c41-analysis-panel">
@@ -321,14 +345,6 @@
           <div id="aspectSummary" class="c41-aspect-summary"><div class="c41-empty">Aspekte werden mit deinem Chart geladen.</div></div>
         </div>
 
-        <div class="card c4-reading-card">
-          <div class="card-title"><h4>Deutung</h4><span id="analysisSource" class="badge">bereit</span></div>
-          <div class="c4-action-row">
-            <button class="btn gold" id="analysisOpenButton" onclick="loadAnalysis(false)">Analyse öffnen</button>
-            <button class="btn" id="analysisRegenButton" onclick="loadAnalysis(true)" style="display:none">Neu erstellen</button>
-          </div>
-          <div id="analysisReading" class="reading">Noch nichts geladen.</div>
-        </div>
       </section>
 
       <!-- HOROSKOP -->

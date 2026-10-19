@@ -21,12 +21,13 @@
     analyses: "soraya_analysis_count",
     people: "soraya_people_cache_v1",
     authUser: "soraya_auth_user_id",
-    streak: "soraya_streak"
+    streak: "soraya_streak",
+    daySky: "soraya_day_sky_v1"
   };
 
   // Alles, was zu einem bestimmten Nutzer gehoert (bei Benutzerwechsel loeschen)
   const BIRTH_CHANGED_KEY = "soraya_birth_changed_at";
-  const PROFILE_KEYS = [BIRTH_CHANGED_KEY, KEYS.person, KEYS.conv, KEYS.name, KEYS.birth, KEYS.created, KEYS.analyses, KEYS.people, KEYS.streak];
+  const PROFILE_KEYS = [BIRTH_CHANGED_KEY, KEYS.person, KEYS.conv, KEYS.name, KEYS.birth, KEYS.created, KEYS.analyses, KEYS.people, KEYS.streak, KEYS.daySky];
 
   const LOGIN_PATH = "/login";
   const SKY_REFRESH_MS = 10 * 60 * 1000;
@@ -34,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v39";
+  const APP_VERSION = "web-v40";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -866,6 +867,7 @@
   let analysisShownFor = null;
 
   function setAnalysisButtons(hasReading) {
+    if (!hasReading && $("readingToc")) $("readingToc").hidden = true;
     const open = $("analysisOpenButton");
     const regen = $("analysisRegenButton");
     if (open) {
@@ -899,10 +901,33 @@
         }
       } catch (error) {}
       $("analysisReading").innerHTML = note + markdownToHtml(reading);
+      buildReadingToc(reading);
     }
     analysisShownFor = getCurrentPersonId();
     setAnalysisButtons(true);
     return true;
+  }
+
+  // Lange Deutung: Kapitel als Sprung-Chips oben + ungefaehre Lesezeit
+  function buildReadingToc(text) {
+    const nav = $("readingToc");
+    const box = $("analysisReading");
+    if (!nav || !box) return;
+    const heads = Array.from(box.querySelectorAll("h3.rd-h"));
+    if (heads.length < 3) { nav.hidden = true; nav.innerHTML = ""; return; }
+    const words = String(text || "").split(/\s+/).filter(Boolean).length;
+    const minutes = Math.max(1, Math.round(words / 200));
+    nav.innerHTML = '<span class="r5-toc-time">' + escapeHtml(t("{n} Min. Lesezeit", { n: minutes })) + "</span>" +
+      heads.map((h, i) => { h.id = "rd-" + i; return '<button type="button" class="r5-chip" data-target="rd-' + i + '">' + escapeHtml(h.textContent) + "</button>"; }).join("");
+    nav.hidden = false;
+    nav.onclick = (event) => {
+      const chip = event.target.closest(".r5-chip");
+      const target = chip && $(chip.dataset.target);
+      if (!target) return;
+      const top = target.getBoundingClientRect().top + window.scrollY - 24;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
+    };
   }
 
   async function autoLoadAnalysis() {
@@ -1041,6 +1066,7 @@
     anaState = { ...state, empfangen: Date.now() };
     if ($("analysisSource")) $("analysisSource").textContent = t("läuft");
     if ($("analysisReading")) $("analysisReading").textContent = "";
+    if ($("readingToc")) $("readingToc").hidden = true;
     ["analysisOpenButton", "analysisRegenButton"].forEach((id) => { if ($(id)) $(id).style.display = "none"; });
     anaRender();
     window.clearInterval(anaTick);
@@ -1388,6 +1414,7 @@
   // Startseite: "Dein Tag" aus dem eigenen Tageshoroskop (statt Zufallsspruch).
   async function loadDailyFocus() {
     renderStreak();
+    setText("todayDate", longDate(new Date()));
     if (!getCurrentPersonId()) return;
     try {
       const data = await fetchHoroscope("daily");
@@ -1399,8 +1426,6 @@
       if (title) title.dataset.personal = "1";
       setText("dailyFocusTitle", mood);
       setText("dailyFocusText", tip);
-      // Link-Hinweis am Ende (per CSS angehaengt) -- Text hier, damit er uebersetzt wird
-      if ($("dailyFocusText")) $("dailyFocusText").dataset.link = "  " + t("Zum Horoskop ›");
       setText("dailyFocusBadge", t("Dein Tag"));
       const card = $("dailyFocusCard");
       if (card) card.classList.add("is-personal");
@@ -2061,7 +2086,7 @@
 
     countUp($("compatScore"), value, "%");
     SYN_TEILEN = { prozent: Math.round(Number(value) || 0), a: ($("synAName") || {}).textContent || t("Du"),
-                   b: ($("synBName") || {}).textContent || "", label: data.data && data.data.score_label };
+                   b: ($("synBName") || {}).textContent || "", label: data.data && data.data.score_label ? t(data.data.score_label) : "" };
     if ($("synTeilen")) $("synTeilen").hidden = false;
     if ($("compatRing")) $("compatRing").style.setProperty("--score", Math.min(100, Number(value) || 0) + "%");
 
@@ -2526,6 +2551,15 @@
       g.fillStyle = gold ? `rgba(233,207,156,${0.5 + rnd() * 0.45})` : `rgba(188,178,214,${0.2 + rnd() * 0.45})`;
       g.beginPath(); g.arc(rnd() * 1080, rnd() * 1920, 0.6 + rnd() * (gold ? 2.4 : 1.6), 0, Math.PI * 2); g.fill();
     }
+    // Art-déco-Rahmen: doppelte Goldlinie mit kleinen Rauten in den Ecken
+    g.strokeStyle = "rgba(230,207,156,.55)"; g.lineWidth = 2; g.strokeRect(48, 48, 984, 1824);
+    g.strokeStyle = "rgba(230,207,156,.22)"; g.lineWidth = 1; g.strokeRect(64, 64, 952, 1792);
+    [[48, 48], [1032, 48], [48, 1872], [1032, 1872]].forEach(([x, y]) => {
+      g.fillStyle = "#E6CF9C"; g.beginPath(); g.moveTo(x, y - 9); g.lineTo(x + 9, y); g.lineTo(x, y + 9); g.lineTo(x - 9, y); g.closePath(); g.fill();
+    });
+    const halo = g.createRadialGradient(540, 960, 20, 540, 960, 560);
+    halo.addColorStop(0, "rgba(201,168,106,.10)"); halo.addColorStop(1, "rgba(201,168,106,0)");
+    g.fillStyle = halo; g.fillRect(0, 380, 1080, 1160);
     const logo = await ladeBild("/brand/zeichen.svg");
     if (logo) g.drawImage(logo, 540 - 70, 150, 140, 132);
     g.textAlign = "center"; g.fillStyle = "#E6CF9C"; g.font = '600 46px "Cinzel", serif';
@@ -2533,10 +2567,15 @@
     g.fillText("SORAYA", 548, 360);
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     zeichne(g);
-    g.fillStyle = "#8f83ad"; g.font = '500 30px "Inter", sans-serif';
-    g.fillText(t("Berechne deins gratis"), 540, 1700);
-    g.fillStyle = "#E6CF9C"; g.font = '600 34px "Inter", sans-serif';
-    g.fillText("sorayaluxuryastroguide.com", 540, 1756);
+    g.fillStyle = "#a99dc6"; g.font = '500 30px "Inter", sans-serif';
+    g.fillText(t("Berechne deins gratis"), 540, 1676);
+    g.font = '600 34px "Inter", sans-serif';
+    const url = "sorayaluxuryastroguide.com", w = g.measureText(url).width + 96;
+    const px = 540 - w / 2, py = 1712, ph = 84, r = ph / 2;
+    g.beginPath(); g.moveTo(px + r, py); g.arcTo(px + w, py, px + w, py + ph, r); g.arcTo(px + w, py + ph, px, py + ph, r);
+    g.arcTo(px, py + ph, px, py, r); g.arcTo(px, py, px + w, py, r); g.closePath();
+    g.fillStyle = "rgba(201,168,106,.12)"; g.fill(); g.strokeStyle = "rgba(230,207,156,.6)"; g.lineWidth = 2; g.stroke();
+    g.fillStyle = "#F0DCAE"; g.fillText(url, 540, py + 54);
     return new Promise((ok) => c.toBlob(ok, "image/png"));
   }
 
@@ -2569,7 +2608,7 @@
       if ("letterSpacing" in g) g.letterSpacing = "6px";
       g.fillText(t("Mein kosmisches Trio").toUpperCase(), 546, 520);
       if ("letterSpacing" in g) g.letterSpacing = "0px";
-      const start = 650, schritt = zeilen.length === 3 ? 330 : 420;
+      const start = 600, schritt = zeilen.length === 3 ? 320 : 420;
       zeilen.forEach(([was, punkt], i) => {
         const y = start + i * schritt, key = zeichenKey(punkt);
         g.strokeStyle = "rgba(230,207,156,.7)"; g.lineWidth = 3;
@@ -2598,8 +2637,13 @@
       g.fillText(t("Unsere Verbindung").toUpperCase(), 546, 540);
       if ("letterSpacing" in g) g.letterSpacing = "0px";
       // zwei verschlungene Ringe mit dem Ergebnis in der Mitte
-      g.lineWidth = 4; g.strokeStyle = "rgba(236,180,160,.75)";
-      [[430, 900], [650, 900]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 210, 0, Math.PI * 2); g.stroke(); });
+      // Ergebnis-Ring wie in der App: feine Spur + goldener Bogen bis zum Prozentwert
+      g.lineWidth = 14; g.strokeStyle = "rgba(195,183,218,.14)";
+      g.beginPath(); g.arc(540, 900, 220, 0, Math.PI * 2); g.stroke();
+      g.lineCap = "round"; g.strokeStyle = "#E6CF9C";
+      g.beginPath(); g.arc(540, 900, 220, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0, Math.min(100, Number(prozent) || 0)) / 100); g.stroke();
+      g.lineCap = "butt"; g.lineWidth = 2; g.strokeStyle = "rgba(230,207,156,.25)";
+      g.beginPath(); g.arc(540, 900, 186, 0, Math.PI * 2); g.stroke();
       g.fillStyle = "#F6E3B4"; g.font = '600 150px "Cormorant Garamond", serif';
       g.fillText(prozent + " %", 540, 950);
       g.fillStyle = "#EFE8F8"; g.font = '600 64px "Cormorant Garamond", serif';
@@ -2910,16 +2954,79 @@
     return engineJson("/chart", birth);
   }
 
-  async function loadTransitsJson(personId, birth) {
+  async function loadTransitsJson(personId, birth, at = null) {
     if (personId) {
       try {
-        const json = await callSoraya("/mobile/transits", { person_id: personId, at: null }, "POST", 15000);
+        const json = await callSoraya("/mobile/transits", { person_id: personId, at: at }, "POST", 15000);
         if (json && json.data) return json;
       } catch (error) {
         if (/zu lange|timeout|Tageslimit/i.test(error.message || "")) throw error;
       }
     }
-    return engineJson("/transits", { person: birth, at: null });
+    return engineJson("/transits", { person: birth, at: at });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Tagesenergie: EIN fester Wert pro Person und Tag.
+  // Grundlage ist der Himmel um 12:00 Ortszeit (nicht "jetzt") und nur die
+  // langsameren Planeten (ohne Mond und ohne Achsen, die sich stuendlich drehen).
+  // Ergebnis wird pro Datum gemerkt -> kein Springen mehr (vorher z. B. 24 % -> 92 %).
+  // ---------------------------------------------------------------------------
+  function localNoonUtc(d = new Date()) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0).toISOString().slice(0, 19);
+  }
+  function daySkySignature(personId, birth) {
+    const b = birth || {};
+    return [personId || "", b.day, b.month, b.year, b.hour, b.minute, b.lat || b.city || b.place || ""].join("|");
+  }
+  const ENERGY_TRANSIT_WEIGHT = { Sun: 1, Mercury: 0.8, Venus: 1, Mars: 1.1, Jupiter: 1.3, Saturn: 1.4, Uranus: 1.2, Neptune: 1.1, Pluto: 1.2 };
+  const ENERGY_NATAL_WEIGHT = { Sun: 1.3, Moon: 1.3, Ascendant: 1.1, Mercury: 1, Venus: 1, Mars: 1, Jupiter: 0.8, Saturn: 0.8 };
+  const ENERGY_SOFT = ["Venus", "Jupiter"];
+  const ENERGY_HARD = ["Saturn", "Mars", "Pluto"];
+  function energyFromAspects(list, timeKnown) {
+    const rows = [];
+    (list || []).forEach((a) => {
+      const tw = ENERGY_TRANSIT_WEIGHT[a.transit];
+      const nw = ENERGY_NATAL_WEIGHT[a.natal];
+      if (!tw || !nw) return;
+      if (a.natal === "Ascendant" && !timeKnown) return;
+      const type = String(a.type || "").toLowerCase();
+      let dir = 0;
+      if (type === "trine" || type === "sextile") dir = 1;
+      else if (type === "square" || type === "opposition") dir = -1;
+      else if (type === "conjunction") dir = ENERGY_SOFT.indexOf(a.transit) >= 0 ? 0.7 : ENERGY_HARD.indexOf(a.transit) >= 0 ? -0.7 : 0.3;
+      if (!dir) return;
+      const orb = Math.abs(Number(a.orb) || 0);
+      const close = Math.max(0.2, 1 - orb / 8);
+      rows.push({ a: a, w: dir * tw * nw * close });
+    });
+    let plus = 0, minus = 0;
+    rows.forEach((r) => { if (r.w > 0) plus += r.w; else minus -= r.w; });
+    let score = Math.round(55 + 40 * (plus - minus) / (plus + minus + 1.5));
+    score = Math.max(18, Math.min(96, score));
+    rows.sort((x, y) => Math.abs(y.w) - Math.abs(x.w));
+    const drivers = rows.slice(0, 2).map((r) => ({ transit: r.a.transit, transit_de: r.a.transit_de, natal: r.a.natal, natal_de: r.a.natal_de, type: r.a.type, type_de: r.a.type_de, plus: r.w > 0 }));
+    return { score: score, drivers: drivers };
+  }
+  function energyLabel(score) {
+    return score >= 66 ? t("Harmonisch & offen") : score >= 45 ? t("Ausgeglichen") : t("Intensiv & fordernd");
+  }
+  // Himmel des Tages (12:00 Ortszeit) holen -- einmal pro Tag, danach aus dem Speicher.
+  async function loadDaySky(personId, birth) {
+    const today = localDayKey();
+    const sig = daySkySignature(personId, birth);
+    const cached = readJson(KEYS.daySky, null);
+    if (cached && cached.date === today && cached.sig === sig && Array.isArray(cached.aspects)) return cached;
+    const json = await loadTransitsJson(personId, birth, localNoonUtc());
+    const aspects = (json.data.aspects_to_natal || []).map((a) => ({
+      transit: a.transit, transit_de: a.transit_de, natal: a.natal, natal_de: a.natal_de,
+      type: a.type, type_de: a.type_de, orb: a.orb, movement: a.movement
+    }));
+    const timeKnown = birth && birth.hour != null && birth.hour !== "";
+    const energy = energyFromAspects(aspects, timeKnown);
+    const entry = { date: today, sig: sig, aspects: aspects, score: energy.score, drivers: energy.drivers };
+    try { writeJson(KEYS.daySky, entry); } catch (error) {}
+    return entry;
   }
 
   async function engineJson(path, body) {
@@ -2973,11 +3080,21 @@
       escapeHtml(title) + '</h4><p>' + escapeHtml(sub) + '</p></div></div><span>' + escapeHtml(right) + '</span></div>';
   }
 
-  function setEnergy(percent, label) {
+  let shownEnergy = null;
+  function setEnergy(percent, label, drivers) {
     if ($("energyRing")) $("energyRing").style.setProperty("--energy", (percent == null ? 0 : percent) + "%");
-    if (percent == null) setText("energyPct", "–");
-    else countUp($("energyPct"), percent, "%");
+    if (percent == null) { setText("energyPct", "–"); shownEnergy = null; }
+    else if (shownEnergy !== percent) { countUp($("energyPct"), percent, "%"); shownEnergy = percent; }
     setText("energyLabel", label || "–");
+    const why = $("energyWhy");
+    if (!why) return;
+    if (!drivers || !drivers.length) { why.hidden = true; return; }
+    why.innerHTML = drivers.map((d) => {
+      const title = [trPlanet(d.transit || d.transit_de), ASTRO ? ASTRO.aspect(d.type || d.type_de) : d.type_de, trPlanet(d.natal || d.natal_de)].filter(Boolean).join(" ");
+      return '<li class="' + (d.plus ? "is-plus" : "is-minus") + '"><span aria-hidden="true">' + (d.plus ? "↗" : "↘") + "</span>" +
+        escapeHtml(title) + " · " + escapeHtml(d.plus ? t("gibt Rückenwind") : t("fordert dich")) + "</li>";
+    }).join("");
+    why.hidden = false;
   }
 
   function renderHomeSkyThrottled(force = false) {
@@ -3005,10 +3122,11 @@
 
     lastHomeSkyAt = Date.now();
     try {
-      const json = await loadTransitsJson(getCurrentPersonId(), birth);
+      const day = await loadDaySky(getCurrentPersonId(), birth);
       document.body.classList.remove("soraya-backend-soft-fail");
+      setEnergy(day.score, energyLabel(day.score), day.drivers);
 
-      const planetAspects = dailyAspects(json.data.aspects_to_natal);
+      const planetAspects = dailyAspects(day.aspects);
       // Vorschau: die wichtigsten Transite zuerst (Hauptaspekte der Planeten auf
       // persoenliche Punkte), Nebenaspekte wie Quintil oder Lilith/Mondknoten nur als Ersatz
       const MAJOR = ["conjunction", "opposition", "square", "trine", "sextile"];
@@ -3018,7 +3136,6 @@
       const aspects = ranked.slice(0, 3);
       if (!aspects.length) {
         setHomeTransits(transitRow("☾", t("Ruhiger Himmel"), t("Gerade keine engen Transite.")));
-        setEnergy(60, t("Ruhig & offen"));
         return;
       }
 
@@ -3038,19 +3155,6 @@
       }
 
       setHomeTransits(rows);
-
-      let harmony = 0;
-      let tension = 0;
-      planetAspects.slice(0, 7).forEach((aspect) => {
-        if (aspect.type_de === "Trigon" || aspect.type_de === "Sextil") harmony += 1;
-        if (aspect.type_de === "Quadrat" || aspect.type_de === "Opposition") tension += 1;
-      });
-
-      const total = harmony + tension;
-      let score = total ? Math.round(50 + ((harmony - tension) / total) * 42) : 60;
-      score = Math.max(24, Math.min(96, score));
-      const label = score >= 66 ? t("Harmonisch & offen") : score >= 45 ? t("Ausgeglichen") : t("Intensiv & fordernd");
-      setEnergy(score, label);
     } catch (error) {
       trackError("transits", error);
       if (isNetworkError(error)) setEngineReachable(false);
@@ -3164,6 +3268,7 @@
     const box = $("qsResult");
     if (form) form.style.display = "none";
     if (box) box.style.display = "block";
+    document.body.classList.add("r5-qs-shown");
     if (sunKey && !sun.uncertain) loadSignHoroscope(sunKey);
     else {
       setText("qsHoroMood", t("Dein Tag"));
@@ -3276,6 +3381,7 @@
     }
     if (box) box.style.display = "none";
     if (form) form.style.display = "block";
+    document.body.classList.remove("r5-qs-shown");
     if (preview && preview.birth.hour !== null && preview.birth.hour !== undefined) toggleQuickStartTime(true);
   }
 

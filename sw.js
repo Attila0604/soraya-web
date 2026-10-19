@@ -8,7 +8,7 @@
   Bei jeder Aenderung die CACHE_VERSION erhoehen, dann raeumt der SW alte Caches auf.
 */
 
-const CACHE_VERSION = "soraya-v39";
+const CACHE_VERSION = "soraya-v40";
 const OFFLINE_URL = "/offline";
 
 // App-Schale, die vorab gecacht wird.
@@ -21,9 +21,8 @@ const PRECACHE = [
   "/soraya.css",
   "/app.js",
   "/i18n.js",
-  "/i18n/en.js",
-  "/i18n/hu.js",
-  "/i18n/it.js",
+  // Uebersetzungen NICHT vorab laden (je ~60 KB): die gewaehlte Sprache landet beim
+  // ersten Aufruf ohnehin im Cache (network-first unten).
   "/config.js",
   "/c58-mobile-layout.js",
   "/c70-account-deletion.js",
@@ -39,7 +38,6 @@ const PRECACHE = [
   "/fonts/soraya-zeichen.woff2",
   "/apple-touch-icon.png",
   "/icon-192.png",
-  "/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {

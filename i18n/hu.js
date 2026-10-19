@@ -752,5 +752,20 @@ window.SORAYA_STRINGS.hu = {
   "✦ Frag Soraya dazu": "✦ Kérdezd Sorayát róla",
   "Erklär mir mein Wochenhoroskop genauer: Worauf kommt es diese Woche für mich an?": "Magyarázd el részletesebben a heti horoszkópomat: mire kell figyelnem ezen a héten?",
   "Erklär mir mein Monatshoroskop genauer: Worauf kommt es diesen Monat für mich an?": "Magyarázd el részletesebben a havi horoszkópomat: mire kell figyelnem ebben a hónapban?",
-  "Erklär mir mein Tageshoroskop genauer: Was bedeutet „{mood}“ heute für mich?": "Magyarázd el részletesebben a mai horoszkópomat: mit jelent ma számomra az, hogy „{mood}”?"
+  "Erklär mir mein Tageshoroskop genauer: Was bedeutet „{mood}“ heute für mich?": "Magyarázd el részletesebben a mai horoszkópomat: mit jelent ma számomra az, hogy „{mood}”?",
+  "{n} Min. Lesezeit": "{n} perc olvasás",
+  "gibt Rückenwind": "hátszelet ad",
+  "fordert dich": "próbára tesz",
+  "Wie entsteht der Wert?": "Hogyan születik ez az érték?",
+  "Ein fester Wert für den ganzen Tag: Soraya vergleicht den Himmel um 12 Uhr mit deinem Geburtshoroskop. Es zählen nur die langsameren Planeten – harmonische Winkel heben den Wert, spannungsreiche senken ihn. Morgen gibt es einen neuen.": "Egy állandó érték az egész napra: Soraya a déli 12 órás égboltot veti össze a születési képleteddel. Csak a lassabb bolygók számítanak – a harmonikus fényszögek növelik az értéket, a feszültek csökkentik. Holnap új érték vár.",
+  "Horoskop lesen": "Mai horoszkóp",
+  "Soraya fragen": "Kérdezd Sorayát",
+  "Inhalt der Deutung": "Az értelmezés tartalma",
+  "Ohne Zahlungsdaten": "Fizetési adatok nélkül",
+  "In einer Minute erledigt": "Egy perc alatt kész",
+  "Passwort vergessen?": "Elfelejtetted a jelszavad?",
+  "Ohne Login weiter ›": "Tovább bejelentkezés nélkül ›",
+  "Was heute auf dich wirkt": "Ami ma hat rád",
+  "Dein Himmelsbild": "Az égbolt a születésedkor",
+  "Danach zeichnet Soraya dein Geburtshoroskop und schreibt deine persönliche Deutung.": "Ezután Soraya megrajzolja a születési képletedet, és megírja a személyes értelmezésedet."
 };
