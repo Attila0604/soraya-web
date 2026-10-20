@@ -71,10 +71,11 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 ## astro-engine (Backend)
 
-- FastAPI auf Railway, Version ~2.19. Wichtig: `main.py`, `chart_engine.py`, `agents.py`, `analysis.py`,
+- FastAPI auf Railway, Version ~2.20. Wichtig: `main.py`, `chart_engine.py`, `agents.py`, `analysis.py`,
   `analysis_jobs.py`, `synastry_reading.py`, `synastrie_jobs.py`, `horoscope.py`, `public_content.py`,
   `namen.py` (Namen in 4 Sprachen + Prüfung auf deutsche Reste), `limits.py` (Kostenbremse).
-- Öffentliche Endpunkte: `/public/preview`, `/public/sign-horoscope`, `/public/invite/...`, `/public/event`.
+- Öffentliche Endpunkte: `/public/preview`, `/public/sign-horoscope`, `/public/invite/...`, `/public/event`,
+  `/public/horoskop-status` (Fehlersuche Tageshoroskop: Versuche + letzter Fehler je Zeichen/Sprache).
   App-Endpunkte unter `/mobile/...`. Statistik für den Agenten: `/internal/statistik`
   (Header `X-Agent-Token` = `AGENT_STATS_TOKEN`, in beiden Diensten gleich).
 - Claude-Modelle per Railway-Variablen (`ANALYSIS_MODEL`, `SYNASTRY_MODEL`, `LEKTORAT_MODEL` …).
@@ -118,7 +119,7 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - **Instagram ist verbunden (19.10.):** früheres Konto `attilazsolt.kovacs` umbenannt in **`soraya.astroguide`**
   (Name „Soraya – Luxury Astro Guide“, Logo, Bio EN, Bio-Link `?q=bio-ig`). `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET`
   in Railway, Instagram-Tester angenommen, im Dashboard verbunden (Zugang 60 Tage, verlängert sich selbst).
-  Ob Instagram beim automatischen Posten mitläuft, entscheidet Attila selbst (Posten → Plattformen).
+  **Instagram beim automatischen Posten hat Attila am 20.10. selbst EINGESCHALTET** (Posten → Plattformen; Facebook + Instagram).
 - **Lernen aus der Wirkung (17.10.):** Punkte je Post (neues Konto 15, geteilt 4, Kommentar 3, Link-Besuch 2,
   Gefällt mir 1); Facebook-Reaktionen werden alle 6 h gemerkt. Tagesplan bekommt die 3 besten Posts (auch aus
   anderen Sprachen) und welche Formate am besten/schwächsten ankommen. Sichtbar unter Wirkung → „Was Soraya daraus lernt“.
