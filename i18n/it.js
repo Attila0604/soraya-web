@@ -796,5 +796,8 @@ window.SORAYA_STRINGS.it = {
   "Bitte eine Stunde zwischen 0 und 23 angeben.": "Inserisci un'ora tra 0 e 23.",
   "Bitte eine Minute zwischen 0 und 59 angeben.": "Inserisci un minuto tra 0 e 59.",
   "Bitte schreib eine Nachricht.": "Scrivi un messaggio.",
-  "Unbekanntes Sternzeichen.": "Segno zodiacale sconosciuto."
+  "Unbekanntes Sternzeichen.": "Segno zodiacale sconosciuto.",
+  "Mehr lesen": "Leggi di più",
+  "Weniger": "Mostra meno",
+  "Warum?": "Perché?"
 };

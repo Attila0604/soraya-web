@@ -796,5 +796,8 @@ window.SORAYA_STRINGS.hu = {
   "Bitte eine Stunde zwischen 0 und 23 angeben.": "Kérlek, 0 és 23 közötti órát adj meg.",
   "Bitte eine Minute zwischen 0 und 59 angeben.": "Kérlek, 0 és 59 közötti percet adj meg.",
   "Bitte schreib eine Nachricht.": "Kérlek, írj egy üzenetet.",
-  "Unbekanntes Sternzeichen.": "Ismeretlen csillagjegy."
+  "Unbekanntes Sternzeichen.": "Ismeretlen csillagjegy.",
+  "Mehr lesen": "Tovább olvasom",
+  "Weniger": "Kevesebb",
+  "Warum?": "Miért?"
 };

@@ -1408,3 +1408,212 @@ body:not(.soraya-no-profile) #home .c54-hero-ribbon{margin-top:var(--s3)}
 
 /* Lange Woerter (z. B. ungarisch "FESZÜLTSÉG") passen auch auf schmalen Handys */
 @media (max-width:420px){ .c41-aspect-cards span{font-size:9.5px; letter-spacing:.03em} }
+
+/* ============================================================
+   Runde 6 (v44): ruhiger & edler – feinere Knöpfe, kurze Texte
+   (Design-Linie: max. EIN Gold-Knopf pro Bereich, 44 px hoch,
+   kein Glow; lange Texte kurz + „Mehr lesen“)
+   ============================================================ */
+:root{--btn-h:44px; --gold-line:rgba(201,168,106,.42)}
+@media (min-width:769px){:root{--btn-h:42px}}
+
+/* ---- Knöpfe: Primär (gold), Sekundär (Goldrand), klein ---- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:var(--btn-h); height:auto; padding:0 20px; margin:0;
+  font-family:var(--ui); font-size:15px; font-weight:600; letter-spacing:.01em; line-height:1.25;
+  text-align:center; border-radius:var(--r-pill); cursor:pointer; box-shadow:none;
+  background:transparent; color:var(--gold-soft); border:1px solid var(--gold-line);
+}
+.btn:hover{border-color:var(--gold-line); color:var(--gold-soft)}
+.btn.gold, .btn.gold:hover{
+  background:linear-gradient(180deg, #ead5a6 0%, #d3b273 55%, #bf9a58 100%);
+  color:#23170a; border:1px solid rgba(255,236,196,.28); box-shadow:none; filter:none;
+}
+.btn.gold:active{box-shadow:none; transform:scale(.98); filter:brightness(.97)}
+.btn.block{display:flex; width:100%; min-height:46px; padding:6px 20px; margin-top:var(--s3)}
+.btn-sm{min-height:40px; padding:0 15px; font-size:14px; font-weight:500}
+.btn-danger{background:linear-gradient(180deg,#e7866f,#b9493a); color:#fff; border:1px solid rgba(255,200,180,.25)}
+@media (hover:hover){
+  .btn:hover{border-color:var(--gold); background:rgba(201,168,106,.07)}
+  .btn.gold:hover{filter:brightness(1.05); background:linear-gradient(180deg, #ead5a6 0%, #d3b273 55%, #bf9a58 100%)}
+  .btn-danger:hover{filter:brightness(1.06); background:linear-gradient(180deg,#e7866f,#b9493a)}
+}
+.btn:focus-visible, .text-link:focus-visible, .more-toggle:focus-visible{outline:2px solid var(--focus); outline-offset:3px}
+
+/* Text-Link-Knopf: klein, ohne Kasten, mit Pfeil */
+.text-link, .qs-login-link, .collapse-toggle, .link-btn{
+  display:inline-flex; align-items:center; gap:6px; min-height:40px; width:auto;
+  padding:0 2px; margin:0; background:none; border:0; border-radius:6px; cursor:pointer;
+  font-family:var(--ui); font-size:14px; font-weight:500; letter-spacing:.01em; line-height:1.3;
+  color:var(--gold-soft); text-decoration:none; text-transform:none; text-align:left;
+}
+.text-link::after{content:"›"; font-size:16px; line-height:1; opacity:.8; transform:translateY(-1px)}
+.qs-edit::after{content:none}
+@media (hover:hover){.text-link:hover, .qs-login-link:hover, .collapse-toggle:hover, .link-btn:hover{color:#f3e2b8; text-decoration:underline; text-underline-offset:3px; background:none}}
+
+/* ---- „Mehr lesen ⌄ / Weniger ⌃“ (c75-mehr-lesen.js) ---- */
+.more-on{overflow:hidden; transition:max-height .36s var(--ease)}
+.more-on.more-closed{
+  -webkit-mask-image:linear-gradient(180deg, #000 calc(100% - 1.5em), transparent);
+          mask-image:linear-gradient(180deg, #000 calc(100% - 1.5em), transparent)}
+.more-toggle{
+  display:inline-flex; align-items:center; gap:7px; min-height:40px; margin:2px 0 0; padding:0 2px;
+  background:none; border:0; cursor:pointer; color:var(--gold-soft);
+  font-family:var(--ui); font-size:14px; font-weight:500; letter-spacing:.01em; line-height:1.2;
+}
+.more-toggle i{width:7px; height:7px; border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg); transition:transform .3s var(--ease)}
+.more-toggle[aria-expanded="true"] i{transform:translateY(2px) rotate(-135deg)}
+@media (hover:hover){.more-toggle:hover{color:#f3e2b8}}
+@media (prefers-reduced-motion:reduce){.more-on, .more-toggle i{transition:none}}
+/* Kapitel der Deutung: Titel + erster Absatz, Rest aufklappbar */
+.reading .more-sec > :last-child{margin-bottom:0}
+.reading .more-sec + .more-toggle{margin-bottom:var(--s1)}
+.reading .more-sec.more-closed > *{margin-bottom:.6em}
+
+/* ---- Kleine Auswahl-Chips (Kapitel, Vorschläge, Aspekte, Sprache) ---- */
+.r5-chip, .chat-suggestions button{
+  min-height:40px; padding:0 15px; border-radius:var(--r-pill); display:inline-flex; align-items:center;
+  border:1px solid var(--line); background:rgba(255,255,255,.025); color:var(--mist);
+  font-family:var(--ui); font-size:13.5px; font-weight:500; line-height:1.25;
+}
+@media (hover:hover){.r5-chip:hover, .chat-suggestions button:hover{border-color:var(--gold-line); color:var(--gold-soft); background:rgba(201,168,106,.06)}}
+.syn-aspects li{padding:6px 12px; font-size:13px; border-color:var(--line-soft); background:rgba(255,255,255,.025)}
+.lang-option{min-height:44px; font-size:14px; background:transparent; border-color:var(--line-soft)}
+.lang-option.active{background:rgba(201,168,106,.10); border-color:var(--gold-line)}
+.lang-picker-compact .lang-option{min-height:44px; padding:6px 4px; font-size:12.5px; gap:1px; font-weight:500}
+
+/* ---- Segment-Umschalter (Tag/Woche/Monat, Login/Registrieren): ruhig statt goldener Block ---- */
+.c58-period-tabs, .login-tabs{padding:3px; gap:2px; background:rgba(10,7,20,.45); border:1px solid var(--line-soft)}
+.c58-period-tab, .login-tabs button{min-height:40px; padding:0 12px; font-size:14px; font-weight:500; color:var(--mist-dim)}
+.c58-period-tab.active, .login-tabs button.active{
+  background:rgba(201,168,106,.14); color:var(--gold-soft); font-weight:600;
+  box-shadow:inset 0 0 0 1px var(--gold-line)}
+
+/* ---- Untere Leiste: schlanker ---- */
+.tabbar{padding:5px 8px; bottom:calc(14px + env(safe-area-inset-bottom)); background:rgba(12,8,24,.88);
+  border-color:rgba(201,168,106,.16); box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.tabbar button{min-height:46px; gap:3px; padding:5px 2px}
+.tabbar button svg{width:21px; height:21px}
+.tabbar button span{font-size:10.5px}
+.tabbar button.active::after{bottom:-1px; width:3px; height:3px; box-shadow:none}
+
+/* ---- Runde Icon-Knöpfe oben ---- */
+.round{width:42px; height:42px}
+.round svg{width:20px; height:20px}
+
+/* ============ Bereich für Bereich ============ */
+/* Schnellstart */
+#qsButton, #ivButton{margin-top:var(--s4)}
+.qs-time-toggle{display:inline-flex; width:auto; min-height:40px; margin:var(--s2) 0 0; padding:0 2px; border:0; background:none;
+  color:var(--gold-soft); font-size:14px; font-weight:500}
+@media (hover:hover){.qs-time-toggle:hover{text-decoration:underline; text-underline-offset:3px}}
+.qs-login-link{display:flex; margin:var(--s2) auto 0; text-decoration:none}
+.qs-cta{padding:var(--s4) var(--s3) var(--s3)}
+.qs-cta .btn.block, .horo-gast-cta .btn.block, .guest-gate .btn.block, #inviteResult .btn.block{display:inline-flex; width:auto; margin-top:0}
+.qs-cta .qs-edit{display:flex; margin:var(--s2) 0 0}
+.qs-cta p, .horo-gast-cta p{font-size:14px; line-height:1.55}
+/* Sonne/Mond: ruhige Zeilen statt zwei hoher Spalten */
+@media (max-width:600px){
+  .qs-signs{grid-template-columns:1fr; gap:var(--s2)}
+  .qs-sign{display:grid; grid-template-columns:40px 1fr; grid-template-areas:"g e" "g s" "g t"; column-gap:var(--s3); text-align:left; padding:var(--s3)}
+  .qs-sign b{grid-area:g; align-self:center; margin:0; font-size:26px; text-align:center}
+  .qs-sign .eyebrow{grid-area:e; margin:0}
+  .qs-sign strong{grid-area:s; margin:2px 0 4px; font-size:18px}
+  .qs-sign p{grid-area:t}
+}
+/* Gast-Hinweise: Knopf + Login-Link in einer ruhigen Zeile */
+.guest-gate .btn.block{margin:var(--s4) var(--s3) 0 0}
+.guest-gate .qs-login-link{display:inline-flex; margin:var(--s4) 0 0; vertical-align:middle}
+.guest-gate p{font-size:14.5px}
+.guest-gate .more-toggle{display:flex}
+
+/* Dein Tag */
+.r5-today-actions{display:grid; grid-template-columns:1fr 1fr; gap:var(--s2); margin-top:var(--s4)}
+.r5-today-actions .btn{min-height:var(--btn-h); padding:4px 10px}
+@media (max-width:420px){.app{padding:0 18px}}
+.r5-energy-info{margin-top:var(--s4); padding:0; background:none; border:0; border-top:1px solid var(--line-soft); border-radius:0}
+.r5-energy-info > summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:var(--s2); min-height:48px; padding-top:var(--s2)}
+.r5-energy-info > summary::-webkit-details-marker{display:none}
+.r5-energy-caption{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px}
+.r5-why{flex:none; display:inline-flex; align-items:center; gap:7px; padding-right:3px; white-space:nowrap; font-size:13.5px; color:var(--gold-soft)}
+.r5-why::after{content:""; width:6px; height:6px; border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg); transition:transform .3s var(--ease)}
+.r5-energy-info[open] .r5-why::after{transform:translateY(1px) rotate(-135deg)}
+.r5-energy-info .r5-energy-why{margin:var(--s1) 0 var(--s2)}
+.r5-energy-how-text{margin:0 0 var(--s1) !important; font-size:12.5px !important; line-height:1.55; color:var(--mist-dim)}
+.r5-energy-how-text b{color:var(--mist); font-weight:600}
+.c46-streak{border-top:0; padding-top:0}
+/* Kern-Karte: kleine Knöpfe oben rechts */
+.c4-kern-knoepfe .btn{min-height:36px; padding:0 13px; font-size:13px}
+/* Onboarding-Schritte: Text-Links statt drei Knöpfe */
+.c49-steps .text-link{flex:none}
+/* Deine Menschen */
+.people-compare{padding:0 2px; font-size:14px}
+.people-compare::after{content:none}
+.people-actions{display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s3)}
+.people-actions .people-add{width:auto; margin:0; flex:0 1 auto}
+/* App-Hinweis Android: kompakter Store-Knopf */
+.store-btn{margin-top:var(--s3); min-height:44px; padding:0 18px; gap:10px}
+.store-btn::before{content:""; width:16px; height:16px; flex:none;
+  background:conic-gradient(from 45deg, #34a853 0 25%, #fbbc04 0 50%, #ea4335 0 75%, #4285f4 0);
+  clip-path:polygon(8% 0, 92% 50%, 8% 100%); border-radius:2px}
+#androidInstallCard .c4-muted{font-size:13.5px}
+
+/* Analyse */
+.c4-reading-card .c4-action-row{justify-content:flex-start}
+.c4-reading-card .c4-action-row .btn{flex:0 1 auto}
+.c4-reading-card .c4-action-row.is-after{justify-content:center}
+#analysisRegenButton{flex:none}
+.c49-empty-guide .btn{margin-top:var(--s3)}
+
+/* Horoskop */
+#horoscope .c4-period-picker{gap:var(--s2)}
+#horoReloadButton{align-self:flex-start}
+#horoBody + .more-toggle{margin-top:0}
+.horo-ask{margin-top:var(--s3)}
+.horo-gast-cta{padding:var(--s3)}
+.c42-guidance-card .more-toggle{grid-column:2; justify-self:start; min-height:36px}
+@media (min-width:601px){.c42-guidance-card .more-toggle, .c44-syn-card .more-toggle{align-self:center}}
+
+/* Partner-Vergleich: Ergebnis zuerst, Details erst nach der Berechnung */
+#synastry:not(:has(#synResult:not([hidden]))) .c44-synastry-grid{display:none}
+#synastry:has(#synResult:not([hidden])) #synCalcButton{background:transparent; color:var(--gold-soft); border:1px solid var(--gold-line); filter:none}
+.c44-teilen{display:flex; margin:0 auto var(--s3); min-height:40px; font-size:14px}
+.invite-share-card .btn{margin-top:var(--s1)}
+@media (max-width:600px){
+  .c44-synastry-grid{grid-template-columns:1fr; gap:var(--s2)}
+  .c44-syn-card{display:grid; grid-template-columns:40px 1fr; grid-template-areas:"icon eyebrow" "icon title" "icon text" "icon more";
+    text-align:left; align-items:start; column-gap:var(--s3); row-gap:2px; padding:var(--s3)}
+  .c44-syn-card .eyebrow{grid-area:eyebrow; margin-bottom:2px}
+  .c44-syn-card b{grid-area:icon; margin:4px 0 0; font-size:22px; text-align:center}
+  .c44-syn-card h4{grid-area:title; margin:0}
+  .c44-syn-card p{grid-area:text; margin:2px 0 0}
+  .c44-syn-card .more-toggle{grid-area:more; justify-self:start; min-height:36px}
+}
+
+/* Chat */
+.c43-chat-footer{flex-wrap:wrap}
+.c43-chat-footer .btn{color:var(--mist); border-color:var(--line-soft)}
+.c73-report-head{min-height:36px; padding:0 12px; font-size:12px}
+
+/* Profil */
+#profileAuthButton{margin-top:var(--s3)}
+.c45-logout-btn, #logoutButton{display:flex; margin:var(--s4) auto 0; min-width:180px}
+#profileSaveButton{margin-top:var(--s4)}
+
+/* Dialoge */
+.c70-actions{display:flex; gap:10px}
+.c70-actions .btn{flex:1}
+.c73-report-cancel, .c73-report-send{min-height:44px; padding:0 18px; font-size:15px; display:inline-flex; align-items:center; justify-content:center}
+.c73-report-cancel{border:1px solid var(--gold-line); color:var(--gold-soft)}
+.c73-report-send{background:linear-gradient(180deg, #ead5a6 0%, #d3b273 55%, #bf9a58 100%); color:#23170a}
+.modal .c4-action-row .btn{flex:1}
+
+/* Login */
+.login-mini-actions{margin-top:var(--s2)}
+.login-mini-actions .link-btn{font-size:14px}
+#loginSubmitButton, #newPasswordButton{margin-top:var(--s4)}
+.login-shell .qs-login-link{display:flex}
+.field-hint + .more-toggle{font-size:13px}

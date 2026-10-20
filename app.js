@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v43";
+  const APP_VERSION = "web-v44";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -980,6 +980,8 @@
       const chip = event.target.closest(".r5-chip");
       const target = chip && $(chip.dataset.target);
       if (!target) return;
+      // Kapitel aufklappen (c75-mehr-lesen.js), dann hinscrollen
+      if (window.sorayaMore && target.nextElementSibling) window.sorayaMore.open(target.nextElementSibling);
       const top = target.getBoundingClientRect().top + window.scrollY - 24;
       const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
@@ -1857,7 +1859,7 @@
       '<div class="people-row">' +
         '<span class="people-avatar">' + escapeHtml(initials(p.name, "?")) + "</span>" +
         '<div class="people-info"><b>' + escapeHtml(p.name || t("Unbenannt")) + "</b><small>" + escapeHtml(RELATION_LABELS[p.relation] || t("Person")) + "</small></div>" +
-        '<button type="button" class="btn people-compare" data-person="' + escapeHtml(p.id) + '">' + escapeHtml(t("Vergleichen ›")) + '</button>' +
+        '<button type="button" class="text-link people-compare" data-person="' + escapeHtml(p.id) + '">' + escapeHtml(t("Vergleichen ›")) + '</button>' +
       "</div>"
     ).join("");
   }
@@ -1997,7 +1999,7 @@
         "<span><b>" + escapeHtml(summary.harmonious || 0) + "</b>" + escapeHtml(t("Harmonisch")) + "</span>" +
         "<span><b>" + escapeHtml(summary.challenging || 0) + "</b>" + escapeHtml(t("Spannung")) + "</span></div>";
     }
-    html += '<div class="reading syn-reading" data-i18n-skip>' + markdownToHtml(text) + "</div>";
+    html += '<div class="reading syn-reading" data-i18n-skip data-more="sections">' + markdownToHtml(text) + "</div>";
 
     if (Array.isArray(aspects) && aspects.length) {
       html += '<span class="eyebrow syn-aspects-title">' + escapeHtml(t("Wichtige Aspekte:").replace(/[:：]\s*$/, "")) + '</span><ul class="syn-aspects">';
