@@ -151,6 +151,9 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   `/login?token_hash=…&type=recovery` (geräteunabhängig, `verifyOtp`), `/login` zeigt dann „Neues Passwort festlegen“.
 - **Statistik ist verbunden (18.10.):** `AGENT_STATS_TOKEN` in beiden Diensten gesetzt, Wirkung zeigt Zahlen
   (30 Tage: 7 neue Konten, 6 aktive Nutzer, Schnellstart oft geöffnet, aber nur 1× berechnet – Absprung prüfen).
+- **Google (20.10.):** Search Console als Domain-Property `sorayaluxuryastroguide.com` bestätigt (TXT-Eintrag
+  `google-site-verification=…` in Vercel-DNS – **nicht löschen**). Landingpage: `soraya-landing.vercel.app` leitet per
+  `vercel.json` auf www um, `robots.txt` + `sitemap.xml` (4 Sprachen), Organisation mit Instagram in den strukturierten Daten.
 - Nutzerzahlen (17.10.2026): 8 Konten in Supabase (inkl. Demo und Attilas Testkonten).
 - Es fehlt Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
