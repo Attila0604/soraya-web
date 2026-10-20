@@ -585,13 +585,13 @@ html, body{overflow-x:hidden}
 /* drei Zähler: Harmonisch / Spannung / Neutral */
 .c41-aspect-cards{display:flex; gap:var(--s2); margin-bottom:var(--s4)}
 .c41-aspect-cards > div{
-  flex:1; text-align:center; padding:var(--s3) var(--s2);
+  flex:1; min-width:0; text-align:center; padding:var(--s3) var(--s2);
   background:var(--panel-2); border:1px solid var(--line-soft); border-radius:var(--r-sm);
 }
 .c41-aspect-cards b{display:block; font-family:var(--display); font-size:26px; color:var(--gold-soft); line-height:1}
 .c41-aspect-cards span{
-  display:block; margin-top:6px; font-size:10.5px; letter-spacing:.08em;
-  text-transform:uppercase; color:var(--mist-dim);
+  display:block; margin-top:6px; font-size:10.5px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--mist-dim); overflow-wrap:anywhere; hyphens:auto;
 }
 /* Elemente-Balance: Label · Balken · Zahl */
 .c41-balance{display:flex; flex-direction:column; gap:11px}
@@ -1405,3 +1405,6 @@ body:not(.soraya-no-profile) #home .c54-hero-ribbon{margin-top:var(--s3)}
   .c46-focus-layout{flex-wrap:wrap}
   .c46-focus-layout > *{min-width:0}
 }
+
+/* Lange Woerter (z. B. ungarisch "FESZÜLTSÉG") passen auch auf schmalen Handys */
+@media (max-width:420px){ .c41-aspect-cards span{font-size:9.5px; letter-spacing:.03em} }

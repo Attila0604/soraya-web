@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v42";
+  const APP_VERSION = "web-v43";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -106,6 +106,8 @@
   }
 
   function friendlyError(error, fallback) {
+    // Fehler aus engineFail() tragen schon einen fertigen Text in der App-Sprache
+    if (error && error.code && error.message) return error.message;
     const text = error && error.message ? error.message : fallback;
     if (/not logged|nicht eingeloggt|JWT|session/i.test(text)) return t("Bitte zuerst einloggen.");
     if (/Failed to fetch|NetworkError|Load failed|fetch/i.test(text)) return t("Verbindung nicht erreichbar. Bitte prüfe dein Internet.");
@@ -427,7 +429,11 @@
     if (error) throw error;
 
     const token = data && data.session && data.session.access_token;
-    if (!token) throw new Error(t("Nicht eingeloggt. Bitte über /login einloggen."));
+    if (!token) {
+      const missing = new Error(t("Bitte zuerst einloggen."));
+      missing.code = "auth";
+      throw missing;
+    }
 
     return token;
   }
@@ -449,11 +455,61 @@
     try {
       return await fetch(url, { ...options, signal: controller.signal });
     } catch (error) {
-      if (error && error.name === "AbortError") throw new Error(t("Backend dauerte zu lange (timeout)."));
+      if (error && error.name === "AbortError") {
+        const slow = new Error(t("Soraya braucht gerade zu lange. Bitte versuch es gleich noch einmal."));
+        slow.code = "timeout";
+        throw slow;
+      }
       throw error;
     } finally {
       window.clearTimeout(timer);
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Fehler der astro-engine: nie rohe Server-Texte zeigen (deutsch, technisch,
+  // HTML-Fehlerseiten), sondern einen klaren Satz in der App-Sprache.
+  // error.code: limit | auth | server | data | timeout ; error.raw = Originaltext
+  // ---------------------------------------------------------------------------
+  function engineMessage(raw) {
+    const msg = String(raw || "").trim();
+    if (/Ort nicht gefunden|Kein Ort angegeben|birthplace/i.test(msg)) return t("Diesen Geburtsort findet Soraya nicht. Bitte schreib ihn genauer, z. B. „Debrecen, Ungarn“.");
+    if (/Geocoder|geocod|Nominatim/i.test(msg)) return t("Der Geburtsort konnte gerade nicht gesucht werden. Bitte versuch es gleich noch einmal.");
+    if (/^Person nicht gefunden|^Profil nicht gefunden/i.test(msg)) return t("Profil nicht gefunden.");
+    if (/muessen verschieden sein/i.test(msg)) return t("Bitte eine andere Person auswählen.");
+    if (/ist nicht hinterlegt/i.test(msg)) return t("Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.");
+    if (/^[A-Za-z_.]*(Error|Exception|Timeout|TimedOut|Unavailable)\b|Traceback|Internal Server Error|Supabase|ok=false|HTTP \d|nicht gesetzt|Tool/.test(msg)) {
+      return t("Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.");
+    }
+    return msg ? t(msg) : t("Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.");
+  }
+
+  function engineFail(status, json) {
+    const detail = json && typeof json.detail === "string" ? json.detail : "";
+    const raw = detail || (json && typeof json.error === "string" ? json.error : "");
+    let message, code;
+    if (status === 429) { message = t("Tageslimit erreicht – morgen geht es weiter ✨"); code = "limit"; }
+    else if (status === 401 || status === 403) { message = t("Deine Anmeldung ist abgelaufen. Bitte melde dich neu an."); code = "auth"; }
+    else if (status >= 500 || !json) { message = t("Soraya ist gerade nicht erreichbar. Bitte versuch es gleich noch einmal."); code = "server"; }
+    else { message = engineMessage(raw); code = "data"; }
+    const error = new Error(message);
+    error.code = code;
+    error.status = status;
+    error.raw = raw || "HTTP " + status;
+    return error;
+  }
+
+  // Antwort lesen: JSON pruefen, Fehler in engineFail() umwandeln
+  async function readEngine(response) {
+    let json = null;
+    try {
+      const text = await response.text();
+      json = JSON.parse(text);
+    } catch (error) {}
+    if (!json || typeof json !== "object" || Array.isArray(json)) throw engineFail(response.ok ? 502 : response.status, null);
+    if (!response.ok) throw engineFail(response.status, json);
+    if (json.ok === false) throw engineFail(200, json);
+    return json;
   }
 
   async function callSoraya(path, body, method = "POST", timeoutMs = 0) {
@@ -466,22 +522,7 @@
       },
       body: method === "GET" ? undefined : JSON.stringify(body || {})
     }, timeoutMs);
-
-    const text = await response.text();
-    let json;
-
-    try {
-      json = JSON.parse(text);
-    } catch (error) {
-      throw new Error(text || t("Ungültige Backend-Antwort."));
-    }
-
-    // Tageslimit (Kostenbremse): Meldung in der App-Sprache
-    if (response.status === 429) throw new Error(t("Tageslimit erreicht – morgen geht es weiter ✨"));
-    if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
-    if (json.ok === false) throw new Error(json.error || "Soraya ok=false");
-
-    return json;
+    return readEngine(response);
   }
 
   async function signOut() {
@@ -1147,7 +1188,7 @@
       }
       anaSchedule(3000);
     } catch (error) {
-      if (/Tageslimit|einloggen|login/i.test(error && error.message || "")) return anaFailed(friendlyError(error, ""));
+      if (error && (error.code === "limit" || error.code === "auth")) return anaFailed(friendlyError(error, ""));
       anaFails += 1;            // Funkloch: einfach weiter versuchen, nichts abbrechen
       anaRender();
       anaSchedule(Math.min(10000, 3000 + anaFails * 2000));
@@ -1187,9 +1228,8 @@
       track("analysis_started", { force: !!forceNew });
       anaSchedule(3000);
     } catch (error) {
-      const msg = error && error.message || "";
-      if (/Failed to fetch|NetworkError|Load failed|timeout/i.test(msg)) {
-        anaFails = 2;                       // vielleicht kam der Start trotzdem an -> nachsehen
+      if (isNetworkError(error)) {
+        anaFails = 2;                      // vielleicht kam der Start trotzdem an -> nachsehen
         anaRender();
         return anaSchedule(4000);
       }
@@ -1620,7 +1660,9 @@
     } catch (error) {
       if (typing) typing.remove();
       trackError("chat", error);
-      appendBubble("assistant", friendlyError(error, t("Chat konnte nicht geladen werden.")));
+      // Fehlermeldung ist keine Antwort von Soraya -> kein "melden"-Link (c73)
+      const failed = appendBubble("assistant", friendlyError(error, t("Chat konnte nicht geladen werden.")));
+      if (failed) failed.classList.add("is-error");
       renderChatSuggestions(false);
     } finally {
       setChatBusy(false);
@@ -1793,7 +1835,7 @@
       cacheSelfFromStorage();
       refreshSynastryPeople();
       renderHomePeople();
-      if (isNetworkError(error)) setEngineReachable(false);
+      if (isNetworkError(error) || (error && error.code === "server")) setEngineReachable(false);
       if (showToast) toast(t("Personen konnten nicht geladen werden."));
       return readPeopleCache();
     }
@@ -1959,7 +2001,12 @@
 
     if (Array.isArray(aspects) && aspects.length) {
       html += '<span class="eyebrow syn-aspects-title">' + escapeHtml(t("Wichtige Aspekte:").replace(/[:：]\s*$/, "")) + '</span><ul class="syn-aspects">';
-      aspects.slice(0, 5).forEach((aspect) => {
+      // Zuerst die Hauptaspekte zwischen echten Planeten (statt z. B. "MC Quintil Chiron")
+      const MAJOR = ["conjunction", "opposition", "square", "trine", "sextile"];
+      const CORE = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Ascendant"];
+      const isMain = (a) => MAJOR.indexOf(String(a.type || "").toLowerCase()) >= 0 && CORE.indexOf(a.p1) >= 0 && CORE.indexOf(a.p2) >= 0;
+      const ranked = aspects.filter((a) => a && (a.text || a.name || isMain(a))).concat(aspects.filter((a) => a && !(a.text || a.name || isMain(a))));
+      ranked.slice(0, 5).forEach((aspect) => {
         const line = aspect.text || aspect.name ||
           (ASTRO ? [ASTRO.planet(aspect.p1 || aspect.p1_de), ASTRO.aspect(aspect.type || aspect.type_de), ASTRO.planet(aspect.p2 || aspect.p2_de)] : [aspect.p1_de || aspect.p1, aspect.type_de || aspect.type, aspect.p2_de || aspect.p2])
             .filter(Boolean).join(" ");
@@ -2224,7 +2271,7 @@
       synRender();
       synSchedule(2500);
     } catch (error) {
-      if (/Tageslimit|einloggen|login/i.test(error && error.message || "")) return synFehler(friendlyError(error, ""));
+      if (error && (error.code === "limit" || error.code === "auth")) return synFehler(friendlyError(error, ""));
       synFails += 1;            // Funkloch: weiter versuchen
       synRender();
       synSchedule(Math.min(10000, 3000 + synFails * 2000));
@@ -2273,9 +2320,8 @@
       synRender();
       synSchedule(2500);
     } catch (error) {
-      const msg = error && error.message || "";
-      if (/Failed to fetch|NetworkError|Load failed|timeout/i.test(msg)) {
-        synFails = 2;                       // vielleicht kam der Start trotzdem an -> nachsehen
+      if (isNetworkError(error)) {
+        synFails = 2;                      // vielleicht kam der Start trotzdem an -> nachsehen
         synRender();
         return synSchedule(4000);
       }
@@ -2963,7 +3009,7 @@
         const json = await callSoraya("/mobile/chart", { person_id: personId }, "POST", 15000);
         if (json && json.data) return json;
       } catch (error) {
-        if (/zu lange|timeout|Tageslimit/i.test(error.message || "")) throw error;
+        if (error && (error.code === "timeout" || error.code === "limit")) throw error;
       }
     }
     return engineJson("/chart", birth);
@@ -2975,7 +3021,7 @@
         const json = await callSoraya("/mobile/transits", { person_id: personId, at: at }, "POST", 15000);
         if (json && json.data) return json;
       } catch (error) {
-        if (/zu lange|timeout|Tageslimit/i.test(error.message || "")) throw error;
+        if (error && (error.code === "timeout" || error.code === "limit")) throw error;
       }
     }
     return engineJson("/transits", { person: birth, at: at });
@@ -3051,9 +3097,8 @@
       headers: await engineHeaders(),
       body: JSON.stringify(body)
     }, 15000);
-    const json = await response.json();
-    if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
-    if (!json || json.ok === false || !json.data) throw new Error((json && json.error) || t("Keine Daten erhalten."));
+    const json = await readEngine(response);
+    if (!json.data) throw engineFail(502, null);
     return json;
   }
 
@@ -3172,7 +3217,7 @@
       setHomeTransits(rows);
     } catch (error) {
       trackError("transits", error);
-      if (isNetworkError(error)) setEngineReachable(false);
+      if (isNetworkError(error) || (error && error.code === "server")) setEngineReachable(false);
       lastHomeSkyAt = 0;
       document.body.classList.add("soraya-backend-soft-fail");
       setHomeTransits(transitRow("✦", t("Sanfter Tagesimpuls"), t("Deine Transite sind gerade kurz nicht erreichbar. Soraya versucht es gleich erneut.")));
@@ -3229,10 +3274,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     } : { method: "GET" }, 30000);
-    const json = await response.json();
-    if (!response.ok) throw new Error(json.detail || json.error || "HTTP " + response.status);
-    if (!json || json.ok === false) throw new Error((json && json.error) || t("Keine Daten erhalten."));
-    return json;
+    return readEngine(response);
   }
 
   // Anonymer Zaehler fuer nicht eingeloggte Nutzer (nur Ereignisart, sonst nichts).
@@ -3595,7 +3637,7 @@
       const json = await publicJson("/public/invite/" + encodeURIComponent(code));
       inviteInfo = json.data || {};
     } catch (error) {
-      if (/gibt es nicht/i.test(error.message || "")) {
+      if (/gibt es nicht/i.test((error && (error.raw || error.message)) || "")) {
         try { localStorage.removeItem(INVITE_KEY); } catch (e) {}
       }
       card.hidden = true;
@@ -3799,8 +3841,8 @@
     try {
       const config = getConfig();
       const response = await fetchWithTimeout(config.engineUrl.replace(/\/$/, "") + "/sky", { method: "GET" }, 15000);
-      const json = await response.json();
-      if (!json || json.ok === false || !json.data) throw new Error(t("Himmel nicht verfügbar."));
+      const json = await readEngine(response);
+      if (!json.data) throw engineFail(502, null);
       skyToday = json.data;
       lastSkyTodayAt = Date.now();
       setEngineReachable(true);
@@ -3808,7 +3850,7 @@
       applySkyMoon();
       renderChatSuggestions();
     } catch (error) {
-      if (isNetworkError(error)) setEngineReachable(false);
+      if (isNetworkError(error) || (error && error.code === "server")) setEngineReachable(false);
       if (!skyToday) box.innerHTML = transitRow("☾", t("Himmelsereignisse"), t("Gerade kurz nicht erreichbar. Soraya versucht es später erneut."));
     }
   }
@@ -3836,6 +3878,7 @@
   let engineReachable = true;
 
   function isNetworkError(error) {
+    if (error && error.code) return error.code === "timeout";
     return /Failed to fetch|NetworkError|Load failed|timeout|zu lange/i.test((error && error.message) || String(error || ""));
   }
 

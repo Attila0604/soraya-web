@@ -105,6 +105,7 @@
 
   function friendlyError(error, fallback) {
     var msg = error && error.message ? error.message : text(error || fallback);
+    if (error && error.timeout) return T("Verbindung nicht erreichbar. Bitte Internet prüfen und später erneut versuchen.");
 
     if (/invalid login|invalid credentials/i.test(msg)) return T("E-Mail oder Passwort stimmt nicht.");
     if (/email not confirmed|not confirmed|confirm/i.test(msg)) return T("Bitte bestätige zuerst deine E-Mail und versuche es danach erneut.");
@@ -163,11 +164,18 @@
     return el("loginPassword") ? el("loginPassword").value : "";
   }
 
+  // Eingabe-Hinweis (kein Fehler des Servers): ohne "… fehlgeschlagen:" davor anzeigen
+  function hint(message) {
+    var error = new Error(message);
+    error.plain = true;
+    return error;
+  }
+
   function validateLoginFields(requirePassword) {
     var email = getEmail();
     var password = getPassword();
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error(T("Bitte eine gültige E-Mail eingeben."));
-    if (requirePassword && (!password || password.length < 6)) throw new Error(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw hint(T("Bitte eine gültige E-Mail eingeben."));
+    if (requirePassword && (!password || password.length < 6)) throw hint(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));
     return { email: email, password: password };
   }
 
@@ -231,7 +239,9 @@
     var timer;
     var timeout = new Promise(function (_, reject) {
       timer = window.setTimeout(function () {
-        reject(new Error(label || "timeout"));
+        var slow = new Error(label || "timeout");
+        slow.timeout = true;
+        reject(slow);
       }, ms || 12000);
     });
 
@@ -329,7 +339,7 @@
       returnToApp(500);
     } catch (error) {
       var notConfirmed = /email not confirmed|not confirmed/i.test((error && error.message) || "");
-      setLoginStatus(notConfirmed ? friendlyError(error, "") : T("Login fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
+      setLoginStatus(notConfirmed || (error && error.plain) ? friendlyError(error, "") : T("Login fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
       showResendInline(notConfirmed);
     } finally {
       setBusy(false);
@@ -344,7 +354,7 @@
       var fields = validateLoginFields(true);
       // Leerzeichen am Rand entfernen (meist versehentlich beim Kopieren)
       var password = fields.password.trim();
-      if (password.length < 6) throw new Error(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));
+      if (password.length < 6) throw hint(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));
       safeSetAfterPath();
       localStorage.setItem(LOGIN_KEYS.lastEmail, fields.email);
 
@@ -376,6 +386,7 @@
       // Bestaetigung noetig: klare eigene Ansicht statt kleiner Statuszeile
       showConfirmPanel(fields.email);
     } catch (error) {
+      if (error && error.plain) { setLoginStatus(error.message, "bad"); return; }
       setLoginStatus(T("Registrierung fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte Daten prüfen.")) }), "bad");
     } finally {
       setBusy(false);
@@ -399,6 +410,7 @@
       if (result.error) throw result.error;
       setLoginStatus(T("✅ E-Mail zum Zurücksetzen wurde gesendet."), "ok");
     } catch (error) {
+      if (error && error.plain) { setLoginStatus(error.message, "bad"); return; }
       setLoginStatus(T("Passwort zurücksetzen fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte E-Mail prüfen.")) }), "bad");
     } finally {
       setBusy(false);

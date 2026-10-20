@@ -118,13 +118,17 @@
         try { if (window.sb && window.sb.auth) await window.sb.auth.signOut(); } catch (e) {}
         clearLocalSoraya();
         setTimeout(function () { window.location.href = "/login"; }, 1200);
+      } else if (resp.status === 401 || resp.status === 403) {
+        // Sitzung abgelaufen: klarer Weg nach vorne statt Fehlercode
+        showMsg(overlay, T("Keine gültige Sitzung. Bitte neu anmelden."), "error");
+        resetButtons(overlay);
       } else {
-        var err = (data && data.error) ? data.error : ("HTTP " + resp.status);
-        showMsg(overlay, T("Löschen fehlgeschlagen: {error}", { error: err }), "error");
+        // Server-Texte (deutsch/technisch) nicht zeigen, sondern einen klaren Satz
+        showMsg(overlay, T("Das Löschen hat gerade nicht geklappt. Bitte versuch es gleich noch einmal."), "error");
         resetButtons(overlay);
       }
     } catch (e) {
-      showMsg(overlay, T("Netzwerkfehler: {error}", { error: e && e.message ? e.message : e }), "error");
+      showMsg(overlay, T("Verbindung nicht erreichbar. Bitte prüfe dein Internet."), "error");
       resetButtons(overlay);
     }
   }

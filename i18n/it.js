@@ -781,5 +781,20 @@ window.SORAYA_STRINGS.it = {
   "Geburtshoroskop · Soraya": "Tema natale · Soraya",
   "Horoskop · Soraya": "Oroscopo · Soraya",
   "Partner-Vergleich · Soraya": "Affinità di coppia · Soraya",
-  "Profil · Soraya": "Profilo · Soraya"
+  "Profil · Soraya": "Profilo · Soraya",
+  "Diesen Geburtsort findet Soraya nicht. Bitte schreib ihn genauer, z. B. „Debrecen, Ungarn“.": "Soraya non trova questo luogo di nascita. Scrivilo in modo più preciso, ad es. «Roma, Italia».",
+  "Der Geburtsort konnte gerade nicht gesucht werden. Bitte versuch es gleich noch einmal.": "Al momento non è stato possibile cercare il luogo di nascita. Riprova tra poco.",
+  "Profil nicht gefunden.": "Profilo non trovato.",
+  "Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.": "Non ha funzionato. Riprova tra poco.",
+  "Deine Anmeldung ist abgelaufen. Bitte melde dich neu an.": "La tua sessione è scaduta. Accedi di nuovo.",
+  "Soraya ist gerade nicht erreichbar. Bitte versuch es gleich noch einmal.": "Soraya non è raggiungibile in questo momento. Riprova tra poco.",
+  "Soraya braucht gerade zu lange. Bitte versuch es gleich noch einmal.": "Soraya sta impiegando troppo tempo. Riprova tra poco.",
+  "Das Löschen hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.": "L'eliminazione non è riuscita. Riprova tra poco.",
+  "Diese Einladung gibt es nicht (mehr).": "Questo invito non esiste (più).",
+  "Bitte ein gültiges Geburtsdatum angeben.": "Inserisci una data di nascita valida.",
+  "Bitte ein Geburtsdatum zwischen 1900 und heute angeben.": "Inserisci una data di nascita tra il 1900 e oggi.",
+  "Bitte eine Stunde zwischen 0 und 23 angeben.": "Inserisci un'ora tra 0 e 23.",
+  "Bitte eine Minute zwischen 0 und 59 angeben.": "Inserisci un minuto tra 0 e 59.",
+  "Bitte schreib eine Nachricht.": "Scrivi un messaggio.",
+  "Unbekanntes Sternzeichen.": "Segno zodiacale sconosciuto."
 };
