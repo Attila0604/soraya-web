@@ -59,7 +59,11 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 ## Landingpage (`soraya-landing`)
 
-- Eine `index.html` (4 Sprachen über `data-t`-Schlüssel + `L`-Objekt im Script).
+- `index.html` (4 Sprachen über `data-t`-Schlüssel + `L`-Objekt im Script). **SEO (20.10.):** `node tools/seiten.mjs`
+  erzeugt daraus `en.html`/`hu.html`/`it.html` (URLs `/en`, `/hu`, `/it`, feste Sprache), 48 Sternzeichen-Seiten aus
+  `inhalte/zeichen/<lang>/*.json` (`/sternzeichen/<slug>`, `/en/zodiac/…`, `/hu/csillagjegyek/…`, `/it/segni-zodiacali/…`),
+  4 Übersichten und `sitemap.xml`. **Nach jeder Änderung an `index.html` oder den Inhalten das Skript laufen lassen und
+  die erzeugten Dateien mit committen.** `cleanUrls` in `vercel.json`. Besuche der Zeichen-Seiten zählen als `q=seo-<slug>`.
 - Bereiche: Hero mit Store-Knöpfen (Android → Play, iPhone → Web-App), „Probier es jetzt gleich“
   (Sonne/Mond über `/public/preview`, Tageshoroskop über `/public/sign-horoscope`), Funktionen,
   Video, „So einfach geht's“, FAQ, Schluss-Aufruf, feste „Kostenlos starten“-Leiste am Handy.
