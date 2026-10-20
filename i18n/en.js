@@ -781,5 +781,20 @@ window.SORAYA_STRINGS.en = {
   "Geburtshoroskop · Soraya": "Birth chart · Soraya",
   "Horoskop · Soraya": "Horoscope · Soraya",
   "Partner-Vergleich · Soraya": "Partner match · Soraya",
-  "Profil · Soraya": "Profile · Soraya"
+  "Profil · Soraya": "Profile · Soraya",
+  "Diesen Geburtsort findet Soraya nicht. Bitte schreib ihn genauer, z. B. „Debrecen, Ungarn“.": "Soraya can't find this birthplace. Please write it more precisely, e.g. “Rome, Italy”.",
+  "Der Geburtsort konnte gerade nicht gesucht werden. Bitte versuch es gleich noch einmal.": "The birthplace couldn't be looked up just now. Please try again in a moment.",
+  "Profil nicht gefunden.": "Profile not found.",
+  "Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.": "That didn't work just now. Please try again in a moment.",
+  "Deine Anmeldung ist abgelaufen. Bitte melde dich neu an.": "Your session has expired. Please log in again.",
+  "Soraya ist gerade nicht erreichbar. Bitte versuch es gleich noch einmal.": "Soraya can't be reached right now. Please try again in a moment.",
+  "Soraya braucht gerade zu lange. Bitte versuch es gleich noch einmal.": "Soraya is taking too long right now. Please try again in a moment.",
+  "Das Löschen hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.": "Deleting didn't work just now. Please try again in a moment.",
+  "Diese Einladung gibt es nicht (mehr).": "This invitation doesn't exist (anymore).",
+  "Bitte ein gültiges Geburtsdatum angeben.": "Please enter a valid date of birth.",
+  "Bitte ein Geburtsdatum zwischen 1900 und heute angeben.": "Please enter a date of birth between 1900 and today.",
+  "Bitte eine Stunde zwischen 0 und 23 angeben.": "Please enter an hour between 0 and 23.",
+  "Bitte eine Minute zwischen 0 und 59 angeben.": "Please enter a minute between 0 and 59.",
+  "Bitte schreib eine Nachricht.": "Please write a message.",
+  "Unbekanntes Sternzeichen.": "Unknown zodiac sign."
 };

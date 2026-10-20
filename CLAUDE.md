@@ -46,7 +46,7 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Statisches Vanilla-JS: `index.html`, `app.js` (Hauptlogik), `soraya.css`, Module `c58…c74-*.js`,
   `sw.js` (Service Worker, network-first; **bei jeder Änderung `CACHE_VERSION` erhöhen**, aktuell
-  `soraya-v42`, `APP_VERSION` in `app.js` = `web-v42`).
+  `soraya-v43`, `APP_VERSION` in `app.js` = `web-v43`).
 - i18n: deutsche Quelltexte sind die Schlüssel; Übersetzungen in `i18n/en.js`, `i18n/hu.js`, `i18n/it.js`
   (je ~644 Einträge), `t()` in `app.js`, `i18n.js` blendet die Seite bis zur Übersetzung aus (kein Flackern).
 - Funktionen: Schnellstart ohne Konto (Sonne/Mond), Profil, Geburtshoroskop/Radix, Tageshoroskop,
@@ -71,7 +71,7 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 ## astro-engine (Backend)
 
-- FastAPI auf Railway, Version ~2.18. Wichtig: `main.py`, `chart_engine.py`, `agents.py`, `analysis.py`,
+- FastAPI auf Railway, Version ~2.19. Wichtig: `main.py`, `chart_engine.py`, `agents.py`, `analysis.py`,
   `analysis_jobs.py`, `synastry_reading.py`, `synastrie_jobs.py`, `horoscope.py`, `public_content.py`,
   `namen.py` (Namen in 4 Sprachen + Prüfung auf deutsche Reste), `limits.py` (Kostenbremse).
 - Öffentliche Endpunkte: `/public/preview`, `/public/sign-horoscope`, `/public/invite/...`, `/public/event`.

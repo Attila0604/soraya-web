@@ -30,7 +30,7 @@
     if (!bubble || bubble.dataset.reportReady === "1") return;
     if (!bubble.classList || !bubble.classList.contains("assistant")) return;
     // "Soraya schreibt…"-Punkte und Begruessung sind keine Antwort
-    if (bubble.classList.contains("typing") || bubble.classList.contains("greet")) return;
+    if (bubble.classList.contains("typing") || bubble.classList.contains("greet") || bubble.classList.contains("is-error")) return;
     // die Begrüßungs-Bubble nicht markieren (kein echter Inhalt)
     bubble.dataset.reportReady = "1";
 

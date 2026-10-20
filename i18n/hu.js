@@ -781,5 +781,20 @@ window.SORAYA_STRINGS.hu = {
   "Geburtshoroskop · Soraya": "Születési képlet · Soraya",
   "Horoskop · Soraya": "Horoszkóp · Soraya",
   "Partner-Vergleich · Soraya": "Párkapcsolati összevetés · Soraya",
-  "Profil · Soraya": "Profil · Soraya"
+  "Profil · Soraya": "Profil · Soraya",
+  "Diesen Geburtsort findet Soraya nicht. Bitte schreib ihn genauer, z. B. „Debrecen, Ungarn“.": "Soraya nem találja ezt a születési helyet. Kérlek, írd meg pontosabban, pl. „Debrecen, Magyarország”.",
+  "Der Geburtsort konnte gerade nicht gesucht werden. Bitte versuch es gleich noch einmal.": "A születési helyet most nem sikerült megkeresni. Kérlek, próbáld újra egy kicsit később.",
+  "Profil nicht gefunden.": "A profil nem található.",
+  "Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.": "Ez most nem sikerült. Kérlek, próbáld újra egy kicsit később.",
+  "Deine Anmeldung ist abgelaufen. Bitte melde dich neu an.": "A bejelentkezésed lejárt. Kérlek, jelentkezz be újra.",
+  "Soraya ist gerade nicht erreichbar. Bitte versuch es gleich noch einmal.": "Soraya most nem érhető el. Kérlek, próbáld újra egy kicsit később.",
+  "Soraya braucht gerade zu lange. Bitte versuch es gleich noch einmal.": "Soraya most túl sokáig válaszol. Kérlek, próbáld újra egy kicsit később.",
+  "Das Löschen hat gerade nicht geklappt. Bitte versuch es gleich noch einmal.": "A törlés most nem sikerült. Kérlek, próbáld újra egy kicsit később.",
+  "Diese Einladung gibt es nicht (mehr).": "Ez a meghívó nem létezik (már).",
+  "Bitte ein gültiges Geburtsdatum angeben.": "Kérlek, adj meg egy érvényes születési dátumot.",
+  "Bitte ein Geburtsdatum zwischen 1900 und heute angeben.": "Kérlek, 1900 és a mai nap közötti születési dátumot adj meg.",
+  "Bitte eine Stunde zwischen 0 und 23 angeben.": "Kérlek, 0 és 23 közötti órát adj meg.",
+  "Bitte eine Minute zwischen 0 und 59 angeben.": "Kérlek, 0 és 59 közötti percet adj meg.",
+  "Bitte schreib eine Nachricht.": "Kérlek, írj egy üzenetet.",
+  "Unbekanntes Sternzeichen.": "Ismeretlen csillagjegy."
 };
