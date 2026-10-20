@@ -46,7 +46,7 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Statisches Vanilla-JS: `index.html`, `app.js` (Hauptlogik), `soraya.css`, Module `c58…c74-*.js`,
   `sw.js` (Service Worker, network-first; **bei jeder Änderung `CACHE_VERSION` erhöhen**, aktuell
-  `soraya-v41`, `APP_VERSION` in `app.js` = `web-v41`).
+  `soraya-v42`, `APP_VERSION` in `app.js` = `web-v42`).
 - i18n: deutsche Quelltexte sind die Schlüssel; Übersetzungen in `i18n/en.js`, `i18n/hu.js`, `i18n/it.js`
   (je ~644 Einträge), `t()` in `app.js`, `i18n.js` blendet die Seite bis zur Übersetzung aus (kein Flackern).
 - Funktionen: Schnellstart ohne Konto (Sonne/Mond), Profil, Geburtshoroskop/Radix, Tageshoroskop,
