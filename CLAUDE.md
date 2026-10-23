@@ -131,6 +131,11 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   Standard AUS). Attila hat ein TikTok-Konto angelegt; TikTok-/LinkedIn-Entwickler-Apps richtet er selbst ein.
 - **Design (23.10.):** ruhige Linie überall (Knöpfe 44/42 px, ein Gold-Knopf pro Bereich, kurze Texte + „Mehr lesen“).
   App v45. Tageshoroskop der Engine max. 55 Wörter.
+- **Mehr Wirkung (23.10.):** Woche jetzt Mo Deine Woche · Di Mitmachen (Sternzeichen-Check) · Mi Ritual (Herz-Ritual) ·
+  Do Astro-Wissen · Fr Ritual · Sa Mitmachen · So Rückblick. Jeder Feed-Post/Reel endet mit einer leichten
+  Kommentar-Frage. **2 Reels pro Tag** (zweites aus demselben Claude-Aufruf, Platz `reel2`, Standard 19:30; LinkedIn
+  nur erstes). Instagram-Storys werden ~2 h/~20 h nach dem Posten gemessen; nie gemessene Posts zählen nicht als 0.
+  Instagram-Zahlen: „Not enough viewers“ und abgelaufene Storys sind KEIN fehlendes Recht.
 - **Lernen aus der Wirkung (17.10.):** Punkte je Post (neues Konto 15, geteilt 4, Kommentar 3, Link-Besuch 2,
   Gefällt mir 1); Facebook-Reaktionen werden alle 6 h gemerkt. Tagesplan bekommt die 3 besten Posts (auch aus
   anderen Sprachen) und welche Formate am besten/schwächsten ankommen. Sichtbar unter Wirkung → „Was Soraya daraus lernt“.
