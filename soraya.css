@@ -1668,15 +1668,15 @@ body.soraya-horo-empty #horoRows{display:none}
 .horo-date{margin:0 0 var(--s2)}
 #horoTip{margin-top:var(--s2)}
 
-/* Analyse: Kernergebnis (Sonne/Mond/AC + Deutung) vor dem Radix */
+/* Analyse: Radix oben, darunter Sonne/Mond/AC und die Deutung */
 #analysis.section.active{display:flex; flex-direction:column}
 #analysis > *{order:20}
 #analysis > .page-title{order:0}
 #analysis > .guest-gate{order:1}
 #analysis > #analysisEmptyGuide{order:2}
-#analysis > #bigThreeGrid{order:3}
-#analysis > #readingCard{order:4}
-#analysis > .c4-chart-card{order:5}
+#analysis > .c4-chart-card{order:3}
+#analysis > #bigThreeGrid{order:4}
+#analysis > #readingCard{order:5}
 .c49-empty-guide p{display:none}
 .c4-big-three-grid p{display:none}
 .c4-reading-card .card-title{margin-bottom:var(--s2)}
