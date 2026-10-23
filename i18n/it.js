@@ -796,5 +796,11 @@ window.SORAYA_STRINGS.it = {
   "Bitte eine Stunde zwischen 0 und 23 angeben.": "Inserisci un'ora tra 0 e 23.",
   "Bitte eine Minute zwischen 0 und 59 angeben.": "Inserisci un minuto tra 0 e 59.",
   "Bitte schreib eine Nachricht.": "Scrivi un messaggio.",
-  "Unbekanntes Sternzeichen.": "Segno zodiacale sconosciuto."
+  "Unbekanntes Sternzeichen.": "Segno zodiacale sconosciuto.",
+  "Mehr lesen": "Leggi di più",
+  "Weniger": "Mostra meno",
+  "Warum?": "Perché?",
+  "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Aggiungi nome e luogo di nascita – e tutto diventa <b>personale</b>.",
+  "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "Il tuo oroscopo <b>personale</b>, tema natale e chat – gratis con un account.",
+  "Mehr anzeigen": "Mostra di più"
 };

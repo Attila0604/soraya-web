@@ -796,5 +796,11 @@ window.SORAYA_STRINGS.hu = {
   "Bitte eine Stunde zwischen 0 und 23 angeben.": "Kérlek, 0 és 23 közötti órát adj meg.",
   "Bitte eine Minute zwischen 0 und 59 angeben.": "Kérlek, 0 és 59 közötti percet adj meg.",
   "Bitte schreib eine Nachricht.": "Kérlek, írj egy üzenetet.",
-  "Unbekanntes Sternzeichen.": "Ismeretlen csillagjegy."
+  "Unbekanntes Sternzeichen.": "Ismeretlen csillagjegy.",
+  "Mehr lesen": "Tovább olvasom",
+  "Weniger": "Kevesebb",
+  "Warum?": "Miért?",
+  "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Add meg a neved és a születési helyed – így minden <b>rólad</b> fog szólni.",
+  "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "<b>Személyes</b> horoszkóp, születési képlet és chat – ingyenes fiókkal.",
+  "Mehr anzeigen": "Továbbiak"
 };
