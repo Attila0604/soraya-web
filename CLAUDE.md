@@ -124,6 +124,13 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   (Name „Soraya – Luxury Astro Guide“, Logo, Bio EN, Bio-Link `?q=bio-ig`). `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET`
   in Railway, Instagram-Tester angenommen, im Dashboard verbunden (Zugang 60 Tage, verlängert sich selbst).
   **Instagram beim automatischen Posten hat Attila am 20.10. selbst EINGESCHALTET** (Posten → Plattformen; Facebook + Instagram).
+- **Kanäle (23.10.):** Instagram-Zahlen je Post + Follower in „Wirkung“ (braucht Recht `instagram_business_manage_insights`
+  in der Meta-App + Instagram neu verbinden; „Gespeichert“ = 3 Punkte). TikTok mit Zahlen über `video.list`. **LinkedIn**
+  (`linkedin.py`, persönliches Profil, Produkte „Sign In with LinkedIn using OpenID Connect“ + „Share on LinkedIn“,
+  Railway `LINKEDIN_CLIENT_ID`/`LINKEDIN_CLIENT_SECRET`, Rückruf `/linkedin/rueckruf`, Zugang 60 Tage, eigener Haken
+  Standard AUS). Attila hat ein TikTok-Konto angelegt; TikTok-/LinkedIn-Entwickler-Apps richtet er selbst ein.
+- **Design (23.10.):** ruhige Linie überall (Knöpfe 44/42 px, ein Gold-Knopf pro Bereich, kurze Texte + „Mehr lesen“).
+  App v45. Tageshoroskop der Engine max. 55 Wörter.
 - **Lernen aus der Wirkung (17.10.):** Punkte je Post (neues Konto 15, geteilt 4, Kommentar 3, Link-Besuch 2,
   Gefällt mir 1); Facebook-Reaktionen werden alle 6 h gemerkt. Tagesplan bekommt die 3 besten Posts (auch aus
   anderen Sprachen) und welche Formate am besten/schwächsten ankommen. Sichtbar unter Wirkung → „Was Soraya daraus lernt“.
