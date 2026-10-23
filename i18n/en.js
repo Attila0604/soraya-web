@@ -799,5 +799,8 @@ window.SORAYA_STRINGS.en = {
   "Unbekanntes Sternzeichen.": "Unknown zodiac sign.",
   "Mehr lesen": "Read more",
   "Weniger": "Show less",
-  "Warum?": "Why?"
+  "Warum?": "Why?",
+  "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Add your name and birthplace – then everything becomes <b>personal</b>.",
+  "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "Your <b>personal</b> horoscope, birth chart and chat – free with an account.",
+  "Mehr anzeigen": "Show more"
 };

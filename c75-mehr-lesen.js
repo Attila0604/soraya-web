@@ -4,7 +4,8 @@
 
   Ein gemeinsamer Helfer fuer alle langen Texte der App:
   - Element mit data-more="3"  -> zeigt die ersten 3 Zeilen, darunter „Mehr lesen ⌄“.
-  - Element mit data-more="p"  -> zeigt den ersten Absatz (hoechstens 5 Zeilen).
+  - Element mit data-more="p"  -> zeigt den ersten Absatz (hoechstens 3 Zeilen).
+  - Element mit data-more="items:2" -> Liste: zeigt die ersten 2 Eintraege.
   - Element mit data-more="sections" -> lange Deutung mit Zwischentiteln: jedes Kapitel
     zeigt Titel + ersten Absatz, der Rest des Kapitels ist aufklappbar.
   Der Text bleibt immer vollstaendig im HTML (nur optisch gekuerzt). Ist ein Text
@@ -63,6 +64,7 @@
     btn.setAttribute("aria-controls", el.id);
     btn.setAttribute("aria-expanded", "false");
     btn.setAttribute("data-i18n-skip", "");
+    btn.__moreEl = el;
     btn.onclick = function () { setOpen(el, el.getAttribute("data-more-open") !== "1", true); };
     el.insertAdjacentElement("afterend", btn);
     return btn;
@@ -71,7 +73,8 @@
   function label(btn, open) {
     btn.setAttribute("aria-expanded", open ? "true" : "false");
     btn.innerHTML = "<span></span><i aria-hidden=\"true\"></i>";
-    btn.firstChild.textContent = open ? T("Weniger") : T("Mehr lesen");
+    var list = (btn.__moreEl && (btn.__moreEl.getAttribute("data-more") || "").indexOf("items:") === 0);
+    btn.firstChild.textContent = open ? T("Weniger") : T(list ? "Mehr anzeigen" : "Mehr lesen");
   }
 
   function lineHeight(el) {
@@ -91,11 +94,18 @@
         var c = el.children[i];
         if (/^(P|UL|OL)$/.test(c.tagName) && c.textContent.trim()) { first = c; break; }
       }
-      var cap = lineHeight(first || el) * 5;
+      var cap = lineHeight(first || el) * 3;
       if (!first) return cap;
       var top = el.getBoundingClientRect().top;
       var bottom = first.getBoundingClientRect().bottom - top;
       return Math.max(lineHeight(first) * 2, Math.min(bottom, cap));
+    }
+    // Listen: die ersten N Eintraege zeigen (data-more="items:2")
+    if (mode.indexOf("items:") === 0) {
+      var k = parseInt(mode.slice(6), 10) || 2;
+      var rows = Array.prototype.filter.call(el.children, function (c) { return c.offsetHeight > 0 && !c.classList.contains("sk"); });
+      if (rows.length <= k) return el.scrollHeight;
+      return rows[k - 1].getBoundingClientRect().bottom - el.getBoundingClientRect().top;
     }
     var n = parseInt(mode, 10) || 3;
     return n * lh + (parseFloat(window.getComputedStyle(el).paddingTop) || 0);
@@ -110,7 +120,8 @@
     var limit = Math.round(limitFor(el));
     var full = el.scrollHeight;
     // Weniger als ca. 1,5 Zeilen versteckt: lieber alles zeigen
-    if (full <= limit + lineHeight(el) * 1.5) { off(el, btn); return; }
+    var items = (el.getAttribute("data-more") || "").indexOf("items:") === 0;
+    if (items ? full <= limit + 2 : full <= limit + lineHeight(el) * 1.5) { off(el, btn); return; }
     el.classList.add("more-on");
     el.style.setProperty("--more-h", limit + "px");
     var open = el.getAttribute("data-more-open") === "1";

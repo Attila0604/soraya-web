@@ -799,5 +799,8 @@ window.SORAYA_STRINGS.hu = {
   "Unbekanntes Sternzeichen.": "Ismeretlen csillagjegy.",
   "Mehr lesen": "Tovább olvasom",
   "Weniger": "Kevesebb",
-  "Warum?": "Miért?"
+  "Warum?": "Miért?",
+  "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Add meg a neved és a születési helyed – így minden <b>rólad</b> fog szólni.",
+  "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "<b>Személyes</b> horoszkóp, születési képlet és chat – ingyenes fiókkal.",
+  "Mehr anzeigen": "Továbbiak"
 };

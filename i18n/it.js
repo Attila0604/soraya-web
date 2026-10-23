@@ -799,5 +799,8 @@ window.SORAYA_STRINGS.it = {
   "Unbekanntes Sternzeichen.": "Segno zodiacale sconosciuto.",
   "Mehr lesen": "Leggi di più",
   "Weniger": "Mostra meno",
-  "Warum?": "Perché?"
+  "Warum?": "Perché?",
+  "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Aggiungi nome e luogo di nascita – e tutto diventa <b>personale</b>.",
+  "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "Il tuo oroscopo <b>personale</b>, tema natale e chat – gratis con un account.",
+  "Mehr anzeigen": "Mostra di più"
 };

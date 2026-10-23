@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v44";
+  const APP_VERSION = "web-v45";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -1852,7 +1852,7 @@
     const people = (serverPeople || readPeopleCache())
       .filter((p) => p && p.id && p.id !== selfId && !p.is_self && String(p.relation || "").toLowerCase() !== "self");
     if (!people.length) {
-      box.innerHTML = '<p class="people-empty">' + escapeHtml(t("Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.")) + '</p>';
+      box.innerHTML = '<p class="people-empty" data-more="1">' + escapeHtml(t("Lege eine Person an – Partner, Freundin, Familie – und Soraya zeigt euch, wie ihr zusammenpasst.")) + '</p>';
       return;
     }
     box.innerHTML = people.slice(0, 6).map((p) =>
@@ -1878,6 +1878,8 @@
   function addPerson() {
     showSection("synastry");
     window.setTimeout(() => {
+      const card = $("synastryPersonCreateCard");
+      if (card && card.tagName === "DETAILS") card.open = true;
       const field = $("partnerName");
       if (!field) return;
       field.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1918,6 +1920,9 @@
     // Noch niemand gespeichert: der Hauptknopf fuehrt direkt zum Anlegen
     const calc = $("synCalcButton");
     if (calc) calc.textContent = people.length ? t("Verbindung berechnen") : t("Zweite Person anlegen");
+    // Formular "Zweite Person anlegen" nur offen, solange noch niemand gespeichert ist
+    const createCard = $("synastryPersonCreateCard");
+    if (createCard && createCard.tagName === "DETAILS" && !createCard.dataset.userToggled) createCard.open = !people.length;
     const createStatus = $("partnerCreateStatus");
     if (createStatus && !createStatus.classList.contains("ok") && !createStatus.classList.contains("bad")) {
       createStatus.textContent = people.length
@@ -1999,7 +2004,7 @@
         "<span><b>" + escapeHtml(summary.harmonious || 0) + "</b>" + escapeHtml(t("Harmonisch")) + "</span>" +
         "<span><b>" + escapeHtml(summary.challenging || 0) + "</b>" + escapeHtml(t("Spannung")) + "</span></div>";
     }
-    html += '<div class="reading syn-reading" data-i18n-skip data-more="sections">' + markdownToHtml(text) + "</div>";
+    html += '<div class="reading syn-reading" data-i18n-skip data-more="p">' + markdownToHtml(text) + "</div>";
 
     if (Array.isArray(aspects) && aspects.length) {
       html += '<span class="eyebrow syn-aspects-title">' + escapeHtml(t("Wichtige Aspekte:").replace(/[:：]\s*$/, "")) + '</span><ul class="syn-aspects">';
@@ -2008,7 +2013,7 @@
       const CORE = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Ascendant"];
       const isMain = (a) => MAJOR.indexOf(String(a.type || "").toLowerCase()) >= 0 && CORE.indexOf(a.p1) >= 0 && CORE.indexOf(a.p2) >= 0;
       const ranked = aspects.filter((a) => a && (a.text || a.name || isMain(a))).concat(aspects.filter((a) => a && !(a.text || a.name || isMain(a))));
-      ranked.slice(0, 5).forEach((aspect) => {
+      ranked.slice(0, 3).forEach((aspect) => {
         const line = aspect.text || aspect.name ||
           (ASTRO ? [ASTRO.planet(aspect.p1 || aspect.p1_de), ASTRO.aspect(aspect.type || aspect.type_de), ASTRO.planet(aspect.p2 || aspect.p2_de)] : [aspect.p1_de || aspect.p1, aspect.type_de || aspect.type, aspect.p2_de || aspect.p2])
             .filter(Boolean).join(" ");
@@ -3341,8 +3346,8 @@
     const cta = $("qsCtaText");
     if (cta) {
       cta.innerHTML = state.ok
-        ? t("Ergänze im Profil Name und Geburtsort – dann berechnet Soraya dein <b>persönliches</b> Horoskop, deinen Aszendenten und dein Geburtshoroskop.")
-        : t("Dein <b>persönliches</b> Horoskop, deinen Aszendenten, dein Geburtshoroskop und den Chat mit Soraya bekommst du mit einem kostenlosen Konto.");
+        ? t("Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.")
+        : t("Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.");
     }
     setText("qsCtaButton", state.ok ? t("Profil vervollständigen") : t("Kostenlos registrieren"));
     const login = $("qsLoginLink");

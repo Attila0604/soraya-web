@@ -1617,3 +1617,123 @@ body:not(.soraya-no-profile) #home .c54-hero-ribbon{margin-top:var(--s3)}
 #loginSubmitButton, #newPasswordButton{margin-top:var(--s4)}
 .login-shell .qs-login-link{display:flex}
 .field-hint + .more-toggle{font-size:13px}
+
+/* ============================================================
+   Runde 7 (v45): radikal reduziert – pro Bildschirm EIN Fokus,
+   kurze Überschrift, höchstens eine Zeile Text, eine Hauptaktion
+   ============================================================ */
+/* Seitenköpfe: nur die Überschrift (Untertitel wiederholten den Titel) */
+.page-title{margin:var(--s2) 0 var(--s4)}
+.page-title > .eyebrow, .page-title > p{display:none}
+.page-title h2{font-size:32px; margin:0}
+#chat .page-title h2{font-size:28px}
+#home .page-title h2, body:not(.soraya-no-profile) #home .page-title h2,
+body.soraya-logged-out.soraya-no-profile #home .page-title h2{font-size:28px; line-height:1.15; margin:0}
+#home .page-title{margin:0 0 var(--s4); display:flex; flex-wrap:wrap; align-items:center; column-gap:var(--s3)}
+#home .page-title h2{flex-basis:100%}
+#home .c54-hero-ribbon{margin-top:var(--s3)}
+.r6-share{margin-top:var(--s3); font-size:13.5px}
+.r6-share::after{content:none}
+.r6-share::before{content:"↗"; font-size:13px}
+/* Doppelte Kern-Karte (Zeichen stehen schon oben als Chips) */
+#home .c46-hero-dashboard{display:none !important}
+
+/* Dein Tag: kompakt – Wert, Überschrift, eine Zeile, eine Aktion */
+.r5-today .card-title h4{display:none}
+.r5-today .card-title{margin-bottom:var(--s2)}
+.r5-today-date{margin:0; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold)}
+.r5-today .c46-focus-layout h3{font-size:22px}
+.r5-today #dailyFocusText{font-size:14.5px; margin-top:2px}
+.r5-today-actions{display:flex; align-items:center; gap:var(--s4); margin-top:var(--s3)}
+.r5-today-actions .btn{flex:none}
+#dailyStreak{display:none !important}
+.r5-energy-info{margin-top:var(--s3)}
+
+/* Ruhige Zeilen statt Kachel-Raster (Horoskop + Partner) */
+.card.r6-rows{display:block; padding:var(--s2) var(--s4)}
+.r6-row{display:grid; grid-template-columns:28px 1fr; column-gap:var(--s3); padding:var(--s3) 0; border-top:1px solid var(--line-soft)}
+.r6-row:first-child{border-top:0}
+.r6-row > b{font-size:18px; line-height:1; padding-top:2px; text-align:center; color:var(--gold-soft)}
+.r6-row .eyebrow{display:block; margin:0 0 2px; font-size:10px}
+.r6-row p{margin:0; font-size:14.5px; line-height:1.55; color:var(--mist)}
+.r6-row .more-toggle{min-height:34px}
+.r6-rows .c42-affirmation{margin:0; padding:var(--s3) 0 var(--s2); border-top:1px solid var(--line-soft); text-align:center}
+#horoscope .r6-rows .c42-affirmation{font-size:18px !important; color:var(--gold-soft) !important}
+body.soraya-horo-empty #horoRows{display:none}
+
+/* Horoskop: Ergebnis zuerst, kein Kartentitel über dem Umschalter */
+.c42-horoscope-hero > .card-title{display:none}
+.c42-horo-layout .eyebrow{display:none}
+#horoMood{margin:0 0 2px}
+.horo-date{margin:0 0 var(--s2)}
+#horoTip{margin-top:var(--s2)}
+
+/* Analyse: Kernergebnis (Sonne/Mond/AC + Deutung) vor dem Radix */
+#analysis.section.active{display:flex; flex-direction:column}
+#analysis > *{order:20}
+#analysis > .page-title{order:0}
+#analysis > .guest-gate{order:1}
+#analysis > #analysisEmptyGuide{order:2}
+#analysis > #bigThreeGrid{order:3}
+#analysis > #readingCard{order:4}
+#analysis > .c4-chart-card{order:5}
+.c49-empty-guide p{display:none}
+.c4-big-three-grid p{display:none}
+.c4-reading-card .card-title{margin-bottom:var(--s2)}
+
+/* Partner: Ergebnis zuerst, wenig Text */
+.c44-synastry-hero > .eyebrow, .syn-result > .eyebrow{display:none}
+.synastry-hint{display:none}
+.syn-result{padding-top:var(--s3)}
+
+/* Schnellstart & Gast: Felder + ein Knopf + ein kleiner Link */
+.qs-lead{display:none}
+#quickStartCard .qs-login-link{display:none}
+.qs-tomorrow{display:none}
+#quickStartCard .card-title{margin-bottom:var(--s1)}
+.qs-cta{padding:var(--s3)}
+.qs-cta p{margin-bottom:var(--s2)}
+.guest-gate h4{font-size:20px}
+.guest-gate p{margin-top:var(--s1)}
+
+/* Profil: keine doppelten Vorschauen und Erklärsätze */
+.c45-birth-preview, .c45-lang-card > p{display:none}
+.c45-lang-card .card-title{margin-bottom:var(--s2)}
+#androidInstallCard .c4-muted{display:none}
+#androidInstallCard .card-title{margin-bottom:0}
+
+/* Login: Logo, Sprache, Felder, ein Knopf */
+.login-logo p, .login-shell .register-perks, body.soraya-register-mode .login-shell .register-perks{display:none}
+.login-logo{margin-bottom:var(--s3)}
+.login-logo .sigil img{width:56px; height:auto}
+.lang-picker-compact .lang-option span[aria-hidden]{display:none}
+.lang-picker-compact .lang-option{min-height:40px; font-size:13px}
+.login-mini-actions{justify-content:space-between}
+/* Partner: Einladen ohne Erklärsatz, „Zweite Person anlegen“ aufklappbar */
+.invite-share-card > p{display:none}
+.invite-share-card .card-title{margin-bottom:var(--s2)}
+.r6-summary{list-style:none; cursor:pointer; margin:0; min-height:40px}
+.r6-summary::-webkit-details-marker{display:none}
+.r6-summary i{width:8px; height:8px; border-right:1.5px solid var(--gold-soft); border-bottom:1.5px solid var(--gold-soft);
+  transform:translateY(-3px) rotate(45deg); transition:transform .3s var(--ease)}
+details[open] > .r6-summary{margin-bottom:var(--s2)}
+details[open] > .r6-summary i{transform:translateY(2px) rotate(-135deg)}
+.r6-row p{font-size:14px}
+/* Home: Teilen als kleines rundes Symbol neben den Zeichen */
+#home .page-title{flex-wrap:wrap}
+#home .page-title h2{flex-basis:100%}
+.r6-share{width:36px; height:36px; min-height:36px; justify-content:center; padding:0; margin-top:var(--s3); border:1px solid var(--line); border-radius:50%; font-size:0}
+.r6-share::before{font-size:15px}
+#home .page-title .c54-hero-ribbon{flex:0 1 auto}
+/* Zeilen zum Antippen: Symbol + Thema, Text klappt auf */
+details.r6-row{display:block; padding:0}
+details.r6-row > summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:var(--s3); min-height:52px}
+details.r6-row > summary::-webkit-details-marker{display:none}
+details.r6-row > summary b{flex:none; width:28px; font-size:18px; text-align:center; color:var(--gold-soft)}
+details.r6-row > summary .eyebrow{flex:1; margin:0; font-size:11px}
+details.r6-row > summary i{flex:none; width:7px; height:7px; margin-right:4px; border-right:1.5px solid var(--gold-soft); border-bottom:1.5px solid var(--gold-soft);
+  transform:translateY(-2px) rotate(45deg); transition:transform .3s var(--ease)}
+details.r6-row[open] > summary i{transform:translateY(2px) rotate(-135deg)}
+details.r6-row > p{margin:0 0 var(--s3) calc(28px + var(--s3)) !important; font-size:14.5px; line-height:1.6; color:var(--mist)}
+@media (hover:hover){details.r6-row > summary:hover .eyebrow{color:var(--gold-soft)}}
+.c46-moon-card .card-title{display:none}

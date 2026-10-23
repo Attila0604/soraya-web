@@ -46,14 +46,14 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Statisches Vanilla-JS: `index.html`, `app.js` (Hauptlogik), `soraya.css`, Module `c58…c75-*.js`,
   `sw.js` (Service Worker, network-first; **bei jeder Änderung `CACHE_VERSION` erhöhen**, aktuell
-  `soraya-v44`, `APP_VERSION` in `app.js` = `web-v44`).
+  `soraya-v45`, `APP_VERSION` in `app.js` = `web-v45`).
 - i18n: deutsche Quelltexte sind die Schlüssel; Übersetzungen in `i18n/en.js`, `i18n/hu.js`, `i18n/it.js`
   (je ~644 Einträge), `t()` in `app.js`, `i18n.js` blendet die Seite bis zur Übersetzung aus (kein Flackern).
 - Funktionen: Schnellstart ohne Konto (Sonne/Mond), Profil, Geburtshoroskop/Radix, Tageshoroskop,
   Tiefen-Analyse (Hintergrund-Auftrag mit Fortschritt), Partner-Vergleich in % (Hintergrund-Auftrag),
   Chat, Einladungslinks, Teilen-Bilder (Trio + Partner, Story 1080×1920, `?q=teilen-trio|teilen-partner`),
   Link-Kennung `?q=` (Quelle wird gemerkt und gezählt).
-- **Design-Linie (v44, „ruhiger & edler“):** Knöpfe 44 px (PC 42 px), höchstens ein Gold-Knopf pro Bereich,
+- **Design-Linie (v44/v45, „ruhiger & edler“, radikal reduziert):** pro Bildschirm eine Überschrift ohne Untertitel, eine Hauptaktion; Knöpfe 44 px (PC 42 px), höchstens ein Gold-Knopf pro Bereich,
   Nebenaktionen als Text-Link (`.text-link`), kleine Knöpfe `.btn-sm`. Lange Texte über **einen** Helfer
   `c75-mehr-lesen.js`: `data-more="3"` (Zeilen), `data-more="p"` (erster Absatz), `data-more="sections"`
   (Deutung: je Kapitel Titel + erster Absatz) → „Mehr lesen ⌄ / Weniger ⌃“ (aria-expanded, Text bleibt im HTML).
