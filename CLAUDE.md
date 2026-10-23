@@ -128,7 +128,10 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   in der Meta-App + Instagram neu verbinden; „Gespeichert“ = 3 Punkte). TikTok mit Zahlen über `video.list`. **LinkedIn**
   (`linkedin.py`, persönliches Profil, Produkte „Sign In with LinkedIn using OpenID Connect“ + „Share on LinkedIn“,
   Railway `LINKEDIN_CLIENT_ID`/`LINKEDIN_CLIENT_SECRET`, Rückruf `/linkedin/rueckruf`, Zugang 60 Tage, eigener Haken
-  Standard AUS). Attila hat ein TikTok-Konto angelegt; TikTok-/LinkedIn-Entwickler-Apps richtet er selbst ein.
+  Standard AUS). **TikTok ist verbunden (23.10.):** Konto `soraya.astroguide`, Entwickler-App „Soraya Agent“ (Organisation
+  „Soraya“, **Sandbox**, Login Kit + Content Posting API, Scopes inkl. `video.list` + `user.info.stats`, Railway
+  `TIKTOK_ZAHLEN=2`), Haken TikTok von Attila EIN, Modus **Entwurf** (Attila postet in der TikTok-App mit Sound; Direkt
+  wäre ohne Audit nur privat). Selbst hochgeladene Videos werden über den Reel-Titel zugeordnet. LinkedIn noch nicht eingerichtet.
 - **Design (23.10.):** ruhige Linie überall (Knöpfe 44/42 px, ein Gold-Knopf pro Bereich, kurze Texte + „Mehr lesen“).
   App v45. Tageshoroskop der Engine max. 55 Wörter.
 - **Mehr Wirkung (23.10.):** Woche jetzt Mo Deine Woche · Di Mitmachen (Sternzeichen-Check) · Mi Ritual (Herz-Ritual) ·
