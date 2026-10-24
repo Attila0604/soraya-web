@@ -104,6 +104,9 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
   Story 09:00 / Feed 12:30 / Reel 19:00 (Wien), „automatisch außer gestoppt“, 3 Versuche, >12 h = verpasst.
   Instagram holt Medien über signierte öffentliche URLs `/oeffentlich/medien/...`.
 - **Wirkung** (`wirkung.py`): Statistik aus der Engine, Links pro Post `?q=p<id>`, Bio-Links `bio-ig` usw.
+  **Seit 24.10.** vier Unterreiter (Überblick, Posts, Plattformen, Lernen) mit Diagrammen (Reichweite je Plattform,
+  Follower-Linien, Trichter gesehen→Link→Gratis-Test→Konto, Formate, Sprachen, Zeiten-Heatmap mit „Übernehmen“ = füllt nur
+  das Formular) und „Soraya erkennt“ (bis 5 Hinweise, `auswertung.py`), Post-Schublade. Dev-Flag `DEMO_WENIG=1`.
 
 ### Aktueller Stand / offen (Oktober 2026)
 
