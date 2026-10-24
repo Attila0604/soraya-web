@@ -235,6 +235,7 @@ window.SORAYA_STRINGS.hu = {
   "Ich": "Én",
   "Ich vertraue meinem Weg und bewege mich mit Klarheit.": "Bízom az utamban, és tisztán haladok rajta.",
   "Identität · Ausdruck · Lebenslicht": "Identitás · kifejezés · életerő",
+  "Folge Soraya": "Kövesd a Sorayát",
   "Impressum": "Impresszum",
   "Innere Klarheit": "Belső tisztaság",
   "Intensiv & fordernd": "Intenzív és kihívó",

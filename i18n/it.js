@@ -235,6 +235,7 @@ window.SORAYA_STRINGS.it = {
   "Ich": "Io",
   "Ich vertraue meinem Weg und bewege mich mit Klarheit.": "Mi fido del mio cammino e mi muovo con chiarezza.",
   "Identität · Ausdruck · Lebenslicht": "Identità · espressione · forza vitale",
+  "Folge Soraya": "Segui Soraya",
   "Impressum": "Note legali",
   "Innere Klarheit": "Chiarezza interiore",
   "Intensiv & fordernd": "Intensa e impegnativa",

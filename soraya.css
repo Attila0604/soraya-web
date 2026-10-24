@@ -1737,3 +1737,14 @@ details.r6-row[open] > summary i{transform:translateY(2px) rotate(-135deg)}
 details.r6-row > p{margin:0 0 var(--s3) calc(28px + var(--s3)) !important; font-size:14.5px; line-height:1.6; color:var(--mist)}
 @media (hover:hover){details.r6-row > summary:hover .eyebrow{color:var(--gold-soft)}}
 .c46-moon-card .card-title{display:none}
+
+/* Folge Soraya (über der Fußzeile): runde Symbole der Marken-Profile */
+.social-footer{display:flex; flex-direction:column; align-items:center; gap:10px; margin:28px 0 4px}
+.social-titel{font-size:10.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-soft)}
+.social-icons{display:flex; gap:12px}
+.social-footer a{display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%;
+  border:1px solid rgba(201,168,106,.35); color:var(--gold-soft); transition:color .2s, border-color .2s, background .2s}
+.social-footer a[hidden]{display:none}
+.social-footer a:hover{border-color:var(--gold-soft); background:rgba(201,168,106,.08)}
+.social-footer a:focus-visible{outline:2px solid var(--gold-soft); outline-offset:3px}
+.social-footer svg{width:19px; height:19px}

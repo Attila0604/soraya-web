@@ -235,6 +235,7 @@ window.SORAYA_STRINGS.en = {
   "Ich": "Me",
   "Ich vertraue meinem Weg und bewege mich mit Klarheit.": "I trust my path and move with clarity.",
   "Identität · Ausdruck · Lebenslicht": "Identity · expression · life force",
+  "Folge Soraya": "Follow Soraya",
   "Impressum": "Legal notice",
   "Innere Klarheit": "Inner clarity",
   "Intensiv & fordernd": "Intense & demanding",
