@@ -46,7 +46,7 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Statisches Vanilla-JS: `index.html`, `app.js` (Hauptlogik), `soraya.css`, Module `c58…c75-*.js`,
   `sw.js` (Service Worker, network-first; **bei jeder Änderung `CACHE_VERSION` erhöhen**, aktuell
-  `soraya-v46`, `APP_VERSION` in `app.js` = `web-v46`).
+  `soraya-v47`, `APP_VERSION` in `app.js` = `web-v47`).
 - i18n: deutsche Quelltexte sind die Schlüssel; Übersetzungen in `i18n/en.js`, `i18n/hu.js`, `i18n/it.js`
   (je ~644 Einträge), `t()` in `app.js`, `i18n.js` blendet die Seite bis zur Übersetzung aus (kein Flackern).
 - Funktionen: Schnellstart ohne Konto (Sonne/Mond), Profil, Geburtshoroskop/Radix, Tageshoroskop,
@@ -59,6 +59,9 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
   (Deutung: je Kapitel Titel + erster Absatz) → „Mehr lesen ⌄ / Weniger ⌃“ (aria-expanded, Text bleibt im HTML).
 - Sternzeichen-Symbole kommen aus `fonts/soraya-zeichen.woff2` (Font `SorayaZeichen`, unicode-range),
   damit Android keine lila Emojis zeigt.
+- **„Folge Soraya“ (24.10.):** runde Symbole Instagram `soraya.astroguide` + TikTok `@soraya.astroguide` über der Fußzeile
+  (App: `.social-footer`, Landing: `.f-social`). Facebook-Symbol steht schon drin (`data-fb hidden`) – erscheint, sobald die
+  Adresse der Facebook-Seite eingetragen ist.
 - Logo „Portal“ (Art-déco-Bogen mit Mond und Stern) in `brand/`, Favicons/Icons im Root.
 
 ## Landingpage (`soraya-landing`)
