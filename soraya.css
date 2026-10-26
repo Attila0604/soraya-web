@@ -1753,3 +1753,11 @@ details.r6-row > p{margin:0 0 var(--s3) calc(28px + var(--s3)) !important; font-
 .moon-visual .moon-echt{filter:drop-shadow(0 0 14px rgba(255,226,155,.28)); animation:mondAtmen 6s ease-in-out infinite}
 @keyframes mondAtmen{50%{filter:drop-shadow(0 0 22px rgba(255,226,155,.42))}}
 @media (prefers-reduced-motion: reduce){ .moon-visual .moon-echt{animation:none} }
+
+/* Gäste ohne Profil: Startseite kurz und klar -- Schnellstart, Mond, Himmel. Der Tagesfokus braucht ein Profil
+   (sonst stünde dort ein allgemeiner Text mit "Horoskop lesen", der ins Leere führt). */
+body.soraya-no-profile.soraya-logged-out #dailyFocusCard{display:none !important}
+/* Himmel heute: ohne Daten (Verbindung weg) keine leere Karte */
+body.soraya-backend-soft-fail #skyCard, #skyCard:has(#skyList:empty){display:none}
+/* Schnellstart als klarer Mittelpunkt für Gäste */
+body.soraya-logged-out:not(.r5-qs-shown) #quickStartCard{border-color:rgba(231,211,161,.38); box-shadow:0 18px 48px -22px rgba(201,168,106,.55)}
