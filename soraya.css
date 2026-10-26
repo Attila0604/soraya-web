@@ -1748,3 +1748,8 @@ details.r6-row > p{margin:0 0 var(--s3) calc(28px + var(--s3)) !important; font-
 .social-footer a:hover{border-color:var(--gold-soft); background:rgba(201,168,106,.08)}
 .social-footer a:focus-visible{outline:2px solid var(--gold-soft); outline-offset:3px}
 .social-footer svg{width:19px; height:19px}
+
+/* Mond aus echtem Mondbild: leichtes Leuchten, ruhiges "Atmen" */
+.moon-visual .moon-echt{filter:drop-shadow(0 0 14px rgba(255,226,155,.28)); animation:mondAtmen 6s ease-in-out infinite}
+@keyframes mondAtmen{50%{filter:drop-shadow(0 0 22px rgba(255,226,155,.42))}}
+@media (prefers-reduced-motion: reduce){ .moon-visual .moon-echt{animation:none} }

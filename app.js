@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v47";
+  const APP_VERSION = "web-v48";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -2455,8 +2455,9 @@
     if ($("moonVisual")) $("moonVisual").innerHTML = moonSvg((age / synodic) * 360);
   }
 
-  // Mond als SVG: beleuchteter Teil = Halbkreis auf der Lichtseite plus
-  // elliptische Schattengrenze. elong = Winkel Mond-Sonne (0 Neu, 180 Voll).
+  // Mond als SVG: echtes Mondbild (brand/mond.webp, gleicher Mond wie in den Posts). Der beleuchtete Teil
+  // (Halbkreis auf der Lichtseite plus elliptische Schattengrenze) zeigt das Bild hell, der Rest bleibt im
+  // Erdschein sichtbar. elong = Winkel Mond-Sonne (0 Neu, 180 Voll).
   function moonSvg(elong) {
     const r = 46, c = 48;
     const e = ((elong % 360) + 360) % 360;
@@ -2468,13 +2469,17 @@
       ? `M ${c} ${c - r} A ${r} ${r} 0 0 1 ${c} ${c + r}`
       : `M ${c} ${c - r} A ${r} ${r} 0 0 0 ${c} ${c + r}`;
     const term = `A ${rx.toFixed(2)} ${r} 0 0 ${waxing ? (crescent ? 0 : 1) : (crescent ? 1 : 0)} ${c} ${c - r}`;
-    const lit = e < 1 || e > 359 ? "" : `<path d="${limb} ${term} Z" fill="url(#moonLit)"/>`;
-    return `<svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true">
+    const voll = e > 178 && e < 182;
+    const lit = e < 1 || e > 359 ? "" : voll
+      ? `<image href="/brand/mond.webp" x="${c - r}" y="${c - r}" width="${2 * r}" height="${2 * r}"/>`
+      : `<image href="/brand/mond.webp" x="${c - r}" y="${c - r}" width="${2 * r}" height="${2 * r}" clip-path="url(#moonLitClip)"/>`;
+    return `<svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true" class="moon-echt">
       <defs>
-        <radialGradient id="moonLit" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fffbe8"/><stop offset=".45" stop-color="#ffe9b0"/><stop offset="1" stop-color="#c9a86a"/></radialGradient>
-        <radialGradient id="moonDark" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#2a2044"/><stop offset="1" stop-color="#120c22"/></radialGradient>
+        <clipPath id="moonLitClip"><path d="${limb} ${term} Z"/></clipPath>
+        <radialGradient id="moonShade" cx="50%" cy="50%" r="50%"><stop offset=".78" stop-color="#0b0716" stop-opacity=".78"/><stop offset="1" stop-color="#0b0716" stop-opacity=".9"/></radialGradient>
       </defs>
-      <circle cx="${c}" cy="${c}" r="${r}" fill="url(#moonDark)" stroke="rgba(201,168,106,.35)" stroke-width="1"/>
+      <image href="/brand/mond.webp" x="${c - r}" y="${c - r}" width="${2 * r}" height="${2 * r}" opacity=".55"/>
+      <circle cx="${c}" cy="${c}" r="${r}" fill="url(#moonShade)"/>
       ${lit}
     </svg>`;
   }
