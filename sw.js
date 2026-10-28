@@ -8,7 +8,7 @@
   Bei jeder Aenderung die CACHE_VERSION erhoehen, dann raeumt der SW alte Caches auf.
 */
 
-const CACHE_VERSION = "soraya-v50";
+const CACHE_VERSION = "soraya-v51";
 const OFFLINE_URL = "/offline";
 
 // App-Schale, die vorab gecacht wird.
