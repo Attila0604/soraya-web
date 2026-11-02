@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v51";
+  const APP_VERSION = "web-v52";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;
@@ -3375,6 +3375,39 @@
     }
   }
 
+  // Ein Datumsfeld statt drei: Punkte kommen von selbst (Ungarisch: JJJJ.MM.TT.), die Teile landen in qsDay/qsMonth/qsYear
+  const QS_HU = () => LANG() === "hu";
+  function qsDatumFormat(roh) {
+    const z = String(roh || "").replace(/\D/g, "").slice(0, 8);
+    if (QS_HU()) {
+      const teile = [z.slice(0, 4), z.slice(4, 6), z.slice(6, 8)].filter(Boolean);
+      return teile.join(".") + (z.length === 8 ? "." : "");
+    }
+    const sep = LANG() === "de" ? "." : "/";
+    return [z.slice(0, 2), z.slice(2, 4), z.slice(4, 8)].filter(Boolean).join(sep);
+  }
+  function qsDatumLesen() {
+    const feld = $("qsDate");
+    if (!feld) return;
+    const z = feld.value.replace(/\D/g, "");
+    const [j, m, d] = QS_HU() ? [z.slice(0, 4), z.slice(4, 6), z.slice(6, 8)] : [z.slice(4, 8), z.slice(2, 4), z.slice(0, 2)];
+    const fertig = z.length === 8;
+    [["qsDay", d], ["qsMonth", m], ["qsYear", j]].forEach(([id, v]) => { if ($(id)) $(id).value = fertig && v ? String(+v) : ""; });
+  }
+  function qsDatumZeigen() {
+    const feld = $("qsDate");
+    if (!feld) return;
+    const d = $("qsDay") ? $("qsDay").value : "", m = $("qsMonth") ? $("qsMonth").value : "", j = $("qsYear") ? $("qsYear").value : "";
+    if (!d || !m || !j) { feld.value = ""; return; }
+    const zw = (x) => String(x).padStart(2, "0");
+    feld.value = qsDatumFormat(QS_HU() ? j + zw(m) + zw(d) : zw(d) + zw(m) + j);
+  }
+  function qsDatumPlatzhalter() {
+    const feld = $("qsDate");
+    if (!feld) return;
+    feld.placeholder = { de: "TT.MM.JJJJ", en: "DD/MM/YYYY", it: "GG/MM/AAAA", hu: "ÉÉÉÉ.HH.NN." }[LANG()] || "TT.MM.JJJJ";
+  }
+
   function quickStartValue(id) {
     const node = $(id);
     const raw = node ? node.value.trim() : "";
@@ -3384,6 +3417,7 @@
   }
 
   async function quickStart() {
+    qsDatumLesen();
     const birth = {
       day: quickStartValue("qsDay"), month: quickStartValue("qsMonth"), year: quickStartValue("qsYear"),
       hour: quickStartValue("qsHour"), minute: quickStartValue("qsMinute")
@@ -3433,7 +3467,7 @@
     window.setTimeout(() => {
       const card = $("quickStartCard");
       if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
-      const day = $("qsDay");
+      const day = $("qsDate");
       if (day && day.offsetParent) day.focus({ preventScroll: true });
     }, 120);
   }
@@ -3447,6 +3481,7 @@
       [["qsDay", b.day], ["qsMonth", b.month], ["qsYear", b.year], ["qsHour", b.hour], ["qsMinute", b.minute]].forEach(([id, v]) => {
         if ($(id)) $(id).value = v === null || v === undefined ? "" : v;
       });
+      qsDatumZeigen();
     }
     if (box) box.style.display = "none";
     if (form) form.style.display = "block";
@@ -3467,6 +3502,22 @@
 
   // Schnellstart-Felder: nach 2 Ziffern automatisch weiter, Enter rechnet sofort
   function bindQuickStartFields() {
+    const datum = $("qsDate");
+    if (datum && !datum.dataset.bound) {
+      datum.dataset.bound = "1";
+      qsDatumPlatzhalter();
+      datum.setAttribute("enterkeyhint", "go");
+      datum.addEventListener("input", (event) => {
+        const loeschen = event.inputType && event.inputType.startsWith("delete");
+        // beim Loeschen den Text nicht neu setzen, sonst springt der Punkt sofort zurueck
+        if (!loeschen) datum.value = qsDatumFormat(datum.value);
+        qsDatumLesen();
+        if ($("qsStatus")) status("qsStatus", "");
+      });
+      datum.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { event.preventDefault(); quickStart(); }
+      });
+    }
     const chain = [["qsDay", 2, "qsMonth"], ["qsMonth", 2, "qsYear"], ["qsHour", 2, "qsMinute"],
       ["ivDay", 2, "ivMonth"], ["ivMonth", 2, "ivYear"], ["ivHour", 2, "ivMinute"]];
     chain.forEach(([id, len, next]) => {
@@ -3557,6 +3608,7 @@
       const z = /^(\d{2}):(\d{2})$/.exec(zeit);
       [["qsYear", m[1]], ["qsMonth", String(+m[2])], ["qsDay", String(+m[3])],
        ["qsHour", z ? String(+z[1]) : ""], ["qsMinute", z ? String(+z[2]) : ""]].forEach(([id, v]) => { if ($(id)) $(id).value = v; });
+      qsDatumZeigen();
       return true;
     } catch (error) {
       return false;
