@@ -40,6 +40,11 @@
   body.soraya-confirm-mode .login-shell .login-tabs, body.soraya-confirm-mode .login-shell #loginForm, body.soraya-confirm-mode .login-shell .login-mini-actions,
   body.soraya-confirm-mode .login-shell .register-perks, body.soraya-confirm-mode .login-shell .lang-picker, body.soraya-confirm-mode .login-shell #loginStatus:not(.bad){display:none}
   .login-status:empty{display:none}
+  #loginSubmitButton.is-busy{opacity:.85; cursor:progress}
+  #loginSubmitButton.is-busy::before{content:""; display:inline-block; width:14px; height:14px; margin-right:10px; vertical-align:-2px;
+    border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:soraya-dreh .8s linear infinite}
+  @keyframes soraya-dreh{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){ #loginSubmitButton.is-busy::before{animation:none} }
   .register-consent{display:none; margin:var(--s3) 0 0; font-size:12.5px; line-height:1.55; color:var(--mist-dim); text-align:center}
   .register-consent a{color:var(--gold-soft); text-decoration:underline; text-underline-offset:2px}
   body.soraya-register-mode .register-consent{display:block}
@@ -171,7 +176,7 @@
     </footer>
   </main>
 
-  <script src="/login.js?v=7.0.0" defer></script>
+  <script src="/login.js?v=7.0.1" defer></script>
   <script src="/sw-register.js" defer></script>
 </body>
 </html>
