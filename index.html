@@ -141,10 +141,10 @@
           </div>
           <div id="qsForm">
             <p class="qs-lead">Gib dein Geburtsdatum ein – Soraya zeigt dir sofort dein Sonnen- und Mondzeichen und dein Horoskop für heute. Ganz ohne Konto.</p>
-            <div class="form-row-3">
-              <div><label for="qsDay">Tag</label><input id="qsDay" inputmode="numeric" placeholder="TT" maxlength="2" /></div>
-              <div><label for="qsMonth">Monat</label><input id="qsMonth" inputmode="numeric" placeholder="MM" maxlength="2" /></div>
-              <div><label for="qsYear">Jahr</label><input id="qsYear" inputmode="numeric" placeholder="JJJJ" maxlength="4" /></div>
+            <div class="qs-datum">
+              <label for="qsDate">Geburtsdatum</label>
+              <input id="qsDate" inputmode="numeric" autocomplete="bday" placeholder="TT.MM.JJJJ" maxlength="11" />
+              <input id="qsDay" type="hidden" /><input id="qsMonth" type="hidden" /><input id="qsYear" type="hidden" />
             </div>
             <button class="qs-time-toggle" type="button" id="qsTimeToggle" aria-expanded="false" aria-controls="qsTimeRow">+ Geburtszeit hinzufügen (optional)</button>
             <div class="form-row" id="qsTimeRow" hidden>
