@@ -93,6 +93,16 @@
     node.classList.remove("ok", "bad");
     if (type) node.classList.add(type);
     node.textContent = message;
+    // Am Handy liegt die Meldung oft unter der Tastatur: Tastatur schliessen und Meldung ins Bild holen
+    if (message && type === "bad") {
+      try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+      window.setTimeout(function () {
+        try {
+          var r = node.getBoundingClientRect();
+          if (r.top < 0 || r.bottom > window.innerHeight) node.scrollIntoView({ block: "center", behavior: "smooth" });
+        } catch (e) {}
+      }, 120);
+    }
   }
 
   function setBusy(nextBusy) {
@@ -101,6 +111,21 @@
       var node = el(id);
       if (node) node.disabled = busy;
     });
+    // sichtbare Rueckmeldung direkt am Knopf (die Statuszeile darunter ist am Handy oft verdeckt)
+    var knopf = el("loginSubmitButton");
+    if (knopf) {
+      if (busy) {
+        knopf.textContent = T("Einen Moment …");
+        knopf.classList.add("is-busy");
+        knopf.setAttribute("aria-busy", "true");
+        try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+      } else if (knopf.classList.contains("is-busy")) {
+        // Beschriftung nach dem aktuellen Modus (er kann sich waehrenddessen geaendert haben, z. B. Konto existiert -> Einloggen)
+        knopf.textContent = el("loginMode") && el("loginMode").value === "register" ? T("Registrieren") : T("Einloggen");
+        knopf.classList.remove("is-busy");
+        knopf.removeAttribute("aria-busy");
+      }
+    }
   }
 
   function friendlyError(error, fallback) {
