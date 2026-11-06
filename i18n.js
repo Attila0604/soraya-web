@@ -41,6 +41,21 @@
 
   var lang = detect();
   document.documentElement.lang = lang;
+  // Beschreibung fuer Suchmaschinen und Teilen in der Sprache der Seite (vorher immer Englisch)
+  (function () {
+    var BESCHREIBUNG = {
+      de: "Geburtshoroskop, Tageshoroskop, Chat und Partner-Vergleich – genau berechnet und klar erklärt. Kostenlos starten, auf Deutsch, Englisch, Ungarisch und Italienisch.",
+      en: "Birth chart, daily horoscope, chat and partner match – calculated precisely and explained clearly. Free to start, in German, English, Hungarian and Italian.",
+      hu: "Születési képlet, napi horoszkóp, chat és párkapcsolati összevetés – pontosan kiszámítva, érthetően elmagyarázva. Ingyenesen kipróbálható, magyarul is.",
+      it: "Tema natale, oroscopo del giorno, chat e affinità di coppia – calcolati con precisione e spiegati con chiarezza. Gratis per iniziare, anche in italiano."
+    };
+    try {
+      var text = BESCHREIBUNG[lang] || BESCHREIBUNG.en;
+      ["meta[name=description]", "meta[property='og:description']"].forEach(function (sel) {
+        var m = document.querySelector(sel); if (m) m.setAttribute("content", text);
+      });
+    } catch (e) {}
+  })();
 
   // Kein deutsches Aufblitzen: Die Seiten sind auf Deutsch geschrieben und werden
   // beim Laden uebersetzt. Bis dahin (Bruchteil einer Sekunde) bleibt der Inhalt
