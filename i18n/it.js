@@ -805,5 +805,9 @@ window.SORAYA_STRINGS.it = {
   "Warum?": "Perché?",
   "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Aggiungi nome e luogo di nascita – e tutto diventa <b>personale</b>.",
   "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "Il tuo oroscopo <b>personale</b>, tema natale e chat – gratis con un account.",
-  "Mehr anzeigen": "Mostra di più"
+  "Mehr anzeigen": "Mostra di più",
+  "oder mit E-Mail": "oppure con l'email",
+  "Mit Google anmelden? Öffne Soraya dafür in Chrome: oben rechts auf ⋮ tippen → „Im Browser öffnen“.": "Accedere con Google? Apri Soraya in Chrome: tocca ⋮ in alto a destra → “Apri nel browser”.",
+  "Anmeldung mit Google fehlgeschlagen: {error}": "Accesso con Google non riuscito: {error}",
+  "html.login.google_consent": "Continuando con Google accetti le <a href=\"/nutzungsbedingungen-it\">Condizioni d'uso</a> e l'<a href=\"/datenschutz-it\">Informativa sulla privacy</a>."
 };

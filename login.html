@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <script src="/vendor/supabase-js-2.117.3.js" defer></script>
-  <script src="/config.js?v=6.7.0" defer></script>
+  <script src="/config.js?v=6.8.0" defer></script>
   <!-- Sprachen: nur die gewaehlte Uebersetzung laden (Deutsch braucht keine), dann die Sprach-Logik.
        Gleiche Erkennung wie in i18n.js: ?lang= > gespeichert > Handy-Sprache > Englisch. -->
   <script>(function(){var A=["de","en","hu","it"],c=null;try{var q=new URLSearchParams(location.search).get("lang");if(q&&A.indexOf(q)>=0)c=q}catch(e){}if(!c){try{var s=localStorage.getItem("soraya_lang");if(s&&A.indexOf(s)>=0)c=s}catch(e){}}if(!c){var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||""];for(var i=0;i<l.length;i++){var k=String(l[i]||"").toLowerCase().slice(0,2);if(A.indexOf(k)>=0){c=k;break}}}if(!c)c="en";if(c!=="de")document.write('<script src="/i18n/'+c+'.js"><\/script>')})();</script>
@@ -59,6 +59,15 @@
   .confirm-steps li{margin:4px 0}
   .confirm-steps li::marker{color:var(--gold)}
   .confirm-steps b{color:var(--gold-soft); white-space:nowrap}
+  .google-box{margin:0 0 var(--s3)}
+  .google-button{display:flex; justify-content:center; min-height:44px}
+  .google-consent{margin:10px 0 0; font-size:12px; line-height:1.5; color:var(--mist-dim); text-align:center}
+  .google-consent a{color:var(--gold-soft); text-decoration:underline; text-underline-offset:2px}
+  .google-oder{display:flex; align-items:center; gap:12px; margin:var(--s3) 0 0; color:var(--mist-dim); font-size:12.5px; letter-spacing:.04em}
+  .google-oder::before,.google-oder::after{content:""; flex:1; height:1px; background:var(--line-soft)}
+  .google-inapp{margin:0 0 var(--s3); font-size:12.5px; line-height:1.5; color:var(--mist-dim); text-align:center}
+  body.soraya-confirm-mode .google-box, body.soraya-reset-mode .google-box,
+  body.soraya-confirm-mode .google-inapp, body.soraya-reset-mode .google-inapp{display:none}
   .login-shell .confirm-hint{font-size:12.5px; color:var(--mist-dim); line-height:1.55; margin:0; overflow-wrap:anywhere}
 </style>
 </head>
@@ -85,6 +94,15 @@
         <li>Ohne Zahlungsdaten</li>
         <li>In einer Minute erledigt</li>
       </ul>
+
+      <!-- Mit Google anmelden (Google Identity Services direkt auf unserer Seite -> kein supabase.co im Google-Fenster).
+           Erscheint nur, wenn in config.js eine googleClientId steht und nicht im Facebook-/Instagram-Browser. -->
+      <div id="googleBox" class="google-box" hidden>
+        <div id="googleButton" class="google-button"></div>
+        <p class="google-consent" data-i18n-html="html.login.google_consent">Mit „Weiter mit Google“ akzeptierst du die <a href="/nutzungsbedingungen">Nutzungsbedingungen</a> und die <a href="/datenschutz">Datenschutzerklärung</a>.</p>
+        <div class="google-oder"><span>oder mit E-Mail</span></div>
+      </div>
+      <p id="googleInApp" class="google-inapp" hidden>Mit Google anmelden? Öffne Soraya dafür in Chrome: oben rechts auf ⋮ tippen → „Im Browser öffnen“.</p>
 
       <div id="confirmPanel" class="confirm-panel" hidden>
         <div class="confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.8 7l8.2 6 8.2-6"/></svg></div>
@@ -176,7 +194,7 @@
     </footer>
   </main>
 
-  <script src="/login.js?v=7.0.1" defer></script>
+  <script src="/login.js?v=7.1.0" defer></script>
   <script src="/sw-register.js" defer></script>
 </body>
 </html>

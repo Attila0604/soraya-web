@@ -557,6 +557,98 @@
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Mit Google anmelden: Google Identity Services (Knopf + One Tap) direkt auf unserer Seite, danach
+  // signInWithIdToken bei Supabase. Google zeigt dabei "Weiter zu Soraya" und unsere Adresse (kein supabase.co).
+  // Google erlaubt keine Anmeldung in eingebetteten Browsern (Facebook, Instagram, TikTok) -> dort nur ein Hinweis.
+  // ---------------------------------------------------------------------------
+  var googleNonce = "";
+
+  function googleClientId() {
+    var c = window.SORAYA_PUBLIC_CONFIG || {};
+    return text(c.googleClientId).trim();
+  }
+
+  function inAppBrowser() {
+    return /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|BytedanceWebview|Line\/|Snapchat|Pinterest/i.test(navigator.userAgent || "");
+  }
+
+  async function sha256Hex(value) {
+    var bytes = new TextEncoder().encode(value);
+    var hash = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(hash)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  }
+
+  function loadGoogleScript() {
+    return new Promise(function (resolve, reject) {
+      if (window.google && window.google.accounts && window.google.accounts.id) return resolve();
+      var s = document.createElement("script");
+      s.src = "https://accounts.google.com/gsi/client";
+      s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("Google nicht erreichbar")); };
+      document.head.appendChild(s);
+    });
+  }
+
+  async function onGoogleCredential(response) {
+    if (busy || !response || !response.credential) return;
+    try {
+      setBusy(true);
+      safeSetAfterPath();
+      setLoginStatus(T("Login läuft ..."));
+      var client = getLoginClient();
+      var result = await withTimeout(client.auth.signInWithIdToken({ provider: "google", token: response.credential, nonce: googleNonce }),
+        15000, T("Login dauerte zu lange."));
+      if (result.error) throw result.error;
+      var user = result.data && result.data.user;
+      var meta = (user && user.user_metadata) || {};
+      var name = text(meta.given_name || meta.full_name || meta.name || "").split(" ")[0];
+      try {
+        if (!localStorage.getItem(LOGIN_KEYS.name)) localStorage.setItem(LOGIN_KEYS.name, name || text(user && user.email).split("@")[0]);
+        if (user && user.email) localStorage.setItem(LOGIN_KEYS.lastEmail, user.email);
+      } catch (error) {}
+      var backendOk = await verifyBackendSession(result.data && result.data.session);
+      setLoginStatus(backendOk ? T("✅ Login erfolgreich. Soraya öffnet die App ...") : T("✅ Login erfolgreich. Soraya öffnet die App und prüft Backend erneut ..."), "ok");
+      returnToApp(500);
+    } catch (error) {
+      setLoginStatus(T("Anmeldung mit Google fehlgeschlagen: {error}", { error: friendlyError(error, T("Bitte erneut versuchen.")) }), "bad");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function setupGoogle() {
+    var id = googleClientId();
+    if (!id || !window.crypto || !crypto.subtle) return;
+    if (inAppBrowser()) {
+      if (el("googleInApp")) el("googleInApp").hidden = false;
+      return;
+    }
+    try {
+      var raw = Array.from(crypto.getRandomValues(new Uint8Array(24))).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+      googleNonce = raw;
+      var hashed = await sha256Hex(raw);
+      await loadGoogleScript();
+      var lang = (window.SorayaI18n && window.SorayaI18n.lang) || "de";
+      window.google.accounts.id.initialize({
+        client_id: id, callback: onGoogleCredential, nonce: hashed,
+        ux_mode: "popup", use_fedcm_for_prompt: true, itp_support: true, context: "signin"
+      });
+      var box = el("googleButton");
+      var breite = Math.max(220, Math.min(360, (box && box.clientWidth) || 320));
+      window.google.accounts.id.renderButton(box, {
+        type: "standard", theme: "filled_black", size: "large", shape: "pill", text: "continue_with",
+        logo_alignment: "left", width: breite, locale: lang
+      });
+      if (el("googleBox")) el("googleBox").hidden = false;
+      // One Tap: Google schlaegt das angemeldete Konto vor ("Als Maria fortfahren?") -- nicht bei Passwort-Links
+      if (!/type=(recovery|email|signup)/.test(window.location.search)) window.google.accounts.id.prompt();
+    } catch (error) {
+      if (el("googleBox")) el("googleBox").hidden = true;      // ohne Google bleibt die E-Mail-Anmeldung
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     var mode = el("loginMode") ? el("loginMode").value : "login";
@@ -578,7 +670,9 @@
     setMode((new URLSearchParams(window.location.search)).get("mode") === "register" ? "register" : "login");
     var np = el("newPasswordForm");
     if (np && !np.dataset.bound) { np.dataset.bound = "1"; np.addEventListener("submit", saveNewPassword); }
-    handleMailLink().then(function (war) { if (!war) checkLoginSession(); });
+    handleMailLink().then(function (war) {
+      if (!war) checkLoginSession().then(function (drin) { if (!drin) setupGoogle(); });
+    });
 
     var form = el("loginForm");
     if (form && !form.dataset.bound) {
