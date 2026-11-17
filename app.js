@@ -35,7 +35,7 @@
   let lastSkyTodayAt = 0;
   let skyToday = null;
   let chatBusy = false;
-  const APP_VERSION = "web-v54";
+  const APP_VERSION = "web-v55";
   let chartCache = { personId: null, json: null };
   let sb = null;
   let homeSkyTimer = null;

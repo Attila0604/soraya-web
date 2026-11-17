@@ -10,7 +10,10 @@
 window.SORAYA_PUBLIC_CONFIG = {
   supabaseUrl: "https://qpvniafpajeafcwsrtds.supabase.co",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdm5pYWZwYWplYWZjd3NydGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MDMzNzIsImV4cCI6MjA5Nzk3OTM3Mn0.ns5pRpXdRdeocvdJPTIhvQEWV4zALr8ty0WJCKH_1QY",
-  engineUrl: "https://astro-engine-production-7b18.up.railway.app/"
+  engineUrl: "https://astro-engine-production-7b18.up.railway.app/",
+  // Google-Anmeldung: OAuth-Client-ID (Typ "Webanwendung") aus der Google Cloud Console. Sie ist oeffentlich
+  // (steht ohnehin im Seitenquelltext) -- das Client-Secret gehoert NUR in Supabase, nie hierher. Leer = kein Google-Knopf.
+  googleClientId: ""
 };
 
 /* Alte lokale Verbindung überschreiben, damit keine falsche Backend-URL im Browser hängen bleibt. */

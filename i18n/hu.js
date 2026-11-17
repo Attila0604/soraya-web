@@ -805,5 +805,9 @@ window.SORAYA_STRINGS.hu = {
   "Warum?": "Miért?",
   "Ergänze Name und Geburtsort – dann wird alles <b>persönlich</b>.": "Add meg a neved és a születési helyed – így minden <b>rólad</b> fog szólni.",
   "Dein <b>persönliches</b> Horoskop, Geburtshoroskop und Chat – kostenlos mit Konto.": "<b>Személyes</b> horoszkóp, születési képlet és chat – ingyenes fiókkal.",
-  "Mehr anzeigen": "Továbbiak"
+  "Mehr anzeigen": "Továbbiak",
+  "oder mit E-Mail": "vagy e-maillel",
+  "Mit Google anmelden? Öffne Soraya dafür in Chrome: oben rechts auf ⋮ tippen → „Im Browser öffnen“.": "Belépnél Google-lel? Nyisd meg a Sorayát Chrome-ban: koppints jobb fent a ⋮ jelre → „Megnyitás böngészőben”.",
+  "Anmeldung mit Google fehlgeschlagen: {error}": "A Google-bejelentkezés nem sikerült: {error}",
+  "html.login.google_consent": "A Google-lel való folytatással elfogadod a <a href=\"/nutzungsbedingungen-hu\">Felhasználási feltételeket</a> és az <a href=\"/datenschutz-hu\">Adatvédelmi tájékoztatót</a>."
 };
