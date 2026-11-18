@@ -37,6 +37,9 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 
 - Android: Play-Store-App `com.sorayaluxuryastroguide.app.twa` (TWA, gebaut mit **PWABuilder**; für ein
   neues App-Icon muss ein neues AAB mit dem **alten** Signing-Key und höherem Versionscode gebaut werden).
+  **18.11.2026:** Version **3 (1.0.2)** mit neuem Portal-Symbol veröffentlicht (PWABuilder „Use mine“, Upload-Schlüssel
+  = `signing.keystore` vom 05.08. in Attilas OneDrive „Projekten/Soraya/Soraya - Google Play package“). Nächstes Update:
+  Versionscode 4. Offen: Händlerstatus (EU/DSA) in der Play Console bis 01.02.2027 angeben – Attilas Entscheidung.
 - Deploy: Merge auf `main` → Vercel/Railway deployen automatisch. Status prüfen mit
   `gh api repos/Attila0604/<repo>/commits/main/status`. Reihenfolge bei Abhängigkeiten: erst Engine, dann Web.
 - Arbeitsweise bisher: Feature-Branch → PR (über GitHub-MCP) → Squash-Merge mit vollem `expectedHeadSha`
@@ -193,7 +196,7 @@ Dashboard „Content Studio“ (`dashboard.html`) mit Reitern **Heute, Plan, Stu
 - Es fehlt Reichweite. Supabase-Abfragen gehen über den Supabase-MCP (Tabellen u. a. `people`, `analyses`,
   `synastries`, `public_usage(day, kind, n)`, `app_events`).
 - Ideen für später: Google-Ads-App-Kampagne (Texte/Bilder liefert der Agent), TikTok-Anbindung,
-  Instagram-Insights in die Lernschleife, neues App-Icon im Play Store (neues AAB über PWABuilder).
+  Instagram-Insights in die Lernschleife.
 
 ## Tests (bisher lokal im Scratchpad, nicht im Repo)
 
