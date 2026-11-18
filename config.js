@@ -13,7 +13,7 @@ window.SORAYA_PUBLIC_CONFIG = {
   engineUrl: "https://astro-engine-production-7b18.up.railway.app/",
   // Google-Anmeldung: OAuth-Client-ID (Typ "Webanwendung") aus der Google Cloud Console. Sie ist oeffentlich
   // (steht ohnehin im Seitenquelltext) -- das Client-Secret gehoert NUR in Supabase, nie hierher. Leer = kein Google-Knopf.
-  googleClientId: ""
+  googleClientId: "912901754921-u6l8fri6ov9inaetbnr0g0qumu4id85c.apps.googleusercontent.com"
 };
 
 /* Alte lokale Verbindung überschreiben, damit keine falsche Backend-URL im Browser hängen bleibt. */

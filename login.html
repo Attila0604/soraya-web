@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <script src="/vendor/supabase-js-2.117.3.js" defer></script>
-  <script src="/config.js?v=6.8.0" defer></script>
+  <script src="/config.js?v=6.9.0" defer></script>
   <!-- Sprachen: nur die gewaehlte Uebersetzung laden (Deutsch braucht keine), dann die Sprach-Logik.
        Gleiche Erkennung wie in i18n.js: ?lang= > gespeichert > Handy-Sprache > Englisch. -->
   <script>(function(){var A=["de","en","hu","it"],c=null;try{var q=new URLSearchParams(location.search).get("lang");if(q&&A.indexOf(q)>=0)c=q}catch(e){}if(!c){try{var s=localStorage.getItem("soraya_lang");if(s&&A.indexOf(s)>=0)c=s}catch(e){}}if(!c){var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||""];for(var i=0;i<l.length;i++){var k=String(l[i]||"").toLowerCase().slice(0,2);if(A.indexOf(k)>=0){c=k;break}}}if(!c)c="en";if(c!=="de")document.write('<script src="/i18n/'+c+'.js"><\/script>')})();</script>
