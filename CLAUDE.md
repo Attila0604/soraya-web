@@ -62,6 +62,11 @@ weiterarbeiten kann. Es gilt für alle fünf Repos (siehe unten). Stand: Oktober
 - **„Folge Soraya“ (24.10.):** runde Symbole Instagram `soraya.astroguide` + TikTok `@soraya.astroguide` über der Fußzeile
   (App: `.social-footer`, Landing: `.f-social`). Facebook-Seite: `https://www.facebook.com/profile.php?id=61593475273478`
   (auch in Landing-`sameAs`).
+- **Mit Google anmelden (18.11.):** `/login` zeigt „Weiter mit Google“ (Google Identity Services + One Tap, danach
+  `supabase.auth.signInWithIdToken` mit Nonce) – kein supabase.co im Google-Fenster. Öffentliche Client-ID in `config.js`
+  (`googleClientId`), Secret nur in Supabase (Provider Google, „Skip nonce checks“ AUS). Google-Cloud-Projekt „Soraya“,
+  OAuth-Client „Soraya Web“ (JS-Quelle app.sorayaluxuryastroguide.com), App „In Produktion“, ohne Logo (sonst Prüfung).
+  Im Facebook-/Instagram-Browser blockiert Google → dort Hinweis „In Chrome öffnen“. Von Attila getestet: funktioniert.
 - Logo „Portal“ (Art-déco-Bogen mit Mond und Stern) in `brand/`, Favicons/Icons im Root.
 
 ## Landingpage (`soraya-landing`)
