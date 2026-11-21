@@ -373,6 +373,7 @@ window.SORAYA_STRINGS.hu = {
   "Radix": "Radix",
   "Reading": "Értelmezés",
   "Registrieren": "Regisztráció",
+  "Meintest du {email}? Wir haben es korrigiert – bitte prüfen und noch einmal auf „Registrieren“ tippen.": "Erre gondoltál: {email}? Kijavítottuk – kérlek, ellenőrizd, és koppints újra a „Regisztráció” gombra.",
   "Registrierung fehlgeschlagen: {error}": "A regisztráció nem sikerült: {error}",
   "Registrierung läuft ...": "Regisztráció folyamatban ...",
   "Richte deine Energie auf eine Sache, die wirklich wichtig ist.": "Az energiádat egyetlen dologra irányítsd, ami igazán fontos.",
