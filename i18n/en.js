@@ -373,6 +373,7 @@ window.SORAYA_STRINGS.en = {
   "Radix": "Natal",
   "Reading": "Reading",
   "Registrieren": "Sign up",
+  "Meintest du {email}? Wir haben es korrigiert – bitte prüfen und noch einmal auf „Registrieren“ tippen.": "Did you mean {email}? We corrected it – please check and tap “Register” again.",
   "Registrierung fehlgeschlagen: {error}": "Sign-up failed: {error}",
   "Registrierung läuft ...": "Signing up ...",
   "Richte deine Energie auf eine Sache, die wirklich wichtig ist.": "Focus your energy on one thing that truly matters.",

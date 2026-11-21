@@ -371,12 +371,53 @@
     }
   }
 
+  // Haeufige Tippfehler in der E-Mail-Adresse (z. B. "30gmail.com", "gmial.com", "freemial.hu"):
+  // Vorschlag zeigen, bevor die Bestaetigungs-Mail ins Leere geht
+  var BEKANNTE_DOMAINS = ["gmail.com", "freemail.hu", "citromail.hu", "yahoo.com", "hotmail.com", "outlook.com",
+    "icloud.com", "gmx.at", "gmx.de", "gmx.net", "web.de", "t-online.de", "aol.com", "live.com", "outlook.hu", "hotmail.hu",
+    "chello.hu", "upcmail.hu", "aon.at", "a1.net", "libero.it", "virgilio.it", "yahoo.de", "yahoo.it"];
+  var gewarnt = "";
+
+  function abstand(a, b) {
+    var d = [];
+    for (var i = 0; i <= a.length; i++) { d[i] = [i]; }
+    for (var j = 1; j <= b.length; j++) { d[0][j] = j; }
+    for (i = 1; i <= a.length; i++) {
+      for (j = 1; j <= b.length; j++) {
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+    }
+    return d[a.length][b.length];
+  }
+
+  function emailVorschlag(email) {
+    var at = email.lastIndexOf("@");
+    if (at < 1) return "";
+    var name = email.slice(0, at), domain = email.slice(at + 1);
+    if (BEKANNTE_DOMAINS.indexOf(domain) >= 0) return "";
+    var best = "", bestD = 99;
+    BEKANNTE_DOMAINS.forEach(function (k) {
+      // Zeichen davor ("30gmail.com") oder kleiner Tippfehler ("gmial.com", "gmail.co")
+      var d = domain.length > k.length && domain.slice(-k.length) === k && /^[^.]{1,3}$/.test(domain.slice(0, -k.length)) ? 1 : abstand(domain, k);
+      if (d < bestD) { bestD = d; best = k; }
+    });
+    return bestD > 0 && bestD <= 2 ? name + "@" + best : "";
+  }
+
   async function signUp() {
     if (busy) return;
 
     try {
       setBusy(true);
       var fields = validateLoginFields(true);
+      var vorschlag = emailVorschlag(fields.email);
+      if (vorschlag && gewarnt !== fields.email) {
+        // einmal nachfragen: Feld wird korrigiert, wer seine Adresse wirklich so meint, tippt sie einfach erneut ein
+        gewarnt = fields.email;
+        el("loginEmail").value = vorschlag;
+        throw hint(T("Meintest du {email}? Wir haben es korrigiert – bitte prüfen und noch einmal auf „Registrieren“ tippen.", { email: vorschlag }));
+      }
       // Leerzeichen am Rand entfernen (meist versehentlich beim Kopieren)
       var password = fields.password.trim();
       if (password.length < 6) throw hint(T("Bitte ein Passwort mit mindestens 6 Zeichen eingeben."));

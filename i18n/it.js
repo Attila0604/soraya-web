@@ -373,6 +373,7 @@ window.SORAYA_STRINGS.it = {
   "Radix": "Radix",
   "Reading": "Lettura",
   "Registrieren": "Registrati",
+  "Meintest du {email}? Wir haben es korrigiert – bitte prüfen und noch einmal auf „Registrieren“ tippen.": "Intendevi {email}? L’abbiamo corretto – controlla e tocca di nuovo “Registrati”.",
   "Registrierung fehlgeschlagen: {error}": "Registrazione non riuscita: {error}",
   "Registrierung läuft ...": "Registrazione in corso ...",
   "Richte deine Energie auf eine Sache, die wirklich wichtig ist.": "Concentra la tua energia su una cosa davvero importante.",
